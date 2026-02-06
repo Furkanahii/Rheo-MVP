@@ -1,0 +1,677 @@
+[
+  {
+    "id": "variables_1_97121_10",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "variables",
+    "code_snippet": "n = 7\nprint(n)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "7",
+    "wrong_options": [
+      "8",
+      "6",
+      "Error"
+    ],
+    "explanation": "print() fonksiyonu n değişkeninin değerini ekrana basar."
+  },
+  {
+    "id": "variables_2_97121_6",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "variables",
+    "code_snippet": "x = 5\nx = x + 4\nprint(x)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "9",
+    "wrong_options": [
+      "5",
+      "4",
+      "10"
+    ],
+    "explanation": "x önce 5 değerini alıyor, sonra + 4 işlemiyle 9 oluyor."
+  },
+  {
+    "id": "variables_2_97121_2",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "variables",
+    "code_snippet": "a = 9\na = a + 3\nprint(a)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "12",
+    "wrong_options": [
+      "9",
+      "3",
+      "13"
+    ],
+    "explanation": "a önce 9 değerini alıyor, sonra + 3 işlemiyle 12 oluyor."
+  },
+  {
+    "id": "loops_2_97121_13",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "loops",
+    "code_snippet": "toplam = 0\nfor i in range(7):\n    toplam += i\nprint(toplam)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "21",
+    "wrong_options": [
+      "28",
+      "6",
+      "42"
+    ],
+    "explanation": "0+1+2+...+6 = 21. range(7) 0'dan 6'e kadar toplar."
+  },
+  {
+    "id": "loops_1_97121_10",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "loops",
+    "code_snippet": "for i in range(3):\n    print(i)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "0\n1\n2",
+    "wrong_options": [
+      "1\n2\n3",
+      "0\n1\n2\n3",
+      "3"
+    ],
+    "explanation": "range(3) 0'dan 2'e kadar sayılar üretir (3 dahil değil)."
+  },
+  {
+    "id": "if_else_2_97121_1",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "x = 13\nif x < 8:\n    print('Pozitif')\nelse:\n    print('Negatif')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Negatif",
+    "wrong_options": [
+      "Pozitif",
+      "Pozitif\nNegatif",
+      "Error"
+    ],
+    "explanation": "13 küçüktür 8 olmadığı için else bloğu çalışır."
+  },
+  {
+    "id": "loops_2_97121_7",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "loops",
+    "code_snippet": "for i in range(2, 5):\n    print(i)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "2\n3\n4",
+    "wrong_options": [
+      "2\n3\n4\n5",
+      "0\n1\n2\n3\n4",
+      "1\n2\n3\n4"
+    ],
+    "explanation": "range(2, 5) 2'den başlar, 5'e kadar gider (5 dahil değil)."
+  },
+  {
+    "id": "loops_1_97121_12",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "loops",
+    "code_snippet": "for i in range(5):\n    print(i)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "0\n1\n2\n3\n4",
+    "wrong_options": [
+      "1\n2\n3\n4\n5",
+      "0\n1\n2\n3\n4\n5",
+      "5"
+    ],
+    "explanation": "range(5) 0'dan 4'e kadar sayılar üretir (5 dahil değil)."
+  },
+  {
+    "id": "if_else_1_97121_10",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "if_else",
+    "code_snippet": "n = 11\nif n > 9:\n    print('Doğru')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Doğru",
+    "wrong_options": [
+      "(Çıktı yok)",
+      "Error",
+      "11"
+    ],
+    "explanation": "11 büyüktür 9 olduğu için koşul doğru, 'Doğru' yazdırılır."
+  },
+  {
+    "id": "if_else_2_97121_13",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "x = 81\nif x >= 90:\n    print('A')\nelif x >= 70:\n    print('B')\nelif x >= 50:\n    print('C')\nelse:\n    print('F')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "B",
+    "wrong_options": [
+      "A",
+      "C",
+      "F"
+    ],
+    "explanation": "81 >= 70 ve < 90 olduğu için 'B' yazdırılır."
+  },
+  {
+    "id": "if_else_2_97121_7",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "y = 14\nif y > 9:\n    print('Büyük')\nelse:\n    print('Küçük')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Büyük",
+    "wrong_options": [
+      "Küçük",
+      "Büyük\nKüçük",
+      "Error"
+    ],
+    "explanation": "14 büyüktür 9 olduğu için if bloğu çalışır."
+  },
+  {
+    "id": "loops_1_97121_4",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "loops",
+    "code_snippet": "sayac = 0\nfor i in range(7):\n    sayac += 1\nprint(sayac)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "7",
+    "wrong_options": [
+      "6",
+      "8",
+      "0"
+    ],
+    "explanation": "Döngü 7 kez çalışır (i: 0, 1, 2, ..., 6)."
+  },
+  {
+    "id": "loops_2_97121_1",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "loops",
+    "code_snippet": "for i in range(3, 7):\n    print(i)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3\n4\n5\n6",
+    "wrong_options": [
+      "3\n4\n5\n6\n7",
+      "0\n1\n2\n3\n4\n5\n6",
+      "2\n3\n4\n5\n6"
+    ],
+    "explanation": "range(3, 7) 3'den başlar, 7'e kadar gider (7 dahil değil)."
+  },
+  {
+    "id": "loops_1_97121_5",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "loops",
+    "code_snippet": "for i in range(3):\n    print(i)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "0\n1\n2",
+    "wrong_options": [
+      "1\n2\n3",
+      "0\n1\n2\n3",
+      "3"
+    ],
+    "explanation": "range(3) 0'dan 2'e kadar sayılar üretir (3 dahil değil)."
+  },
+  {
+    "id": "variables_2_97121_3",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "variables",
+    "code_snippet": "y = 7\ny = y + 3\nprint(y)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "10",
+    "wrong_options": [
+      "7",
+      "3",
+      "11"
+    ],
+    "explanation": "y önce 7 değerini alıyor, sonra + 3 işlemiyle 10 oluyor."
+  },
+  {
+    "id": "loops_1_97121_2",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "loops",
+    "code_snippet": "for i in range(3):\n    print(i)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "0\n1\n2",
+    "wrong_options": [
+      "1\n2\n3",
+      "0\n1\n2\n3",
+      "3"
+    ],
+    "explanation": "range(3) 0'dan 2'e kadar sayılar üretir (3 dahil değil)."
+  },
+  {
+    "id": "loops_1_97121_15",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "loops",
+    "code_snippet": "sayac = 0\nfor i in range(3):\n    sayac += 1\nprint(sayac)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "2",
+      "4",
+      "0"
+    ],
+    "explanation": "Döngü 3 kez çalışır (i: 0, 1, 2, ..., 2)."
+  },
+  {
+    "id": "variables_1_97121_9",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "variables",
+    "code_snippet": "a = 3\nval = 5\nprint(a + val)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "8",
+    "wrong_options": [
+      "15",
+      "35",
+      "7"
+    ],
+    "explanation": "Python'da + operatörü sayıları toplar."
+  },
+  {
+    "id": "loops_2_97121_14",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "loops",
+    "code_snippet": "toplam = 0\nfor i in range(7):\n    toplam += i\nprint(toplam)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "21",
+    "wrong_options": [
+      "28",
+      "6",
+      "42"
+    ],
+    "explanation": "0+1+2+...+6 = 21. range(7) 0'dan 6'e kadar toplar."
+  },
+  {
+    "id": "loops_2_97121_8",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "loops",
+    "code_snippet": "for i in range(1, 6):\n    print(i)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1\n2\n3\n4\n5",
+    "wrong_options": [
+      "1\n2\n3\n4\n5\n6",
+      "0\n1\n2\n3\n4\n5",
+      "0\n1\n2\n3\n4\n5"
+    ],
+    "explanation": "range(1, 6) 1'den başlar, 6'e kadar gider (6 dahil değil)."
+  },
+  {
+    "id": "if_else_2_97121_2",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "x = 3\nif x < 5:\n    print('Büyük')\nelse:\n    print('Küçük')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Büyük",
+    "wrong_options": [
+      "Küçük",
+      "Büyük\nKüçük",
+      "Error"
+    ],
+    "explanation": "3 küçüktür 5 olduğu için if bloğu çalışır."
+  },
+  {
+    "id": "if_else_2_97121_14",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "val = 1\nif val < 10:\n    print('Doğru')\nelse:\n    print('Yanlış')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Doğru",
+    "wrong_options": [
+      "Yanlış",
+      "Doğru\nYanlış",
+      "Error"
+    ],
+    "explanation": "1 küçüktür 10 olduğu için if bloğu çalışır."
+  },
+  {
+    "id": "variables_1_97121_12",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "variables",
+    "code_snippet": "a = 8\nprint(a)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "8",
+    "wrong_options": [
+      "9",
+      "7",
+      "Error"
+    ],
+    "explanation": "print() fonksiyonu a değişkeninin değerini ekrana basar."
+  },
+  {
+    "id": "if_else_2_97121_8",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "y = 1\nif y > 9:\n    print('Büyük')\nelse:\n    print('Küçük')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Küçük",
+    "wrong_options": [
+      "Büyük",
+      "Büyük\nKüçük",
+      "Error"
+    ],
+    "explanation": "1 büyüktür 9 olmadığı için else bloğu çalışır."
+  },
+  {
+    "id": "variables_1_97121_11",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "variables",
+    "code_snippet": "a = 15\nnum = 2\nprint(a - num)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "13",
+    "wrong_options": [
+      "12",
+      "14",
+      "-13"
+    ],
+    "explanation": "Python'da - operatörü sayıları çıkarır."
+  },
+  {
+    "id": "if_else_2_97121_11",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "x = 10\nif x >= 90:\n    print('A')\nelif x >= 70:\n    print('B')\nelif x >= 50:\n    print('C')\nelse:\n    print('F')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "F",
+    "wrong_options": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "10 < 50 olduğu için 'F' yazdırılır."
+  },
+  {
+    "id": "loops_2_97121_9",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "loops",
+    "code_snippet": "for i in range(1, 5):\n    print(i)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1\n2\n3\n4",
+    "wrong_options": [
+      "1\n2\n3\n4\n5",
+      "0\n1\n2\n3\n4",
+      "0\n1\n2\n3\n4"
+    ],
+    "explanation": "range(1, 5) 1'den başlar, 5'e kadar gider (5 dahil değil)."
+  },
+  {
+    "id": "variables_1_97121_13",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "variables",
+    "code_snippet": "b = 19\nprint(b)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "19",
+    "wrong_options": [
+      "20",
+      "18",
+      "Error"
+    ],
+    "explanation": "print() fonksiyonu b değişkeninin değerini ekrana basar."
+  },
+  {
+    "id": "variables_2_97121_15",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "variables",
+    "code_snippet": "b = 8\nb = b - 3\nprint(b)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "5",
+    "wrong_options": [
+      "8",
+      "3",
+      "12"
+    ],
+    "explanation": "b önce 8 değerini alıyor, sonra - 3 işlemiyle 5 oluyor."
+  },
+  {
+    "id": "variables_1_97121_5",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "variables",
+    "code_snippet": "x = 7\nnum = 7\nprint(x * num)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "49",
+    "wrong_options": [
+      "50",
+      "48",
+      "14"
+    ],
+    "explanation": "Python'da * operatörü sayıları çarpar."
+  },
+  {
+    "id": "if_else_2_97121_3",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "val = 11\nif val < 8:\n    print('Pozitif')\nelse:\n    print('Negatif')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Negatif",
+    "wrong_options": [
+      "Pozitif",
+      "Pozitif\nNegatif",
+      "Error"
+    ],
+    "explanation": "11 küçüktür 8 olmadığı için else bloğu çalışır."
+  },
+  {
+    "id": "if_else_1_97121_6",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "if_else",
+    "code_snippet": "num = 3\nif num < 10:\n    print('Eşit')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Eşit",
+    "wrong_options": [
+      "(Çıktı yok)",
+      "Error",
+      "3"
+    ],
+    "explanation": "3 küçüktür 10 olduğu için koşul doğru, 'Eşit' yazdırılır."
+  },
+  {
+    "id": "variables_1_97121_14",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "variables",
+    "code_snippet": "y = 9\nval = 3\nprint(y - val)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "6",
+    "wrong_options": [
+      "5",
+      "7",
+      "-6"
+    ],
+    "explanation": "Python'da - operatörü sayıları çıkarır."
+  },
+  {
+    "id": "variables_2_97121_8",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "variables",
+    "code_snippet": "b = 6\nb = b - 3\nprint(b)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "6",
+      "3",
+      "10"
+    ],
+    "explanation": "b önce 6 değerini alıyor, sonra - 3 işlemiyle 3 oluyor."
+  },
+  {
+    "id": "variables_1_97121_4",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "variables",
+    "code_snippet": "y = 4\nn = 3\nprint(y - n)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1",
+    "wrong_options": [
+      "0",
+      "2",
+      "-1"
+    ],
+    "explanation": "Python'da - operatörü sayıları çıkarır."
+  },
+  {
+    "id": "loops_2_97121_3",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "loops",
+    "code_snippet": "toplam = 0\nfor i in range(5):\n    toplam += i\nprint(toplam)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "10",
+    "wrong_options": [
+      "15",
+      "4",
+      "20"
+    ],
+    "explanation": "0+1+2+...+4 = 10. range(5) 0'dan 4'e kadar toplar."
+  },
+  {
+    "id": "if_else_1_97121_5",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "if_else",
+    "code_snippet": "num = 4\nif num < 9:\n    print('Eşit')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Eşit",
+    "wrong_options": [
+      "(Çıktı yok)",
+      "Error",
+      "4"
+    ],
+    "explanation": "4 küçüktür 9 olduğu için koşul doğru, 'Eşit' yazdırılır."
+  },
+  {
+    "id": "if_else_1_97121_9",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "if_else",
+    "code_snippet": "n = 14\nif n > 8:\n    print('Doğru')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Doğru",
+    "wrong_options": [
+      "(Çıktı yok)",
+      "Error",
+      "14"
+    ],
+    "explanation": "14 büyüktür 8 olduğu için koşul doğru, 'Doğru' yazdırılır."
+  },
+  {
+    "id": "variables_2_97121_7",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "variables",
+    "code_snippet": "x = 4\nx = x + 4\nprint(x)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "8",
+    "wrong_options": [
+      "4",
+      "4",
+      "9"
+    ],
+    "explanation": "x önce 4 değerini alıyor, sonra + 4 işlemiyle 8 oluyor."
+  },
+  {
+    "id": "if_else_2_97121_12",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "x = 2\nif x >= 90:\n    print('A')\nelif x >= 70:\n    print('B')\nelif x >= 50:\n    print('C')\nelse:\n    print('F')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "F",
+    "wrong_options": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "2 < 50 olduğu için 'F' yazdırılır."
+  },
+  {
+    "id": "loops_2_97121_11",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "loops",
+    "code_snippet": "toplam = 0\nfor i in range(6):\n    toplam += i\nprint(toplam)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "15",
+    "wrong_options": [
+      "21",
+      "5",
+      "30"
+    ],
+    "explanation": "0+1+2+...+5 = 15. range(6) 0'dan 5'e kadar toplar."
+  },
+  {
+    "id": "loops_1_97121_6",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "loops",
+    "code_snippet": "sayac = 0\nfor i in range(8):\n    sayac += 1\nprint(sayac)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "8",
+    "wrong_options": [
+      "7",
+      "9",
+      "0"
+    ],
+    "explanation": "Döngü 8 kez çalışır (i: 0, 1, 2, ..., 7)."
+  },
+  {
+    "id": "if_else_2_97121_4",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "y = 15\nif y > 10:\n    print('Pozitif')\nelse:\n    print('Negatif')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Pozitif",
+    "wrong_options": [
+      "Negatif",
+      "Pozitif\nNegatif",
+      "Error"
+    ],
+    "explanation": "15 büyüktür 10 olduğu için if bloğu çalışır."
+  },
+  {
+    "id": "variables_2_97120_1",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "variables",
+    "code_snippet": "a = 3\na = a - 2\nprint(a)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1",
+    "wrong_options": [
+      "3",
+      "2",
+      "6"
+    ],
+    "explanation": "a önce 3 değerini alıyor, sonra - 2 işlemiyle 1 oluyor."
+  },
+  {
+    "id": "if_else_2_97121_15",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "if_else",
+    "code_snippet": "puan = 74\nif puan >= 90:\n    print('A')\nelif puan >= 70:\n    print('B')\nelif puan >= 50:\n    print('C')\nelse:\n    print('F')",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "B",
+    "wrong_options": [
+      "A",
+      "C",
+      "F"
+    ],
+    "explanation": "74 >= 70 ve < 90 olduğu için 'B' yazdırılır."
+  }
+]
