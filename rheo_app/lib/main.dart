@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'ui/onboarding_screen.dart';
 import 'ui/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  runApp(const RheoApp());
+  
+  // Check if user has seen onboarding
+  final hasSeenOnboarding = await OnboardingScreen.hasSeenOnboarding();
+  
+  runApp(RheoApp(showOnboarding: !hasSeenOnboarding));
 }
 
 class RheoApp extends StatelessWidget {
-  const RheoApp({super.key});
+  final bool showOnboarding;
+  
+  const RheoApp({super.key, required this.showOnboarding});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +32,7 @@ class RheoApp extends StatelessWidget {
           surface: Color(0xFF1E1E1E),
         ),
       ),
-      home: const HomeScreen(),
+      home: showOnboarding ? const OnboardingScreen() : const HomeScreen(),
     );
   }
 }
