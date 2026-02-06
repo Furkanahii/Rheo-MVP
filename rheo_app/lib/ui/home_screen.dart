@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../logic/storage_service.dart';
+import '../logic/sound_service.dart';
 import '../logic/elo_calculator.dart';
 import 'quiz_screen.dart';
+import 'stats_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,11 +19,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initStorage();
+    _initServices();
   }
 
-  Future<void> _initStorage() async {
+  Future<void> _initServices() async {
     await storageService.init();
+    await soundService.init();
     setState(() => _isLoading = false);
   }
 
@@ -40,6 +44,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF1E1E1E),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1E1E1E),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart, color: Colors.white),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const StatsScreen()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            ).then((_) => setState(() {})),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -68,6 +92,31 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               
               const SizedBox(height: 48),
+              
+              // Daily Streak Card
+              if (!progress.playedToday)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withAlpha(30),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.withAlpha(100)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.local_fire_department, 
+                        color: Colors.orange, size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Bugün henüz oynamadın! Serini korumak için hemen başla.',
+                          style: TextStyle(color: Colors.orange[200], fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               
               // Stats Card
               Container(
@@ -126,10 +175,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStat('🔥 Seri', '${progress.currentStreak}'),
-                        _buildStat('🏆 En İyi', '${progress.bestStreak}'),
-                        _buildStat('📊 Doğruluk', 
-                          '${progress.accuracy.toStringAsFixed(0)}%'),
+                        _buildStat('🔥', '${progress.currentStreak}', 'Seri'),
+                        _buildStat('🏆', '${progress.bestStreak}', 'En İyi'),
+                        _buildStat('📊', '${progress.accuracy.toStringAsFixed(0)}%', 'Doğruluk'),
                       ],
                     ),
                   ],
@@ -146,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const QuizScreen()),
-                    ).then((_) => setState(() {})); // Refresh stats on return
+                    ).then((_) => setState(() {}));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00D9FF),
@@ -169,7 +217,6 @@ class _HomeScreenState extends State<HomeScreen> {
               
               const SizedBox(height: 16),
               
-              // Total questions answered
               Text(
                 '${progress.totalQuestions} soru çözüldü',
                 style: TextStyle(
@@ -186,9 +233,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStat(String label, String value) {
+  Widget _buildStat(String icon, String value, String label) {
     return Column(
       children: [
+        Text(icon, style: const TextStyle(fontSize: 24)),
+        const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(

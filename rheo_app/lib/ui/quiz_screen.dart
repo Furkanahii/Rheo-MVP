@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import '../logic/game_controller.dart';
 import '../logic/elo_calculator.dart';
+import '../logic/sound_service.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -60,22 +63,31 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _onAnswerSelected(String answer) async {
-    if (_selectedAnswer != null) return; // Already answered
+    if (_selectedAnswer != null) return;
 
+    final oldRank = EloCalculator.getRankTitle(_controller.currentElo);
     final isCorrect = await _controller.checkAnswer(answer);
+    final newRank = EloCalculator.getRankTitle(_controller.currentElo);
+    
     setState(() {
       _selectedAnswer = answer;
       _isCorrect = isCorrect;
     });
 
-    // Play animation
+    // Play sound and animation
     if (isCorrect) {
       _confettiController.play();
+      soundService.playCorrect();
+      
+      // Check for rank up
+      if (newRank != oldRank) {
+        soundService.playLevelUp();
+      }
     } else {
       _shakeController.forward().then((_) => _shakeController.reset());
+      soundService.playWrong();
     }
 
-    // Show explanation after a short delay
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) {
       setState(() => _showExplanation = true);
@@ -202,7 +214,6 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
           style: const TextStyle(color: Colors.white),
         ),
         actions: [
-          // ELO Display
           Container(
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -215,7 +226,6 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
-          // Streak Display
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -231,7 +241,6 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
       ),
       body: Stack(
         children: [
-          // Confetti overlay
           Align(
             alignment: Alignment.topCenter,
             child: ConfettiWidget(
@@ -248,14 +257,12 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
             ),
           ),
           
-          // Main content
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Progress bar
                   LinearProgressIndicator(
                     value: _controller.progress,
                     backgroundColor: const Color(0xFF3D3D3D),
@@ -263,7 +270,6 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                   ),
                   const SizedBox(height: 16),
                   
-                  // Difficulty badge
                   Row(
                     children: [
                       Container(
@@ -286,7 +292,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                   ),
                   const SizedBox(height: 16),
                   
-                  // Code snippet with shake animation
+                  // Syntax Highlighted Code
                   AnimatedBuilder(
                     animation: _shakeAnimation,
                     builder: (context, child) {
@@ -296,9 +302,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2D2D2D),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: _selectedAnswer == null 
@@ -307,20 +311,24 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                           width: _selectedAnswer == null ? 1 : 2,
                         ),
                       ),
-                      child: Text(
-                        question.codeSnippet,
-                        style: const TextStyle(
-                          fontFamily: 'monospace',
-                          fontSize: 16,
-                          color: Color(0xFF00D9FF),
-                          height: 1.5,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(11),
+                        child: HighlightView(
+                          question.codeSnippet,
+                          language: 'python',
+                          theme: atomOneDarkTheme,
+                          padding: const EdgeInsets.all(16),
+                          textStyle: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 15,
+                            height: 1.5,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   
-                  // Question text
                   Text(
                     question.questionText,
                     style: const TextStyle(
@@ -332,7 +340,6 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                   ),
                   const SizedBox(height: 16),
                   
-                  // Answer options
                   Expanded(
                     child: ListView.builder(
                       itemCount: _shuffledOptions.length,
@@ -363,7 +370,6 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                     ),
                   ),
                   
-                  // Explanation card (shown after answering)
                   if (_showExplanation) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
