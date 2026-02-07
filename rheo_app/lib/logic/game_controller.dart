@@ -38,10 +38,19 @@ class GameController {
   }
 
   /// Load questions from assets/questions.json
-  Future<void> loadQuestions({int? maxQuestions}) async {
+  /// [language] filter: 'python', 'java', 'javascript', or null for all
+  Future<void> loadQuestions({int? maxQuestions, String? language}) async {
     final jsonString = await rootBundle.loadString('assets/questions.json');
     final List<dynamic> jsonList = json.decode(jsonString);
     _questions = jsonList.map((json) => Question.fromJson(json)).toList();
+    
+    // Filter by language if specified
+    if (language != null && language.isNotEmpty) {
+      _questions = _questions.where((q) => q.language == language).toList();
+    }
+    
+    // Filter by difficulty based on ELO
+    _filterByEloDifficulty();
     
     // Sort by difficulty based on user ELO
     _sortQuestionsByElo();
@@ -55,6 +64,32 @@ class GameController {
     _sessionScore = 0;
     _sessionCorrect = 0;
     _sessionWrong = 0;
+  }
+
+  /// Filter questions: include hard ones only for ELO >= 1200
+  void _filterByEloDifficulty() {
+    final elo = currentElo;
+    
+    if (elo < 1200) {
+      // Exclude difficulty 3 (hard) questions
+      _questions = _questions.where((q) => q.difficulty <= 2).toList();
+    } else if (elo >= 1500) {
+      // For high ELO, prioritize hard questions
+      final hardQuestions = _questions.where((q) => q.difficulty == 3).toList();
+      final otherQuestions = _questions.where((q) => q.difficulty < 3).toList();
+      
+      // Mix: 60% hard, 40% other
+      hardQuestions.shuffle();
+      otherQuestions.shuffle();
+      
+      final hardCount = (10 * 0.6).round();
+      final otherCount = 10 - hardCount;
+      
+      _questions = [
+        ...hardQuestions.take(hardCount),
+        ...otherQuestions.take(otherCount),
+      ];
+    }
   }
 
   /// Sort questions based on user ELO (adaptive difficulty)
@@ -101,6 +136,25 @@ class GameController {
     );
     
     return isCorrect;
+  }
+
+  /// Record timeout as wrong answer (for Time Attack mode)
+  Future<void> recordTimeOut() async {
+    if (currentQuestion == null) return;
+    
+    final difficulty = currentQuestion!.difficulty;
+    final newElo = EloCalculator.calculateNewElo(
+      currentElo: currentElo,
+      questionDifficulty: difficulty,
+      isCorrect: false,
+    );
+    
+    _sessionWrong++;
+    
+    await storageService.recordAnswer(
+      isCorrect: false,
+      newElo: newElo,
+    );
   }
 
   /// Move to next question

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../logic/storage_service.dart';
 import '../logic/sound_service.dart';
+import '../logic/language_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
 import 'animations.dart';
 import 'quiz_screen.dart';
 import 'bug_hunt_screen.dart';
+import 'time_attack_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
 import 'feedback_dialog.dart';
@@ -39,6 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
         .then((_) => setState(() {}));
   }
 
+  void _onLanguageChanged(ProgrammingLanguage lang) async {
+    HapticService.selectionClick();
+    await languageService.setLanguage(lang);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -50,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final progress = storageService.progress;
     final rankColor = Color(EloCalculator.getRankColor(progress.elo));
+    final selectedLang = languageService.selected;
 
     return GradientBackground(
       child: Scaffold(
@@ -81,26 +90,32 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
+                // Language Selector
+                StaggeredFadeIn(
+                  index: 0,
+                  child: _buildLanguageSelector(selectedLang),
+                ),
+                
                 const SizedBox(height: 16),
                 
                 // Logo with glow effect
                 StaggeredFadeIn(
-                  index: 0,
+                  index: 1,
                   child: _buildLogo(),
                 ),
                 
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
                 
                 // Daily Streak Warning
                 if (!progress.playedToday)
                   StaggeredFadeIn(
-                    index: 1,
+                    index: 2,
                     child: _buildStreakWarning(),
                   ),
                 
                 // Stats Card
                 StaggeredFadeIn(
-                  index: 2,
+                  index: 3,
                   child: GlassCard(
                     padding: const EdgeInsets.all(20),
                     child: Row(
@@ -133,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 // Mode selection header
                 StaggeredFadeIn(
-                  index: 3,
+                  index: 4,
                   child: Text(
                     'MOD SEÇ',
                     style: TextStyle(
@@ -144,11 +159,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 
                 // Game mode buttons
                 StaggeredFadeIn(
-                  index: 4,
+                  index: 5,
                   child: _buildModeCard(
                     icon: Icons.code_rounded,
                     title: 'Çıktı Tahmini',
@@ -158,10 +173,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 
                 StaggeredFadeIn(
-                  index: 5,
+                  index: 6,
                   child: _buildModeCard(
                     icon: Icons.bug_report_rounded,
                     title: 'Bug Hunter',
@@ -171,17 +186,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 
+                const SizedBox(height: 10),
+                
+                StaggeredFadeIn(
+                  index: 7,
+                  child: _buildModeCard(
+                    icon: Icons.timer_rounded,
+                    title: 'Time Attack',
+                    subtitle: 'Zamana karşı yarış',
+                    color: RheoColors.accent,
+                    onTap: () => _navigateTo(const TimeAttackScreen()),
+                  ),
+                ),
+                
                 const Spacer(),
                 
                 // Footer stats
                 StaggeredFadeIn(
-                  index: 6,
+                  index: 8,
                   child: Text(
                     '${progress.totalQuestions} soru çözüldü',
                     style: TextStyle(color: RheoColors.textMuted, fontSize: 13),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -190,24 +218,68 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildLanguageSelector(ProgrammingLanguage selected) {
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      borderRadius: BorderRadius.circular(30),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: ProgrammingLanguage.values.map((lang) {
+          final isSelected = lang == selected;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => _onLanguageChanged(lang),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected 
+                      ? Color(lang.colorValue).withAlpha(40) 
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  border: isSelected 
+                      ? Border.all(color: Color(lang.colorValue).withAlpha(100)) 
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(lang.emoji, style: const TextStyle(fontSize: 16)),
+                    if (isSelected) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        lang.label,
+                        style: TextStyle(
+                          color: Color(lang.colorValue),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildLogo() {
     return Column(
       children: [
-        // Logo with glow
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [RheoColors.primary, RheoColors.accent],
-            ).createShader(bounds),
-            child: const Text(
-              'RHEO',
-              style: TextStyle(
-                fontSize: 56,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: 12,
-              ),
+        ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [RheoColors.primary, RheoColors.accent],
+          ).createShader(bounds),
+          child: const Text(
+            'RHEO',
+            style: TextStyle(
+              fontSize: 52,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              letterSpacing: 10,
             ),
           ),
         ),
@@ -215,9 +287,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           'Kod Okuma Oyunu',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             color: RheoColors.textMuted,
-            letterSpacing: 4,
+            letterSpacing: 3,
             fontWeight: FontWeight.w300,
           ),
         ),
@@ -227,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildStreakWarning() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       child: GlassCard(
         borderColor: RheoColors.secondary.withAlpha(100),
         padding: const EdgeInsets.all(12),
@@ -237,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Icon(
                 Icons.local_fire_department,
                 color: RheoColors.secondary,
-                size: 28,
+                size: 26,
               ),
             ),
             const SizedBox(width: 12),
@@ -261,13 +333,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 26),
-        const SizedBox(height: 6),
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 4),
         Text(
           value,
           style: TextStyle(
             color: color,
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -276,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
           label,
           style: TextStyle(
             color: RheoColors.textMuted,
-            fontSize: 11,
+            fontSize: 10,
           ),
         ),
       ],
@@ -296,20 +368,20 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap();
       },
       child: GlassCard(
-        borderColor: color.withAlpha(60),
-        padding: const EdgeInsets.all(16),
+        borderColor: color.withAlpha(50),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: RheoGradients.cardGlow(color),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: color.withAlpha(80)),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withAlpha(70)),
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,16 +390,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     title,
                     style: TextStyle(
                       color: color,
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: TextStyle(
                       color: RheoColors.textSecondary,
-                      fontSize: 13,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -335,8 +406,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: color.withAlpha(150),
-              size: 18,
+              color: color.withAlpha(120),
+              size: 16,
             ),
           ],
         ),

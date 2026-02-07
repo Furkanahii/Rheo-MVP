@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'ui/onboarding_screen.dart';
 import 'ui/home_screen.dart';
+import 'logic/language_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  
+  // Initialize services
+  await languageService.init();
   
   // Check if user has seen onboarding
   final hasSeenOnboarding = await OnboardingScreen.hasSeenOnboarding();

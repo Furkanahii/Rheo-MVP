@@ -5,6 +5,7 @@ import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import '../logic/game_controller.dart';
 import '../logic/elo_calculator.dart';
 import '../logic/sound_service.dart';
+import '../logic/language_service.dart';
 import 'theme.dart';
 import 'animations.dart';
 
@@ -43,7 +44,10 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
 
   Future<void> _initializeGame() async {
     await _controller.init();
-    await _controller.loadQuestions(maxQuestions: 10);
+    await _controller.loadQuestions(
+      maxQuestions: 10,
+      language: languageService.selected.name,
+    );
     _prepareQuestion();
     setState(() => _isLoading = false);
   }

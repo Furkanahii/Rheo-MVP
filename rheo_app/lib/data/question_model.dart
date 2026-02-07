@@ -9,6 +9,7 @@ class Question {
   final String correctAnswer;
   final List<String> wrongOptions;
   final String explanation;
+  final String language;
 
   Question({
     required this.id,
@@ -20,6 +21,7 @@ class Question {
     required this.correctAnswer,
     required this.wrongOptions,
     required this.explanation,
+    this.language = 'python',
   });
 
   /// Factory constructor to parse JSON
@@ -34,6 +36,7 @@ class Question {
       correctAnswer: json['correct_answer'] as String,
       wrongOptions: List<String>.from(json['wrong_options'] as List),
       explanation: json['explanation'] as String,
+      language: json['language'] as String? ?? 'python',
     );
   }
 
