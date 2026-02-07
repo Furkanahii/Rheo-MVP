@@ -34,6 +34,8 @@ class AboutScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       children: [
+                        Image.asset('assets/mascot.png', height: 120),
+                        const SizedBox(height: 12),
                         ShaderMask(
                           shaderCallback: (bounds) => LinearGradient(
                             colors: [RheoColors.primary, RheoColors.accent],
@@ -41,23 +43,23 @@ class AboutScreen extends StatelessWidget {
                           child: const Text(
                             'RHEO',
                             style: TextStyle(
-                              fontSize: 42,
+                              fontSize: 32,
                               fontWeight: FontWeight.w900,
                               color: Colors.white,
-                              letterSpacing: 8,
+                              letterSpacing: 6,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
-                          'Kod Okuma Oyunu',
+                          'Learning for coding',
                           style: TextStyle(
                             color: RheoColors.textMuted,
-                            fontSize: 14,
+                            fontSize: 12,
                             letterSpacing: 2,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(

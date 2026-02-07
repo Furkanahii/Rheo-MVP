@@ -27,6 +27,53 @@ class OnboardingScreen extends StatelessWidget {
       child: IntroductionScreen(
         globalBackgroundColor: Colors.transparent,
         pages: [
+          // Welcome page with mascot
+          PageViewModel(
+            title: '',
+            bodyWidget: Column(
+              children: [
+                const SizedBox(height: 60),
+                Image.asset('assets/mascot.png', height: 180),
+                const SizedBox(height: 24),
+                ShaderMask(
+                  shaderCallback: (bounds) => LinearGradient(
+                    colors: [RheoColors.primary, RheoColors.accent],
+                  ).createShader(bounds),
+                  child: const Text(
+                    'RHEO',
+                    style: TextStyle(
+                      fontSize: 42,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 8,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Learning for coding',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: RheoColors.textMuted,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Hoş Geldin! 👋',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            decoration: const PageDecoration(
+              contentMargin: EdgeInsets.symmetric(horizontal: 32),
+              bodyPadding: EdgeInsets.zero,
+            ),
+          ),
           _buildPage(
             title: 'Kodu Oku',
             body: 'Kod parçacıklarını incele ve çıktıyı tahmin et.\nIDE açmadan, sadece parmak ucunuzla.',

@@ -346,6 +346,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildLogo() {
     return Column(
       children: [
+        // Mascot
+        Image.asset(
+          'assets/mascot.png',
+          height: 100,
+        ),
+        const SizedBox(height: 8),
+        // App Name
         ShaderMask(
           shaderCallback: (bounds) => LinearGradient(
             colors: [RheoColors.primary, RheoColors.accent],
@@ -353,20 +360,20 @@ class _HomeScreenState extends State<HomeScreen> {
           child: const Text(
             'RHEO',
             style: TextStyle(
-              fontSize: 52,
+              fontSize: 36,
               fontWeight: FontWeight.w900,
               color: Colors.white,
-              letterSpacing: 10,
+              letterSpacing: 8,
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
-          'Kod Okuma Oyunu',
+          'Learning for coding',
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             color: RheoColors.textMuted,
-            letterSpacing: 3,
+            letterSpacing: 2,
             fontWeight: FontWeight.w300,
           ),
         ),
