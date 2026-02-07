@@ -51,7 +51,17 @@ class StorageService {
   }) async {
     final p = progress;
     
+    // Check if new day - reset daily counter
+    final now = DateTime.now();
+    if (p.lastPlayedDate != null) {
+      final lastDate = p.lastPlayedDate!;
+      if (lastDate.year != now.year || lastDate.month != now.month || lastDate.day != now.day) {
+        p.dailyQuestionsToday = 0;
+      }
+    }
+    
     p.elo = newElo;
+    p.dailyQuestionsToday++;
     
     if (isCorrect) {
       p.totalCorrect++;
@@ -64,7 +74,7 @@ class StorageService {
       p.currentStreak = 0;
     }
     
-    p.lastPlayedDate = DateTime.now();
+    p.lastPlayedDate = now;
     
     await saveProgress(p);
   }

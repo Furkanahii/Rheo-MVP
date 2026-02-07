@@ -144,6 +144,77 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 
+                const SizedBox(height: 12),
+                
+                // Daily Goal Card
+                StaggeredFadeIn(
+                  index: 4,
+                  child: GlassCard(
+                    borderColor: progress.dailyGoalCompleted 
+                        ? RheoColors.success.withAlpha(100) 
+                        : RheoColors.primary.withAlpha(50),
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        Icon(
+                          progress.dailyGoalCompleted 
+                              ? Icons.check_circle_rounded 
+                              : Icons.flag_rounded,
+                          color: progress.dailyGoalCompleted 
+                              ? RheoColors.success 
+                              : RheoColors.primary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                progress.dailyGoalCompleted 
+                                    ? 'Günlük hedef tamamlandı! 🎉' 
+                                    : 'Günlük Hedef',
+                                style: TextStyle(
+                                  color: progress.dailyGoalCompleted 
+                                      ? RheoColors.success 
+                                      : Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: progress.dailyProgress,
+                                  backgroundColor: RheoColors.glassLight,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    progress.dailyGoalCompleted 
+                                        ? RheoColors.success 
+                                        : RheoColors.primary,
+                                  ),
+                                  minHeight: 6,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '${progress.dailyQuestionsToday}/${progress.dailyGoal}',
+                          style: TextStyle(
+                            color: progress.dailyGoalCompleted 
+                                ? RheoColors.success 
+                                : RheoColors.primary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
                 const Spacer(),
                 
                 // Mode selection header

@@ -7,6 +7,8 @@ class UserProgress {
   int totalCorrect;
   int totalWrong;
   DateTime? lastPlayedDate;
+  int dailyQuestionsToday;
+  int dailyGoal;
 
   UserProgress({
     this.elo = 1000,
@@ -15,6 +17,8 @@ class UserProgress {
     this.totalCorrect = 0,
     this.totalWrong = 0,
     this.lastPlayedDate,
+    this.dailyQuestionsToday = 0,
+    this.dailyGoal = 5,
   });
 
   /// Total questions answered
@@ -23,6 +27,12 @@ class UserProgress {
   /// Accuracy percentage
   double get accuracy => 
       totalQuestions > 0 ? (totalCorrect / totalQuestions) * 100 : 0;
+
+  /// Daily goal progress (0.0 - 1.0)
+  double get dailyProgress => dailyGoal > 0 ? (dailyQuestionsToday / dailyGoal).clamp(0.0, 1.0) : 0.0;
+
+  /// Is daily goal completed
+  bool get dailyGoalCompleted => dailyQuestionsToday >= dailyGoal;
 
   /// Check if played today
   bool get playedToday {
@@ -54,6 +64,8 @@ class UserProgress {
       'totalCorrect': totalCorrect,
       'totalWrong': totalWrong,
       'lastPlayedDate': lastPlayedDate?.toIso8601String(),
+      'dailyQuestionsToday': dailyQuestionsToday,
+      'dailyGoal': dailyGoal,
     };
   }
 
@@ -68,6 +80,8 @@ class UserProgress {
       lastPlayedDate: map['lastPlayedDate'] != null 
           ? DateTime.parse(map['lastPlayedDate']) 
           : null,
+      dailyQuestionsToday: map['dailyQuestionsToday'] ?? 0,
+      dailyGoal: map['dailyGoal'] ?? 5,
     );
   }
 }
