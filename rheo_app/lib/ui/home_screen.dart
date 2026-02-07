@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: _buildLogo(),
                 ),
                 
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
                 
                 // Daily Streak Warning
                 if (!progress.playedToday)
@@ -349,9 +349,9 @@ class _HomeScreenState extends State<HomeScreen> {
         // Mascot
         Image.asset(
           'assets/mascot.png',
-          height: 100,
+          height: 50,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         // App Name
         ShaderMask(
           shaderCallback: (bounds) => LinearGradient(
@@ -360,10 +360,10 @@ class _HomeScreenState extends State<HomeScreen> {
           child: const Text(
             'RHEO',
             style: TextStyle(
-              fontSize: 36,
+              fontSize: 28,
               fontWeight: FontWeight.w900,
               color: Colors.white,
-              letterSpacing: 8,
+              letterSpacing: 6,
             ),
           ),
         ),
