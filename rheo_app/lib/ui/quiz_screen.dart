@@ -10,7 +10,9 @@ import 'theme.dart';
 import 'animations.dart';
 
 class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key});
+  final String? topic;
+  
+  const QuizScreen({super.key, this.topic});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -47,6 +49,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     await _controller.loadQuestions(
       maxQuestions: 10,
       language: languageService.selected.name,
+      topic: widget.topic,
     );
     _prepareQuestion();
     setState(() => _isLoading = false);

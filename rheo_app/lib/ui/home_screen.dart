@@ -12,6 +12,7 @@ import 'time_attack_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
 import 'feedback_dialog.dart';
+import 'topic_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -240,7 +241,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: 'Çıktı Tahmini',
                     subtitle: 'Kodu oku, çıktıyı tahmin et',
                     color: RheoColors.primary,
-                    onTap: () => _navigateTo(const QuizScreen()),
+                    onTap: () async {
+                      final topic = await showTopicDialog(context);
+                      if (topic != null && mounted) {
+                        _navigateTo(QuizScreen(topic: topic.isEmpty ? null : topic));
+                      }
+                    },
                   ),
                 ),
                 

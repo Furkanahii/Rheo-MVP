@@ -39,7 +39,8 @@ class GameController {
 
   /// Load questions from assets/questions.json
   /// [language] filter: 'python', 'java', 'javascript', or null for all
-  Future<void> loadQuestions({int? maxQuestions, String? language}) async {
+  /// [topic] filter: 'variable', 'loop', 'if_else', etc or null for all
+  Future<void> loadQuestions({int? maxQuestions, String? language, String? topic}) async {
     final jsonString = await rootBundle.loadString('assets/questions.json');
     final List<dynamic> jsonList = json.decode(jsonString);
     _questions = jsonList.map((json) => Question.fromJson(json)).toList();
@@ -47,6 +48,11 @@ class GameController {
     // Filter by language if specified
     if (language != null && language.isNotEmpty) {
       _questions = _questions.where((q) => q.language == language).toList();
+    }
+    
+    // Filter by topic if specified
+    if (topic != null && topic.isNotEmpty) {
+      _questions = _questions.where((q) => q.topic == topic).toList();
     }
     
     // Filter by difficulty based on ELO
