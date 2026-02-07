@@ -3,6 +3,7 @@ import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'achievements_screen.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -178,6 +179,55 @@ class StatsScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         _buildRankProgress(progress.elo),
                       ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Achievements Button
+                StaggeredFadeIn(
+                  index: 5,
+                  child: GestureDetector(
+                    onTap: () {
+                      HapticService.lightTap();
+                      Navigator.push(
+                        context,
+                        PageTransitions.slideRight(const AchievementsScreen()),
+                      );
+                    },
+                    child: GlassCard(
+                      borderColor: RheoColors.gold.withAlpha(60),
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: RheoColors.gold.withAlpha(30),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(Icons.emoji_events_rounded, color: RheoColors.gold, size: 24),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Başarımlar',
+                                  style: TextStyle(color: RheoColors.gold, fontSize: 16, fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Rozetlerini görüntüle',
+                                  style: TextStyle(color: RheoColors.textMuted, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios_rounded, color: RheoColors.gold.withAlpha(150), size: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),
