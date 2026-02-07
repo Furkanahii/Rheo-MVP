@@ -3,6 +3,7 @@ import '../logic/storage_service.dart';
 import '../logic/sound_service.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'about_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -190,9 +191,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: GlassCard(
                     child: Column(
                       children: [
-                        _buildInfoTile('Versiyon', '1.0.0 Beta'),
+                        _buildAboutTile(context),
                         const Divider(color: RheoColors.glassBorder, height: 1),
-                        _buildInfoTile('Geliştirici', 'Rheo Team'),
+                        _buildInfoTile('Versiyon', '1.0.0 Beta'),
                         const Divider(color: RheoColors.glassBorder, height: 1),
                         _buildInfoTile('İletişim', 'team@rheo.app'),
                       ],
@@ -315,6 +316,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
         ],
       ),
+    );
+  }
+
+  Widget _buildAboutTile(BuildContext context) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      onTap: () {
+        HapticService.lightTap();
+        Navigator.push(
+          context,
+          PageTransitions.slideRight(const AboutScreen()),
+        );
+      },
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: RheoColors.primary.withAlpha(30),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(Icons.info_outline_rounded, color: RheoColors.primary, size: 22),
+      ),
+      title: const Text('Hakkımızda', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+      subtitle: Text('Ekip ve uygulama bilgileri', style: TextStyle(color: RheoColors.textMuted, fontSize: 12)),
+      trailing: Icon(Icons.arrow_forward_ios_rounded, color: RheoColors.primary.withAlpha(150), size: 16),
     );
   }
 }
