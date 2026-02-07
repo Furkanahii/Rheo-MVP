@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
@@ -28,6 +29,20 @@ class StatsScreen extends StatelessWidget {
             },
           ),
           title: const Text('İstatistikler', style: TextStyle(color: Colors.white)),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.share_rounded, color: RheoColors.primary),
+              onPressed: () {
+                HapticService.lightTap();
+                final text = '🎮 Rheo\'da $rankTitle rütbesinde ${progress.elo} ELO puanım var!\n'
+                    '✅ ${progress.totalCorrect} doğru | 📊 %${progress.accuracy.toStringAsFixed(0)} başarı\n'
+                    '🔥 En yüksek seri: ${progress.bestStreak} gün\n\n'
+                    'Sen de kod okuma ustası ol! #Rheo';
+                SharePlus.instance.share(ShareParams(text: text));
+              },
+              tooltip: 'Paylaş',
+            ),
+          ],
         ),
         body: SafeArea(
           child: SingleChildScrollView(

@@ -134,7 +134,7 @@ class AboutScreen extends StatelessWidget {
                   index: 3,
                   child: _buildTeamMember(
                     name: 'Furkan Ahi',
-                    role: 'Proje Yöneticisi & Geliştirici',
+                    role: 'Boğaziçi Üniversitesi',
                     icon: Icons.person_rounded,
                     color: RheoColors.primary,
                   ),
@@ -145,8 +145,8 @@ class AboutScreen extends StatelessWidget {
                   index: 4,
                   child: _buildTeamMember(
                     name: 'Mahmut Emre',
-                    role: 'UI/UX & Frontend',
-                    icon: Icons.brush_rounded,
+                    role: 'Boğaziçi Üniversitesi',
+                    icon: Icons.person_rounded,
                     color: RheoColors.accent,
                   ),
                 ),
@@ -156,8 +156,8 @@ class AboutScreen extends StatelessWidget {
                   index: 5,
                   child: _buildTeamMember(
                     name: 'Bahadır Erdoğan',
-                    role: 'Backend & İçerik',
-                    icon: Icons.code_rounded,
+                    role: 'Yıldız Teknik Üniversitesi',
+                    icon: Icons.person_rounded,
                     color: RheoColors.secondary,
                   ),
                 ),
