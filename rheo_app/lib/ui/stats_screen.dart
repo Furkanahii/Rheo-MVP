@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
+import 'theme.dart';
+import 'animations.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -9,225 +11,289 @@ class StatsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = storageService.progress;
     final rankColor = Color(EloCalculator.getRankColor(progress.elo));
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF1E1E1E),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
-        elevation: 0,
-        title: const Text('İstatistikler', style: TextStyle(color: Colors.white)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+    final rankTitle = EloCalculator.getRankTitle(progress.elo);
+    
+    return GradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+            onPressed: () {
+              HapticService.lightTap();
+              Navigator.pop(context);
+            },
+          ),
+          title: const Text('İstatistikler', style: TextStyle(color: Colors.white)),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            // ELO Card
-            _buildMainCard(
-              child: Column(
-                children: [
-                  Icon(Icons.emoji_events, color: rankColor, size: 64),
-                  const SizedBox(height: 12),
-                  Text(
-                    '${progress.elo}',
-                    style: TextStyle(
-                      color: rankColor,
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'ELO PUANI',
-                    style: TextStyle(color: Colors.grey[500], letterSpacing: 2),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: rankColor.withAlpha(51),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      EloCalculator.getRankTitle(progress.elo),
-                      style: TextStyle(color: rankColor, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Stats Grid
-            Row(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
               children: [
-                Expanded(
-                  child: _buildStatCard(
-                    icon: Icons.check_circle,
-                    iconColor: Colors.green,
-                    value: '${progress.totalCorrect}',
-                    label: 'Doğru',
+                // ELO Card (Main)
+                StaggeredFadeIn(
+                  index: 0,
+                  child: GlassCard(
+                    borderColor: rankColor.withAlpha(80),
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: rankColor.withAlpha(30),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.emoji_events, color: rankColor, size: 40),
+                        ),
+                        const SizedBox(height: 12),
+                        ShaderMask(
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: [rankColor, rankColor.withAlpha(180)],
+                          ).createShader(bounds),
+                          child: Text(
+                            '${progress.elo}',
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          rankTitle,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: rankColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    icon: Icons.cancel,
-                    iconColor: Colors.red,
-                    value: '${progress.totalWrong}',
-                    label: 'Yanlış',
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    icon: Icons.percent,
-                    iconColor: Colors.blue,
-                    value: '${progress.accuracy.toStringAsFixed(1)}%',
-                    label: 'Doğruluk',
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    icon: Icons.quiz,
-                    iconColor: Colors.purple,
-                    value: '${progress.totalQuestions}',
-                    label: 'Toplam',
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Streak Section
-            _buildMainCard(
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                
+                const SizedBox(height: 16),
+                
+                // Performance Stats
+                StaggeredFadeIn(
+                  index: 1,
+                  child: Row(
                     children: [
-                      _buildStreakItem(
-                        icon: Icons.local_fire_department,
-                        iconColor: Colors.orange,
-                        value: '${progress.currentStreak}',
-                        label: 'Güncel Seri',
+                      Expanded(
+                        child: _buildStatCard(
+                          icon: Icons.check_circle,
+                          value: '${progress.totalCorrect}',
+                          label: 'Doğru',
+                          color: RheoColors.success,
+                        ),
                       ),
-                      Container(
-                        width: 1,
-                        height: 60,
-                        color: Colors.grey[700],
-                      ),
-                      _buildStreakItem(
-                        icon: Icons.military_tech,
-                        iconColor: Colors.amber,
-                        value: '${progress.bestStreak}',
-                        label: 'En İyi Seri',
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatCard(
+                          icon: Icons.cancel,
+                          value: '${progress.totalWrong}',
+                          label: 'Yanlış',
+                          color: RheoColors.error,
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // Accuracy & Total
+                StaggeredFadeIn(
+                  index: 2,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          icon: Icons.percent,
+                          value: '${progress.accuracy.toStringAsFixed(1)}%',
+                          label: 'Doğruluk',
+                          color: RheoColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatCard(
+                          icon: Icons.quiz,
+                          value: '${progress.totalQuestions}',
+                          label: 'Toplam',
+                          color: RheoColors.accent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Streak Stats
+                StaggeredFadeIn(
+                  index: 3,
+                  child: GlassCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.local_fire_department, color: RheoColors.secondary, size: 22),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Seri İstatistikleri',
+                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        const Divider(color: RheoColors.glassBorder, height: 24),
+                        _buildInfoRow('Güncel Seri', '${progress.currentStreak} gün', RheoColors.secondary),
+                        const SizedBox(height: 8),
+                        _buildInfoRow('En İyi Seri', '${progress.bestStreak} gün', RheoColors.gold),
+                        const SizedBox(height: 8),
+                        _buildInfoRow('Son Oynama', _formatDate(progress.lastPlayedDate ?? DateTime.now()), RheoColors.textSecondary),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Rank Progress
+                StaggeredFadeIn(
+                  index: 4,
+                  child: GlassCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Rütbe İlerlemesi',
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildRankProgress(progress.elo),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            
-            const SizedBox(height: 24),
-            
-            // Last Played
-            if (progress.lastPlayedDate != null)
-              Text(
-                'Son oyun: ${_formatDate(progress.lastPlayedDate!)}',
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
-              ),
-          ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildMainCard({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2D2D2D),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF404040)),
-      ),
-      child: child,
     );
   }
 
   Widget _buildStatCard({
     required IconData icon,
-    required Color iconColor,
     required String value,
     required String label,
+    required Color color,
   }) {
-    return Container(
+    return GlassCard(
+      borderColor: color.withAlpha(50),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2D2D2D),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF404040)),
-      ),
       child: Column(
         children: [
-          Icon(icon, color: iconColor, size: 28),
+          Icon(icon, color: color, size: 28),
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
+            style: TextStyle(
+              fontSize: 26,
               fontWeight: FontWeight.bold,
+              color: color,
             ),
           ),
           Text(
             label,
-            style: TextStyle(color: Colors.grey[500], fontSize: 12),
+            style: TextStyle(fontSize: 12, color: RheoColors.textMuted),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStreakItem({
-    required IconData icon,
-    required Color iconColor,
-    required String value,
-    required String label,
-  }) {
-    return Column(
+  Widget _buildInfoRow(String label, String value, Color valueColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(icon, color: iconColor, size: 32),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[500], fontSize: 12),
-        ),
+        Text(label, style: TextStyle(color: RheoColors.textSecondary)),
+        Text(value, style: TextStyle(color: valueColor, fontWeight: FontWeight.w500)),
       ],
     );
   }
 
+  Widget _buildRankProgress(int elo) {
+    final ranks = [
+      ('Bronz', 0, RheoColors.bronze),
+      ('Gümüş', 1000, RheoColors.silver),
+      ('Altın', 1500, RheoColors.gold),
+      ('Platin', 2000, RheoColors.platinum),
+      ('Elmas', 2500, RheoColors.diamond),
+    ];
+    
+    return Column(
+      children: ranks.map((rank) {
+        final isAchieved = elo >= rank.$2;
+        final isNext = !isAchieved && (ranks.indexOf(rank) == 0 || elo >= ranks[ranks.indexOf(rank) - 1].$2);
+        final progress = isAchieved ? 1.0 : (isNext ? ((elo - ranks[ranks.indexOf(rank) - 1].$2) / (rank.$2 - ranks[ranks.indexOf(rank) - 1].$2)).clamp(0.0, 1.0) : 0.0);
+        
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 60,
+                child: Text(
+                  rank.$1,
+                  style: TextStyle(
+                    color: isAchieved ? rank.$3 : RheoColors.textMuted,
+                    fontWeight: isAchieved ? FontWeight.w600 : FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: RheoColors.glassLight,
+                    valueColor: AlwaysStoppedAnimation<Color>(rank.$3),
+                    minHeight: 8,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 40,
+                child: Text(
+                  '${rank.$2}',
+                  style: TextStyle(color: RheoColors.textMuted, fontSize: 11),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   String _formatDate(DateTime date) {
-    return '${date.day}.${date.month}.${date.year}';
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    
+    if (diff.inDays == 0) return 'Bugün';
+    if (diff.inDays == 1) return 'Dün';
+    if (diff.inDays < 7) return '${diff.inDays} gün önce';
+    return '${date.day}/${date.month}/${date.year}';
   }
 }
