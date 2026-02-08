@@ -423,35 +423,107 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     
-                    // Explanation card
+                    // Explanation card with mascot
                     if (_showExplanation) ...[
                       GlassCard(
                         borderColor: _isCorrect! ? RheoColors.success : RheoColors.warning,
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            // Mascot with emotion
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  _isCorrect! ? Icons.check_circle : Icons.info,
-                                  color: _isCorrect! ? RheoColors.success : RheoColors.warning,
-                                  size: 20,
+                                Image.asset(
+                                  'assets/mascot.png',
+                                  height: 60,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _isCorrect! ? 'Doğru!' : 'Açıklama',
-                                  style: TextStyle(
-                                    color: _isCorrect! ? RheoColors.success : RheoColors.warning,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _isCorrect! ? '🎉 Harika!' : '💡 Öğrenelim!',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: _isCorrect! ? RheoColors.success : RheoColors.warning,
+                                      ),
+                                    ),
+                                    Text(
+                                      _isCorrect! ? 'Doğru bildin!' : 'Bir dahaki sefere!',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: RheoColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              question.explanation,
-                              style: TextStyle(color: RheoColors.textSecondary, fontSize: 13),
+                            const SizedBox(height: 16),
+                            // Show correct answer if wrong
+                            if (!_isCorrect!) ...[
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: RheoColors.success.withAlpha(20),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: RheoColors.success.withAlpha(50)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.check_circle, color: RheoColors.success, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Doğru cevap: ${question.correctAnswer}',
+                                        style: TextStyle(
+                                          color: RheoColors.success,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            // Explanation text
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: RheoColors.glassLight,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.lightbulb_outline, color: RheoColors.primary, size: 16),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Açıklama',
+                                        style: TextStyle(
+                                          color: RheoColors.primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    question.explanation,
+                                    style: TextStyle(color: RheoColors.textSecondary, fontSize: 13, height: 1.4),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),

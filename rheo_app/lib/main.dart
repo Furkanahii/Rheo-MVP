@@ -14,7 +14,7 @@ void main() async {
   // Check if user has seen onboarding
   final hasSeenOnboarding = await OnboardingScreen.hasSeenOnboarding();
   
-  runApp(RheoApp(showOnboarding: !hasSeenOnboarding));
+  runApp(RheoApp(showOnboarding: true)); // Her açılışta göster
 }
 
 class RheoApp extends StatelessWidget {
