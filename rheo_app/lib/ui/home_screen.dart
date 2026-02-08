@@ -11,6 +11,7 @@ import 'bug_hunt_screen.dart';
 import 'time_attack_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
+import 'leaderboard_screen.dart';
 import 'feedback_dialog.dart';
 import 'topic_dialog.dart';
 
@@ -77,8 +78,14 @@ class _HomeScreenState extends State<HomeScreen> {
               tooltip: 'Geri Bildirim',
             ),
             IconButton(
+              icon: const Icon(Icons.emoji_events_outlined, color: RheoColors.textSecondary),
+              onPressed: () => _navigateTo(const LeaderboardScreen()),
+              tooltip: 'Sıralama',
+            ),
+            IconButton(
               icon: const Icon(Icons.bar_chart, color: RheoColors.textSecondary),
               onPressed: () => _navigateTo(const StatsScreen()),
+              tooltip: 'İstatistikler',
             ),
             IconButton(
               icon: const Icon(Icons.settings, color: RheoColors.textSecondary),

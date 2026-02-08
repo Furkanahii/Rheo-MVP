@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../logic/storage_service.dart';
 import '../logic/sound_service.dart';
+import '../logic/notification_service.dart';
 import 'theme.dart';
 import 'animations.dart';
 import 'about_screen.dart';
@@ -14,6 +15,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _soundEnabled = true;
+  bool _notificationsEnabled = false;
 
   @override
   void initState() {
@@ -145,6 +147,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             HapticService.selectionClick();
                             await soundService.setSoundEnabled(value);
                             setState(() => _soundEnabled = value);
+                          },
+                        ),
+                        const Divider(height: 1, color: RheoColors.glassBorder),
+                        _buildToggleTile(
+                          icon: Icons.notifications_active_outlined,
+                          title: 'Bildirimler',
+                          subtitle: 'Günlük hatırlatmalar (18:00)',
+                          value: _notificationsEnabled,
+                          onChanged: (value) async {
+                            HapticService.selectionClick();
+                            if (value) {
+                              final granted = await notificationService.requestPermissions();
+                              if (granted) {
+                                await notificationService.init();
+                                await notificationService.scheduleDailyReminder(
+                                  hour: 18,
+                                  minute: 0,
+                                );
+                                setState(() => _notificationsEnabled = true);
+                              }
+                            } else {
+                              await notificationService.cancelAll();
+                              setState(() => _notificationsEnabled = false);
+                            }
                           },
                         ),
                       ],
