@@ -11,9 +11,6 @@ void main() async {
   // Initialize services
   await languageService.init();
   
-  // Check if user has seen onboarding
-  final hasSeenOnboarding = await OnboardingScreen.hasSeenOnboarding();
-  
   runApp(RheoApp(showOnboarding: true)); // Her açılışta göster
 }
 
