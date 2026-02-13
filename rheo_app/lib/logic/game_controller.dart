@@ -170,6 +170,13 @@ class GameController {
     }
   }
 
+  /// Add a single AI-generated question to the queue
+  void addAIQuestion(Question question) {
+    _questions.add(question);
+    // _currentIndex her zaman son eklenen soruya baksın
+    _currentIndex = _questions.length - 1;
+  }
+
   /// Reset the game for a new session
   void reset() {
     _currentIndex = 0;

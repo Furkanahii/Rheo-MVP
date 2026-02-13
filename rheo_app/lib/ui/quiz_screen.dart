@@ -6,13 +6,15 @@ import '../logic/game_controller.dart';
 import '../logic/elo_calculator.dart';
 import '../logic/sound_service.dart';
 import '../logic/language_service.dart';
+import '../logic/ai_service.dart';
 import 'theme.dart';
 import 'animations.dart';
 
 class QuizScreen extends StatefulWidget {
   final String? topic;
+  final bool isAI;
   
-  const QuizScreen({super.key, this.topic});
+  const QuizScreen({super.key, this.topic, this.isAI = false});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -29,10 +31,18 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
   bool? _isCorrect;
   List<String> _shuffledOptions = [];
   bool _showExplanation = false;
+  
+  // AI mode state
+  bool _isAIMode = false;
+  bool _isGeneratingAI = false;
+  String? _aiError;
+  int _aiQuestionCount = 0;
+  static const int _aiMaxQuestions = 10;
 
   @override
   void initState() {
     super.initState();
+    _isAIMode = widget.isAI;
     _confettiController = ConfettiController(duration: const Duration(seconds: 2));
     _shakeController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -46,13 +56,77 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
 
   Future<void> _initializeGame() async {
     await _controller.init();
-    await _controller.loadQuestions(
-      maxQuestions: 10,
-      language: languageService.selected.name,
-      topic: widget.topic,
-    );
-    _prepareQuestion();
+    
+    if (_isAIMode) {
+      // AI mode: generate first question
+      await _loadNextAIQuestion();
+    } else {
+      // Static mode: load from JSON
+      await _controller.loadQuestions(
+        maxQuestions: 10,
+        language: languageService.selected.name,
+        topic: widget.topic,
+      );
+      
+      // FALLBACK: Statik sorular boşsa → AI moduna geç
+      if (_controller.totalQuestions == 0 && widget.topic != null) {
+        debugPrint('📭 No static questions for "${widget.topic}", switching to AI mode');
+        _isAIMode = true;
+        await _loadNextAIQuestion();
+      } else {
+        _prepareQuestion();
+      }
+    }
     setState(() => _isLoading = false);
+  }
+  
+  /// AI modunda yeni soru üret
+  Future<void> _loadNextAIQuestion() async {
+    if (!mounted) return;
+    setState(() {
+      _isGeneratingAI = true;
+      _aiError = null;
+    });
+    
+    try {
+      final question = await aiService.generateQuestion(
+        topic: widget.topic ?? 'ai_arrays',
+        difficulty: EloCalculator.getRecommendedDifficulty(_controller.currentElo),
+      );
+      
+      if (question != null) {
+        _controller.addAIQuestion(question);
+        _aiQuestionCount++;
+        _prepareQuestion();
+        if (mounted) {
+          setState(() => _isGeneratingAI = false);
+        }
+      } else {
+        // No question available (no API + no cache)
+        if (mounted) {
+          final errorDetail = aiService.lastError;
+          String errorMsg;
+          if (errorDetail != null && errorDetail.contains('quota')) {
+            errorMsg = 'API kota limiti aşıldı.\nBirkaç dakika bekleyip tekrar dene.';
+          } else if (errorDetail != null && errorDetail.contains('API key')) {
+            errorMsg = 'API key geçersiz.\n.env dosyasını kontrol et.';
+          } else {
+            errorMsg = 'AI sorusu üretilemedi.\nİnternet bağlantını kontrol et.';
+          }
+          setState(() {
+            _isGeneratingAI = false;
+            _aiError = errorMsg;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isGeneratingAI = false;
+          _aiError = 'Hata: ${e.toString().length > 100 ? e.toString().substring(0, 100) : e.toString()}';
+        });
+      }
+    }
   }
 
   @override
@@ -109,10 +183,24 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
   void _nextQuestion() {
     HapticService.lightTap();
     _controller.nextQuestion();
-    if (_controller.isFinished) {
-      _showResults();
+    
+    if (_isAIMode) {
+      // AI modda: max soruya ulaştıysa sonuçları göster, yoksa yeni soru üret
+      if (_aiQuestionCount >= _aiMaxQuestions) {
+        _showResults();
+      } else {
+        setState(() => _isLoading = true);
+        _loadNextAIQuestion().then((_) {
+          if (mounted) setState(() => _isLoading = false);
+        });
+      }
     } else {
-      setState(() => _prepareQuestion());
+      // Statik mod: eski davranış
+      if (_controller.isFinished) {
+        _showResults();
+      } else {
+        setState(() => _prepareQuestion());
+      }
     }
   }
 
@@ -216,11 +304,81 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const GradientBackground(
+    if (_isLoading || _isGeneratingAI) {
+      return GradientBackground(
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          body: Center(child: CircularProgressIndicator(color: RheoColors.primary)),
+          body: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(color: RheoColors.primary),
+                if (_isAIMode) ...[
+                  const SizedBox(height: 20),
+                  Text(
+                    '🤖 AI soru üretiyor...',
+                    style: TextStyle(color: RheoColors.textSecondary, fontSize: 14),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Soru $_aiQuestionCount/$_aiMaxQuestions',
+                    style: TextStyle(color: RheoColors.textMuted, fontSize: 12),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // AI error state
+    if (_aiError != null) {
+      return GradientBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.wifi_off_rounded, color: RheoColors.warning, size: 64),
+                  const SizedBox(height: 20),
+                  Text(
+                    _aiError!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: RheoColors.textSecondary, fontSize: 15),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() => _isLoading = true);
+                      _loadNextAIQuestion().then((_) {
+                        if (mounted) setState(() => _isLoading = false);
+                      });
+                    },
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('Tekrar Dene'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: RheoColors.primary,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -249,7 +407,9 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
             },
           ),
           title: Text(
-            'Soru ${_controller.currentIndex + 1}/${_controller.totalQuestions}',
+            _isAIMode 
+                ? '🤖 Soru $_aiQuestionCount/$_aiMaxQuestions'
+                : 'Soru ${_controller.currentIndex + 1}/${_controller.totalQuestions}',
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
           actions: [

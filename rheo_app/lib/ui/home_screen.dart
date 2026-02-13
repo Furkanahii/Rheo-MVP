@@ -249,9 +249,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     subtitle: 'Kodu oku, çıktıyı tahmin et',
                     color: RheoColors.primary,
                     onTap: () async {
-                      final topic = await showTopicDialog(context);
-                      if (topic != null && mounted) {
-                        _navigateTo(QuizScreen(topic: topic.isEmpty ? null : topic));
+                      final selectedTopic = await showTopicDialog(context);
+                      if (selectedTopic != null && mounted) {
+                        _navigateTo(QuizScreen(
+                          topic: selectedTopic.id.isEmpty ? null : selectedTopic.id,
+                          isAI: selectedTopic.isAI,
+                        ));
                       }
                     },
                   ),

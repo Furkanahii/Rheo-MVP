@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'ui/onboarding_screen.dart';
@@ -9,6 +10,7 @@ import 'ui/home_screen.dart';
 import 'ui/widgets/error_screen.dart';
 import 'logic/language_service.dart';
 import 'logic/analytics_service.dart';
+import 'logic/ai_service.dart';
 
 void main() async {
   // Zone ile tüm hataları yakala
@@ -39,6 +41,17 @@ void main() async {
     };
     
     await Hive.initFlutter();
+    
+    // Load environment variables (.env)
+    try {
+      await dotenv.load(fileName: '.env');
+      debugPrint('✅ dotenv loaded');
+    } catch (e) {
+      debugPrint('⚠️ .env file not found: $e');
+    }
+    
+    // Initialize AI service
+    await aiService.init();
     
     // Initialize services
     await languageService.init();
