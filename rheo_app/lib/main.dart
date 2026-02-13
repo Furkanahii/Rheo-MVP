@@ -74,7 +74,7 @@ class RheoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Rheo',
+      title: 'Rheo v2.0',
       debugShowCheckedModeBanner: false,
       navigatorObservers: [
         if (analyticsService.observer != null) analyticsService.observer!,
