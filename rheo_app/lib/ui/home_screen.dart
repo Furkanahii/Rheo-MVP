@@ -6,6 +6,7 @@ import '../logic/language_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'widgets/mascot_widget.dart';
 import 'quiz_screen.dart';
 import 'bug_hunt_screen.dart';
 import 'time_attack_screen.dart';
@@ -94,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         body: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
@@ -104,21 +105,42 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: _buildLanguageSelector(selectedLang),
                 ),
                 
-                const SizedBox(height: 16),
-                
-                // Logo with glow effect
-                StaggeredFadeIn(
-                  index: 1,
-                  child: _buildLogo(),
-                ),
-                
                 const SizedBox(height: 12),
                 
-                // Daily Streak Warning
+                // Mascot Greeting Card
+                StaggeredFadeIn(
+                  index: 1,
+                  child: MascotGreetingCard(
+                    greeting: MascotHelper.getGreeting(),
+                    subtitle: MascotHelper.getRankComment(progress.elo),
+                    accentColor: rankColor,
+                  ),
+                ),
+                
+                const SizedBox(height: 10),
+                
+                // Daily Streak Warning with Mascot
                 if (!progress.playedToday)
                   StaggeredFadeIn(
                     index: 2,
                     child: _buildStreakWarning(),
+                  ),
+                
+                // Daily Goal Completed Mascot Celebration
+                if (progress.dailyGoalCompleted)
+                  StaggeredFadeIn(
+                    index: 2,
+                    child: GlassCard(
+                      borderColor: RheoColors.success.withAlpha(80),
+                      padding: const EdgeInsets.all(12),
+                      child: MascotWidget(
+                        mood: MascotMood.celebrating,
+                        message: MascotHelper.getDailyGoalComplete(),
+                        size: 40,
+                        animate: true,
+                        bubbleColor: RheoColors.success,
+                      ),
+                    ),
                   ),
                 
                 // Stats Card
@@ -223,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 
-                const Spacer(),
+                const SizedBox(height: 20),
                 
                 // Mode selection header
                 StaggeredFadeIn(
@@ -286,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 
-                const Spacer(),
+                const SizedBox(height: 20),
                 
                 // Footer stats
                 StaggeredFadeIn(
@@ -353,67 +375,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildLogo() {
-    return Column(
-      children: [
-        // Mascot
-        Image.asset(
-          'assets/mascot.png',
-          height: 50,
-        ),
-        const SizedBox(height: 4),
-        // App Name
-        ShaderMask(
-          shaderCallback: (bounds) => LinearGradient(
-            colors: [RheoColors.primary, RheoColors.accent],
-          ).createShader(bounds),
-          child: const Text(
-            'RHEO',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              letterSpacing: 6,
-            ),
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          'Learning for coding',
-          style: TextStyle(
-            fontSize: 12,
-            color: RheoColors.textMuted,
-            letterSpacing: 2,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStreakWarning() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       child: GlassCard(
         borderColor: RheoColors.secondary.withAlpha(100),
         padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            PulseAnimation(
-              child: Icon(
-                Icons.local_fire_department,
-                color: RheoColors.secondary,
-                size: 26,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Bugün henüz oynamadın! Serini koru.',
-                style: TextStyle(color: RheoColors.secondary, fontSize: 13),
-              ),
-            ),
-          ],
+        child: MascotWidget(
+          mood: MascotMood.encouraging,
+          message: MascotHelper.getStreakWarning(),
+          size: 40,
+          animate: true,
+          bubbleColor: RheoColors.secondary,
         ),
       ),
     );

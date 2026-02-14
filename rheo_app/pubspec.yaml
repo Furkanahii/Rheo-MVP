@@ -94,6 +94,12 @@ flutter:
     - assets/questions.json
     - assets/sounds/
     - assets/mascot.png
+    - assets/mascot_happy.png
+    - assets/mascot_sad.png
+    - assets/mascot_thinking.png
+    - assets/mascot_celebrating.png
+    - assets/mascot_encouraging.png
+    - assets/mascot_greeting.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

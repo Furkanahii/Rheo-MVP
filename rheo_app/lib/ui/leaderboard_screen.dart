@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'widgets/mascot_widget.dart';
 
 /// Leaderboard Screen - Sıralama Tablosu
 class LeaderboardScreen extends StatelessWidget {
@@ -302,7 +303,7 @@ class LeaderboardScreen extends StatelessWidget {
           children: [
             // Mascot
             Image.asset(
-              'assets/mascot.png',
+              getMascotAsset(MascotMood.happy),
               height: 50,
             ),
             const SizedBox(width: 12),
