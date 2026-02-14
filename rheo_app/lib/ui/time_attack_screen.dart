@@ -9,6 +9,7 @@ import '../logic/sound_service.dart';
 import '../logic/language_service.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'widgets/mascot_widget.dart';
 
 class TimeAttackScreen extends StatefulWidget {
   const TimeAttackScreen({super.key});
@@ -170,7 +171,9 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
             children: [
               const Text('⏱️ Time Attack Bitti!', 
                 style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+              MascotResultCard(accuracy: summary['accuracy']),
+              const SizedBox(height: 8),
               _buildStatRow('Skor', '${summary['score']}', Colors.amber),
               _buildStatRow('Doğru', '${summary['correct']}', RheoColors.success),
               _buildStatRow('Yanlış', '${summary['wrong']}', RheoColors.error),
@@ -445,21 +448,23 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                           
                           // Time Up overlay
                           if (_timeUp)
-                            Container(
+                            GlassCard(
+                              borderColor: RheoColors.error.withAlpha(80),
                               padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: RheoColors.error.withAlpha(40),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: RheoColors.error),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              child: Column(
                                 children: [
-                                  Icon(Icons.timer_off, color: RheoColors.error),
-                                  const SizedBox(width: 8),
+                                  MascotWidget(
+                                    mood: MascotMood.sad,
+                                    message: MascotHelper.getTimeUpMessage(),
+                                    size: 45,
+                                    animate: false,
+                                    bubbleColor: RheoColors.error,
+                                  ),
+                                  const SizedBox(height: 8),
                                   Text(
-                                    'Süre Doldu!',
-                                    style: TextStyle(color: RheoColors.error, fontWeight: FontWeight.bold, fontSize: 16),
+                                    'Doğru cevap: ${_controller.currentQuestion?.correctAnswer ?? ""}',
+                                    style: TextStyle(color: RheoColors.success, fontWeight: FontWeight.w600, fontSize: 13),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ],
                               ),

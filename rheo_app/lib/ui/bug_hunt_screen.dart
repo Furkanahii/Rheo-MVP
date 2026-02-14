@@ -7,6 +7,7 @@ import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'widgets/mascot_widget.dart';
 
 /// Bug Hunt Question Model
 class BugHuntQuestion {
@@ -208,7 +209,9 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
             children: [
               const Text('Bug Hunt Bitti! 🐞', 
                 style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              MascotResultCard(accuracy: accuracy),
+              const SizedBox(height: 12),
               _buildStatRow('Skor', '$_score', Colors.amber),
               _buildStatRow('Bulunan Bug', '$_correct', RheoColors.success),
               _buildStatRow('Kaçırılan', '$_wrong', RheoColors.error),
@@ -469,35 +472,14 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // Mascot with emotion
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/mascot.png',
-                                  height: 60,
-                                ),
-                                const SizedBox(width: 12),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _isCorrect! ? '🐛 Bug Bulundu!' : '💡 Öğrenelim!',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: _isCorrect! ? RheoColors.success : RheoColors.warning,
-                                      ),
-                                    ),
-                                    Text(
-                                      _isCorrect! ? 'Harika debugging!' : 'Bir dahaki sefere!',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: RheoColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            MascotWidget(
+                              mood: _isCorrect! ? MascotMood.celebrating : MascotMood.encouraging,
+                              message: _isCorrect! 
+                                  ? MascotHelper.getBugHuntCorrect()
+                                  : MascotHelper.getBugHuntWrong(),
+                              size: 55,
+                              animate: _isCorrect!,
+                              bubbleColor: _isCorrect! ? RheoColors.success : RheoColors.warning,
                             ),
                             const SizedBox(height: 16),
                             // Show correct line if wrong

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'widgets/mascot_widget.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -34,7 +35,7 @@ class AboutScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       children: [
-                        Image.asset('assets/mascot.png', height: 120),
+                        Image.asset(getMascotAsset(MascotMood.happy), height: 120),
                         const SizedBox(height: 12),
                         ShaderMask(
                           shaderCallback: (bounds) => LinearGradient(

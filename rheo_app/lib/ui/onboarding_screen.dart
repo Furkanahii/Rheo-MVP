@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'home_screen.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'widgets/mascot_widget.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -33,7 +34,7 @@ class OnboardingScreen extends StatelessWidget {
             bodyWidget: Column(
               children: [
                 const SizedBox(height: 60),
-                Image.asset('assets/mascot.png', height: 180),
+                Image.asset(getMascotAsset(MascotMood.greeting), height: 180),
                 const SizedBox(height: 24),
                 ShaderMask(
                   shaderCallback: (bounds) => LinearGradient(

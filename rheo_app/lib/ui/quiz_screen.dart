@@ -9,6 +9,7 @@ import '../logic/language_service.dart';
 import '../logic/ai_service.dart';
 import 'theme.dart';
 import 'animations.dart';
+import 'widgets/mascot_widget.dart';
 
 class QuizScreen extends StatefulWidget {
   final String? topic;
@@ -221,7 +222,9 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
             children: [
               const Text('Quiz Bitti! 🎉', 
                 style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              MascotResultCard(accuracy: summary['accuracy']),
+              const SizedBox(height: 12),
               _buildStatRow('Skor', '${summary['score']}', Colors.amber),
               _buildStatRow('Doğru', '${summary['correct']}', RheoColors.success),
               _buildStatRow('Yanlış', '${summary['wrong']}', RheoColors.error),
@@ -312,11 +315,15 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                PulseAnimation(
+                  child: Image.asset(getMascotAsset(MascotMood.thinking), height: 80),
+                ),
+                const SizedBox(height: 20),
                 const CircularProgressIndicator(color: RheoColors.primary),
                 if (_isAIMode) ...[
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   Text(
-                    '🤖 AI soru üretiyor...',
+                    MascotHelper.getWaitingMessage(),
                     style: TextStyle(color: RheoColors.textSecondary, fontSize: 14),
                   ),
                   const SizedBox(height: 8),
@@ -592,35 +599,14 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // Mascot with emotion
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/mascot.png',
-                                  height: 60,
-                                ),
-                                const SizedBox(width: 12),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _isCorrect! ? '🎉 Harika!' : '💡 Öğrenelim!',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: _isCorrect! ? RheoColors.success : RheoColors.warning,
-                                      ),
-                                    ),
-                                    Text(
-                                      _isCorrect! ? 'Doğru bildin!' : 'Bir dahaki sefere!',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: RheoColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            MascotWidget(
+                              mood: _isCorrect! ? MascotMood.celebrating : MascotMood.encouraging,
+                              message: _isCorrect! 
+                                  ? MascotHelper.getCorrectMessage()
+                                  : MascotHelper.getWrongMessage(),
+                              size: 55,
+                              animate: _isCorrect!,
+                              bubbleColor: _isCorrect! ? RheoColors.success : RheoColors.warning,
                             ),
                             const SizedBox(height: 16),
                             // Show correct answer if wrong
