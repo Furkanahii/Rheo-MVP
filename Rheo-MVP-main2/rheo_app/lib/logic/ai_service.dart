@@ -57,10 +57,12 @@ JSON only, no extra text:
       var apiKey = dotenv.env['GEMINI_API_KEY'];
       debugPrint('🔑 dotenv GEMINI_API_KEY: ${apiKey != null ? "found (${apiKey.length} chars)" : "null"}');
       
-      // Web'de dotenv bazen yüklenemeyebilir, fallback
+      // Web'de dotenv bazen yüklenemeyebilir, environment variable'dan al
       if (apiKey == null || apiKey.isEmpty || apiKey == 'your_gemini_api_key_here') {
-        apiKey = const String.fromEnvironment('GEMINI_API_KEY', defaultValue: 'AIzaSyDohNFLIl_xfzdvjGTKzNnNaOkZU6jz1Ws');
-        debugPrint('🔑 Using fallback API key');
+        apiKey = const String.fromEnvironment('GEMINI_API_KEY');
+        if (apiKey.isNotEmpty) {
+          debugPrint('🔑 Using environment variable API key');
+        }
       }
       
       if (apiKey.isEmpty) {
