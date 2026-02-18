@@ -210,8 +210,10 @@ def maxDepth(root):
     }
   }
 
-  /// Çeşitlilik için rastgele odak noktası seç
+  /// Çeşitlilik için rastgele odak noktası seç — geçmiş takibi ile
   static final _random = Random();
+  final List<String> _recentFocusAreas = [];
+  final List<String> _recentScenarios = [];
   
   static const List<String> _focusAreas = [
     'string manipulation and formatting',
@@ -240,14 +242,63 @@ def maxDepth(root):
     'recursion with base cases',
     'decorator pattern',
   ];
+  static const List<String> _scenarios = [
+    'online shopping cart and discounts',
+    'student exam grades and GPA calculator',
+    'weather temperature data analysis',
+    'social media follower counts',
+    'recipe ingredient quantities',
+    'video game score leaderboard',
+    'library book catalog system',
+    'fitness workout tracker',
+    'music playlist manager',
+    'restaurant menu ordering',
+    'bank account transactions',
+    'traffic light simulation',
+    'movie rating database',
+    'parking lot management',
+    'pet adoption shelter records',
+  ];
 
   String _getRandomFocus(String topicLabel) {
-    final focus = _focusAreas[_random.nextInt(_focusAreas.length)];
+    // Pick a focus area NOT recently used
+    String focus;
+    final available = _focusAreas.where((f) => !_recentFocusAreas.contains(f)).toList();
+    if (available.isEmpty) {
+      _recentFocusAreas.clear();
+      focus = _focusAreas[_random.nextInt(_focusAreas.length)];
+    } else {
+      focus = available[_random.nextInt(available.length)];
+    }
+    _recentFocusAreas.add(focus);
+    if (_recentFocusAreas.length > 15) _recentFocusAreas.removeAt(0);
+
+    // Pick a scenario NOT recently used
+    String scenario;
+    final availableScenarios = _scenarios.where((s) => !_recentScenarios.contains(s)).toList();
+    if (availableScenarios.isEmpty) {
+      _recentScenarios.clear();
+      scenario = _scenarios[_random.nextInt(_scenarios.length)];
+    } else {
+      scenario = availableScenarios[_random.nextInt(availableScenarios.length)];
+    }
+    _recentScenarios.add(scenario);
+    if (_recentScenarios.length > 10) _recentScenarios.removeAt(0);
+
     final seed = _random.nextInt(99999);
+    
+    // Build anti-repetition context
+    String avoidNote = '';
+    if (_recentFocusAreas.length > 1) {
+      final recentList = _recentFocusAreas.take(5).join(', ');
+      avoidNote = '\nDO NOT use these recent topics: $recentList. Be completely different!';
+    }
+
     return 'Topic: $topicLabel.\n'
-        'Focus specifically on: $focus.\n'
-        'Use a real-world scenario (e.g. shopping, games, school, cooking, weather, social media).\n'
-        'Seed: $seed (use this to make the question unique — different variable names, different logic).';
+        'Focus on: $focus.\n'
+        'Scenario: $scenario.\n'
+        'Seed: $seed (make variables/logic unique).'
+        '$avoidNote';
   }
 
   /// Gemini API'den soru üret
@@ -272,7 +323,7 @@ def maxDepth(root):
         }
       ],
       'generationConfig': {
-        'temperature': 0.7,
+        'temperature': 0.85,
         'maxOutputTokens': 512,
         'responseMimeType': 'application/json',
       },
