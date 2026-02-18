@@ -1,0 +1,40 @@
+# Mac
+.DS_Store
+
+# Flutter/Dart
+rheo_app/.dart_tool/
+rheo_app/.packages
+rheo_app/.pub-cache/
+rheo_app/.pub/
+rheo_app/build/
+rheo_app/.flutter-plugins
+rheo_app/.flutter-plugins-dependencies
+*.iml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Android
+rheo_app/android/.gradle/
+rheo_app/android/local.properties
+rheo_app/android/key.properties
+*.jks
+
+# iOS
+rheo_app/ios/Pods/
+rheo_app/ios/.symlinks/
+
+# Web build
+rheo_app/build/
+
+# Backend
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+backend/venv/
+
+# Misc
+*.log

@@ -88,7 +88,7 @@ class FeedbackDialog extends StatelessWidget {
                     label: const Text('E-posta'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: RheoColors.primary,
-                      foregroundColor: Colors.black,
+                      foregroundColor: RheoTheme.textColor,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

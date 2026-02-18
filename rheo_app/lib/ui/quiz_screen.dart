@@ -31,7 +31,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
   String? _selectedAnswer;
   bool? _isCorrect;
   List<String> _shuffledOptions = [];
-  bool _showExplanation = false;
+  bool _showAnswerOverlay = false;
   
   // AI mode state
   bool _isAIMode = false;
@@ -142,7 +142,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
       _shuffledOptions = _controller.currentQuestion!.getShuffledOptions();
       _selectedAnswer = null;
       _isCorrect = null;
-      _showExplanation = false;
+      _showAnswerOverlay = false;
     }
   }
 
@@ -177,8 +177,14 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
 
     await Future.delayed(const Duration(milliseconds: 600));
     if (mounted) {
-      setState(() => _showExplanation = true);
+      setState(() => _showAnswerOverlay = true);
     }
+  }
+
+  void _dismissOverlayAndNext() {
+    HapticService.lightTap();
+    setState(() => _showAnswerOverlay = false);
+    _nextQuestion();
   }
 
   void _nextQuestion() {
@@ -214,14 +220,18 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
       barrierDismissible: false,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        child: GlassCard(
-          blur: 20,
+        child: Container(
           padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: RheoTheme.cardBg,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 16)],
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Quiz Bitti! 🎉', 
-                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+              Text('Quiz Bitti! 🎉', 
+                style: TextStyle(color: RheoTheme.textColor, fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               MascotResultCard(accuracy: summary['accuracy']),
               const SizedBox(height: 12),
@@ -229,7 +239,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
               _buildStatRow('Doğru', '${summary['correct']}', RheoColors.success),
               _buildStatRow('Yanlış', '${summary['wrong']}', RheoColors.error),
               _buildStatRow('Başarı', '%${summary['accuracy']}', RheoColors.primary),
-              const Divider(color: RheoColors.glassBorder, height: 24),
+              Divider(color: RheoTheme.textMuted.withAlpha(60), height: 24),
               _buildStatRow('ELO', '${summary['elo']}', 
                   Color(EloCalculator.getRankColor(summary['elo']))),
               _buildStatRow('Rank', summary['rank'], 
@@ -245,7 +255,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                         Navigator.pop(context);
                         Navigator.pop(context);
                       },
-                      child: Text('Ana Sayfa', style: TextStyle(color: RheoColors.textMuted)),
+                      child: Text('Ana Sayfa', style: TextStyle(color: RheoTheme.textMuted)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -262,7 +272,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: RheoColors.primary,
-                        foregroundColor: Colors.black,
+                        foregroundColor: RheoTheme.textColor,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
@@ -284,7 +294,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: RheoColors.textSecondary)),
+          Text(label, style: TextStyle(color: RheoTheme.textMuted)),
           Text(value, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
         ],
       ),
@@ -292,26 +302,25 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
   }
 
   Color _getButtonColor(String option) {
-    if (_selectedAnswer == null) return RheoColors.glassLight;
-    if (option == _controller.currentQuestion?.correctAnswer) return RheoColors.success;
-    if (option == _selectedAnswer && !_isCorrect!) return RheoColors.error;
-    return RheoColors.glassLight;
+    if (_selectedAnswer == null) return RheoTheme.cardBg;
+    if (option == _controller.currentQuestion?.correctAnswer) return RheoColors.success.withAlpha(30);
+    if (option == _selectedAnswer && !_isCorrect!) return RheoColors.error.withAlpha(30);
+    return RheoTheme.cardBg;
   }
 
   Color _getButtonBorder(String option) {
-    if (_selectedAnswer == null) return RheoColors.glassBorder;
+    if (_selectedAnswer == null) return RheoTheme.buttonBorder;
     if (option == _controller.currentQuestion?.correctAnswer) return RheoColors.success;
     if (option == _selectedAnswer && !_isCorrect!) return RheoColors.error;
-    return RheoColors.glassBorder;
+    return RheoTheme.buttonBorder;
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading || _isGeneratingAI) {
-      return GradientBackground(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Center(
+      return Scaffold(
+        backgroundColor: RheoTheme.scaffoldBg(),
+        body: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -324,66 +333,62 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                   const SizedBox(height: 16),
                   Text(
                     MascotHelper.getWaitingMessage(),
-                    style: TextStyle(color: RheoColors.textSecondary, fontSize: 14),
+                    style: TextStyle(color: RheoTheme.textMuted, fontSize: 14),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Soru $_aiQuestionCount/$_aiMaxQuestions',
-                    style: TextStyle(color: RheoColors.textMuted, fontSize: 12),
+                    style: TextStyle(color: RheoTheme.textMuted.withAlpha(120), fontSize: 12),
                   ),
                 ],
               ],
             ),
           ),
-        ),
       );
     }
 
-    // AI error state
     if (_aiError != null) {
-      return GradientBackground(
-        child: Scaffold(
+      return Scaffold(
+        backgroundColor: RheoTheme.scaffoldBg(),
+        appBar: AppBar(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-              onPressed: () => Navigator.pop(context),
-            ),
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_rounded, color: RheoTheme.textColor),
+            onPressed: () => Navigator.pop(context),
           ),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.wifi_off_rounded, color: RheoColors.warning, size: 64),
-                  const SizedBox(height: 20),
-                  Text(
-                    _aiError!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: RheoColors.textSecondary, fontSize: 15),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.wifi_off_rounded, color: RheoColors.warning, size: 64),
+                const SizedBox(height: 20),
+                Text(
+                  _aiError!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: RheoTheme.textMuted, fontSize: 15),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() => _isLoading = true);
+                    _loadNextAIQuestion().then((_) {
+                      if (mounted) setState(() => _isLoading = false);
+                    });
+                  },
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Tekrar Dene'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: RheoColors.primary,
+                    foregroundColor: RheoTheme.textColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() => _isLoading = true);
-                      _loadNextAIQuestion().then((_) {
-                        if (mounted) setState(() => _isLoading = false);
-                      });
-                    },
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Tekrar Dene'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: RheoColors.primary,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -392,22 +397,19 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
 
     final question = _controller.currentQuestion;
     if (question == null) {
-      return GradientBackground(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Center(child: Text('Soru yok', style: TextStyle(color: RheoColors.textMuted))),
-        ),
+      return Scaffold(
+        backgroundColor: RheoTheme.scaffoldBg(),
+        body: Center(child: Text('Soru yok', style: TextStyle(color: RheoTheme.textMuted))),
       );
     }
 
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
+    return Scaffold(
+      backgroundColor: RheoTheme.scaffoldBg(),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+            icon: Icon(Icons.arrow_back_ios_rounded, color: RheoTheme.textColor),
             onPressed: () {
               HapticService.lightTap();
               Navigator.pop(context);
@@ -417,7 +419,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
             _isAIMode 
                 ? '🤖 Soru $_aiQuestionCount/$_aiMaxQuestions'
                 : 'Soru ${_controller.currentIndex + 1}/${_controller.totalQuestions}',
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: RheoTheme.textColor, fontSize: 16),
           ),
           actions: [
             Container(
@@ -439,7 +441,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                 children: [
                   Icon(Icons.local_fire_department, color: RheoColors.secondary, size: 18),
                   const SizedBox(width: 4),
-                  Text('${_controller.currentStreak}', style: const TextStyle(color: Colors.white)),
+                  Text('${_controller.currentStreak}', style: TextStyle(color: RheoTheme.textColor)),
                 ],
               ),
             ),
@@ -493,7 +495,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                         const SizedBox(width: 8),
                         Text(
                           question.topic.toUpperCase(),
-                          style: TextStyle(fontSize: 11, color: RheoColors.textMuted, letterSpacing: 1),
+                          style: TextStyle(fontSize: 11, color: RheoTheme.textMuted, letterSpacing: 1),
                         ),
                       ],
                     ),
@@ -515,7 +517,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: _selectedAnswer == null 
-                                  ? RheoColors.glassBorder
+                                  ? RheoTheme.buttonBorder
                                   : (_isCorrect! ? RheoColors.success : RheoColors.error),
                               width: _selectedAnswer == null ? 1 : 2,
                             ),
@@ -542,9 +544,9 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                     // Question text
                     Text(
                       question.questionText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white,
+                        color: RheoTheme.textColor,
                         fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
@@ -578,7 +580,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                                     ),
                                     child: Text(
                                       option,
-                                      style: const TextStyle(fontSize: 15, color: Colors.white),
+                                      style: TextStyle(fontSize: 15, color: RheoTheme.textColor),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
@@ -590,117 +592,88 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     
-                    // Explanation card with mascot
-                    if (_showExplanation) ...[
-                      GlassCard(
-                        borderColor: _isCorrect! ? RheoColors.success : RheoColors.warning,
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Mascot with emotion
-                            MascotWidget(
-                              mood: _isCorrect! ? MascotMood.celebrating : MascotMood.encouraging,
-                              message: _isCorrect! 
-                                  ? MascotHelper.getCorrectMessage()
-                                  : MascotHelper.getWrongMessage(),
-                              size: 55,
-                              animate: _isCorrect!,
-                              bubbleColor: _isCorrect! ? RheoColors.success : RheoColors.warning,
-                            ),
-                            const SizedBox(height: 16),
-                            // Show correct answer if wrong
-                            if (!_isCorrect!) ...[
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: RheoColors.success.withAlpha(20),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: RheoColors.success.withAlpha(50)),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.check_circle, color: RheoColors.success, size: 18),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        'Doğru cevap: ${question.correctAnswer}',
-                                        style: TextStyle(
-                                          color: RheoColors.success,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                            ],
-                            // Explanation text
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: RheoColors.glassLight,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.lightbulb_outline, color: RheoColors.primary, size: 16),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        'Açıklama',
-                                        style: TextStyle(
-                                          color: RheoColors.primary,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    question.explanation,
-                                    style: TextStyle(color: RheoColors.textSecondary, fontSize: 13, height: 1.4),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _nextQuestion,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: RheoColors.primary,
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: Text(
-                            _controller.currentIndex + 1 >= _controller.totalQuestions
-                                ? 'Sonuçları Gör'
-                                : 'Sonraki Soru →',
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ],
+
                   ],
                 ),
               ),
             ),
+
+            // Answer overlay (correct / incorrect)
+            if (_showAnswerOverlay && _isCorrect != null)
+              GestureDetector(
+                onTap: _dismissOverlayAndNext,
+                child: AnimatedOpacity(
+                  opacity: _showAnswerOverlay ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.78),
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: SafeArea(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Spacer(flex: 2),
+                          // Result text
+                          Text(
+                            _isCorrect! ? 'Doğru Cevap!' : 'Yanlış Cevap!',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: _isCorrect! ? RheoColors.success : RheoColors.error,
+                              letterSpacing: 1.2,
+                              shadows: [
+                                Shadow(
+                                  color: (_isCorrect! ? RheoColors.success : RheoColors.error).withOpacity(0.5),
+                                  blurRadius: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          // Mascot image
+                          PulseAnimation(
+                            duration: const Duration(milliseconds: 2000),
+                            child: Image.asset(
+                              getMascotAsset(
+                                _isCorrect! ? MascotMood.celebrating : MascotMood.encouraging,
+                              ),
+                              height: 140,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Mascot message
+                          Text(
+                            _isCorrect!
+                                ? MascotHelper.getCorrectMessage()
+                                : MascotHelper.getWrongMessage(),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(flex: 3),
+                          // Tap to continue hint
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: Text(
+                              'İlerlemek için tıklayınız.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: RheoColors.textMuted,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
-      ),
     );
   }
 

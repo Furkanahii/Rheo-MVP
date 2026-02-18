@@ -44,6 +44,7 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
   int _currentIndex = 0;
   int? _selectedLine;
   bool? _isCorrect;
+  bool _showAnswerOverlay = false;
   int _score = 0;
   int _correct = 0;
   int _wrong = 0;
@@ -174,6 +175,17 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
     }
 
     await storageService.recordAnswer(isCorrect: isCorrect, newElo: newElo);
+    
+    // Show overlay after a short delay
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (mounted) {
+      setState(() => _showAnswerOverlay = true);
+    }
+  }
+
+  void _dismissOverlayAndShowExplanation() {
+    HapticService.lightTap();
+    setState(() => _showAnswerOverlay = false);
   }
 
   void _nextQuestion() {
@@ -185,6 +197,7 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
         _currentIndex++;
         _selectedLine = null;
         _isCorrect = null;
+        _showAnswerOverlay = false;
       });
     }
   }
@@ -291,22 +304,19 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     if (_isLoading || isFinished) {
-      return const GradientBackground(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Center(child: CircularProgressIndicator(color: RheoColors.secondary)),
-        ),
+      return Scaffold(
+        backgroundColor: RheoTheme.scaffoldBg(),
+        body: const Center(child: CircularProgressIndicator(color: RheoColors.secondary)),
       );
     }
 
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
+    return Scaffold(
+      backgroundColor: RheoTheme.scaffoldBg(),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+            icon: Icon(Icons.arrow_back_ios_rounded, color: RheoTheme.textColor),
             onPressed: () {
               HapticService.lightTap();
               Navigator.pop(context);
@@ -314,7 +324,7 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
           ),
           title: Text(
             'Bug ${_currentIndex + 1}/${_questions.length}',
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: RheoTheme.textColor, fontSize: 16),
           ),
           actions: [
             Container(
@@ -383,9 +393,9 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                     ),
                     const SizedBox(height: 16),
                     
-                    const Text(
+                    Text(
                       '🐞 Hatalı satırı bul ve tıkla!',
-                      style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 16, color: RheoTheme.textColor, fontWeight: FontWeight.w500),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -539,7 +549,7 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                                   const SizedBox(height: 8),
                                   Text(
                                     currentQuestion.explanation,
-                                    style: TextStyle(color: RheoColors.textSecondary, fontSize: 13, height: 1.4),
+                                    style: TextStyle(color: RheoTheme.textMuted, fontSize: 13, height: 1.4),
                                   ),
                                 ],
                               ),
@@ -569,9 +579,77 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                 ),
               ),
             ),
+
+            // Answer overlay (correct / incorrect)
+            if (_showAnswerOverlay && _isCorrect != null)
+              GestureDetector(
+                onTap: _dismissOverlayAndShowExplanation,
+                child: AnimatedOpacity(
+                  opacity: _showAnswerOverlay ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.78),
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: SafeArea(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Spacer(flex: 2),
+                          Text(
+                            _isCorrect! ? 'Doğru Cevap!' : 'Yanlış Cevap!',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: _isCorrect! ? RheoColors.success : RheoColors.error,
+                              letterSpacing: 1.2,
+                              shadows: [
+                                Shadow(
+                                  color: (_isCorrect! ? RheoColors.success : RheoColors.error).withOpacity(0.5),
+                                  blurRadius: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          PulseAnimation(
+                            duration: const Duration(milliseconds: 2000),
+                            child: Image.asset(
+                              getMascotAsset(
+                                _isCorrect! ? MascotMood.celebrating : MascotMood.encouraging,
+                              ),
+                              height: 140,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            _isCorrect!
+                                ? MascotHelper.getBugHuntCorrect()
+                                : MascotHelper.getBugHuntWrong(),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(flex: 3),
+                          const Text(
+                            'İlerlemek için tıklayın',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
-      ),
     );
   }
 }

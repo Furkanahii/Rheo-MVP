@@ -58,25 +58,31 @@ class EloCalculator {
 
   /// Get ELO rank title
   static String getRankTitle(int elo) {
-    if (elo < 600) return 'Başlangıç';
-    if (elo < 800) return 'Acemi';
-    if (elo < 1000) return 'Çaylak';
-    if (elo < 1200) return 'Orta';
-    if (elo < 1400) return 'Deneyimli';
-    if (elo < 1600) return 'Uzman';
-    if (elo < 1800) return 'Usta';
-    if (elo < 2000) return 'Grandmaster';
-    return 'Efsane';
+    if (elo < 200) return 'Çaylak';
+    if (elo < 400) return 'Yükselen';
+    if (elo < 600) return 'Deneyimli';
+    if (elo < 800) return 'Uzman';
+    if (elo < 1000) return 'Usta';
+    return 'Üstat';
   }
 
-  /// Get ELO rank color (as hex string for UI)
+  /// Get ELO rank color (as hex value for UI)
   static int getRankColor(int elo) {
-    if (elo < 800) return 0xFF9E9E9E;   // Grey
-    if (elo < 1000) return 0xFF4CAF50;  // Green
-    if (elo < 1200) return 0xFF2196F3;  // Blue
-    if (elo < 1400) return 0xFF9C27B0;  // Purple
-    if (elo < 1600) return 0xFFFF9800;  // Orange
-    if (elo < 1800) return 0xFFF44336;  // Red
-    return 0xFFFFD700;                   // Gold
+    if (elo < 200) return 0xFFE6E212;   // Yellow — Çaylak
+    if (elo < 400) return 0xFFD99800;   // Orange — Yükselen
+    if (elo < 600) return 0xFFFF00EA;   // Magenta — Deneyimli
+    if (elo < 800) return 0xFF416FF0;   // Blue — Uzman
+    if (elo < 1000) return 0xFFAA09DB;  // Purple — Usta
+    return 0xFFE61600;                   // Red — Üstat
+  }
+
+  /// Get rank emoji/icon for a given ELO
+  static String getRankEmoji(int elo) {
+    if (elo < 200) return '🌱';   // Çaylak
+    if (elo < 400) return '📈';   // Yükselen
+    if (elo < 600) return '💡';   // Deneyimli
+    if (elo < 800) return '🎯';   // Uzman
+    if (elo < 1000) return '⚡';  // Usta
+    return '👑';                   // Üstat
   }
 }

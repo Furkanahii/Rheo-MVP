@@ -23,43 +23,48 @@ class LeaderboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GradientBackground(
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: RheoTheme.brandScaffoldBg,
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Row(
-            children: [
-              const Text('🏆', style: TextStyle(fontSize: 24)),
-              const SizedBox(width: 8),
-              const Text('Sıralama', style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
-          centerTitle: false,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_rounded, color: RheoTheme.brandText),
+          onPressed: () {
+            HapticService.lightTap();
+            Navigator.pop(context);
+          },
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Top 3 Podium
-                _buildPodium(),
-                const SizedBox(height: 24),
-                
-                // Period selector
-                _buildPeriodSelector(),
-                const SizedBox(height: 16),
-                
-                // Rest of leaderboard
-                _buildLeaderboardList(),
-                
-                const SizedBox(height: 16),
-                
-                // User's rank card
-                _buildUserRankCard(),
-              ],
-            ),
+        title: Row(
+          children: [
+            const Text('🏆', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 8),
+            Text('Sıralama', style: TextStyle(color: RheoTheme.brandText, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        centerTitle: false,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Top 3 Podium
+              _buildPodium(),
+              const SizedBox(height: 24),
+              
+              // Period selector
+              _buildPeriodSelector(),
+              const SizedBox(height: 16),
+              
+              // Rest of leaderboard
+              _buildLeaderboardList(),
+              
+              const SizedBox(height: 16),
+              
+              // User's rank card
+              _buildUserRankCard(),
+            ],
           ),
         ),
       ),
@@ -74,7 +79,7 @@ class LeaderboardScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // 2nd place
-          _buildPodiumPlace(_mockLeaderboard[1], 2, 90, RheoColors.textSecondary),
+          _buildPodiumPlace(_mockLeaderboard[1], 2, 90, Colors.grey[500]!),
           const SizedBox(width: 8),
           // 1st place
           _buildPodiumPlace(_mockLeaderboard[0], 1, 110, RheoColors.warning),
@@ -99,8 +104,8 @@ class LeaderboardScreen extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                medalColor.withAlpha(100),
-                medalColor.withAlpha(50),
+                medalColor.withAlpha(60),
+                medalColor.withAlpha(25),
               ],
             ),
             border: Border.all(color: medalColor, width: 3),
@@ -117,7 +122,7 @@ class LeaderboardScreen extends StatelessWidget {
         Text(
           entry.name,
           style: TextStyle(
-            color: Colors.white,
+            color: RheoTheme.brandText,
             fontWeight: FontWeight.bold,
             fontSize: place == 1 ? 14 : 12,
           ),
@@ -141,12 +146,12 @@ class LeaderboardScreen extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                medalColor.withAlpha(80),
-                medalColor.withAlpha(30),
+                medalColor.withAlpha(40),
+                medalColor.withAlpha(15),
               ],
             ),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-            border: Border.all(color: medalColor.withAlpha(100)),
+            border: Border.all(color: medalColor.withAlpha(60)),
           ),
           child: Center(
             child: Text(
@@ -166,8 +171,14 @@ class LeaderboardScreen extends StatelessWidget {
   Widget _buildPeriodSelector() {
     return StaggeredFadeIn(
       index: 1,
-      child: GlassCard(
+      child: Container(
         padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: RheoTheme.brandCardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: RheoTheme.brandCardBorder),
+          boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
         child: Row(
           children: [
             _buildPeriodTab('Bugün', true),
@@ -184,15 +195,15 @@ class LeaderboardScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? RheoColors.primary.withAlpha(30) : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: isSelected ? Border.all(color: RheoColors.primary.withAlpha(80)) : null,
+          color: isSelected ? RheoColors.primary.withAlpha(20) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: isSelected ? Border.all(color: RheoColors.primary.withAlpha(60)) : null,
         ),
         child: Text(
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isSelected ? RheoColors.primary : RheoColors.textMuted,
+            color: isSelected ? RheoColors.primary : RheoTheme.brandMuted,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             fontSize: 12,
           ),
@@ -220,8 +231,14 @@ class LeaderboardScreen extends StatelessWidget {
   }
 
   Widget _buildLeaderboardRow(LeaderboardEntry entry) {
-    return GlassCard(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: RheoTheme.brandCardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: RheoTheme.brandCardBorder),
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(6), blurRadius: 6, offset: const Offset(0, 2))],
+      ),
       child: Row(
         children: [
           // Rank
@@ -230,7 +247,7 @@ class LeaderboardScreen extends StatelessWidget {
             child: Text(
               '#${entry.rank}',
               style: TextStyle(
-                color: RheoColors.textMuted,
+                color: RheoTheme.brandMuted,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -241,7 +258,7 @@ class LeaderboardScreen extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: RheoColors.glassLight,
+              color: RheoTheme.brandCardBg,
             ),
             child: Center(
               child: Text(entry.avatar, style: const TextStyle(fontSize: 20)),
@@ -255,8 +272,8 @@ class LeaderboardScreen extends StatelessWidget {
               children: [
                 Text(
                   entry.name,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: RheoTheme.brandText,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -264,7 +281,7 @@ class LeaderboardScreen extends StatelessWidget {
                   Text(
                     '🔥 ${entry.streak} gün seri',
                     style: TextStyle(
-                      color: RheoColors.textMuted,
+                      color: RheoTheme.brandMuted,
                       fontSize: 11,
                     ),
                   ),
@@ -275,9 +292,9 @@ class LeaderboardScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: RheoColors.primary.withAlpha(20),
+              color: RheoColors.primary.withAlpha(15),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: RheoColors.primary.withAlpha(50)),
+              border: Border.all(color: RheoColors.primary.withAlpha(40)),
             ),
             child: Text(
               '${entry.elo}',
@@ -296,9 +313,14 @@ class LeaderboardScreen extends StatelessWidget {
   Widget _buildUserRankCard() {
     return StaggeredFadeIn(
       index: 10,
-      child: GlassCard(
-        borderColor: RheoColors.accent,
+      child: Container(
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: RheoTheme.brandCardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: RheoTheme.brandCardBorder),
+          boxShadow: [BoxShadow(color: RheoTheme.brandAccent.withAlpha(10), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
         child: Row(
           children: [
             // Mascot
@@ -315,14 +337,14 @@ class LeaderboardScreen extends StatelessWidget {
                   Text(
                     'Senin Sıran',
                     style: TextStyle(
-                      color: RheoColors.textMuted,
+                      color: RheoTheme.brandMuted,
                       fontSize: 12,
                     ),
                   ),
-                  const Text(
+                  Text(
                     '#42 / 156 Oyuncu',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: RheoTheme.brandText,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -342,7 +364,7 @@ class LeaderboardScreen extends StatelessWidget {
               child: const Text(
                 '1000 ELO',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),

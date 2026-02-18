@@ -120,7 +120,7 @@ class OnboardingScreen extends StatelessWidget {
               ),
             ],
           ),
-          child: const Text('İleri', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
+          child: Text('İleri', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.w600)),
         ),
         done: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -135,7 +135,7 @@ class OnboardingScreen extends StatelessWidget {
               ),
             ],
           ),
-          child: const Text('Başla!', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
+          child: Text('Başla!', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.bold, fontSize: 16)),
         ),
         onDone: () => _finishOnboarding(context),
         onSkip: () => _finishOnboarding(context),

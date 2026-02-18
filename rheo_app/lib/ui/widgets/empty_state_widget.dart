@@ -77,7 +77,7 @@ class EmptyStateWidget extends StatelessWidget {
                 onPressed: onButtonPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: RheoColors.primary,
-                  foregroundColor: Colors.black,
+                  foregroundColor: RheoTheme.textColor,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

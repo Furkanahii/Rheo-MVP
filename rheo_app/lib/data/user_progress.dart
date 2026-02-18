@@ -9,16 +9,24 @@ class UserProgress {
   DateTime? lastPlayedDate;
   int dailyQuestionsToday;
   int dailyGoal;
+  int selectedAvatarIndex;
+  String nickname;
+  bool hasSelectedInitialRank;
+  bool isDarkMode;
 
   UserProgress({
-    this.elo = 1000,
+    this.elo = 0,
     this.currentStreak = 0,
     this.bestStreak = 0,
     this.totalCorrect = 0,
     this.totalWrong = 0,
     this.lastPlayedDate,
     this.dailyQuestionsToday = 0,
-    this.dailyGoal = 5,
+    this.dailyGoal = 0,
+    this.selectedAvatarIndex = 0,
+    this.nickname = 'Oyuncu',
+    this.hasSelectedInitialRank = false,
+    this.isDarkMode = false,
   });
 
   /// Total questions answered
@@ -28,11 +36,14 @@ class UserProgress {
   double get accuracy => 
       totalQuestions > 0 ? (totalCorrect / totalQuestions) * 100 : 0;
 
+  /// Whether user has set a daily goal
+  bool get hasDailyGoal => dailyGoal > 0;
+
   /// Daily goal progress (0.0 - 1.0)
   double get dailyProgress => dailyGoal > 0 ? (dailyQuestionsToday / dailyGoal).clamp(0.0, 1.0) : 0.0;
 
   /// Is daily goal completed
-  bool get dailyGoalCompleted => dailyQuestionsToday >= dailyGoal;
+  bool get dailyGoalCompleted => dailyGoal > 0 && dailyQuestionsToday >= dailyGoal;
 
   /// Check if played today
   bool get playedToday {
@@ -66,13 +77,17 @@ class UserProgress {
       'lastPlayedDate': lastPlayedDate?.toIso8601String(),
       'dailyQuestionsToday': dailyQuestionsToday,
       'dailyGoal': dailyGoal,
+      'selectedAvatarIndex': selectedAvatarIndex,
+      'nickname': nickname,
+      'hasSelectedInitialRank': hasSelectedInitialRank,
+      'isDarkMode': isDarkMode,
     };
   }
 
   /// Create from Map (Hive storage)
   factory UserProgress.fromMap(Map<dynamic, dynamic> map) {
     return UserProgress(
-      elo: map['elo'] ?? 1000,
+      elo: map['elo'] ?? 0,
       currentStreak: map['currentStreak'] ?? 0,
       bestStreak: map['bestStreak'] ?? 0,
       totalCorrect: map['totalCorrect'] ?? 0,
@@ -81,7 +96,11 @@ class UserProgress {
           ? DateTime.parse(map['lastPlayedDate']) 
           : null,
       dailyQuestionsToday: map['dailyQuestionsToday'] ?? 0,
-      dailyGoal: map['dailyGoal'] ?? 5,
+      dailyGoal: map['dailyGoal'] ?? 0,
+      selectedAvatarIndex: map['selectedAvatarIndex'] ?? 0,
+      nickname: map['nickname'] ?? 'Oyuncu',
+      hasSelectedInitialRank: map['hasSelectedInitialRank'] ?? false,
+      isDarkMode: map['isDarkMode'] ?? false,
     );
   }
 }

@@ -1,7 +1,121 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../logic/language_service.dart';
+import '../logic/storage_service.dart';
 
-/// Premium color palette for Rheo
+/// Centralized theme system for Rheo
+/// Supports light/dark mode and language-specific coloring
+class RheoTheme {
+  static bool get isDark => storageService.progress.isDarkMode;
+
+  // ── Language accent colors (dark variants for text) ──
+  static Color langAccent(ProgrammingLanguage lang) {
+    switch (lang) {
+      case ProgrammingLanguage.python:
+        return const Color(0xFF121B99); // User-specified Python blue
+      case ProgrammingLanguage.java:
+        return const Color(0xFFA85502); // User-specified Java orange
+      case ProgrammingLanguage.javascript:
+        return const Color(0xFF029C25); // User-specified JS green
+    }
+  }
+
+  // ── Language light bg colors ──
+  static Color langLightBg(ProgrammingLanguage lang) {
+    switch (lang) {
+      case ProgrammingLanguage.python:
+        return const Color(0xFFE8EAFF); // Light blue tinted with #121b99
+      case ProgrammingLanguage.java:
+        return const Color(0xFFFFF0E0); // Light orange tinted with #a85502
+      case ProgrammingLanguage.javascript:
+        return const Color(0xFFE0F5E6); // Light green tinted with #029c25
+    }
+  }
+
+  // ── Language dark bg colors (for dark mode) ──
+  static Color langDarkBg(ProgrammingLanguage lang) {
+    switch (lang) {
+      case ProgrammingLanguage.python:
+        return const Color(0xFF080D40); // Deep blue from #121b99
+      case ProgrammingLanguage.java:
+        return const Color(0xFF3A1E00); // Deep orange from #a85502
+      case ProgrammingLanguage.javascript:
+        return const Color(0xFF003610); // Deep green from #029c25
+    }
+  }
+
+  // ── Language light accent colors (for dark mode text) ──
+  static Color langLightAccent(ProgrammingLanguage lang) {
+    switch (lang) {
+      case ProgrammingLanguage.python:
+        return const Color(0xFFE8EAFF); // Light blue pastel — dark mode accent
+      case ProgrammingLanguage.java:
+        return const Color(0xFFFFF0E0); // Light orange pastel — dark mode accent
+      case ProgrammingLanguage.javascript:
+        return const Color(0xFFE0F5E6); // Light green pastel — dark mode accent
+    }
+  }
+
+  // ── Main scaffold bg = language color ──
+  static Color scaffoldBg([ProgrammingLanguage? lang]) {
+    final l = lang ?? languageService.selected;
+    return isDark ? langDarkBg(l) : langLightBg(l);
+  }
+
+  // ── Card / button bg = white (or dark surface) ──
+  static Color get cardBg => isDark ? const Color(0xFF1E1E2E) : Colors.white;
+
+  // ── All regular text = black (or white in dark) ──
+  static Color get textColor => isDark ? Colors.white : Colors.black;
+
+  // ── Muted text ──
+  static Color get textMuted => isDark ? const Color(0xFF999999) : const Color(0xFF666666);
+
+  // ── Language label text (stays dark accent) ──
+  static Color langText([ProgrammingLanguage? lang]) {
+    final l = lang ?? languageService.selected;
+    return isDark ? langLightAccent(l) : langAccent(l);
+  }
+
+  // ── Border color for cards (language-tinted) ──
+  static Color get cardBorder {
+    final lang = languageService.selected;
+    final accent = isDark ? langLightAccent(lang) : langAccent(lang);
+    return accent.withAlpha(isDark ? 80 : 50);
+  }
+
+  // ── Button border color (more visible) ──
+  static Color get buttonBorder {
+    final lang = languageService.selected;
+    final accent = isDark ? langLightAccent(lang) : langAccent(lang);
+    return accent.withAlpha(isDark ? 120 : 80);
+  }
+
+  // ── Logo brand palette (for Settings, Profile, Leaderboard, Achievements, Rank) ──
+  static const Color brandNavy = Color(0xFF0D1B2A);
+  static const Color brandBlue = Color(0xFF1565C0);
+  static const Color brandCyan = Color(0xFF4DD0E1);
+
+  // ── Brand scaffold bg ──
+  static Color get brandScaffoldBg => isDark ? const Color(0xFF0A1420) : const Color(0xFFECF5F8);
+
+  // ── Brand card bg ──
+  static Color get brandCardBg => isDark ? const Color(0xFF0D1B2A) : Colors.white;
+
+  // ── Brand text ──
+  static Color get brandText => isDark ? Colors.white : brandNavy;
+
+  // ── Brand muted ──
+  static Color get brandMuted => isDark ? const Color(0xFF8899AA) : const Color(0xFF5A6B7D);
+
+  // ── Brand accent ──
+  static Color get brandAccent => isDark ? brandCyan : brandBlue;
+
+  // ── Brand card border ──
+  static Color get brandCardBorder => isDark ? brandCyan.withAlpha(60) : brandBlue.withAlpha(40);
+}
+
+/// Legacy color constants (kept for backward compatibility)
 class RheoColors {
   // Primary brand colors
   static const Color primary = Color(0xFF00D9FF);       // Cyan
@@ -11,6 +125,10 @@ class RheoColors {
   // Background gradient colors
   static const Color bgTop = Color(0xFF0D1B2A);         // Deep navy
   static const Color bgBottom = Color(0xFF1B2838);      // Dark blue-gray
+  
+  // Light theme scaffold background
+  static const Color scaffoldBg = Color(0xFFF0F5F4);
+  static const Color textDark = Color(0xFF1A237E);
   
   // Surface colors
   static const Color surface = Color(0xFF1E1E1E);
@@ -201,13 +319,13 @@ class _GradientButtonState extends State<GradientButton>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (widget.icon != null) ...[
-                Icon(widget.icon, color: Colors.black, size: 20),
+                Icon(widget.icon, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
               ],
               Text(
                 widget.label,
                 style: const TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,

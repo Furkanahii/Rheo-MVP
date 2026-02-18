@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'animations.dart';
+import '../logic/language_service.dart';
 
 /// Topic options for filtering
 class TopicOption {
@@ -88,6 +89,8 @@ class Topics {
 
 /// Topic selection dialog - returns TopicOption or null
 Future<TopicOption?> showTopicDialog(BuildContext context) {
+  final langAccent = RheoTheme.langText();
+
   return showModalBottomSheet<TopicOption>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -97,9 +100,11 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
         maxHeight: MediaQuery.of(context).size.height * 0.75,
       ),
       decoration: BoxDecoration(
-        color: RheoColors.bgTop,
+        color: RheoTheme.cardBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border.all(color: RheoColors.glassBorder),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 16),
+        ],
       ),
       padding: const EdgeInsets.all(20),
       child: SingleChildScrollView(
@@ -110,15 +115,15 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: RheoColors.glassBorder,
+                color: RheoTheme.textMuted.withAlpha(80),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Konu Seç',
               style: TextStyle(
-                color: Colors.white,
+                color: RheoTheme.textColor,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -126,16 +131,16 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
             const SizedBox(height: 6),
             Text(
               'Çalışmak istediğin konuyu seç',
-              style: TextStyle(color: RheoColors.textMuted, fontSize: 13),
+              style: TextStyle(color: RheoTheme.textMuted, fontSize: 13),
             ),
             const SizedBox(height: 20),
             
-            // Statik konular
+            // Statik konular — hepsi dil renginde
             Wrap(
               spacing: 10,
               runSpacing: 10,
               children: Topics.all.map((topic) {
-                return _buildTopicTile(context, topic);
+                return _buildTopicTile(context, topic, langAccent);
               }).toList(),
             ),
             
@@ -144,7 +149,7 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
             // AI Ayırıcısı
             Row(
               children: [
-                Expanded(child: Divider(color: RheoColors.glassBorder)),
+                Expanded(child: Divider(color: RheoTheme.textMuted.withAlpha(60))),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Row(
@@ -164,18 +169,18 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
                     ],
                   ),
                 ),
-                Expanded(child: Divider(color: RheoColors.glassBorder)),
+                Expanded(child: Divider(color: RheoTheme.textMuted.withAlpha(60))),
               ],
             ),
             
             const SizedBox(height: 16),
             
-            // AI kategorileri
+            // AI kategorileri — hepsi dil renginde
             Wrap(
               spacing: 10,
               runSpacing: 10,
               children: Topics.aiTopics.map((topic) {
-                return _buildTopicTile(context, topic);
+                return _buildTopicTile(context, topic, langAccent);
               }).toList(),
             ),
             
@@ -187,53 +192,115 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
   );
 }
 
-Widget _buildTopicTile(BuildContext context, TopicOption topic) {
-  return GestureDetector(
+Widget _buildTopicTile(BuildContext context, TopicOption topic, Color langColor) {
+  return _TopicTileButton(
+    topic: topic,
+    langColor: langColor,
     onTap: () {
       HapticService.lightTap();
       Navigator.pop(context, topic);
     },
-    child: Container(
-      width: (MediaQuery.of(context).size.width - 60) / 2,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: topic.color.withAlpha(20),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: topic.color.withAlpha(60)),
-      ),
-      child: Row(
-        children: [
-          Icon(topic.icon, color: topic.color, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  topic.label,
-                  style: TextStyle(
-                    color: topic.color,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (topic.isAI) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    'AI ✨',
-                    style: TextStyle(
-                      color: topic.color.withAlpha(150),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
   );
 }
 
+/// Stateful topic tile with hover/press animation
+class _TopicTileButton extends StatefulWidget {
+  final TopicOption topic;
+  final Color langColor;
+  final VoidCallback onTap;
+
+  const _TopicTileButton({
+    required this.topic,
+    required this.langColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_TopicTileButton> createState() => _TopicTileButtonState();
+}
+
+class _TopicTileButtonState extends State<_TopicTileButton> {
+  bool _isPressed = false;
+  bool _isHovered = false;
+
+  bool get _elevated => _isHovered || _isPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          widget.onTap();
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          width: (MediaQuery.of(context).size.width - 60) / 2,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: RheoTheme.cardBg,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _elevated
+                  ? widget.langColor.withAlpha(160)
+                  : widget.langColor.withAlpha(60),
+              width: _elevated ? 2 : 1,
+            ),
+            boxShadow: _elevated
+                ? [
+                    BoxShadow(
+                      color: widget.langColor.withAlpha(25),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          transform: _isPressed
+              ? (Matrix4.identity()..scale(0.96))
+              : (_isHovered
+                  ? (Matrix4.identity()..translate(0.0, -2.0))
+                  : Matrix4.identity()),
+          child: Row(
+            children: [
+              Icon(widget.topic.icon, color: widget.langColor, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.topic.label,
+                      style: TextStyle(
+                        color: RheoTheme.textColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (widget.topic.isAI) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'AI ✨',
+                        style: TextStyle(
+                          color: widget.langColor.withAlpha(150),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

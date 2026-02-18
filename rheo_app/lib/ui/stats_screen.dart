@@ -38,7 +38,7 @@ class StatsScreen extends StatelessWidget {
                     '✅ ${progress.totalCorrect} doğru | 📊 %${progress.accuracy.toStringAsFixed(0)} başarı\n'
                     '🔥 En yüksek seri: ${progress.bestStreak} gün\n\n'
                     'Sen de kod okuma ustası ol! #Rheo';
-                SharePlus.instance.share(ShareParams(text: text));
+                Share.share(text);
               },
               tooltip: 'Paylaş',
             ),

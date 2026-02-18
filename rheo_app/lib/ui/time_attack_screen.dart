@@ -33,6 +33,7 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
   bool _isLoading = true;
   String? _selectedAnswer;
   bool? _isCorrect;
+  bool _showAnswerOverlay = false;
   List<String> _shuffledOptions = [];
   bool _timeUp = false;
 
@@ -140,9 +141,17 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
       HapticService.error();
     }
 
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) _nextQuestion();
-    });
+    // Show answer overlay after short delay
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (mounted) {
+      setState(() => _showAnswerOverlay = true);
+    }
+  }
+
+  void _dismissOverlayAndNext() {
+    HapticService.lightTap();
+    setState(() => _showAnswerOverlay = false);
+    _nextQuestion();
   }
 
   void _nextQuestion() {
@@ -150,7 +159,10 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
     if (_controller.isFinished) {
       _showResults();
     } else {
-      setState(() => _prepareQuestion());
+      setState(() {
+        _showAnswerOverlay = false;
+        _prepareQuestion();
+      });
     }
   }
 
@@ -260,34 +272,29 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const GradientBackground(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Center(child: CircularProgressIndicator(color: RheoColors.accent)),
-        ),
+      return Scaffold(
+        backgroundColor: RheoTheme.scaffoldBg(),
+        body: const Center(child: CircularProgressIndicator(color: RheoColors.accent)),
       );
     }
 
     final question = _controller.currentQuestion;
     if (question == null) {
-      return GradientBackground(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Center(child: Text('Soru yok', style: TextStyle(color: RheoColors.textMuted))),
-        ),
+      return Scaffold(
+        backgroundColor: RheoTheme.scaffoldBg(),
+        body: Center(child: Text('Soru yok', style: TextStyle(color: RheoTheme.textMuted))),
       );
     }
 
     final timerColor = _getTimerColor();
 
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
+    return Scaffold(
+      backgroundColor: RheoTheme.scaffoldBg(),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close_rounded, color: Colors.white),
+            icon: Icon(Icons.close_rounded, color: RheoTheme.textColor),
             onPressed: () {
               HapticService.lightTap();
               _timer?.cancel();
@@ -518,9 +525,77 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                 ],
               ),
             ),
+
+            // Answer overlay (correct / incorrect)
+            if (_showAnswerOverlay && _isCorrect != null)
+              GestureDetector(
+                onTap: _dismissOverlayAndNext,
+                child: AnimatedOpacity(
+                  opacity: _showAnswerOverlay ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.78),
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: SafeArea(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Spacer(flex: 2),
+                          Text(
+                            _isCorrect! ? 'Doğru Cevap!' : 'Yanlış Cevap!',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: _isCorrect! ? RheoColors.success : RheoColors.error,
+                              letterSpacing: 1.2,
+                              shadows: [
+                                Shadow(
+                                  color: (_isCorrect! ? RheoColors.success : RheoColors.error).withOpacity(0.5),
+                                  blurRadius: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          PulseAnimation(
+                            duration: const Duration(milliseconds: 2000),
+                            child: Image.asset(
+                              getMascotAsset(
+                                _isCorrect! ? MascotMood.celebrating : MascotMood.encouraging,
+                              ),
+                              height: 140,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            _isCorrect!
+                                ? MascotHelper.getCorrectMessage()
+                                : MascotHelper.getWrongMessage(),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(flex: 3),
+                          const Text(
+                            'İlerlemek için tıklayın',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
-      ),
     );
   }
 }

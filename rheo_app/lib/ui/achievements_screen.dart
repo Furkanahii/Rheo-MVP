@@ -21,129 +21,139 @@ class AchievementsScreen extends StatelessWidget {
     final unlocked = Achievements.getUnlocked(achievementProgress);
     final locked = Achievements.getLocked(achievementProgress);
 
-    return GradientBackground(
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: RheoTheme.brandScaffoldBg,
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-            onPressed: () {
-              HapticService.lightTap();
-              Navigator.pop(context);
-            },
-          ),
-          title: const Text('Başarımlar', style: TextStyle(color: Colors.white)),
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_rounded, color: RheoTheme.brandText),
+          onPressed: () {
+            HapticService.lightTap();
+            Navigator.pop(context);
+          },
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Progress Header
-                StaggeredFadeIn(
-                  index: 0,
-                  child: GlassCard(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: RheoColors.primary.withAlpha(30),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.emoji_events_rounded,
-                            color: RheoColors.primary,
-                            size: 28,
-                          ),
+        title: Text('Başarımlar', style: TextStyle(color: RheoTheme.brandText)),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Progress Header
+              StaggeredFadeIn(
+                index: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: RheoTheme.brandCardBg,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: RheoTheme.brandCardBorder),
+                    boxShadow: [
+                      BoxShadow(
+                        color: RheoTheme.brandBlue.withAlpha(10),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: RheoTheme.brandCyan.withAlpha(30),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${unlocked.length} / ${Achievements.all.length}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
+                        child: Icon(
+                          Icons.emoji_events_rounded,
+                          color: RheoTheme.brandCyan,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${unlocked.length} / ${Achievements.all.length}',
+                              style: TextStyle(
+                                color: RheoTheme.brandText,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Başarım Kazanıldı',
+                              style: TextStyle(
+                                color: RheoTheme.brandMuted,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Progress circle
+                      SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Stack(
+                          children: [
+                            CircularProgressIndicator(
+                              value: unlocked.length / Achievements.all.length,
+                              backgroundColor: RheoTheme.brandCyan.withAlpha(30),
+                              valueColor: AlwaysStoppedAnimation<Color>(RheoTheme.brandCyan),
+                              strokeWidth: 5,
+                            ),
+                            Center(
+                              child: Text(
+                                '${((unlocked.length / Achievements.all.length) * 100).round()}%',
+                                style: TextStyle(
+                                  color: RheoTheme.brandCyan,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(
-                                'Başarım Kazanıldı',
-                                style: TextStyle(
-                                  color: RheoColors.textMuted,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        // Progress circle
-                        SizedBox(
-                          width: 50,
-                          height: 50,
-                          child: Stack(
-                            children: [
-                              CircularProgressIndicator(
-                                value: unlocked.length / Achievements.all.length,
-                                backgroundColor: RheoColors.glassLight,
-                                valueColor: AlwaysStoppedAnimation<Color>(RheoColors.primary),
-                                strokeWidth: 5,
-                              ),
-                              Center(
-                                child: Text(
-                                  '${((unlocked.length / Achievements.all.length) * 100).round()}%',
-                                  style: TextStyle(
-                                    color: RheoColors.primary,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
+              ),
 
-                const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-                // Unlocked Section
-                if (unlocked.isNotEmpty) ...[
-                  _buildSectionHeader('KAZANILAN', unlocked.length),
-                  const SizedBox(height: 12),
-                  ...unlocked.asMap().entries.map((e) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: StaggeredFadeIn(
-                      index: e.key + 1,
-                      child: _buildAchievementCard(e.value, isUnlocked: true),
-                    ),
-                  )),
-                  const SizedBox(height: 20),
-                ],
-
-                // Locked Section
-                if (locked.isNotEmpty) ...[
-                  _buildSectionHeader('KİLİTLİ', locked.length),
-                  const SizedBox(height: 12),
-                  ...locked.asMap().entries.map((e) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: StaggeredFadeIn(
-                      index: e.key + unlocked.length + 2,
-                      child: _buildAchievementCard(e.value, isUnlocked: false),
-                    ),
-                  )),
-                ],
+              // Unlocked Section
+              if (unlocked.isNotEmpty) ...[
+                _buildSectionHeader('KAZANILAN', unlocked.length),
+                const SizedBox(height: 12),
+                ...unlocked.asMap().entries.map((e) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: StaggeredFadeIn(
+                    index: e.key + 1,
+                    child: _buildAchievementCard(e.value, isUnlocked: true),
+                  ),
+                )),
+                const SizedBox(height: 20),
               ],
-            ),
+
+              // Locked Section
+              if (locked.isNotEmpty) ...[
+                _buildSectionHeader('KİLİTLİ', locked.length),
+                const SizedBox(height: 12),
+                ...locked.asMap().entries.map((e) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: StaggeredFadeIn(
+                    index: e.key + unlocked.length + 2,
+                    child: _buildAchievementCard(e.value, isUnlocked: false),
+                  ),
+                )),
+              ],
+            ],
           ),
         ),
       ),
@@ -156,7 +166,7 @@ class AchievementsScreen extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: RheoColors.textMuted,
+            color: RheoTheme.brandMuted,
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 2,
@@ -166,13 +176,13 @@ class AchievementsScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: RheoColors.glassLight,
+            color: RheoTheme.brandCyan.withAlpha(20),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
             '$count',
             style: TextStyle(
-              color: RheoColors.textMuted,
+              color: RheoTheme.brandMuted,
               fontSize: 11,
             ),
           ),
@@ -184,20 +194,33 @@ class AchievementsScreen extends StatelessWidget {
   Widget _buildAchievementCard(Achievement achievement, {required bool isUnlocked}) {
     final color = Color(achievement.colorValue);
     
-    return GlassCard(
-      borderColor: isUnlocked ? color.withAlpha(80) : RheoColors.glassBorder,
+    return Container(
       padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: RheoTheme.brandCardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isUnlocked ? color.withAlpha(80) : RheoTheme.brandCardBorder,
+        ),
+        boxShadow: isUnlocked ? [
+          BoxShadow(
+            color: color.withAlpha(10),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ] : null,
+      ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isUnlocked ? color.withAlpha(30) : RheoColors.glassLight,
+              color: isUnlocked ? color.withAlpha(30) : RheoTheme.brandCardBg,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               achievement.icon,
-              color: isUnlocked ? color : RheoColors.textMuted,
+              color: isUnlocked ? color : RheoTheme.brandMuted,
               size: 24,
             ),
           ),
@@ -209,7 +232,7 @@ class AchievementsScreen extends StatelessWidget {
                 Text(
                   achievement.title,
                   style: TextStyle(
-                    color: isUnlocked ? Colors.white : RheoColors.textMuted,
+                    color: isUnlocked ? RheoTheme.textColor : RheoTheme.textMuted,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -218,7 +241,7 @@ class AchievementsScreen extends StatelessWidget {
                 Text(
                   achievement.description,
                   style: TextStyle(
-                    color: RheoColors.textMuted,
+                    color: RheoTheme.brandMuted,
                     fontSize: 12,
                   ),
                 ),
@@ -234,7 +257,7 @@ class AchievementsScreen extends StatelessWidget {
           else
             Icon(
               Icons.lock_rounded,
-              color: RheoColors.textMuted.withAlpha(100),
+              color: RheoTheme.brandMuted,
               size: 20,
             ),
         ],

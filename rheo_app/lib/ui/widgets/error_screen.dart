@@ -68,7 +68,7 @@ class ErrorScreen extends StatelessWidget {
                       onPressed: onRetry,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: RheoColors.primary,
-                        foregroundColor: Colors.black,
+                        foregroundColor: RheoTheme.textColor,
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

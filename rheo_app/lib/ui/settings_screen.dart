@@ -5,6 +5,7 @@ import '../logic/notification_service.dart';
 import 'theme.dart';
 import 'animations.dart';
 import 'about_screen.dart';
+import 'feedback_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -28,31 +29,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: GlassCard(
-          blur: 20,
+        backgroundColor: RheoTheme.cardBg,
+        child: Container(
           padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: RheoTheme.cardBg,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [BoxShadow(color: RheoTheme.textColor.withAlpha(15), blurRadius: 12)],
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: RheoColors.error.withAlpha(30),
+                  color: RheoColors.error.withAlpha(20),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.warning_rounded, color: RheoColors.error, size: 40),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'İlerlemeyi Sıfırla?',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(color: RheoTheme.textColor, fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 'Tüm ELO puanın, serilerin ve istatistiklerin silinecek. Bu işlem geri alınamaz.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: RheoColors.textSecondary, fontSize: 14),
+                style: TextStyle(color: RheoTheme.textMuted, fontSize: 14),
               ),
               const SizedBox(height: 24),
               Row(
@@ -63,7 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         HapticService.lightTap();
                         Navigator.pop(context);
                       },
-                      child: Text('İptal', style: TextStyle(color: RheoColors.textMuted)),
+                      child: Text('İptal', style: TextStyle(color: RheoTheme.textMuted)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -105,20 +110,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
+    return Scaffold(
+        backgroundColor: RheoTheme.brandScaffoldBg,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+            icon: Icon(Icons.arrow_back_ios_rounded, color: RheoTheme.textColor),
             onPressed: () {
               HapticService.lightTap();
               Navigator.pop(context);
             },
           ),
-          title: const Text('Ayarlar', style: TextStyle(color: Colors.white)),
+          title: Text('Ayarlar', style: TextStyle(color: RheoTheme.textColor)),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -134,8 +138,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 12),
                 StaggeredFadeIn(
                   index: 1,
-                  child: GlassCard(
-                    padding: EdgeInsets.zero,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: RheoTheme.brandCardBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: RheoTheme.brandCardBorder),
+                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 8, offset: const Offset(0, 2))],
+                    ),
                     child: Column(
                       children: [
                         _buildToggleTile(
@@ -149,7 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             setState(() => _soundEnabled = value);
                           },
                         ),
-                        const Divider(height: 1, color: RheoColors.glassBorder),
+                        Divider(height: 1, color: RheoTheme.brandCardBorder),
                         _buildToggleTile(
                           icon: Icons.notifications_active_outlined,
                           title: 'Bildirimler',
@@ -173,54 +182,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             }
                           },
                         ),
+                        Divider(height: 1, color: RheoTheme.brandCardBorder),
+                        _buildToggleTile(
+                          icon: Icons.dark_mode_rounded,
+                          title: 'Tema',
+                          subtitle: 'Koyu arka plan ve açık yazılar',
+                          value: storageService.progress.isDarkMode,
+                          onChanged: (value) async {
+                            HapticService.selectionClick();
+                            storageService.progress.isDarkMode = value;
+                            await storageService.saveProgress(storageService.progress);
+                            setState(() {});
+                          },
+                        ),
                       ],
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
                 
-                // Data Section
+                // Feedback Section
                 StaggeredFadeIn(
-                  index: 2,
-                  child: _buildSectionHeader('Veri'),
+                  index: 4,
+                  child: _buildSectionHeader('Geri Bildirim'),
                 ),
                 const SizedBox(height: 12),
                 StaggeredFadeIn(
-                  index: 3,
-                  child: GlassCard(
-                    padding: EdgeInsets.zero,
+                  index: 5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: RheoTheme.brandCardBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: RheoTheme.brandCardBorder),
+                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 8, offset: const Offset(0, 2))],
+                    ),
                     child: Column(
                       children: [
                         _buildActionTile(
-                          icon: Icons.refresh_rounded,
-                          title: 'İlerlemeyi Sıfırla',
-                          subtitle: 'Tüm verileri sil',
-                          color: RheoColors.error,
-                          onTap: _showResetDialog,
+                          icon: Icons.feedback_outlined,
+                          title: 'Geri Bildirim Gönder',
+                          subtitle: 'Önerilerinizi paylaşın',
+                          color: RheoColors.primary,
+                          onTap: () {
+                            HapticService.lightTap();
+                            showFeedbackDialog(context);
+                          },
                         ),
                       ],
                     ),
                   ),
                 ),
                 
-                const SizedBox(height: 24),
-                
                 // About Section
                 StaggeredFadeIn(
-                  index: 4,
+                  index: 6,
                   child: _buildSectionHeader('Hakkında'),
                 ),
                 const SizedBox(height: 12),
                 StaggeredFadeIn(
-                  index: 5,
-                  child: GlassCard(
+                  index: 7,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: RheoTheme.brandCardBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: RheoTheme.brandCardBorder),
+                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 8, offset: const Offset(0, 2))],
+                    ),
                     child: Column(
                       children: [
                         _buildAboutTile(context),
-                        const Divider(color: RheoColors.glassBorder, height: 1),
+                        Divider(color: RheoTheme.brandCardBorder, height: 1),
                         _buildInfoTile('Versiyon', '1.0.0 Beta'),
-                        const Divider(color: RheoColors.glassBorder, height: 1),
+                        Divider(color: RheoTheme.brandCardBorder, height: 1),
                         _buildInfoTile('İletişim', 'team@rheo.app'),
                       ],
                     ),
@@ -232,7 +267,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Footer
                 Center(
                   child: StaggeredFadeIn(
-                    index: 6,
+                    index: 8,
                     child: Column(
                       children: [
                         ShaderMask(
@@ -252,7 +287,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 4),
                         Text(
                           '© 2026 • Kod Okuma Oyunu',
-                          style: TextStyle(color: RheoColors.textMuted, fontSize: 12),
+                          style: TextStyle(color: RheoTheme.brandMuted, fontSize: 12),
                         ),
                       ],
                     ),
@@ -262,7 +297,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -272,7 +306,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: RheoColors.textMuted,
+          color: RheoTheme.brandMuted,
           fontSize: 12,
           fontWeight: FontWeight.w600,
           letterSpacing: 2,
@@ -293,17 +327,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: RheoColors.primary.withAlpha(30),
+          color: RheoTheme.brandCyan.withAlpha(30),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: RheoColors.primary, size: 22),
+        child: Icon(icon, color: RheoTheme.brandCyan, size: 22),
       ),
-      title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-      subtitle: Text(subtitle, style: TextStyle(color: RheoColors.textMuted, fontSize: 12)),
+      title: Text(title, style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.w500)),
+      subtitle: Text(subtitle, style: TextStyle(color: RheoTheme.brandMuted, fontSize: 12)),
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeTrackColor: RheoColors.primary,
+        activeTrackColor: RheoTheme.brandCyan,
       ),
     );
   }
@@ -327,7 +361,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Icon(icon, color: color, size: 22),
       ),
       title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w500)),
-      subtitle: Text(subtitle, style: TextStyle(color: RheoColors.textMuted, fontSize: 12)),
+      subtitle: Text(subtitle, style: TextStyle(color: RheoTheme.brandMuted, fontSize: 12)),
       trailing: Icon(Icons.arrow_forward_ios_rounded, color: color.withAlpha(150), size: 16),
     );
   }
@@ -338,8 +372,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: RheoColors.textSecondary)),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+          Text(label, style: TextStyle(color: RheoTheme.brandMuted)),
+          Text(value, style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -363,8 +397,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Icon(Icons.info_outline_rounded, color: RheoColors.primary, size: 22),
       ),
-      title: const Text('Hakkımızda', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-      subtitle: Text('Ekip ve uygulama bilgileri', style: TextStyle(color: RheoColors.textMuted, fontSize: 12)),
+      title: Text('Hakkımızda', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.w500)),
+      subtitle: Text('Ekip ve uygulama bilgileri', style: TextStyle(color: RheoTheme.brandMuted, fontSize: 12)),
       trailing: Icon(Icons.arrow_forward_ios_rounded, color: RheoColors.primary.withAlpha(150), size: 16),
     );
   }
