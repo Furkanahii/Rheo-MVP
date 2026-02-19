@@ -69,14 +69,22 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
         topic: widget.topic,
       );
       
-      // FALLBACK: Statik sorular boşsa → AI moduna geç
+      // If no questions for this topic+language, try without language filter
       if (_controller.totalQuestions == 0 && widget.topic != null) {
-        debugPrint('📭 No static questions for "${widget.topic}", switching to AI mode');
-        _isAIMode = true;
-        await _loadNextAIQuestion();
-      } else {
-        _prepareQuestion();
+        debugPrint('📭 No questions for "${widget.topic}" in ${languageService.selected.name}, trying all languages');
+        await _controller.loadQuestions(
+          maxQuestions: 10,
+          topic: widget.topic,
+        );
       }
+      
+      // If still no questions, load ALL questions (no filters)
+      if (_controller.totalQuestions == 0) {
+        debugPrint('📭 No questions for topic, loading all');
+        await _controller.loadQuestions(maxQuestions: 10);
+      }
+      
+      _prepareQuestion();
     }
     setState(() => _isLoading = false);
   }
