@@ -24,19 +24,19 @@ class Question {
     this.language = 'python',
   });
 
-  /// Factory constructor to parse JSON
+  /// Factory constructor to parse JSON — error-safe
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
-      id: json['id'] as String,
-      type: json['type'] as String,
-      difficulty: json['difficulty'] as int,
-      topic: json['topic'] as String,
-      codeSnippet: json['code_snippet'] as String,
-      questionText: json['question_text'] as String,
-      correctAnswer: json['correct_answer'] as String,
-      wrongOptions: List<String>.from(json['wrong_options'] as List),
-      explanation: json['explanation'] as String,
-      language: json['language'] as String? ?? 'python',
+      id: json['id']?.toString() ?? 'unknown',
+      type: json['type']?.toString() ?? 'output',
+      difficulty: (json['difficulty'] is int) ? json['difficulty'] : int.tryParse(json['difficulty']?.toString() ?? '1') ?? 1,
+      topic: json['topic']?.toString() ?? '',
+      codeSnippet: json['code_snippet']?.toString() ?? '',
+      questionText: json['question_text']?.toString() ?? '',
+      correctAnswer: json['correct_answer']?.toString() ?? '',
+      wrongOptions: (json['wrong_options'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      explanation: json['explanation']?.toString() ?? '',
+      language: json['language']?.toString() ?? 'python',
     );
   }
 

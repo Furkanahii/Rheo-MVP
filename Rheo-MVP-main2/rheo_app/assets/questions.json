@@ -7766,23 +7766,11 @@
     "topic": "variable",
     "code_snippet": "book_reference = \"PYT_GUIDE_2023\"\nis_available = False\ndays_overdue = 7\ndaily_fine_rate = 0.5\n\nif is_available:\n    fine_amount = 0\nelse:\n    fine_amount = days_overdue * daily_fine_rate\n\nprint(f\"Referans: {book_reference}, Durum: {'Mevcut' if is_available else 'Ödünç Verildi'}\")\nprint(f\"Gecikme Ücreti: {str(fine_amount)} TL. {'Ödeme Bekleniyor' if not is_available else 'Borç Yok'}\")\n\n# PROBLEM SATIRI\nestimated_total_payment = fine_amount + 10.0 # Kullanıcı 10 TL ek ödeme yapmak istiyor.\nprint(f\"Tahmini Toplam Ödeme: {estimated_total_payment:.2f} TL\")",
     "question_text": "Aşağıdaki Python kodunda bir hata bulunmaktadır. Hatanın oluştuğu satırı ve düzeltilmiş halini seçin.",
-    "correct_answer": {
-      "buggy_line": "estimated_total_payment = fine_amount + 10.0",
-      "corrected_line": "estimated_total_payment = float(fine_amount) + 10.0"
-    },
+    "correct_answer": "{'buggy_line': 'estimated_total_payment = fine_amount + 10.0', 'corrected_line': 'estimated_total_payment = float(fine_amount) + 10.0'}",
     "wrong_options": [
-      {
-        "buggy_line": "estimated_total_payment = fine_amount + 10.0",
-        "corrected_line": "estimated_total_payment = int(fine_amount) + 10.0"
-      },
-      {
-        "buggy_line": "fine_amount = days_overdue * daily_fine_rate",
-        "corrected_line": "fine_amount = days_overdue + daily_fine_rate"
-      },
-      {
-        "buggy_line": "print(f\"Gecikme Ücreti: {str(fine_amount)} TL. {'Ödeme Bekleniyor' if not is_available else 'Borç Yok'}\")",
-        "corrected_line": "print(f\"Gecikme Ücreti: {fine_amount} TL. {'Ödeme Bekleniyor' if not is_available else 'Borç Yok'}\")"
-      }
+      "estimated_total_payment = fine_amount + 10.0",
+      "fine_amount = days_overdue * daily_fine_rate",
+      "print(f\"Gecikme Ücreti: {str(fine_amount)} TL. {'Ödeme Bekleniyor' if not is_available else 'Borç Yok'}\")"
     ],
     "explanation": "`fine_amount` değişkeni `days_overdue * daily_fine_rate` (7 * 0.5 = 3.5) olarak bir `float` değer alır. Ancak `is_available` `True` olsaydı, `fine_amount` 0 olarak bir `int` değeri alacaktı. Python'da dinamik tip sistemi nedeniyle bu bir problem değildir. Problem satırı, `fine_amount` değişkeninin `estimated_total_payment` değişkenine eklenmesidir. Eğer `is_available` `True` olsaydı `fine_amount` 0 olacaktı ve sorun olmayacaktı. Ama `is_available` `False` olduğunda `fine_amount` 3.5 float değerini alır. Bu durumda `float(fine_amount) + 10.0` ile zaten bir float olan `fine_amount`'ın float olarak kullanılması doğru olacaktır. Burada bir bug olmamasına rağmen, soru float casting'i test etmek için tasarlanmıştır. Eğer `fine_amount` bir string olsaydı, `TypeError` oluşurdu. Verilen seçeneklerde `float(fine_amount)` ile `fine_amount`'ın açıkça float'a dönüştürülmesi öneriliyor, ki bu zaten float olduğu için işe yarar. `int(fine_amount)` ise hassasiyet kaybına neden olurdu. Aslında kodda bir hata yok, ancak seçenekler arasında en mantıklı 'düzeltme' `float(fine_amount)`'dır çünkü float bir değere float eklemek daha tutarlıdır. İlk `print` satırı `str(fine_amount)` ile doğru çalışır ve bir hata değildir. Bu kod, `fine_amount` değerinin her zaman `float` olduğundan emin olmak için `float()` kullanımıyla daha güvenli hale getirilebilir, özellikle gelecekteki değişikliklerde `fine_amount`'ın string olma ihtimali varsa. Ancak mevcut kodda hata vermez. Soru, float'a dönüştürmenin 'düzeltme' olarak sunulduğu varsayımıyla sorulmuştur.",
     "language": "python"
@@ -7874,23 +7862,11 @@
     "topic": "variable",
     "code_snippet": "parcel_weight_kg_str = \"4.2\"\ndelivery_distance_km = 80\nbase_rate_per_kg = 1.50\ndistance_charge_per_km = 0.25\n\nparcel_weight_kg = float(parcel_weight_kg_str)\n\ntotal_delivery_cost = parcel_weight_kg * base_rate_per_kg\n# PROBLEM SATIRI\ntotal_delivery_cost += str(delivery_distance_km) * distance_charge_per_km\n\ndelivery_status = \"Yolda\"\n\nprint(f\"Paket Ağırlığı: {parcel_weight_kg_str} kg, Tahmini Maliyet: {total_delivery_cost:.2f} TL, Durum: {delivery_status}\")",
     "question_text": "Aşağıdaki Python kodunda bir hata bulunmaktadır. Hatanın oluştuğu satırı ve düzeltilmiş halini seçin.",
-    "correct_answer": {
-      "buggy_line": "total_delivery_cost += str(delivery_distance_km) * distance_charge_per_km",
-      "corrected_line": "total_delivery_cost += delivery_distance_km * distance_charge_per_km"
-    },
+    "correct_answer": "{'buggy_line': 'total_delivery_cost += str(delivery_distance_km) * distance_charge_per_km', 'corrected_line': 'total_delivery_cost += delivery_distance_km * distance_charge_per_km'}",
     "wrong_options": [
-      {
-        "buggy_line": "parcel_weight_kg = float(parcel_weight_kg_str)",
-        "corrected_line": "parcel_weight_kg = int(parcel_weight_kg_str)"
-      },
-      {
-        "buggy_line": "delivery_status = \"Yolda\"",
-        "corrected_line": "delivery_status = True"
-      },
-      {
-        "buggy_line": "total_delivery_cost += str(delivery_distance_km) * distance_charge_per_km",
-        "corrected_line": "total_delivery_cost = total_delivery_cost + (str(delivery_distance_km) * distance_charge_per_km)"
-      }
+      "parcel_weight_kg = float(parcel_weight_kg_str)",
+      "delivery_status = \"Yolda\"",
+      "total_delivery_cost += str(delivery_distance_km) * distance_charge_per_km"
     ],
     "explanation": "Hata, `total_delivery_cost += str(delivery_distance_km) * distance_charge_per_km` satırındadır. Bu satırda, `delivery_distance_km` (bir int) önce `str()` ile bir stringe dönüştürülüyor ('80'). Daha sonra bu string, bir `float` (`distance_charge_per_km`) ile çarpılmaya çalışılıyor. Python'da bir string'i bir tamsayı ile çarpmak (örneğin 'a' * 3 = 'aaa') mümkünken, bir string'i bir ondalık sayı (`float`) ile çarpmak `TypeError` hatasına neden olur. `delivery_distance_km` zaten sayısal bir değer olduğu için, `str()` çağrısı kaldırılmalı ve direkt olarak `delivery_distance_km * distance_charge_per_km` şeklinde çarpma işlemi yapılmalıdır.",
     "language": "python"
