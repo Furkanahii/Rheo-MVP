@@ -56,20 +56,10 @@ void main() async {
     // Initialize services
     await languageService.init();
     
-    // Kullanıcı tercihine göre onboarding göster
-    final hasSeenOnboarding = await OnboardingScreen.hasSeenOnboarding();
+    // Onboarding her zaman göster (demo/MVP link paylaşımı için)
+    const showOnboarding = true;
     
-    // Set error widget
-    ErrorWidget.builder = (FlutterErrorDetails details) {
-      return ErrorScreen(
-        errorDetails: details,
-        onRetry: () {
-          // Error durumunda yapılacak işlem
-        },
-      );
-    };
-    
-    runApp(RheoApp(showOnboarding: !hasSeenOnboarding));
+    runApp(RheoApp(showOnboarding: showOnboarding));
   }, (error, stack) {
     // Zone dışı hatalar
     if (!kIsWeb) {
