@@ -827,8 +827,8 @@ class _LoadingShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: const Color(0xFFE8EAF6),
-      highlightColor: const Color(0xFFF5F5FF),
+      baseColor: RheoTheme.isDark ? const Color(0xFF2A2A3A) : const Color(0xFFE8EAF6),
+      highlightColor: RheoTheme.isDark ? const Color(0xFF3A3A4A) : const Color(0xFFF5F5FF),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
