@@ -1,0 +1,50 @@
+Gul borrowed B318 on 2024/11/18 at 09:00:00
+Irem borrowed B321 on 2024/11/18 at 09:13:24
+Gul requested B318 on 2024/11/18 at 09:15:49 - book not available
+Aylin borrowed B226 on 2024/11/18 at 09:21:53
+Zeynep borrowed B341 on 2024/11/18 at 09:31:53
+Burak borrowed B402 on 2024/11/18 at 09:42:10
+Leyla borrowed B281 on 2024/11/18 at 09:48:45
+Fatma borrowed B225 on 2024/11/18 at 09:49:27
+Ercan borrowed B280 on 2024/11/18 at 09:52:51
+Sibel requested B318 on 2024/11/18 at 10:01:34 - book not available
+Gokhan borrowed B418 on 2024/11/18 at 10:16:21
+Irem borrowed B303 on 2024/11/18 at 10:19:04
+Lale borrowed B265 on 2024/11/18 at 10:29:19
+Kaan borrowed B367 on 2024/11/18 at 10:40:14
+Aylin borrowed B149 on 2024/11/19 at 19:46:13
+Kaan borrowed B148 on 2024/11/19 at 19:50:34
+Serkan borrowed B244 on 2024/11/19 at 19:55:54
+Ercan borrowed B124 on 2024/11/19 at 19:59:33
+Orhan borrowed B157 on 2024/11/19 at 20:09:13
+Aylin returned B149 on 2024/11/19 at 20:13:02
+Gokhan borrowed B276 on 2024/11/19 at 20:22:27
+Emre borrowed B342 on 2024/11/19 at 20:26:57
+Missing books are: B124, B148, B157, B225, B226, B244, B265, B276, B280, B281, B303, B318, B321, B341, B342, B367, B402, B418
+Ayse borrowed B214 on 2024/11/19 at 20:48:53
+Pelin borrowed B258 on 2024/11/19 at 21:01:12
+Ali borrowed B340 on 2024/11/19 at 21:11:48
+Ercan borrowed B132 on 2024/11/19 at 21:25:59
+Furkan borrowed B296 on 2024/11/19 at 21:29:42
+Missing books are: B124, B132, B148, B157, B214, B225, B226, B244, B258, B265, B276, B280, B281, B296, B303, B318, B321, B340, B341, B342, B367, B402, B418
+Gul borrowed B252 on 2024/11/19 at 21:32:13
+Ali borrowed B438 on 2024/11/19 at 21:47:09
+Selin borrowed B316 on 2024/11/19 at 21:52:08
+Pelin borrowed B161 on 2024/11/19 at 22:07:01
+Aylin returned B226 on 2024/11/19 at 22:08:14
+Elif borrowed B384 on 2024/11/19 at 22:17:51
+Bora requested B367 on 2024/11/19 at 22:31:03 - book not available
+Seda borrowed B307 on 2024/11/19 at 22:40:27
+Irem borrowed B275 on 2024/11/19 at 22:42:55
+Irem borrowed B304 on 2024/11/19 at 22:47:02
+Ercan returned B132 on 2024/11/19 at 22:52:20
+Omer borrowed B373 on 2024/11/19 at 22:55:15
+Sibel borrowed B159 on 2024/11/19 at 23:06:15
+Cem borrowed B364 on 2024/11/19 at 23:14:44
+Fatma returned B225 on 2024/11/19 at 23:22:10
+Tolga borrowed B116 on 2024/11/19 at 23:34:50
+Omer borrowed B207 on 2024/11/19 at 23:45:36
+Mehmet borrowed B293 on 2024/11/19 at 23:56:24
+Orhan borrowed B313 on 2024/11/20 at 00:00:14
+Lale returned B265 on 2024/11/20 at 00:10:46
+Gokhan returned B276 on 2024/11/20 at 00:12:38

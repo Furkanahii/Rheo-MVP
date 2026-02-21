@@ -132,7 +132,7 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
     isScrollControlled: true,
     builder: (context) => Container(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.75,
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
       decoration: BoxDecoration(
         color: RheoTheme.cardBg,
@@ -276,7 +276,7 @@ class _TopicTileButtonState extends State<_TopicTileButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
-          width: (MediaQuery.of(context).size.width - 60) / 2,
+          width: ((MediaQuery.of(context).size.width - 60) / 2).clamp(0, 200),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: RheoTheme.cardBg,

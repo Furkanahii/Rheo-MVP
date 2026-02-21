@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Rheo MVP Raporu</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.min.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Rheo MVP Raporu</h1>
+</header>
+<h1 id="rheo-mvp---teknik-geliştirme-raporu">🦦 Rheo MVP - Teknik
+Geliştirme Raporu</h1>
+<p><strong>Tarih:</strong> 8 Şubat 2026<br />
+<strong>Durum:</strong> ✅ Faz 1 Tamamlandı - Beta’ya Hazır<br />
+<strong>Platform:</strong> Flutter (iOS, Android, Web)<br />
+<strong>Repository:</strong> <a
+href="https://github.com/Furkanahii/Rheo-MVP">github.com/Furkanahii/Rheo-MVP</a></p>
+<hr />
+<h2 id="özet">📋 Özet</h2>
+<p>Rheo, yazılım geliştiricilerin <strong>kod okuma
+becerilerini</strong> geliştirmek için tasarlanmış gamified bir mobil
+uygulamadır. “Duolingo for Code Reading” konseptiyle, kullanıcılar
+günlük quiz’ler çözerek, bug avlayarak ve zamana karşı yarışarak
+programlama becerilerini geliştirir.</p>
+<hr />
+<h2 id="tamamlanan-özellikler">🎮 Tamamlanan Özellikler</h2>
+<h3 id="oyun-modları">Oyun Modları</h3>
+<table>
+<thead>
+<tr>
+<th>Mod</th>
+<th>Açıklama</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📚 <strong>Quiz Mode</strong></td>
+<td>Kod çıktısı tahmin etme</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🐛 <strong>Bug Hunt</strong></td>
+<td>Hatalı satırı bulma</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>⚡ <strong>Time Attack</strong></td>
+<td>Zamana karşı yarışma</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gamification-sistemi">Gamification Sistemi</h3>
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 38%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Özellik</th>
+<th>Açıklama</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🏆 <strong>ELO Sistemi</strong></td>
+<td>1000 başlangıç puanı, dinamik hesaplama</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🔥 <strong>Streak</strong></td>
+<td>Günlük seri takibi</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🎯 <strong>Günlük Hedef</strong></td>
+<td>10 soru/gün</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🏅 <strong>Achievements</strong></td>
+<td>10+ rozet (First Blood, Speed Demon, vb.)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>📊 <strong>Leaderboard</strong></td>
+<td>Podyum + sıralama tablosu</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>📈 <strong>Rank Sistemi</strong></td>
+<td>Rookie → Bronze → Silver → Gold → Platinum → Diamond</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="uiux">UI/UX</h3>
+<table>
+<thead>
+<tr>
+<th>Özellik</th>
+<th>Açıklama</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🌙 <strong>Dark/Neon Tema</strong></td>
+<td>Terminal estetiği + modern tasarım</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>✨ <strong>Glassmorphism</strong></td>
+<td>Cam efektli kartlar</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🎬 <strong>Animasyonlar</strong></td>
+<td>Staggered fade, shimmer loading</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>📳 <strong>Haptic Feedback</strong></td>
+<td>Dokunsal geri bildirim</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🦦 <strong>Maskot Entegrasyonu</strong></td>
+<td>Quantum Otter tüm ekranlarda</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="altyapı">Altyapı</h3>
+<table>
+<thead>
+<tr>
+<th>Bileşen</th>
+<th>Teknoloji</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>💾 <strong>Yerel Depolama</strong></td>
+<td>Hive</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🔔 <strong>Push Bildirimleri</strong></td>
+<td>flutter_local_notifications</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🔊 <strong>Ses Efektleri</strong></td>
+<td>AudioPlayers</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>📤 <strong>Paylaşım</strong></td>
+<td>share_plus</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🎨 <strong>Syntax Highlighting</strong></td>
+<td>highlight.dart</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>🚀 <strong>Splash Screen</strong></td>
+<td>flutter_native_splash</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ekran-listesi">📱 Ekran Listesi</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Ekran</th>
+<th>Dosya</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Onboarding</td>
+<td><code>onboarding_screen.dart</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Ana Sayfa</td>
+<td><code>home_screen.dart</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Quiz</td>
+<td><code>quiz_screen.dart</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Bug Hunt</td>
+<td><code>bug_hunt_screen.dart</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Time Attack</td>
+<td><code>time_attack_screen.dart</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>İstatistikler</td>
+<td><code>stats_screen.dart</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Başarımlar</td>
+<td><code>achievements_screen.dart</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>Leaderboard</td>
+<td><code>leaderboard_screen.dart</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>Ayarlar</td>
+<td><code>settings_screen.dart</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Hakkında</td>
+<td><code>about_screen.dart</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td>Geri Bildirim</td>
+<td><code>feedback_dialog.dart</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td>Konu Seçimi</td>
+<td><code>topic_dialog.dart</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="soru-bankası">📊 Soru Bankası</h2>
+<table>
+<thead>
+<tr>
+<th>Dil</th>
+<th>Soru Sayısı</th>
+<th>Zorluk Seviyeleri</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🐍 Python</td>
+<td>50+</td>
+<td>1-3</td>
+</tr>
+<tr>
+<td>🌐 JavaScript</td>
+<td>50+</td>
+<td>1-3</td>
+</tr>
+<tr>
+<td>☕ Java</td>
+<td>50+</td>
+<td>1-3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Toplam:</strong> 150+ soru (2000+ satır JSON)</p>
+<p><strong>Konu Dağılımı:</strong> - Variables, Loops, If/Else -
+Functions, Arrays, Strings - OOP (Inheritance, Polymorphism) - Arrow
+Functions, Spread Operator, Array Methods</p>
+<hr />
+<h2 id="teknik-mimari">🛠️ Teknik Mimari</h2>
+<pre><code>lib/
+├── main.dart                 # Uygulama giriş noktası
+├── data/
+│   ├── question_model.dart   # Soru modeli
+│   ├── user_progress.dart    # Kullanıcı ilerlemesi
+│   └── achievements.dart     # Rozet tanımları
+├── logic/
+│   ├── storage_service.dart  # Hive depolama
+│   ├── elo_calculator.dart   # ELO hesaplama
+│   ├── language_service.dart # Dil seçimi
+│   ├── sound_service.dart    # Ses efektleri
+│   └── notification_service.dart # Bildirimler
+└── ui/
+    ├── theme.dart            # Tema ve renkler
+    ├── animations.dart       # Animasyon yardımcıları
+    ├── home_screen.dart      # Ana ekran
+    ├── quiz_screen.dart      # Quiz modu
+    ├── bug_hunt_screen.dart  # Bug avlama
+    ├── time_attack_screen.dart # Zaman yarışı
+    ├── leaderboard_screen.dart # Sıralama
+    └── widgets/              # Yeniden kullanılabilir widgetlar</code></pre>
+<hr />
+<h2 id="kod-kalitesi">✅ Kod Kalitesi</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> flutter analyze</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Analyzing</span> rheo_app...</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">No</span> issues found! ✅</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Metrik</th>
+<th>Değer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UI Ekranları</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Logic Servisleri</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Data Modelleri</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Widget’lar</td>
+<td>16+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pre-beta-iyileştirmeler">🔧 Pre-Beta İyileştirmeler</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>İyileştirme</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Empty States (boş ekran mesajları)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Onboarding Skip (“Bir daha gösterme”)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Global Error Handling (hata ekranı)</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sonraki-adımlar-faz-2">🚀 Sonraki Adımlar (Faz 2)</h2>
+<ol type="1">
+<li><strong>Alpha Test</strong> - 10-15 kişilik yakın çevre testi</li>
+<li><strong>Beta Test</strong> - IEEE/Üniversite ağı (100-200 kişi)</li>
+<li><strong>Analytics Entegrasyonu</strong> - Firebase Analytics</li>
+<li><strong>App Store / Play Store</strong> - Mağaza hazırlığı</li>
+</ol>
+<hr />
+<h2 id="ekip">👥 Ekip</h2>
+<ul>
+<li><strong>Geliştirme:</strong> Flutter + Dart</li>
+<li><strong>Tasarım:</strong> Dark/Neon UI konsepti</li>
+<li><strong>İçerik:</strong> Python, JavaScript, Java soruları</li>
+</ul>
+<hr />
+<p><strong>Rheo - Learning for Coding</strong> 🦦</p>
+<p><em>“Kodları okumak, yazmak kadar önemlidir.”</em></p>
+</body>
+</html>

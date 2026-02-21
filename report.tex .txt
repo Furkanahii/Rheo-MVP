@@ -1,0 +1,147 @@
+\documentclass[12pt,a4paper]{article}
+
+% Language & Encoding
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% Math & Formatting
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+\usepackage{courier}
+
+\geometry{margin=1in}
+\setstretch{1.2}
+
+\title{\textbf{Exploring Post-Quantum Cryptography Through Interactive Dialogue}}
+\author{Furkan Ahi}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{I. Introduction}
+
+Post-quantum cryptography has become one of the most critical research areas in modern cybersecurity. Although large-scale quantum computers capable of breaking today’s public-key systems such as RSA and Elliptic Curve Cryptography (ECC) do not yet exist, the rapid progress in quantum hardware and algorithms has made it clear that classical cryptographic schemes will eventually become vulnerable. This creates an urgent need to understand, evaluate, and transition to new cryptographic systems that remain secure even in the presence of powerful quantum adversaries.
+
+For this reason, I chose to focus on \textbf{Lattice-based Cryptography}, specifically the \textbf{Module-Learning With Errors (Module-LWE)} structure used in \textbf{CRYSTALS-Kyber (ML-KEM)}, the post-quantum key establishment mechanism selected by NIST. Lattice-based schemes represent one of the most promising families in post-quantum cryptography due to their strong theoretical foundations, resistance to quantum attacks, and practical performance.
+
+Throughout this project, I used an LLM as an interactive learning resource, repeatedly asking questions, requesting clarifications, and exploring related concepts such as lattice constructions, LWE hardness, Ring-LWE optimizations, Module-LWE security, and Kyber’s encapsulation mechanism.
+
+This report documents the full dialogue with the LLM, followed by a consolidated summary of the concepts learned and a critical evaluation of the model's weaknesses.
+
+\newpage
+\section*{II. Chat Log with ChatGPT}
+
+\noindent\textbf{You:} Can you explain the idea behind post-quantum cryptography in simple terms?
+
+\noindent\textbf{ChatGPT:} Post-quantum cryptography refers to a set of cryptographic algorithms designed to remain secure even if extremely powerful quantum computers become available in the future. Classical cryptographic systems—such as RSA and ECC—are based on mathematical problems that are hard for classical computers but easy for quantum computers due to algorithms like Shor’s algorithm. Post-quantum cryptography instead relies on mathematical structures such as lattices, error-correcting codes, multivariate equations, and hash-based constructions.
+
+\vspace{1em}
+
+\noindent\textbf{You:} How exactly can quantum computers break classical cryptography like RSA and ECC?
+
+\noindent\textbf{ChatGPT:} Quantum computers can break RSA and ECC because they can run Shor’s algorithm, which efficiently solves factoring and discrete logarithm problems. Tasks that would take classical computers millions of years could potentially be solved in hours.
+
+\vspace{1em}
+
+\noindent\textbf{You:} Since classical schemes will eventually be broken, what are the main families of post-quantum cryptographic algorithms?
+
+\noindent\textbf{ChatGPT:} The main PQC families include Lattice-Based, Code-Based, Hash-Based, Multivariate, and Isogeny-Based Cryptography.
+
+\vspace{1em}
+
+\noindent\textbf{You:} Since lattice cryptography is foundational for Kyber, I want to explore it more deeply. Could you explain SVP and the relationship between SVP and LWE?
+
+\noindent\textbf{ChatGPT:} The Shortest Vector Problem (SVP) asks for the shortest non-zero vector in a lattice:
+\[
+\lambda_1(L) = \min_{v \in L \setminus \{0\}} \|v\|.
+\]
+LWE is defined as:
+\[
+b = A \cdot s + e \pmod q,
+\]
+where \(A\) is an \(n \times n\) matrix, \(s\) and \(e\) are vectors in \(\mathbb{Z}_q^n\). The noise \(e\) makes the system difficult to solve. Regev proved that solving LWE implies solving worst-case SVP.
+
+\vspace{1em}
+
+\noindent\textbf{You:} How does Ring-LWE address efficiency issues in LWE?
+
+\noindent\textbf{ChatGPT:} Ring-LWE replaces matrices with polynomials in:
+\[
+R_q = \mathbb{Z}_q[x]/(x^n + 1).
+\]
+Matrix multiplication becomes polynomial multiplication:
+\[
+b(x) = a(x)s(x) + e(x).
+\]
+Using the Number Theoretic Transform (NTT), this reduces complexity from \(O(n^2)\) to \(O(n \log n)\).
+
+\vspace{1em}
+
+\noindent\textbf{You:} Why does Kyber use Module-LWE instead of Ring-LWE?
+
+\noindent\textbf{ChatGPT:} Module-LWE balances structure and security by working over modules \(R_q^k\). Kyber fixes \(n=256\) and scales security levels by changing module rank \(k\) rather than polynomial degree.
+
+\vspace{1em}
+
+\noindent\textbf{You:} What exactly is Kyber, and why is it a KEM?
+
+\noindent\textbf{ChatGPT:} Kyber is a Module-LWE-based Key Encapsulation Mechanism. It encapsulates a random symmetric key.  
+\textbf{KeyGen:} Compute \(t = A s + e\).  
+\textbf{Encaps:} Compute \(u = Ar + e_1\), \(v = tr + e_2 + \text{encode}(k)\).  
+\textbf{Decaps:} Recover \(k\) via reconciliation and derive shared key \(K\).
+
+\vspace{1em}
+
+\noindent\textbf{You:} Why did NIST select Kyber over NTRU and FrodoKEM?
+
+\noindent\textbf{ChatGPT:} Kyber offered the best balance of performance, key size, security assumptions, implementation simplicity, and patent clarity.
+
+\vspace{1em}
+
+\noindent\textbf{You:} What is the “Harvest Now, Decrypt Later” attack?
+
+\noindent\textbf{ChatGPT:} Adversaries collect encrypted data today and decrypt it later when quantum computers are powerful enough to break RSA/ECC. Because sensitive data must remain confidential for decades, PQC migration must begin now.
+
+\newpage
+\section*{III. Summary of Lessons Learned}
+
+Throughout this interactive learning process, I developed a comprehensive understanding of post-quantum cryptography (PQC), the motivations behind it, and the mathematical foundations underlying modern schemes like CRYSTALS-Kyber. I learned why quantum computers threaten RSA/ECC and why lattice-based schemes, especially those built on \textbf{LWE}, \textbf{Ring-LWE}, and \textbf{Module-LWE}, are strong candidates for PQC.
+
+I explored how \textbf{SVP} underlies lattice hardness and how \textbf{LWE} inherits worst-case guarantees. I learned how \textbf{Ring-LWE} improves efficiency using polynomial arithmetic and the \textbf{NTT}, and how \textbf{Module-LWE} allows Kyber to scale its security without increasing polynomial degree.
+
+I gained a detailed understanding of \textbf{Kyber’s KEM design}, its encapsulation/decapsulation process, and the role of noise reconciliation. I also learned why NIST selected Kyber for standardization and how the \textbf{Harvest Now, Decrypt Later} threat model motivates immediate PQC adoption.
+
+Overall, this process strengthened my conceptual and technical understanding of PQC.
+
+\newpage
+\section*{IV. Discussion on Weak Points of ChatGPT}
+
+Although ChatGPT was effective in guiding my understanding of PQC, it exhibited limitations common to Large Language Models.
+
+\begin{enumerate}
+    \item \textbf{Oversimplification of Mathematical Rigor.}  
+    The model sometimes blurred distinctions between formal proofs and computational assumptions, and described hardness reductions narratively rather than rigorously.
+
+    \item \textbf{Inconsistent Precision in Notation.}  
+    Some definitions omitted explicit matrix dimensions or noise distributions (e.g., centered binomial distributions in Kyber), which required clarification.
+
+    \item \textbf{Blindness to Implementation Risks.}  
+    The model did not proactively mention side-channel attacks or decryption failure probabilities—critical aspects of real-world cryptography.
+
+    \item \textbf{Prompt Sensitivity.}  
+    The depth of explanation depended heavily on the specificity of my questions, showing that LLMs require guided inquiry rather than independently structured pedagogy.
+\end{enumerate}
+
+\newpage
+\section*{V. Conclusion}
+
+This project provided a structured exploration of post-quantum cryptography, from quantum threats to LWE-based constructions and Kyber’s Module-LWE design. The dialogue format helped clarify each concept step-by-step, while the evaluation of ChatGPT’s weaknesses highlighted the importance of combining AI tools with rigorous study. Overall, the project deepened my technical understanding of PQC and strengthened my ability to critically assess AI-assisted learning.
+
+\end{document}
