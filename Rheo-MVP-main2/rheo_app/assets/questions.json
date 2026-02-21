@@ -12030,5 +12030,1573 @@
     ],
     "explanation": "Bu bir özyinelemeli (recursive) fonksiyondur. `simple_countdown(3)` çağrıldığında önce 3'ü yazdırır, sonra `simple_countdown(2)`'yi çağırır. Bu işlem sayı 0'a ulaşana kadar devam eder. 0 olduğunda 'Bitti!' yazdırılır ve fonksiyon sonlanır. Sonuç olarak sırasıyla 3, 2, 1 ve 'Bitti!' yazdırılır.",
     "language": "python"
+  },
+  {
+    "id": "python_1_string_1",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "s = \"Hello\"\nprint(s[0])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "H",
+    "wrong_options": [
+      "e",
+      "Hello",
+      "h"
+    ],
+    "explanation": "s[0] string'in ilk karakterini verir: 'H'",
+    "language": "python"
+  },
+  {
+    "id": "python_1_string_2",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "s = \"Python\"\nprint(len(s))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "6",
+    "wrong_options": [
+      "5",
+      "7",
+      "Error"
+    ],
+    "explanation": "len() fonksiyonu string uzunluğunu verir. 'Python' 6 karakterdir.",
+    "language": "python"
+  },
+  {
+    "id": "python_1_string_3",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "print(\"abc\" + \"123\")",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "abc123",
+    "wrong_options": [
+      "abc 123",
+      "126",
+      "Error"
+    ],
+    "explanation": "'+' operatörü stringleri birleştirir: 'abc' + '123' = 'abc123'",
+    "language": "python"
+  },
+  {
+    "id": "python_1_string_4",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "s = \"hello\"\nprint(s.upper())",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "HELLO",
+    "wrong_options": [
+      "hello",
+      "Hello",
+      "Error"
+    ],
+    "explanation": "upper() tüm harfleri büyük yapar.",
+    "language": "python"
+  },
+  {
+    "id": "python_1_string_5",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "print(\"ha\" * 3)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "hahaha",
+    "wrong_options": [
+      "ha3",
+      "ha ha ha",
+      "Error"
+    ],
+    "explanation": "'*' operatörü stringi tekrarlar: 'ha' * 3 = 'hahaha'",
+    "language": "python"
+  },
+  {
+    "id": "python_2_string_6",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "s = \"Python\"\nprint(s[1:4])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "yth",
+    "wrong_options": [
+      "Pyt",
+      "ytho",
+      "ython"
+    ],
+    "explanation": "s[1:4] → index 1'den 3'e kadar: 'y','t','h' = 'yth'",
+    "language": "python"
+  },
+  {
+    "id": "python_2_string_7",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "s = \"Hello World\"\nprint(s.split())",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "['Hello', 'World']",
+    "wrong_options": [
+      "Hello World",
+      "['H','e','l','l','o']",
+      "Error"
+    ],
+    "explanation": "split() boşluktan böler: ['Hello', 'World']",
+    "language": "python"
+  },
+  {
+    "id": "python_2_string_8",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "s = \"abcabc\"\nprint(s.count(\"a\"))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "2",
+    "wrong_options": [
+      "1",
+      "3",
+      "0"
+    ],
+    "explanation": "count() belirtilen karakterin kaç kez geçtiğini sayar. 'a' 2 kez geçer.",
+    "language": "python"
+  },
+  {
+    "id": "python_2_string_9",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "s = \"Hello\"\nprint(s.replace(\"l\",\"r\"))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Herro",
+    "wrong_options": [
+      "Herlo",
+      "Hello",
+      "Error"
+    ],
+    "explanation": "replace() tüm 'l' harflerini 'r' ile değiştirir: 'Herro'",
+    "language": "python"
+  },
+  {
+    "id": "python_2_string_10",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "print(\"Hello\"[::-1])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "olleH",
+    "wrong_options": [
+      "Hello",
+      "olle",
+      "Error"
+    ],
+    "explanation": "[::-1] stringi tersine çevirir: 'olleH'",
+    "language": "python"
+  },
+  {
+    "id": "python_3_string_11",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "string",
+    "code_snippet": "s = \"  hello  \"\nprint(s.strip().capitalize())",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Hello",
+    "wrong_options": [
+      "  Hello  ",
+      "hello",
+      "  hello  "
+    ],
+    "explanation": "strip() boşlukları siler, capitalize() ilk harfi büyütür: 'Hello'",
+    "language": "python"
+  },
+  {
+    "id": "python_3_string_12",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "string",
+    "code_snippet": "words = [\"a\",\"b\",\"c\"]\nprint(\"-\".join(words))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "a-b-c",
+    "wrong_options": [
+      "abc",
+      "-a-b-c-",
+      "a - b - c"
+    ],
+    "explanation": "join() listedeki elemanları birleştirir: 'a-b-c'",
+    "language": "python"
+  },
+  {
+    "id": "python_3_string_13",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "string",
+    "code_snippet": "s = \"Python3\"\nprint(s.isalpha())",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "False",
+    "wrong_options": [
+      "True",
+      "Error",
+      "None"
+    ],
+    "explanation": "isalpha() sadece harf varsa True döner. '3' harf değil → False",
+    "language": "python"
+  },
+  {
+    "id": "java_1_string_14",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "String s = \"Hello\";\nSystem.out.println(s.length());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "5",
+    "wrong_options": [
+      "4",
+      "6",
+      "Error"
+    ],
+    "explanation": "length() string uzunluğunu verir. 'Hello' 5 karakterdir.",
+    "language": "java"
+  },
+  {
+    "id": "java_1_string_15",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "String s = \"Java\";\nSystem.out.println(s.charAt(0));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "J",
+    "wrong_options": [
+      "a",
+      "Java",
+      "j"
+    ],
+    "explanation": "charAt(0) ilk karakteri verir: 'J'",
+    "language": "java"
+  },
+  {
+    "id": "java_1_string_16",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "System.out.println(\"abc\" + \"def\");",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "abcdef",
+    "wrong_options": [
+      "abc def",
+      "Error",
+      "abcdef "
+    ],
+    "explanation": "'+' operatörü stringleri birleştirir.",
+    "language": "java"
+  },
+  {
+    "id": "java_2_string_17",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "String s = \"Hello World\";\nSystem.out.println(s.substring(6));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "World",
+    "wrong_options": [
+      "Hello",
+      "Hello ",
+      "orld"
+    ],
+    "explanation": "substring(6) index 6'dan itibaren döndürür: 'World'",
+    "language": "java"
+  },
+  {
+    "id": "java_2_string_18",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "String s = \"hello\";\nSystem.out.println(s.toUpperCase());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "HELLO",
+    "wrong_options": [
+      "hello",
+      "Hello",
+      "Error"
+    ],
+    "explanation": "toUpperCase() tüm harfleri büyütür.",
+    "language": "java"
+  },
+  {
+    "id": "java_2_string_19",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "String a = \"abc\";\nString b = \"abc\";\nSystem.out.println(a.equals(b));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "true",
+    "wrong_options": [
+      "false",
+      "Error",
+      "abc"
+    ],
+    "explanation": "equals() içerik karşılaştırması yapar, aynı içerik → true",
+    "language": "java"
+  },
+  {
+    "id": "java_3_string_20",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "string",
+    "code_snippet": "String s = \"Hello\";\nSystem.out.println(new StringBuilder(s).reverse().toString());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "olleH",
+    "wrong_options": [
+      "Hello",
+      "olle",
+      "Error"
+    ],
+    "explanation": "StringBuilder.reverse() stringi tersine çevirir: 'olleH'",
+    "language": "java"
+  },
+  {
+    "id": "java_3_string_21",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "string",
+    "code_snippet": "String s = \"ab,cd,ef\";\nString[] arr = s.split(\",\");\nSystem.out.println(arr[1]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "cd",
+    "wrong_options": [
+      "ab",
+      "ef",
+      "ab,cd,ef"
+    ],
+    "explanation": "split(',') virgülden böler, arr[1] ikinci eleman: 'cd'",
+    "language": "java"
+  },
+  {
+    "id": "javascript_1_string_22",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "let s = \"Hello\";\nconsole.log(s.length);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "5",
+    "wrong_options": [
+      "4",
+      "6",
+      "Error"
+    ],
+    "explanation": "length property string uzunluğunu verir: 5",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_1_string_23",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "console.log(\"abc\" + \"123\");",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "abc123",
+    "wrong_options": [
+      "abc 123",
+      "126",
+      "Error"
+    ],
+    "explanation": "'+' stringleri birleştirir: 'abc123'",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_1_string_24",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "string",
+    "code_snippet": "let s = \"world\";\nconsole.log(s[0]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "w",
+    "wrong_options": [
+      "o",
+      "world",
+      "W"
+    ],
+    "explanation": "s[0] ilk karakter: 'w'",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_string_25",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "console.log(\"Hello\".slice(1, 3));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "el",
+    "wrong_options": [
+      "He",
+      "ell",
+      "Hel"
+    ],
+    "explanation": "slice(1,3) index 1'den 2'ye: 'el'",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_string_26",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "console.log(\"hello\".includes(\"ell\"));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "true",
+    "wrong_options": [
+      "false",
+      "Error",
+      "ell"
+    ],
+    "explanation": "includes() alt string kontrolü yapar: 'ell' içinde → true",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_string_27",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "string",
+    "code_snippet": "console.log(\"abc\".repeat(2));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "abcabc",
+    "wrong_options": [
+      "abc2",
+      "abc abc",
+      "Error"
+    ],
+    "explanation": "repeat(2) stringi 2 kez tekrarlar: 'abcabc'",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_3_string_28",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "string",
+    "code_snippet": "let s = \"Hello World\";\nconsole.log(s.split(\" \").reverse().join(\" \"));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "World Hello",
+    "wrong_options": [
+      "Hello World",
+      "dlroW olleH",
+      "Error"
+    ],
+    "explanation": "split→reverse→join kelimeleri tersine çevirir: 'World Hello'",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_3_string_29",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "string",
+    "code_snippet": "console.log(\"abc\".padStart(6, \"0\"));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "000abc",
+    "wrong_options": [
+      "abc000",
+      "0abc00",
+      "abc   "
+    ],
+    "explanation": "padStart(6,'0') soldan 0 ekleyerek 6 uzunluğa tamamlar: '000abc'",
+    "language": "javascript"
+  },
+  {
+    "id": "python_1_array_30",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "array",
+    "code_snippet": "arr = [1, 2, 3]\nprint(arr[1])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "2",
+    "wrong_options": [
+      "1",
+      "3",
+      "Error"
+    ],
+    "explanation": "arr[1] dizinin 2. elemanını verir (0-indexed): 2",
+    "language": "python"
+  },
+  {
+    "id": "python_1_array_31",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "array",
+    "code_snippet": "arr = [10, 20, 30]\nprint(len(arr))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "2",
+      "30",
+      "Error"
+    ],
+    "explanation": "len() dizinin eleman sayısını verir: 3",
+    "language": "python"
+  },
+  {
+    "id": "python_1_array_32",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "array",
+    "code_snippet": "arr = [1, 2, 3]\narr.append(4)\nprint(arr)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 2, 3, 4]",
+    "wrong_options": [
+      "[1, 2, 3]",
+      "[4, 1, 2, 3]",
+      "Error"
+    ],
+    "explanation": "append() sona eleman ekler.",
+    "language": "python"
+  },
+  {
+    "id": "python_2_array_33",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "array",
+    "code_snippet": "arr = [3, 1, 4, 1, 5]\narr.sort()\nprint(arr)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 1, 3, 4, 5]",
+    "wrong_options": [
+      "[3, 1, 4, 1, 5]",
+      "[5, 4, 3, 1, 1]",
+      "Error"
+    ],
+    "explanation": "sort() küçükten büyüğe sıralar.",
+    "language": "python"
+  },
+  {
+    "id": "python_2_array_34",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "array",
+    "code_snippet": "arr = [1, 2, 3, 4, 5]\nprint(arr[1:4])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[2, 3, 4]",
+    "wrong_options": [
+      "[1, 2, 3]",
+      "[2, 3, 4, 5]",
+      "[1, 2, 3, 4]"
+    ],
+    "explanation": "arr[1:4] → index 1'den 3'e: [2, 3, 4]",
+    "language": "python"
+  },
+  {
+    "id": "python_2_array_35",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "array",
+    "code_snippet": "arr = [1, 2, 3]\narr.insert(1, 99)\nprint(arr)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 99, 2, 3]",
+    "wrong_options": [
+      "[99, 1, 2, 3]",
+      "[1, 2, 99, 3]",
+      "Error"
+    ],
+    "explanation": "insert(1, 99) index 1'e 99 ekler.",
+    "language": "python"
+  },
+  {
+    "id": "python_2_array_36",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "array",
+    "code_snippet": "arr = [1, 2, 3, 4]\nprint(sum(arr))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "10",
+    "wrong_options": [
+      "4",
+      "[1, 2, 3, 4]",
+      "Error"
+    ],
+    "explanation": "sum() tüm elemanları toplar: 1+2+3+4=10",
+    "language": "python"
+  },
+  {
+    "id": "python_3_array_37",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "array",
+    "code_snippet": "arr = [1, 2, 3, 4, 5]\nprint([x**2 for x in arr if x > 2])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[9, 16, 25]",
+    "wrong_options": [
+      "[1, 4, 9, 16, 25]",
+      "[3, 4, 5]",
+      "Error"
+    ],
+    "explanation": "List comp: x>2 olanların karesi: [9, 16, 25]",
+    "language": "python"
+  },
+  {
+    "id": "python_3_array_38",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "array",
+    "code_snippet": "a = [1, 2]\nb = a\nb.append(3)\nprint(a)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 2, 3]",
+    "wrong_options": [
+      "[1, 2]",
+      "[3]",
+      "Error"
+    ],
+    "explanation": "b = a referans kopyası yapar, b'ye eklenen a'yı da etkiler.",
+    "language": "python"
+  },
+  {
+    "id": "python_3_array_39",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "array",
+    "code_snippet": "arr = [[1,2],[3,4]]\nprint(arr[1][0])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "1",
+      "4",
+      "[3,4]"
+    ],
+    "explanation": "arr[1] → [3,4], [0] → 3. İç içe dizide erişim.",
+    "language": "python"
+  },
+  {
+    "id": "java_1_array_40",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "array",
+    "code_snippet": "int[] arr = {1, 2, 3};\nSystem.out.println(arr[0]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1",
+    "wrong_options": [
+      "0",
+      "3",
+      "Error"
+    ],
+    "explanation": "arr[0] dizinin ilk elemanı: 1",
+    "language": "java"
+  },
+  {
+    "id": "java_1_array_41",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "array",
+    "code_snippet": "int[] arr = {10, 20, 30};\nSystem.out.println(arr.length);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "2",
+      "30",
+      "Error"
+    ],
+    "explanation": "arr.length eleman sayısını verir: 3",
+    "language": "java"
+  },
+  {
+    "id": "java_2_array_42",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "array",
+    "code_snippet": "int[] arr = {5, 3, 1};\njava.util.Arrays.sort(arr);\nSystem.out.println(arr[0]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1",
+    "wrong_options": [
+      "5",
+      "3",
+      "Error"
+    ],
+    "explanation": "Arrays.sort() küçükten büyüğe sıralar, arr[0] = 1",
+    "language": "java"
+  },
+  {
+    "id": "java_2_array_43",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "array",
+    "code_snippet": "int[] a = {1, 2, 3};\nint sum = 0;\nfor (int x : a) sum += x;\nSystem.out.println(sum);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "6",
+    "wrong_options": [
+      "3",
+      "123",
+      "Error"
+    ],
+    "explanation": "for-each ile toplam: 1+2+3=6",
+    "language": "java"
+  },
+  {
+    "id": "java_3_array_44",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "array",
+    "code_snippet": "int[][] m = {{1,2},{3,4}};\nSystem.out.println(m[1][1]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "4",
+    "wrong_options": [
+      "1",
+      "3",
+      "2"
+    ],
+    "explanation": "m[1] → {3,4}, [1] → 4. 2D dizi erişimi.",
+    "language": "java"
+  },
+  {
+    "id": "java_3_array_45",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "array",
+    "code_snippet": "int[] arr = {1, 2, 3, 4, 5};\nSystem.out.println(java.util.Arrays.toString(java.util.Arrays.copyOfRange(arr, 1, 4)));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[2, 3, 4]",
+    "wrong_options": [
+      "[1, 2, 3]",
+      "[1, 2, 3, 4]",
+      "Error"
+    ],
+    "explanation": "copyOfRange(1,4) → index 1'den 3'e: [2, 3, 4]",
+    "language": "java"
+  },
+  {
+    "id": "javascript_1_array_46",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "array",
+    "code_snippet": "let arr = [1, 2, 3];\nconsole.log(arr[2]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "2",
+      "1",
+      "Error"
+    ],
+    "explanation": "arr[2] = 3 (0-indexed)",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_1_array_47",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "array",
+    "code_snippet": "let arr = [10, 20];\narr.push(30);\nconsole.log(arr.length);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "2",
+      "30",
+      "Error"
+    ],
+    "explanation": "push() eleman ekler, length 3 olur.",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_array_48",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "array",
+    "code_snippet": "let arr = [3, 1, 2];\narr.sort();\nconsole.log(arr);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 2, 3]",
+    "wrong_options": [
+      "[3, 1, 2]",
+      "[3, 2, 1]",
+      "Error"
+    ],
+    "explanation": "sort() default olarak sıralar (stringler gibi).",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_array_49",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "array",
+    "code_snippet": "let arr = [1, 2, 3, 4];\nconsole.log(arr.filter(x => x > 2));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[3, 4]",
+    "wrong_options": [
+      "[1, 2]",
+      "[true, true]",
+      "Error"
+    ],
+    "explanation": "filter() koşulu sağlayan elemanları döndürür.",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_3_array_50",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "array",
+    "code_snippet": "let arr = [1, 2, 3];\nconsole.log(arr.reduce((a, b) => a + b, 0));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "6",
+    "wrong_options": [
+      "123",
+      "3",
+      "Error"
+    ],
+    "explanation": "reduce() toplama: 0+1+2+3=6",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_3_array_51",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "array",
+    "code_snippet": "let arr = [1, [2, [3]]];\nconsole.log(arr.flat(Infinity));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 2, 3]",
+    "wrong_options": [
+      "[1, [2, [3]]]",
+      "[1, 2, [3]]",
+      "Error"
+    ],
+    "explanation": "flat(Infinity) tüm iç içe dizileri düzleştirir.",
+    "language": "javascript"
+  },
+  {
+    "id": "python_1_oop_52",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "oop",
+    "code_snippet": "class Dog:\n    def __init__(self, name):\n        self.name = name\n\nd = Dog(\"Rex\")\nprint(d.name)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Rex",
+    "wrong_options": [
+      "Dog",
+      "name",
+      "Error"
+    ],
+    "explanation": "__init__ constructor'ı çağrılır, self.name = 'Rex' atanır.",
+    "language": "python"
+  },
+  {
+    "id": "python_1_oop_53",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "oop",
+    "code_snippet": "class Cat:\n    sound = \"Meow\"\n\nprint(Cat.sound)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Meow",
+    "wrong_options": [
+      "Cat",
+      "sound",
+      "Error"
+    ],
+    "explanation": "Cat.sound class değişkenine erişim: 'Meow'",
+    "language": "python"
+  },
+  {
+    "id": "python_2_oop_54",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "oop",
+    "code_snippet": "class Animal:\n    def speak(self):\n        return \"...\"\n\nclass Dog(Animal):\n    def speak(self):\n        return \"Woof\"\n\nd = Dog()\nprint(d.speak())",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Woof",
+    "wrong_options": [
+      "...",
+      "Error",
+      "None"
+    ],
+    "explanation": "Dog, Animal'dan miras alır ve speak() override eder: 'Woof'",
+    "language": "python"
+  },
+  {
+    "id": "python_2_oop_55",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "oop",
+    "code_snippet": "class Counter:\n    count = 0\n    def __init__(self):\n        Counter.count += 1\n\na = Counter()\nb = Counter()\nprint(Counter.count)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "2",
+    "wrong_options": [
+      "1",
+      "0",
+      "Error"
+    ],
+    "explanation": "Her instance oluşturulduğunda count artar: 2 instance = 2",
+    "language": "python"
+  },
+  {
+    "id": "python_3_oop_56",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "oop",
+    "code_snippet": "class A:\n    def __init__(self):\n        self.x = 1\n\nclass B(A):\n    def __init__(self):\n        super().__init__()\n        self.y = 2\n\nb = B()\nprint(b.x + b.y)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "2",
+      "1",
+      "Error"
+    ],
+    "explanation": "super() parent constructor'ı çağırır: x=1, y=2 → 3",
+    "language": "python"
+  },
+  {
+    "id": "java_1_oop_57",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "oop",
+    "code_snippet": "class Dog {\n    String name;\n    Dog(String n) { name = n; }\n}\nDog d = new Dog(\"Rex\");\nSystem.out.println(d.name);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Rex",
+    "wrong_options": [
+      "Dog",
+      "null",
+      "Error"
+    ],
+    "explanation": "Constructor ile name atanır: 'Rex'",
+    "language": "java"
+  },
+  {
+    "id": "java_2_oop_58",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "oop",
+    "code_snippet": "class Animal {\n    String speak() { return \"...\"; }\n}\nclass Dog extends Animal {\n    String speak() { return \"Woof\"; }\n}\nAnimal a = new Dog();\nSystem.out.println(a.speak());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Woof",
+    "wrong_options": [
+      "...",
+      "Error",
+      "null"
+    ],
+    "explanation": "Polymorphism: runtime'da Dog.speak() çağrılır: 'Woof'",
+    "language": "java"
+  },
+  {
+    "id": "java_3_oop_59",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "oop",
+    "code_snippet": "class A {\n    int x = 1;\n}\nclass B extends A {\n    int y = 2;\n}\nB b = new B();\nSystem.out.println(b.x + b.y);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "2",
+      "1",
+      "Error"
+    ],
+    "explanation": "B, A'dan miras alır: x=1 + y=2 = 3",
+    "language": "java"
+  },
+  {
+    "id": "javascript_1_oop_60",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "oop",
+    "code_snippet": "class Dog {\n    constructor(name) {\n        this.name = name;\n    }\n}\nlet d = new Dog(\"Rex\");\nconsole.log(d.name);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Rex",
+    "wrong_options": [
+      "Dog",
+      "undefined",
+      "Error"
+    ],
+    "explanation": "constructor ile this.name atanır: 'Rex'",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_oop_61",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "oop",
+    "code_snippet": "class Animal {\n    speak() { return \"...\"; }\n}\nclass Dog extends Animal {\n    speak() { return \"Woof\"; }\n}\nlet d = new Dog();\nconsole.log(d.speak());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "Woof",
+    "wrong_options": [
+      "...",
+      "Error",
+      "undefined"
+    ],
+    "explanation": "Dog, Animal'dan extend eder ve speak() override eder: 'Woof'",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_3_oop_62",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "oop",
+    "code_snippet": "class Counter {\n    static count = 0;\n    constructor() { Counter.count++; }\n}\nnew Counter();\nnew Counter();\nconsole.log(Counter.count);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "2",
+    "wrong_options": [
+      "0",
+      "1",
+      "NaN"
+    ],
+    "explanation": "static count her instance'da artar: 2",
+    "language": "javascript"
+  },
+  {
+    "id": "python_1_recursion_63",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "recursion",
+    "code_snippet": "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n-1)\n\nprint(factorial(4))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "24",
+    "wrong_options": [
+      "4",
+      "16",
+      "Error"
+    ],
+    "explanation": "4! = 4×3×2×1 = 24",
+    "language": "python"
+  },
+  {
+    "id": "python_1_recursion_64",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "recursion",
+    "code_snippet": "def countdown(n):\n    if n <= 0:\n        print(\"Go!\")\n        return\n    print(n)\n    countdown(n-1)\n\ncountdown(3)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3\n2\n1\nGo!",
+    "wrong_options": [
+      "Go!\n1\n2\n3",
+      "3\n2\n1",
+      "Error"
+    ],
+    "explanation": "Recursive countdown: 3,2,1 sonra Go!",
+    "language": "python"
+  },
+  {
+    "id": "python_2_recursion_65",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "recursion",
+    "code_snippet": "def fib(n):\n    if n <= 1:\n        return n\n    return fib(n-1) + fib(n-2)\n\nprint(fib(6))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "8",
+    "wrong_options": [
+      "6",
+      "13",
+      "5"
+    ],
+    "explanation": "Fibonacci: 0,1,1,2,3,5,8 → fib(6)=8",
+    "language": "python"
+  },
+  {
+    "id": "python_2_recursion_66",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "recursion",
+    "code_snippet": "def sum_list(lst):\n    if not lst:\n        return 0\n    return lst[0] + sum_list(lst[1:])\n\nprint(sum_list([1,2,3,4]))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "10",
+    "wrong_options": [
+      "4",
+      "0",
+      "Error"
+    ],
+    "explanation": "Recursive toplam: 1+2+3+4=10",
+    "language": "python"
+  },
+  {
+    "id": "python_3_recursion_67",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "recursion",
+    "code_snippet": "def power(base, exp):\n    if exp == 0:\n        return 1\n    return base * power(base, exp-1)\n\nprint(power(2, 5))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "32",
+    "wrong_options": [
+      "25",
+      "10",
+      "16"
+    ],
+    "explanation": "2^5 = 2×2×2×2×2 = 32",
+    "language": "python"
+  },
+  {
+    "id": "python_3_recursion_68",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "recursion",
+    "code_snippet": "def reverse_str(s):\n    if len(s) <= 1:\n        return s\n    return reverse_str(s[1:]) + s[0]\n\nprint(reverse_str(\"abc\"))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "cba",
+    "wrong_options": [
+      "abc",
+      "bca",
+      "Error"
+    ],
+    "explanation": "Recursive reverse: 'bc'+'a' → 'cb'+'a' → 'cba'",
+    "language": "python"
+  },
+  {
+    "id": "java_1_recursion_69",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "recursion",
+    "code_snippet": "static int factorial(int n) {\n    if (n <= 1) return 1;\n    return n * factorial(n-1);\n}\nSystem.out.println(factorial(5));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "120",
+    "wrong_options": [
+      "5",
+      "25",
+      "Error"
+    ],
+    "explanation": "5! = 5×4×3×2×1 = 120",
+    "language": "java"
+  },
+  {
+    "id": "java_2_recursion_70",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "recursion",
+    "code_snippet": "static int fib(int n) {\n    if (n <= 1) return n;\n    return fib(n-1) + fib(n-2);\n}\nSystem.out.println(fib(5));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "5",
+    "wrong_options": [
+      "8",
+      "3",
+      "Error"
+    ],
+    "explanation": "Fibonacci: 0,1,1,2,3,5 → fib(5)=5",
+    "language": "java"
+  },
+  {
+    "id": "java_3_recursion_71",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "recursion",
+    "code_snippet": "static int gcd(int a, int b) {\n    if (b == 0) return a;\n    return gcd(b, a % b);\n}\nSystem.out.println(gcd(12, 8));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "4",
+    "wrong_options": [
+      "8",
+      "12",
+      "2"
+    ],
+    "explanation": "Euclid algoritması: gcd(12,8)→gcd(8,4)→gcd(4,0)=4",
+    "language": "java"
+  },
+  {
+    "id": "javascript_1_recursion_72",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "recursion",
+    "code_snippet": "function factorial(n) {\n    if (n <= 1) return 1;\n    return n * factorial(n - 1);\n}\nconsole.log(factorial(4));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "24",
+    "wrong_options": [
+      "4",
+      "16",
+      "Error"
+    ],
+    "explanation": "4! = 4×3×2×1 = 24",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_recursion_73",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "recursion",
+    "code_snippet": "function sum(n) {\n    if (n <= 0) return 0;\n    return n + sum(n - 1);\n}\nconsole.log(sum(5));",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "15",
+    "wrong_options": [
+      "5",
+      "10",
+      "Error"
+    ],
+    "explanation": "5+4+3+2+1+0 = 15",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_3_recursion_74",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "recursion",
+    "code_snippet": "function flatten(arr) {\n    let result = [];\n    for (let item of arr) {\n        if (Array.isArray(item)) {\n            result = result.concat(flatten(item));\n        } else {\n            result.push(item);\n        }\n    }\n    return result;\n}\nconsole.log(flatten([1,[2,[3]]]).length);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "1",
+      "6",
+      "Error"
+    ],
+    "explanation": "Recursive flatten: [1,2,3] → length=3",
+    "language": "javascript"
+  },
+  {
+    "id": "python_1_sorting_75",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "sorting",
+    "code_snippet": "arr = [3, 1, 2]\narr.sort()\nprint(arr)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 2, 3]",
+    "wrong_options": [
+      "[3, 1, 2]",
+      "[3, 2, 1]",
+      "Error"
+    ],
+    "explanation": "sort() küçükten büyüğe sıralar.",
+    "language": "python"
+  },
+  {
+    "id": "python_1_sorting_76",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "sorting",
+    "code_snippet": "arr = [5, 2, 8]\nprint(sorted(arr))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[2, 5, 8]",
+    "wrong_options": [
+      "[5, 2, 8]",
+      "[8, 5, 2]",
+      "Error"
+    ],
+    "explanation": "sorted() yeni sıralı liste döndürür.",
+    "language": "python"
+  },
+  {
+    "id": "python_2_sorting_77",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "sorting",
+    "code_snippet": "arr = [3, 1, 2]\narr.sort(reverse=True)\nprint(arr)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[3, 2, 1]",
+    "wrong_options": [
+      "[1, 2, 3]",
+      "[3, 1, 2]",
+      "Error"
+    ],
+    "explanation": "reverse=True büyükten küçüğe sıralar.",
+    "language": "python"
+  },
+  {
+    "id": "python_2_sorting_78",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "sorting",
+    "code_snippet": "words = [\"banana\",\"apple\",\"cherry\"]\nwords.sort(key=len)\nprint(words[0])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "apple",
+    "wrong_options": [
+      "banana",
+      "cherry",
+      "Error"
+    ],
+    "explanation": "key=len uzunluğa göre sıralar: apple(5) en kısa.",
+    "language": "python"
+  },
+  {
+    "id": "python_3_sorting_79",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "sorting",
+    "code_snippet": "arr = [(2,\"b\"),(1,\"a\"),(1,\"c\")]\narr.sort()\nprint(arr[0])",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "(1, 'a')",
+    "wrong_options": [
+      "(2, 'b')",
+      "(1, 'c')",
+      "Error"
+    ],
+    "explanation": "Tuple sort: önce ilk eleman, sonra ikinci. (1,'a') en küçük.",
+    "language": "python"
+  },
+  {
+    "id": "python_3_sorting_80",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "sorting",
+    "code_snippet": "arr = [3, 1, 4, 1, 5]\nprint(sorted(set(arr)))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 3, 4, 5]",
+    "wrong_options": [
+      "[3, 1, 4, 1, 5]",
+      "[1, 1, 3, 4, 5]",
+      "Error"
+    ],
+    "explanation": "set() tekrarları siler, sorted() sıralar: [1,3,4,5]",
+    "language": "python"
+  },
+  {
+    "id": "java_1_sorting_81",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "sorting",
+    "code_snippet": "int[] arr = {3, 1, 2};\njava.util.Arrays.sort(arr);\nSystem.out.println(arr[2]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "1",
+      "2",
+      "Error"
+    ],
+    "explanation": "sort() sonrası arr=[1,2,3], arr[2]=3",
+    "language": "java"
+  },
+  {
+    "id": "java_2_sorting_82",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "sorting",
+    "code_snippet": "Integer[] arr = {5, 2, 8};\njava.util.Arrays.sort(arr, java.util.Collections.reverseOrder());\nSystem.out.println(arr[0]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "8",
+    "wrong_options": [
+      "2",
+      "5",
+      "Error"
+    ],
+    "explanation": "reverseOrder() büyükten küçüğe sıralar: arr[0]=8",
+    "language": "java"
+  },
+  {
+    "id": "java_3_sorting_83",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "sorting",
+    "code_snippet": "String[] s = {\"banana\",\"apple\",\"cherry\"};\njava.util.Arrays.sort(s);\nSystem.out.println(s[0]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "apple",
+    "wrong_options": [
+      "banana",
+      "cherry",
+      "Error"
+    ],
+    "explanation": "Strings alfabetik sıralanır: apple ilk.",
+    "language": "java"
+  },
+  {
+    "id": "javascript_1_sorting_84",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "sorting",
+    "code_snippet": "let arr = [3, 1, 2];\narr.sort();\nconsole.log(arr);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 2, 3]",
+    "wrong_options": [
+      "[3, 1, 2]",
+      "[3, 2, 1]",
+      "Error"
+    ],
+    "explanation": "sort() default sıralama yapar.",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_sorting_85",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "sorting",
+    "code_snippet": "let arr = [10, 2, 30];\narr.sort((a, b) => a - b);\nconsole.log(arr[0]);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "2",
+    "wrong_options": [
+      "10",
+      "30",
+      "Error"
+    ],
+    "explanation": "Numeric sort: a-b ile küçükten büyüğe: 2 ilk.",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_3_sorting_86",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "sorting",
+    "code_snippet": "let arr = [10, 2, 30];\narr.sort();\nconsole.log(arr);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[10, 2, 30]",
+    "wrong_options": [
+      "[2, 10, 30]",
+      "[30, 10, 2]",
+      "Error"
+    ],
+    "explanation": "JS sort() string olarak sıralar! '10'<'2'<'30' (string karşılaştırma)",
+    "language": "javascript"
+  },
+  {
+    "id": "python_1_stack_queue_87",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "stack_queue",
+    "code_snippet": "stack = []\nstack.append(1)\nstack.append(2)\nstack.append(3)\nprint(stack.pop())",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "1",
+      "2",
+      "Error"
+    ],
+    "explanation": "Stack LIFO: son giren ilk çıkar → 3",
+    "language": "python"
+  },
+  {
+    "id": "python_1_stack_queue_88",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "stack_queue",
+    "code_snippet": "stack = [1, 2, 3]\nstack.pop()\nprint(stack)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[1, 2]",
+    "wrong_options": [
+      "[2, 3]",
+      "[1, 3]",
+      "Error"
+    ],
+    "explanation": "pop() son elemanı çıkarır: [1, 2] kalır",
+    "language": "python"
+  },
+  {
+    "id": "python_2_stack_queue_89",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "stack_queue",
+    "code_snippet": "from collections import deque\nq = deque()\nq.append(1)\nq.append(2)\nq.append(3)\nprint(q.popleft())",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1",
+    "wrong_options": [
+      "3",
+      "2",
+      "Error"
+    ],
+    "explanation": "Queue FIFO: ilk giren ilk çıkar → 1",
+    "language": "python"
+  },
+  {
+    "id": "python_2_stack_queue_90",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "stack_queue",
+    "code_snippet": "stack = []\nfor c in \"abc\":\n    stack.append(c)\nresult = \"\"\nwhile stack:\n    result += stack.pop()\nprint(result)",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "cba",
+    "wrong_options": [
+      "abc",
+      "cab",
+      "Error"
+    ],
+    "explanation": "Stack ile string tersine çevrilir: 'cba'",
+    "language": "python"
+  },
+  {
+    "id": "python_3_stack_queue_91",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "stack_queue",
+    "code_snippet": "from collections import deque\nq = deque([1,2,3])\nq.rotate(1)\nprint(list(q))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "[3, 1, 2]",
+    "wrong_options": [
+      "[2, 3, 1]",
+      "[1, 2, 3]",
+      "Error"
+    ],
+    "explanation": "rotate(1) son elemanı başa alır: [3,1,2]",
+    "language": "python"
+  },
+  {
+    "id": "python_3_stack_queue_92",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "stack_queue",
+    "code_snippet": "stack = []\nfor ch in \"((()))\":\n    if ch == \"(\":\n        stack.append(ch)\n    else:\n        stack.pop()\nprint(len(stack))",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "0",
+    "wrong_options": [
+      "3",
+      "6",
+      "Error"
+    ],
+    "explanation": "Parantez eşleştirme: 3 açılan 3 kapanan, stack boş → 0",
+    "language": "python"
+  },
+  {
+    "id": "java_1_stack_queue_93",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "stack_queue",
+    "code_snippet": "java.util.Stack<Integer> s = new java.util.Stack<>();\ns.push(10);\ns.push(20);\nSystem.out.println(s.pop());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "20",
+    "wrong_options": [
+      "10",
+      "30",
+      "Error"
+    ],
+    "explanation": "Stack LIFO: son giren ilk çıkar → 20",
+    "language": "java"
+  },
+  {
+    "id": "java_2_stack_queue_94",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "stack_queue",
+    "code_snippet": "java.util.LinkedList<Integer> q = new java.util.LinkedList<>();\nq.add(1);\nq.add(2);\nq.add(3);\nSystem.out.println(q.poll());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1",
+    "wrong_options": [
+      "3",
+      "2",
+      "Error"
+    ],
+    "explanation": "Queue FIFO: poll() ilk eklenen çıkar → 1",
+    "language": "java"
+  },
+  {
+    "id": "java_3_stack_queue_95",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "stack_queue",
+    "code_snippet": "java.util.Stack<Integer> s = new java.util.Stack<>();\ns.push(1);\ns.push(2);\ns.push(3);\nSystem.out.println(s.peek());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "3",
+    "wrong_options": [
+      "1",
+      "2",
+      "Error"
+    ],
+    "explanation": "peek() çıkarmadan en üsttekini gösterir: 3",
+    "language": "java"
+  },
+  {
+    "id": "javascript_1_stack_queue_96",
+    "type": "prediction",
+    "difficulty": 1,
+    "topic": "stack_queue",
+    "code_snippet": "let stack = [];\nstack.push(1);\nstack.push(2);\nconsole.log(stack.pop());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "2",
+    "wrong_options": [
+      "1",
+      "undefined",
+      "Error"
+    ],
+    "explanation": "Stack LIFO: pop() son eklenen → 2",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_2_stack_queue_97",
+    "type": "prediction",
+    "difficulty": 2,
+    "topic": "stack_queue",
+    "code_snippet": "let queue = [];\nqueue.push(1);\nqueue.push(2);\nqueue.push(3);\nconsole.log(queue.shift());",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "1",
+    "wrong_options": [
+      "3",
+      "2",
+      "Error"
+    ],
+    "explanation": "Queue FIFO: shift() ilk eklenen → 1",
+    "language": "javascript"
+  },
+  {
+    "id": "javascript_3_stack_queue_98",
+    "type": "prediction",
+    "difficulty": 3,
+    "topic": "stack_queue",
+    "code_snippet": "let stack = [];\n\"hello\".split(\"\").forEach(c => stack.push(c));\nlet result = \"\";\nwhile (stack.length > 0) result += stack.pop();\nconsole.log(result);",
+    "question_text": "Bu kodun çıktısı nedir?",
+    "correct_answer": "olleh",
+    "wrong_options": [
+      "hello",
+      "olle",
+      "Error"
+    ],
+    "explanation": "Stack ile string ters: 'olleh'",
+    "language": "javascript"
   }
 ]

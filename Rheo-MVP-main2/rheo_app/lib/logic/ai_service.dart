@@ -453,6 +453,18 @@ def maxDepth(root):
         return 'Lambda functions, recursion, variable scope, *args/**kwargs, default arguments, closures';
       case 'list':
         return 'Lists, list comprehensions, slicing, sorting, nested lists, list methods';
+      case 'string':
+        return 'String operations, slicing, methods (upper, lower, split, join, replace, find), string formatting, regex basics';
+      case 'array':
+        return 'Arrays/Lists, indexing, append/insert/remove, sorting, filtering, map/reduce, 2D arrays, array methods';
+      case 'oop':
+        return 'Object-Oriented Programming: classes, objects, constructors, inheritance, polymorphism, encapsulation, static methods';
+      case 'recursion':
+        return 'Recursive functions, base cases, factorial, fibonacci, recursive data structures, tree traversal, divide and conquer';
+      case 'sorting':
+        return 'Sorting algorithms concepts, built-in sort methods, custom comparators, key functions, stable sorting, reverse sorting';
+      case 'stack_queue':
+        return 'Stack (LIFO) operations push/pop/peek, Queue (FIFO) operations enqueue/dequeue, deque, parenthesis matching, BFS/DFS basics';
       // AI kategorileri
       case 'ai_arrays':
         return 'Arrays and Hashing (Two Sum, Contains Duplicate, Group Anagrams, Hash Maps)';

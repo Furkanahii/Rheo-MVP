@@ -58,6 +58,42 @@ class Topics {
       icon: Icons.list_alt_rounded,
       color: Color(0xFFE91E63),
     ),
+    TopicOption(
+      id: 'string',
+      label: 'Stringler',
+      icon: Icons.text_fields_rounded,
+      color: Color(0xFF00BCD4),
+    ),
+    TopicOption(
+      id: 'array',
+      label: 'Diziler',
+      icon: Icons.view_array_rounded,
+      color: Color(0xFFFF5722),
+    ),
+    TopicOption(
+      id: 'oop',
+      label: 'OOP',
+      icon: Icons.account_tree_rounded,
+      color: Color(0xFF8BC34A),
+    ),
+    TopicOption(
+      id: 'recursion',
+      label: 'Özyineleme',
+      icon: Icons.replay_rounded,
+      color: Color(0xFF673AB7),
+    ),
+    TopicOption(
+      id: 'sorting',
+      label: 'Sıralama',
+      icon: Icons.sort_rounded,
+      color: Color(0xFFFF9800),
+    ),
+    TopicOption(
+      id: 'stack_queue',
+      label: 'Yığın & Kuyruk',
+      icon: Icons.layers_rounded,
+      color: Color(0xFF795548),
+    ),
   ];
 
   /// AI destekli kategoriler
