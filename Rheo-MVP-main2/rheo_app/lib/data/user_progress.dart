@@ -15,7 +15,7 @@ class UserProgress {
   bool isDarkMode;
 
   UserProgress({
-    this.elo = 0,
+    this.elo = 100,
     this.currentStreak = 0,
     this.bestStreak = 0,
     this.totalCorrect = 0,

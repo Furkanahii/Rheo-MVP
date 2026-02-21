@@ -4,7 +4,7 @@ import 'dart:math';
 /// Based on chess ELO system adapted for quiz questions
 class EloCalculator {
   /// Starting ELO for new users
-  static const int startingElo = 0;
+  static const int startingElo = 100;
   
   /// K-factor based on question difficulty
   static int getKFactor(int difficulty) {
