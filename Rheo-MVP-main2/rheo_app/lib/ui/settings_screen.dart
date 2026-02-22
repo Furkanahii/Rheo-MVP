@@ -23,6 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _soundEnabled = soundService.isSoundEnabled;
+    _notificationsEnabled = notificationService.isEnabled;
   }
 
   void _showResetDialog() {
@@ -163,18 +164,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _buildToggleTile(
                           icon: Icons.notifications_active_outlined,
                           title: S.bildirimler,
-                          subtitle: S.bildirimlerSub,
+                          subtitle: _notificationsEnabled 
+                            ? '${S.tr('Hatırlatma', 'Reminder')}: ${notificationService.hour.toString().padLeft(2, '0')}:${notificationService.minute.toString().padLeft(2, '0')}'
+                            : S.bildirimlerSub,
                           value: _notificationsEnabled,
                           onChanged: (value) async {
                             HapticService.selectionClick();
                             if (value) {
-                              final granted = await notificationService.requestPermissions();
-                              if (granted) {
-                                await notificationService.init();
-                                await notificationService.scheduleDailyReminder(
-                                  hour: 18,
-                                  minute: 0,
-                                );
+                              // Show time picker
+                              final time = await showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay(hour: notificationService.hour, minute: notificationService.minute),
+                                helpText: S.tr('Hatırlatma Saati', 'Reminder Time'),
+                              );
+                              if (time != null) {
+                                await notificationService.setEnabled(true);
+                                await notificationService.setReminderTime(time.hour, time.minute);
                                 setState(() => _notificationsEnabled = true);
                               }
                             } else {

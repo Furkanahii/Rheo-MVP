@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-/// Service for managing sound effects using tone generation
-/// No external audio files needed — uses synthesized tones
+/// Service for managing sound effects
+/// Uses audioplayers package which supports web (HTML5 Audio)
 class SoundService {
   static const String _settingsBox = 'rheo_settings';
   static const String _soundEnabledKey = 'sound_enabled';
@@ -11,11 +11,6 @@ class SoundService {
   Box? _box;
   bool _soundEnabled = true;
   bool _initialized = false;
-  
-  // Audio players for each sound type
-  AudioPlayer? _correctPlayer;
-  AudioPlayer? _wrongPlayer;
-  AudioPlayer? _levelUpPlayer;
 
   /// Initialize sound service
   Future<void> init() async {
@@ -24,17 +19,6 @@ class SoundService {
     try {
       _box = await Hive.openBox(_settingsBox);
       _soundEnabled = _box?.get(_soundEnabledKey, defaultValue: true) ?? true;
-      
-      // Pre-create players
-      _correctPlayer = AudioPlayer();
-      _wrongPlayer = AudioPlayer();
-      _levelUpPlayer = AudioPlayer();
-      
-      // Set volume
-      await _correctPlayer?.setVolume(0.5);
-      await _wrongPlayer?.setVolume(0.5);
-      await _levelUpPlayer?.setVolume(0.6);
-      
       _initialized = true;
     } catch (e) {
       debugPrint('SoundService init error: $e');
@@ -57,57 +41,47 @@ class SoundService {
     await _box?.put(_soundEnabledKey, _soundEnabled);
   }
 
-  /// Play correct answer sound — ascending happy tone
+  /// Play correct answer sound
   Future<void> playCorrect() async {
-    if (!_soundEnabled || kIsWeb) return;
-    try {
-      // Play a short ascending tone sequence
-      final player = AudioPlayer();
-      await player.setSource(AssetSource('sounds/correct.wav'));
-      await player.setVolume(0.5);
-      await player.resume();
-      // Auto-dispose after playing
-      player.onPlayerComplete.listen((_) => player.dispose());
-    } catch (e) {
-      // Fallback: use frequency tone if asset not found
-      debugPrint('Sound playCorrect: $e');
-    }
+    if (!_soundEnabled) return;
+    _playAsset('sounds/correct.wav', 0.5);
   }
 
-  /// Play wrong answer sound — descending sad tone
+  /// Play wrong answer sound
   Future<void> playWrong() async {
-    if (!_soundEnabled || kIsWeb) return;
-    try {
-      final player = AudioPlayer();
-      await player.setSource(AssetSource('sounds/wrong.wav'));
-      await player.setVolume(0.5);
-      await player.resume();
-      player.onPlayerComplete.listen((_) => player.dispose());
-    } catch (e) {
-      debugPrint('Sound playWrong: $e');
-    }
+    if (!_soundEnabled) return;
+    _playAsset('sounds/wrong.wav', 0.5);
   }
 
-  /// Play level up sound — triumphant tone
+  /// Play level up sound
   Future<void> playLevelUp() async {
-    if (!_soundEnabled || kIsWeb) return;
+    if (!_soundEnabled) return;
+    _playAsset('sounds/levelup.wav', 0.6);
+  }
+
+  /// Play tap/click sound
+  Future<void> playTap() async {
+    if (!_soundEnabled) return;
+    _playAsset('sounds/correct.wav', 0.2);
+  }
+
+  /// Internal: play an asset sound
+  void _playAsset(String path, double volume) {
     try {
       final player = AudioPlayer();
-      await player.setSource(AssetSource('sounds/levelup.wav'));
-      await player.setVolume(0.6);
-      await player.resume();
-      player.onPlayerComplete.listen((_) => player.dispose());
+      player.setVolume(volume);
+      player.play(AssetSource(path));
+      // Auto-dispose after playing
+      player.onPlayerComplete.listen((_) {
+        player.dispose();
+      });
     } catch (e) {
-      debugPrint('Sound playLevelUp: $e');
+      debugPrint('Sound play error: $e');
     }
   }
 
-  /// Dispose players
-  Future<void> dispose() async {
-    await _correctPlayer?.dispose();
-    await _wrongPlayer?.dispose();
-    await _levelUpPlayer?.dispose();
-  }
+  /// Dispose
+  Future<void> dispose() async {}
 }
 
 /// Global instance

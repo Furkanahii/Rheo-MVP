@@ -3,10 +3,18 @@ import 'theme.dart';
 import 'animations.dart';
 import 'widgets/mascot_widget.dart';
 import 'privacy_policy_screen.dart';
+import 'admin_analytics_screen.dart';
 import '../data/app_strings.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
+
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<AboutScreen> {
+  int _tapCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -68,18 +76,29 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: RheoColors.primary.withAlpha(20),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'v1.0.0 Beta',
-                          style: TextStyle(
-                            color: RheoColors.primary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                      GestureDetector(
+                        onTap: () {
+                          _tapCount++;
+                          if (_tapCount >= 5) {
+                            _tapCount = 0;
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (_) => const AdminAnalyticsScreen(),
+                            ));
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: RheoColors.primary.withAlpha(20),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'v1.0.0 Beta',
+                            style: TextStyle(
+                              color: RheoColors.primary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
