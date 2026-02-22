@@ -11,6 +11,8 @@ import 'ui/widgets/error_screen.dart';
 import 'logic/language_service.dart';
 import 'logic/analytics_service.dart';
 import 'logic/ai_service.dart';
+import 'logic/sound_service.dart';
+import 'logic/notification_service.dart';
 
 void main() async {
   // Zone ile tüm hataları yakala
@@ -55,6 +57,8 @@ void main() async {
     
     // Initialize services
     await languageService.init();
+    await soundService.init();
+    await notificationService.init();
     
     // Onboarding her zaman göster (demo/MVP link paylaşımı için)
     const showOnboarding = true;

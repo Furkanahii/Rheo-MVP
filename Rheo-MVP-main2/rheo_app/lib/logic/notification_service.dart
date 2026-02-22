@@ -2,8 +2,6 @@ import 'dart:math';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js_interop' if (dart.library.io) 'dart:io';
 
 /// Notification Service — Web browser notifications + Mascot messages
 /// Uses Browser Notification API on web, no-op on mobile (add firebase_messaging later)
