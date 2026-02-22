@@ -15,7 +15,7 @@ class AboutScreen extends StatefulWidget {
 
 class _AboutScreenState extends State<AboutScreen> {
   int _tapCount = 0;
-  static const String _adminPin = '2026';
+  static const String _adminPin = 'rheo2026';
 
   void _showPinDialog(BuildContext context) {
     final pinController = TextEditingController();
@@ -33,14 +33,14 @@ class _AboutScreenState extends State<AboutScreen> {
         ),
         content: TextField(
           controller: pinController,
-          keyboardType: TextInputType.number,
-          maxLength: 4,
+          keyboardType: TextInputType.text,
+          maxLength: 8,
           obscureText: true,
           autofocus: true,
           style: TextStyle(color: RheoTheme.textColor, fontSize: 24, letterSpacing: 8, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
           decoration: InputDecoration(
-            hintText: '••••',
+            hintText: '••••••••',
             hintStyle: TextStyle(color: RheoTheme.textMuted.withAlpha(80)),
             counterText: '',
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -148,6 +148,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       ),
                       const SizedBox(height: 12),
                       GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           _tapCount++;
                           if (_tapCount >= 5) {
