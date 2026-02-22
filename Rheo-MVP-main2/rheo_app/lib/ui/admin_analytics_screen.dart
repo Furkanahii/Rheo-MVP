@@ -13,7 +13,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = storageService.progress;
-    final rank = EloCalculator.getRankName(p.elo);
+    final rank = EloCalculator.getRankTitle(p.elo);
     final rankColor = Color(EloCalculator.getRankColor(p.elo));
     
     // Calculate stats
@@ -100,9 +100,9 @@ class AdminAnalyticsScreen extends StatelessWidget {
                 icon: Icons.local_fire_department,
                 color: RheoColors.secondary,
                 children: [
-                  _buildStatRow(S.tr('Günlük Seri', 'Daily Streak'), '${p.streak}', RheoColors.secondary),
-                  _buildStatRow(S.tr('Bugünkü Soru', 'Today\'s Questions'), '${p.dailyCorrect}', RheoTheme.textColor),
-                  _buildStatRow(S.tr('Bugünün Tarihi', 'Today\'s Date'), p.lastPlayDate, RheoTheme.textColor),
+                  _buildStatRow(S.tr('Günlük Seri', 'Daily Streak'), '${p.currentStreak}', RheoColors.secondary),
+                  _buildStatRow(S.tr('Bugünkü Soru', 'Today\'s Questions'), '${p.dailyQuestionsToday}', RheoTheme.textColor),
+                  _buildStatRow(S.tr('Son Oyun', 'Last Played'), p.lastPlayedDate?.toString().split(' ').first ?? '-', RheoTheme.textColor),
                 ],
               ),
 

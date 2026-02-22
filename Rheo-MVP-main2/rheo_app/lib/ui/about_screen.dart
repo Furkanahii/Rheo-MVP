@@ -102,6 +102,24 @@ class _AboutScreenState extends State<AboutScreen> {
           },
         ),
         title: Text(S.tr('Hakkımızda', 'About Us'), style: TextStyle(color: RheoTheme.textColor)),
+        actions: [
+          // Hidden admin button — very small, blends with background
+          IconButton(
+            icon: Icon(Icons.admin_panel_settings, 
+              color: RheoTheme.textColor.withAlpha(_tapCount >= 3 ? 60 : 0), 
+              size: 18),
+            onPressed: () {
+              _tapCount++;
+              if (_tapCount >= 5) {
+                _tapCount = 0;
+                _showPinDialog(context);
+              }
+              setState(() {});
+            },
+            tooltip: '',
+            iconSize: 18,
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -147,28 +165,18 @@ class _AboutScreenState extends State<AboutScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          _tapCount++;
-                          if (_tapCount >= 5) {
-                            _tapCount = 0;
-                            _showPinDialog(context);
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: RheoColors.primary.withAlpha(20),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            'v1.0.0 Beta',
-                            style: TextStyle(
-                              color: RheoColors.primary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: RheoColors.primary.withAlpha(20),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'v1.0.0 Beta',
+                          style: TextStyle(
+                            color: RheoColors.primary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
