@@ -109,16 +109,33 @@ class GameController {
     _consecutiveWrong = 0;
   }
 
-  /// Build initial question list: start with easy, include all difficulties.
-  /// Pattern for 10 questions: 3 easy → 4 medium → 3 hard
-  /// Real-time adaptation happens in checkAnswer().
+  /// Build initial question list with ELO-based difficulty distribution.
+  /// Low ELO (Çaylak): 60% easy, 30% medium, 10% hard
+  /// Mid ELO: 30% easy, 40% medium, 30% hard
+  /// High ELO: 10% easy, 30% medium, 60% hard
   List<Question> _buildAdaptiveQuestionList(int count) {
     final rng = Random();
     final List<Question> result = [];
+    final elo = storageService.progress.elo;
     
-    // Calculate how many of each difficulty
-    final easyCount = (count * 0.3).ceil().clamp(1, _easyPool.length);
-    final hardCount = (count * 0.3).ceil().clamp(0, _hardPool.length);
+    // ELO-based difficulty ratios
+    double easyRatio, mediumRatio, hardRatio;
+    if (elo < 1100) {
+      // Çaylak: mostly easy
+      easyRatio = 0.6; mediumRatio = 0.3; hardRatio = 0.1;
+    } else if (elo < 1300) {
+      // Acemi/Orta: balanced
+      easyRatio = 0.3; mediumRatio = 0.4; hardRatio = 0.3;
+    } else if (elo < 1500) {
+      // İleri: harder
+      easyRatio = 0.2; mediumRatio = 0.3; hardRatio = 0.5;
+    } else {
+      // Usta/Efsane: mostly hard
+      easyRatio = 0.1; mediumRatio = 0.3; hardRatio = 0.6;
+    }
+    
+    final easyCount = (count * easyRatio).ceil().clamp(1, _easyPool.length);
+    final hardCount = (count * hardRatio).round().clamp(0, _hardPool.length);
     final mediumCount = (count - easyCount - hardCount).clamp(0, _mediumPool.length);
     
     // Pick from each pool

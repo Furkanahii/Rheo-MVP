@@ -225,10 +225,37 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     // Action buttons (right)
-                    IconButton(
-                      icon: Icon(Icons.emoji_events_outlined, color: RheoTheme.textColor),
-                      onPressed: () => _navigateTo(const LeaderboardScreen()),
-                      tooltip: 'Sıralama',
+                    Stack(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.emoji_events_outlined, color: RheoTheme.textColor),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(S.tr('Sıralama çok yakında! 🏆', 'Leaderboard coming soon! 🏆')),
+                                duration: const Duration(seconds: 2),
+                                backgroundColor: RheoColors.primary,
+                              ),
+                            );
+                          },
+                          tooltip: S.tr('Sıralama', 'Leaderboard'),
+                        ),
+                        Positioned(
+                          right: 2,
+                          top: 2,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: RheoColors.secondary,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              S.tr('Yakında', 'Soon'),
+                              style: const TextStyle(fontSize: 7, color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     IconButton(
                       icon: Icon(Icons.settings, color: RheoTheme.textColor),

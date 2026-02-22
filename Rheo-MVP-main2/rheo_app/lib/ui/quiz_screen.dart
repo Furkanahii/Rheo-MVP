@@ -495,7 +495,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
             ),
             
             SafeArea(
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -548,6 +548,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                           );
                         },
                         child: Container(
+                          constraints: const BoxConstraints(maxHeight: 250),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
@@ -559,15 +560,17 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(11),
-                            child: HighlightView(
-                              question.codeSnippet,
-                              language: 'python',
-                              theme: atomOneDarkTheme,
-                              padding: const EdgeInsets.all(16),
-                              textStyle: const TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: 14,
-                                height: 1.5,
+                            child: SingleChildScrollView(
+                              child: HighlightView(
+                                question.codeSnippet,
+                                language: 'python',
+                                theme: atomOneDarkTheme,
+                                padding: const EdgeInsets.all(16),
+                                textStyle: const TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 14,
+                                  height: 1.5,
+                                ),
                               ),
                             ),
                           ),
@@ -589,44 +592,39 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                     const SizedBox(height: 16),
                     
                     // Answer options
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: _shuffledOptions.length,
-                        itemBuilder: (context, index) {
-                          final option = _shuffledOptions[index];
-                          return StaggeredFadeIn(
-                            index: index,
-                            delay: const Duration(milliseconds: 80),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: _selectedAnswer == null 
-                                      ? () => _onAnswerSelected(option) 
-                                      : null,
+                    ...List.generate(_shuffledOptions.length, (index) {
+                      final option = _shuffledOptions[index];
+                      return StaggeredFadeIn(
+                        index: index,
+                        delay: const Duration(milliseconds: 80),
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: _selectedAnswer == null 
+                                  ? () => _onAnswerSelected(option) 
+                                  : null,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: _getButtonColor(option),
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(
-                                      color: _getButtonColor(option),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: _getButtonBorder(option)),
-                                    ),
-                                    child: Text(
-                                      option,
-                                      style: TextStyle(fontSize: 15, color: RheoTheme.textColor),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
+                                  border: Border.all(color: _getButtonBorder(option)),
+                                ),
+                                child: Text(
+                                  option,
+                                  style: TextStyle(fontSize: 15, color: RheoTheme.textColor),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    
+                          ),
+                        ),
+                      );
+                    }),
+                    const SizedBox(height: 16),
 
                   ],
                 ),
@@ -723,9 +721,9 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
 
   String _getDifficultyLabel(int difficulty) {
     switch (difficulty) {
-      case 1: return 'KOLAY';
-      case 2: return 'ORTA';
-      case 3: return 'ZOR';
+      case 1: return S.tr('KOLAY', 'EASY');
+      case 2: return S.tr('ORTA', 'MEDIUM');
+      case 3: return S.tr('ZOR', 'HARD');
       default: return '?';
     }
   }

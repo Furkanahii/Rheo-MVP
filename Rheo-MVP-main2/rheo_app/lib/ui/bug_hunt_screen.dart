@@ -5,6 +5,7 @@ import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import '../logic/sound_service.dart';
 import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
+import '../logic/language_service.dart';
 import '../data/app_strings.dart';
 import 'theme.dart';
 import 'animations.dart';
@@ -1561,10 +1562,19 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
         .chain(CurveTween(curve: Curves.elasticIn))
         .animate(_shakeController);
     
+    // Filter by selected programming language
+    final selectedLang = languageService.selected.name;
+    final langQuestions = _allBugHuntQuestions.where(
+      (q) => q.language == selectedLang
+    ).toList();
+    
+    // Fallback to all if not enough for selected language
+    final pool = langQuestions.length >= 12 ? langQuestions : _allBugHuntQuestions;
+    
     // Sort by difficulty then shuffle within groups for progressive difficulty
-    final easy = _allBugHuntQuestions.where((q) => q.difficulty == 1).toList()..shuffle();
-    final medium = _allBugHuntQuestions.where((q) => q.difficulty == 2).toList()..shuffle();
-    final hard = _allBugHuntQuestions.where((q) => q.difficulty == 3).toList()..shuffle();
+    final easy = pool.where((q) => q.difficulty == 1).toList()..shuffle();
+    final medium = pool.where((q) => q.difficulty == 2).toList()..shuffle();
+    final hard = pool.where((q) => q.difficulty == 3).toList()..shuffle();
     
     // Take a balanced set: 4 easy, 4 medium, 4 hard = 12 questions per game
     _questions = [
