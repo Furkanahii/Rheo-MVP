@@ -548,30 +548,71 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                           );
                         },
                         child: Container(
-                          constraints: const BoxConstraints(maxHeight: 250),
+                          constraints: const BoxConstraints(maxHeight: 260),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
+                            color: const Color(0xFF1E1E2E),
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: _selectedAnswer == null 
-                                  ? RheoTheme.buttonBorder
-                                  : (_isCorrect! ? RheoColors.success : RheoColors.error),
+                                  ? const Color(0xFF313244)
+                                  : (_isCorrect! ? RheoColors.success.withAlpha(150) : RheoColors.error.withAlpha(150)),
                               width: _selectedAnswer == null ? 1 : 2,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withAlpha(30),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(11),
-                            child: SingleChildScrollView(
-                              child: HighlightView(
-                                question.codeSnippet,
-                                language: 'python',
-                                theme: atomOneDarkTheme,
-                                padding: const EdgeInsets.all(16),
-                                textStyle: const TextStyle(
-                                  fontFamily: 'monospace',
-                                  fontSize: 14,
-                                  height: 1.5,
+                            borderRadius: BorderRadius.circular(13),
+                            child: Column(
+                              children: [
+                                // Terminal header
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF181825),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(width: 10, height: 10, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFf38ba8))),
+                                      const SizedBox(width: 6),
+                                      Container(width: 10, height: 10, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFf9e2af))),
+                                      const SizedBox(width: 6),
+                                      Container(width: 10, height: 10, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFa6e3a1))),
+                                      const Spacer(),
+                                      Text(
+                                        question.language.toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Color(0xFF6c7086),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
+                                // Code content
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: HighlightView(
+                                      question.codeSnippet,
+                                      language: question.language,
+                                      theme: atomOneDarkTheme,
+                                      padding: const EdgeInsets.all(14),
+                                      textStyle: const TextStyle(
+                                        fontFamily: 'monospace',
+                                        fontSize: 13,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

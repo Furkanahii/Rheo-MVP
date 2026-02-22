@@ -1888,59 +1888,137 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                               child: child,
                             );
                           },
-                          child: GlassCard(
-                            borderColor: _selectedLine == null 
-                                ? RheoColors.glassBorder
-                                : (_isCorrect! ? RheoColors.success : RheoColors.error),
-                            padding: EdgeInsets.zero,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              itemCount: currentQuestion.codeLines.length,
-                              itemBuilder: (context, index) {
-                                final line = currentQuestion.codeLines[index];
-                                return StaggeredFadeIn(
-                                  index: index,
-                                  delay: const Duration(milliseconds: 50),
-                                  child: InkWell(
-                                    onTap: _selectedLine == null 
-                                        ? () => _onLineSelected(index)
-                                        : null,
-                                    child: Container(
-                                      color: _getLineColor(index),
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      child: Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 28,
-                                            child: Text(
-                                              '${index + 1}',
-                                              style: TextStyle(
-                                                color: RheoColors.textMuted,
-                                                fontSize: 13,
-                                                fontFamily: 'monospace',
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: HighlightView(
-                                              line.isEmpty ? ' ' : line,
-                                              language: currentQuestion.language,
-                                              theme: atomOneDarkTheme,
-                                              padding: EdgeInsets.zero,
-                                              textStyle: const TextStyle(
-                                                fontFamily: 'monospace',
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                          if (_selectedLine != null && index == currentQuestion.bugLineIndex)
-                                            const Icon(Icons.bug_report, color: RheoColors.success, size: 18),
-                                        ],
-                                      ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E1E2E),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: _selectedLine == null 
+                                    ? const Color(0xFF313244)
+                                    : (_isCorrect! ? RheoColors.success.withAlpha(150) : RheoColors.error.withAlpha(150)),
+                                width: _selectedLine == null ? 1 : 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(40),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                // Terminal-style header
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF181825),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(13),
+                                      topRight: Radius.circular(13),
                                     ),
                                   ),
-                                );
-                              },
+                                  child: Row(
+                                    children: [
+                                      // Fake window controls
+                                      Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFf38ba8))),
+                                      const SizedBox(width: 6),
+                                      Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFf9e2af))),
+                                      const SizedBox(width: 6),
+                                      Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFa6e3a1))),
+                                      const Spacer(),
+                                      Text(
+                                        currentQuestion.language.toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Color(0xFF6c7086),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Code lines
+                                Expanded(
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.symmetric(vertical: 6),
+                                    itemCount: currentQuestion.codeLines.length,
+                                    itemBuilder: (context, index) {
+                                      final line = currentQuestion.codeLines[index];
+                                      final isSelected = _selectedLine == index;
+                                      final isBugLine = _selectedLine != null && index == currentQuestion.bugLineIndex;
+                                      
+                                      return StaggeredFadeIn(
+                                        index: index,
+                                        delay: const Duration(milliseconds: 50),
+                                        child: InkWell(
+                                          onTap: _selectedLine == null 
+                                              ? () => _onLineSelected(index)
+                                              : null,
+                                          child: Container(
+                                            color: isBugLine
+                                                ? RheoColors.success.withAlpha(30)
+                                                : (isSelected && !_isCorrect!)
+                                                    ? RheoColors.error.withAlpha(30)
+                                                    : (_selectedLine == null ? Colors.transparent : Colors.transparent),
+                                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                // Line number gutter
+                                                Container(
+                                                  width: 40,
+                                                  padding: const EdgeInsets.symmetric(vertical: 5),
+                                                  decoration: BoxDecoration(
+                                                    border: Border(
+                                                      right: BorderSide(color: const Color(0xFF313244), width: 1),
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    '${index + 1}',
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      color: isBugLine 
+                                                          ? RheoColors.success
+                                                          : const Color(0xFF585b70),
+                                                      fontSize: 12,
+                                                      fontFamily: 'monospace',
+                                                      fontWeight: isBugLine ? FontWeight.bold : FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Code content
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.only(left: 8, top: 1, bottom: 1),
+                                                    child: HighlightView(
+                                                      line.isEmpty ? ' ' : line,
+                                                      language: currentQuestion.language,
+                                                      theme: atomOneDarkTheme,
+                                                      padding: const EdgeInsets.symmetric(vertical: 3),
+                                                      textStyle: const TextStyle(
+                                                        fontFamily: 'monospace',
+                                                        fontSize: 13,
+                                                        height: 1.4,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                if (_selectedLine != null && index == currentQuestion.bugLineIndex)
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(right: 8, top: 4),
+                                                    child: Icon(Icons.bug_report, color: RheoColors.success, size: 16),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
