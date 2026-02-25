@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import '../logic/storage_service.dart';
 import '../logic/sound_service.dart';
@@ -15,6 +17,7 @@ import 'leaderboard_screen.dart';
 import 'topic_dialog.dart';
 import 'profile_screen.dart';
 import 'initial_rank_screen.dart';
+import 'journey_screen.dart';
 import '../data/app_strings.dart';
 
 /// Language-specific accent colors (text) — delegates to RheoTheme
@@ -68,6 +71,12 @@ class _HomeScreenState extends State<HomeScreen> {
     HapticService.lightTap();
     Navigator.push(context, PageTransitions.slideRight(screen))
         .then((_) => setState(() {}));
+  }
+
+  void _navigateToJourneyWeb() {
+    HapticService.lightTap();
+    // Navigate to React journey app served at /journey/
+    launchUrl(Uri.parse('/journey/'), mode: LaunchMode.platformDefault);
   }
 
   void _onLanguageChanged(ProgrammingLanguage lang) async {
@@ -508,9 +517,32 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               
-              // Game mode buttons with hover/press effects
+              // Learning Journey — Duolingo-style path
               StaggeredFadeIn(
                 index: 5,
+                child: _HoverButton(
+                  accentColor: const Color(0xFF58CC02),
+                  cardBg: cardBg,
+                  icon: Icons.map_rounded,
+                  title: S.tr('Öğrenme Yolculuğu', 'Learning Journey'),
+                  subtitle: S.tr('Adım adım kod öğren', 'Learn code step by step'),
+                  onTap: () {
+                    if (kIsWeb) {
+                      // On web, navigate to React journey app
+                      _navigateToJourneyWeb();
+                    } else {
+                      _navigateTo(const JourneyScreen());
+                    }
+                  },
+                  isSpecial: true,
+                ),
+              ),
+              
+              const SizedBox(height: 10),
+
+              // Game mode buttons with hover/press effects
+              StaggeredFadeIn(
+                index: 6,
                 child: _HoverButton(
                   accentColor: accent,
                   cardBg: cardBg,
@@ -669,6 +701,7 @@ class _HoverButton extends StatefulWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final bool isSpecial;
 
   const _HoverButton({
     required this.accentColor,
@@ -677,6 +710,7 @@ class _HoverButton extends StatefulWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.isSpecial = false,
   });
 
   @override

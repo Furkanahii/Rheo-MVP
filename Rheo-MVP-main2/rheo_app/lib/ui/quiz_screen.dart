@@ -16,7 +16,21 @@ class QuizScreen extends StatefulWidget {
   final String? topic;
   final bool isAI;
   
-  const QuizScreen({super.key, this.topic, this.isAI = false});
+  // Journey mode parameters
+  final ProgrammingLanguage? language;  // Override current language
+  final int? questionsCount;            // Override default question count
+  final String? journeyNodeId;          // Journey node being played
+  final void Function(int correct, int total)? onJourneyComplete;  // Callback when done
+  
+  const QuizScreen({
+    super.key, 
+    this.topic, 
+    this.isAI = false,
+    this.language,
+    this.questionsCount,
+    this.journeyNodeId,
+    this.onJourneyComplete,
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -223,6 +237,12 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
   void _showResults() {
     final summary = _controller.getSessionSummary();
     HapticService.achievement();
+    
+    // If in journey mode, call the completion callback
+    if (widget.onJourneyComplete != null) {
+      widget.onJourneyComplete!(summary['correct'] as int, 
+          (summary['correct'] as int) + (summary['wrong'] as int));
+    }
     
     // Fire confetti! 🎉
     _confettiController.play();
