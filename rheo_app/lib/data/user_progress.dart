@@ -1,4 +1,4 @@
-/// User progress model for Hive storage
+﻿/// User progress model for Hive storage
 /// Stores ELO rating, streaks, and game statistics
 class UserProgress {
   int elo;

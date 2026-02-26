@@ -1,35 +1,43 @@
-import 'dart:math';
+﻿import 'dart:math';
 import '../data/app_strings.dart';
 
 /// ELO Rating Calculator
-/// Based on chess ELO system adapted for quiz questions
+/// Fixed point system based on user rank and question difficulty
 class EloCalculator {
   /// Starting ELO for new users
   static const int startingElo = 100;
   
-  /// K-factor based on question difficulty
-  static int getKFactor(int difficulty) {
-    switch (difficulty) {
-      case 1: return 16;  // Easy - smaller changes
-      case 2: return 24;  // Medium
-      case 3: return 32;  // Hard - bigger changes
-      default: return 24;
-    }
-  }
+  /// Fixed point gains for correct answers [rank][difficulty-1]
+  /// Ranks: ├çaylak(<200), Y├╝kselen(200-399), Deneyimli(400-599),
+  ///        Uzman(600-799), Usta(800-999), ├£stat(1000+)
+  /// Difficulty: 1=Easy, 2=Medium, 3=Hard
+  static const List<List<int>> _correctPoints = [
+    [8, 12, 18],   // ├çaylak
+    [6, 10, 15],   // Y├╝kselen
+    [5, 8, 12],    // Deneyimli
+    [4, 6, 10],    // Uzman
+    [3, 5, 8],     // Usta
+    [2, 4, 6],     // ├£stat
+  ];
 
-  /// Get question ELO based on difficulty
-  static int getQuestionElo(int difficulty) {
-    switch (difficulty) {
-      case 1: return 200;   // Easy
-      case 2: return 400;   // Medium
-      case 3: return 600;   // Hard
-      default: return 400;
-    }
-  }
+  /// Fixed point losses for wrong answers [rank][difficulty-1]
+  static const List<List<int>> _wrongPoints = [
+    [2, 3, 4],     // ├çaylak
+    [3, 4, 5],     // Y├╝kselen
+    [4, 5, 7],     // Deneyimli
+    [5, 7, 9],     // Uzman
+    [6, 8, 10],    // Usta
+    [8, 10, 12],   // ├£stat
+  ];
 
-  /// Calculate expected score (probability of correct answer)
-  static double expectedScore(int userElo, int questionElo) {
-    return 1.0 / (1.0 + pow(10, (questionElo - userElo) / 400.0));
+  /// Get rank index (0-5) from ELO
+  static int _getRankIndex(int elo) {
+    if (elo < 200) return 0;   // ├çaylak
+    if (elo < 400) return 1;   // Y├╝kselen
+    if (elo < 600) return 2;   // Deneyimli
+    if (elo < 800) return 3;   // Uzman
+    if (elo < 1000) return 4;  // Usta
+    return 5;                   // ├£stat
   }
 
   /// Calculate new ELO after answering a question
@@ -38,15 +46,14 @@ class EloCalculator {
     required int questionDifficulty,
     required bool isCorrect,
   }) {
-    final questionElo = getQuestionElo(questionDifficulty);
-    final k = getKFactor(questionDifficulty);
-    final expected = expectedScore(currentElo, questionElo);
+    final rankIndex = _getRankIndex(currentElo);
+    final diffIndex = (questionDifficulty - 1).clamp(0, 2);
     
-    final actual = isCorrect ? 1.0 : 0.0;
-    final change = (k * (actual - expected)).round();
-    
-    // Prevent ELO from going below 0
-    return max(0, currentElo + change);
+    if (isCorrect) {
+      return currentElo + _correctPoints[rankIndex][diffIndex];
+    } else {
+      return max(0, currentElo - _wrongPoints[rankIndex][diffIndex]);
+    }
   }
 
   /// Get difficulty level based on user ELO
@@ -64,21 +71,21 @@ class EloCalculator {
 
   /// Get ELO rank emoji
   static String getRankEmoji(int elo) {
-    if (elo < 200) return '🌱';
-    if (elo < 400) return '⚡';
-    if (elo < 600) return '🔥';
-    if (elo < 800) return '💎';
-    if (elo < 1000) return '👑';
-    return '🏆';
+    if (elo < 200) return '­şî▒';   // ├çaylak
+    if (elo < 400) return '­şôê';   // Y├╝kselen
+    if (elo < 600) return '­şÆí';   // Deneyimli
+    if (elo < 800) return '­şÄ»';   // Uzman
+    if (elo < 1000) return 'ÔÜí';  // Usta
+    return '­şææ';                   // ├£stat
   }
 
   /// Get ELO rank color (as hex string for UI)
   static int getRankColor(int elo) {
-    if (elo < 200) return 0xFF4CAF50;   // Green - Çaylak
-    if (elo < 400) return 0xFF2196F3;   // Blue - Yükselen
-    if (elo < 600) return 0xFF9C27B0;   // Purple - Deneyimli
-    if (elo < 800) return 0xFFFF9800;   // Orange - Uzman
-    if (elo < 1000) return 0xFFF44336;  // Red - Usta
-    return 0xFFFFD700;                   // Gold - Üstat
+    if (elo < 200) return 0xFF795548;   // Brown - ├çaylak
+    if (elo < 400) return 0xFF388E3C;   // Green - Y├╝kselen
+    if (elo < 600) return 0xFFD81B60;   // Pink - Deneyimli
+    if (elo < 800) return 0xFF1976D2;   // Blue - Uzman
+    if (elo < 1000) return 0xFF7B1FA2;  // Purple - Usta
+    return 0xFFD32F2F;                   // Red - ├£stat
   }
 }

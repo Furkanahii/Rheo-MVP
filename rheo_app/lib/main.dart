@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -15,25 +15,25 @@ import 'logic/sound_service.dart';
 import 'logic/notification_service.dart';
 
 void main() async {
-  // Zone ile tüm hataları yakala
+  // Zone ile t├╝m hatalar─▒ yakala
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
     
-    // Firebase başlat
+    // Firebase ba┼şlat
     try {
       await Firebase.initializeApp();
-      debugPrint('✅ Firebase initialized');
+      debugPrint('Ô£à Firebase initialized');
       
-      // Crashlytics'e Flutter hatalarını gönder
+      // Crashlytics'e Flutter hatalar─▒n─▒ g├Ânder
       if (!kIsWeb) {
         FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
       }
       
-      // Analytics başlat
+      // Analytics ba┼şlat
       await analyticsService.init();
-      debugPrint('✅ Analytics initialized');
+      debugPrint('Ô£à Analytics initialized');
     } catch (e) {
-      debugPrint('⚠️ Firebase init error (google-services.json eksik olabilir): $e');
+      debugPrint('ÔÜá´©Å Firebase init error (google-services.json eksik olabilir): $e');
     }
     
     // Global error handler (fallback)
@@ -47,9 +47,9 @@ void main() async {
     // Load environment variables (.env)
     try {
       await dotenv.load(fileName: '.env');
-      debugPrint('✅ dotenv loaded');
+      debugPrint('Ô£à dotenv loaded');
     } catch (e) {
-      debugPrint('⚠️ .env file not found: $e');
+      debugPrint('ÔÜá´©Å .env file not found: $e');
     }
     
     // Initialize AI service
@@ -60,12 +60,12 @@ void main() async {
     await soundService.init();
     await notificationService.init();
     
-    // Onboarding her zaman göster (demo/MVP link paylaşımı için)
+    // Onboarding her zaman g├Âster (demo/MVP link payla┼ş─▒m─▒ i├ğin)
     const showOnboarding = true;
     
     runApp(RheoApp(showOnboarding: showOnboarding));
   }, (error, stack) {
-    // Zone dışı hatalar
+    // Zone d─▒┼ş─▒ hatalar
     if (!kIsWeb) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     }

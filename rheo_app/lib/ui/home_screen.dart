@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:url_launcher/url_launcher.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../logic/storage_service.dart';
 import '../logic/sound_service.dart';
@@ -17,13 +15,12 @@ import 'leaderboard_screen.dart';
 import 'topic_dialog.dart';
 import 'profile_screen.dart';
 import 'initial_rank_screen.dart';
-import 'journey_screen.dart';
 import '../data/app_strings.dart';
 
-/// Language-specific accent colors (text) — delegates to RheoTheme
+/// Language-specific accent colors (text) ÔÇö delegates to RheoTheme
 Color _langAccent(ProgrammingLanguage lang) => RheoTheme.langText(lang);
 
-/// Language-specific card/button background — now always white (cards)
+/// Language-specific card/button background ÔÇö now always white (cards)
 Color _langCardBg(ProgrammingLanguage lang) => RheoTheme.cardBg;
 
 class HomeScreen extends StatefulWidget {
@@ -47,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initServices() async {
     await storageService.init();
     await soundService.init();
-    // Fix the greeting once on init — won't change until page is re-entered
+    // Fix the greeting once on init ÔÇö won't change until page is re-entered
     _fixedGreeting = MascotHelper.getGreeting();
     _fixedSubtitle = MascotHelper.getRankComment(storageService.progress.elo);
     setState(() => _isLoading = false);
@@ -71,12 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
     HapticService.lightTap();
     Navigator.push(context, PageTransitions.slideRight(screen))
         .then((_) => setState(() {}));
-  }
-
-  void _navigateToJourneyWeb() {
-    HapticService.lightTap();
-    // Navigate to React journey app served at /journey/
-    launchUrl(Uri.parse('/journey/'), mode: LaunchMode.platformDefault);
   }
 
   void _onLanguageChanged(ProgrammingLanguage lang) async {
@@ -109,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Günde kaç soru çözmek istiyorsun?',
+                    S.gundeSoruSayisi,
                     style: TextStyle(color: RheoTheme.textMuted, fontSize: 14),
                   ),
                   const SizedBox(height: 20),
@@ -155,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: Text('İptal',
+                  child: Text(S.iptal,
                       style: TextStyle(color: RheoTheme.textMuted)),
                 ),
                 ElevatedButton(
@@ -173,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Kaydet'),
+                  child: Text(S.kaydet),
                 ),
               ],
             );
@@ -239,15 +230,56 @@ class _HomeScreenState extends State<HomeScreen> {
                         IconButton(
                           icon: Icon(Icons.emoji_events_outlined, color: RheoTheme.textColor),
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(S.tr('Sıralama çok yakında! 🏆', 'Leaderboard coming soon! 🏆')),
-                                duration: const Duration(seconds: 2),
-                                backgroundColor: RheoColors.primary,
+                            HapticService.lightTap();
+                            showDialog(
+                              context: context,
+                              barrierColor: RheoTheme.textColor.withAlpha(100),
+                              builder: (context) => Center(
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 24),
+                                    decoration: BoxDecoration(
+                                      color: RheoTheme.cardBg,
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(color: RheoTheme.textColor.withAlpha(60), width: 2),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: RheoTheme.textColor.withAlpha(20),
+                                          blurRadius: 24,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.emoji_events_outlined, color: RheoTheme.textColor, size: 36),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          S.tr('├çok Yak─▒nda! ­şÜÇ', 'Coming Soon! ­şÜÇ'),
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: RheoTheme.textColor,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          S.tr('S─▒ralama sistemi geliyor...', 'Leaderboard coming soon...'),
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: RheoTheme.textMuted,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                             );
                           },
-                          tooltip: S.tr('Sıralama', 'Leaderboard'),
+                          tooltip: S.tr('S─▒ralama', 'Leaderboard'),
                         ),
                         Positioned(
                           right: 2,
@@ -259,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              S.tr('Yakında', 'Soon'),
+                              S.tr('Yak─▒nda', 'Soon'),
                               style: const TextStyle(fontSize: 7, color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -438,7 +470,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           children: [
                             // Goal icon
-                            Text('🎯', style: const TextStyle(fontSize: 18)),
+                            Text('­şÄ»', style: const TextStyle(fontSize: 18)),
                             const SizedBox(width: 10),
                             // Progress bar + text
                             Expanded(
@@ -517,32 +549,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               
-              // Learning Journey — Duolingo-style path
-              StaggeredFadeIn(
-                index: 5,
-                child: _HoverButton(
-                  accentColor: const Color(0xFF58CC02),
-                  cardBg: cardBg,
-                  icon: Icons.map_rounded,
-                  title: S.tr('Öğrenme Yolculuğu', 'Learning Journey'),
-                  subtitle: S.tr('Adım adım kod öğren', 'Learn code step by step'),
-                  onTap: () {
-                    if (kIsWeb) {
-                      // On web, navigate to React journey app
-                      _navigateToJourneyWeb();
-                    } else {
-                      _navigateTo(const JourneyScreen());
-                    }
-                  },
-                  isSpecial: true,
-                ),
-              ),
-              
-              const SizedBox(height: 10),
-
               // Game mode buttons with hover/press effects
               StaggeredFadeIn(
-                index: 6,
+                index: 5,
                 child: _HoverButton(
                   accentColor: accent,
                   cardBg: cardBg,
@@ -595,7 +604,7 @@ class _HomeScreenState extends State<HomeScreen> {
               StaggeredFadeIn(
                 index: 8,
                 child: Text(
-                  '${progress.totalQuestions} soru çözüldü',
+                  S.soruCozuldu(progress.totalQuestions),
                   style: TextStyle(color: RheoTheme.textColor.withAlpha(100), fontSize: 13),
                 ),
               ),
@@ -701,7 +710,6 @@ class _HoverButton extends StatefulWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  final bool isSpecial;
 
   const _HoverButton({
     required this.accentColor,
@@ -710,7 +718,6 @@ class _HoverButton extends StatefulWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
-    this.isSpecial = false,
   });
 
   @override
@@ -983,7 +990,7 @@ class _DailyGoalHoverButtonState extends State<_DailyGoalHoverButton> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('🎯', style: const TextStyle(fontSize: 18)),
+              Text('­şÄ»', style: const TextStyle(fontSize: 18)),
               const SizedBox(width: 8),
               Text(
                 S.gunlukHedefBelirle,
