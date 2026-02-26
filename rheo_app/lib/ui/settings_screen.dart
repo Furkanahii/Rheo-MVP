@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../logic/storage_service.dart';
 import '../logic/sound_service.dart';
 import '../logic/notification_service.dart';
@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                S.ilerlemeySifirlaTitle,
+                'İlerlemeyi Sıfırla?',
                 style: TextStyle(color: RheoTheme.textColor, fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -124,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.pop(context);
             },
           ),
-          title: Text(S.ayarlar, style: TextStyle(color: RheoTheme.textColor)),
+          title: Text('Ayarlar', style: TextStyle(color: RheoTheme.textColor)),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -165,7 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           icon: Icons.notifications_active_outlined,
                           title: S.bildirimler,
                           subtitle: _notificationsEnabled 
-                            ? '${S.tr('Hat─▒rlatma', 'Reminder')}: ${notificationService.hour.toString().padLeft(2, '0')}:${notificationService.minute.toString().padLeft(2, '0')}'
+                            ? '${S.tr('Hatırlatma', 'Reminder')}: ${notificationService.hour.toString().padLeft(2, '0')}:${notificationService.minute.toString().padLeft(2, '0')}'
                             : S.bildirimlerSub,
                           value: _notificationsEnabled,
                           onChanged: (value) async {
@@ -175,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               final time = await showTimePicker(
                                 context: context,
                                 initialTime: TimeOfDay(hour: notificationService.hour, minute: notificationService.minute),
-                                helpText: S.tr('Hat─▒rlatma Saati', 'Reminder Time'),
+                                helpText: S.tr('Hatırlatma Saati', 'Reminder Time'),
                               );
                               if (time != null) {
                                 await notificationService.setEnabled(true);
@@ -205,7 +205,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _buildToggleTile(
                           icon: Icons.language_rounded,
                           title: S.dil,
-                          subtitle: storageService.progress.locale == 'en' ? 'English' : 'T├╝rk├ğe',
+                          subtitle: storageService.progress.locale == 'en' ? 'English' : 'Türkçe',
                           value: storageService.progress.locale == 'en',
                           onChanged: (value) async {
                             HapticService.selectionClick();
@@ -275,7 +275,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Divider(color: RheoTheme.brandCardBorder, height: 1),
                         _buildInfoTile(S.versiyon, '1.0.0 Beta'),
                         Divider(color: RheoTheme.brandCardBorder, height: 1),
-                        _buildInfoTile(S.iletisim, 'rheocode.app@gmail.com'),
+                        _buildInfoTile(S.iletisim, 'team@rheo.app'),
                       ],
                     ),
                   ),
@@ -305,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '┬® 2026 ÔÇó ${S.kodOkumaOyunu}',
+                          '© 2026 • Kod Okuma Oyunu',
                           style: TextStyle(color: RheoTheme.brandMuted, fontSize: 12),
                         ),
                       ],
@@ -416,8 +416,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Icon(Icons.info_outline_rounded, color: RheoColors.primary, size: 22),
       ),
-      title: Text(S.hakkimizda, style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.w500)),
-      subtitle: Text(S.hakkimizdaSub, style: TextStyle(color: RheoTheme.brandMuted, fontSize: 12)),
+      title: Text('Hakkımızda', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.w500)),
+      subtitle: Text('Ekip ve uygulama bilgileri', style: TextStyle(color: RheoTheme.brandMuted, fontSize: 12)),
       trailing: Icon(Icons.arrow_forward_ios_rounded, color: RheoColors.primary.withAlpha(150), size: 16),
     );
   }

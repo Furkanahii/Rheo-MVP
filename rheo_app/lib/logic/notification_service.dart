@@ -1,9 +1,9 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-/// Notification Service ÔÇö Web browser notifications + Mascot messages
+/// Notification Service — Web browser notifications + Mascot messages
 /// Uses Browser Notification API on web, no-op on mobile (add firebase_messaging later)
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -25,36 +25,36 @@ class NotificationService {
   /// Mascot notification messages (TR)
   static const List<NotificationMessage> mascotMessages = [
     NotificationMessage(
-      title: '­şĞĞ Kodlar paslan─▒yor!',
-      body: 'Bug├╝n hen├╝z pratik yapmad─▒n. Gel, birlikte ├ğ├Âzelim!',
+      title: '🦦 Kodlar paslanıyor!',
+      body: 'Bugün henüz pratik yapmadın. Gel, birlikte çözelim!',
     ),
     NotificationMessage(
-      title: '­şĞĞ Serin bozulmas─▒n!',
-      body: 'G├╝nl├╝k hedefe ula┼şmak i├ğin birka├ğ soru kald─▒!',
+      title: '🦦 Serin bozulmasın!',
+      body: 'Günlük hedefe ulaşmak için birkaç soru kaldı!',
     ),
     NotificationMessage(
-      title: '­şĞĞ Bug├╝n commit atmad─▒n m─▒?',
-      body: 'En az─▒ndan Rheo\'da birka├ğ soru ├ğ├Âz, beyni aktif tut!',
+      title: '🦦 Bugün commit atmadın mı?',
+      body: 'En azından Rheo\'da birkaç soru çöz, beyni aktif tut!',
     ),
     NotificationMessage(
-      title: '­şöÑ Streak tehlikede!',
-      body: 'G├╝nl├╝k serini korumak i├ğin bir quiz oyna!',
+      title: '🔥 Streak tehlikede!',
+      body: 'Günlük serini korumak için bir quiz oyna!',
     ),
     NotificationMessage(
-      title: '­şĞĞ Debug zaman─▒!',
-      body: 'Yeni Bug Hunt sorular─▒ seni bekliyor. Bulabilecek misin?',
+      title: '🦦 Debug zamanı!',
+      body: 'Yeni Bug Hunt soruları seni bekliyor. Bulabilecek misin?',
     ),
     NotificationMessage(
-      title: 'ÔÜí H─▒zl─▒ m─▒s─▒n?',
+      title: '⚡ Hızlı mısın?',
       body: 'Time Attack modunda kendini test et!',
     ),
     NotificationMessage(
-      title: '­şĞĞ ├û─şrenme zaman─▒!',
-      body: 'G├╝nde 10 dakika pratik, haftal─▒k 1 saat ├Â─şrenme demek!',
+      title: '🦦 Öğrenme zamanı!',
+      body: 'Günde 10 dakika pratik, haftalık 1 saat öğrenme demek!',
     ),
     NotificationMessage(
-      title: '­şôè ELO puan─▒n y├╝kseliyor!',
-      body: 'Devam et, s─▒ralamada y├╝kseliyorsun!',
+      title: '📊 ELO puanın yükseliyor!',
+      body: 'Devam et, sıralamada yükseliyorsun!',
     ),
   ];
 

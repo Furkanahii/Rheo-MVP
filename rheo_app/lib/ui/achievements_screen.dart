@@ -1,6 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../data/achievements.dart';
-import '../data/app_strings.dart';
 import '../logic/storage_service.dart';
 import 'theme.dart';
 import 'animations.dart';
@@ -34,7 +33,7 @@ class AchievementsScreen extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
-        title: Text(S.basarimlar, style: TextStyle(color: RheoTheme.brandText)),
+        title: Text('Başarımlar', style: TextStyle(color: RheoTheme.brandText)),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -87,7 +86,7 @@ class AchievementsScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              S.tr('Ba┼şar─▒m Kazan─▒ld─▒', 'Achievements Earned'),
+                              'Başarım Kazanıldı',
                               style: TextStyle(
                                 color: RheoTheme.brandMuted,
                                 fontSize: 13,
@@ -130,7 +129,7 @@ class AchievementsScreen extends StatelessWidget {
 
               // Unlocked Section
               if (unlocked.isNotEmpty) ...[
-                _buildSectionHeader(S.tr('KAZANILAN', 'UNLOCKED'), unlocked.length),
+                _buildSectionHeader('KAZANILAN', unlocked.length),
                 const SizedBox(height: 12),
                 ...unlocked.asMap().entries.map((e) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
@@ -144,7 +143,7 @@ class AchievementsScreen extends StatelessWidget {
 
               // Locked Section
               if (locked.isNotEmpty) ...[
-                _buildSectionHeader(S.tr('K─░L─░TL─░', 'LOCKED'), locked.length),
+                _buildSectionHeader('KİLİTLİ', locked.length),
                 const SizedBox(height: 12),
                 ...locked.asMap().entries.map((e) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),

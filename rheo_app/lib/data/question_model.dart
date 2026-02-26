@@ -1,4 +1,4 @@
-﻿/// Question model for parsing questions.json
+/// Question model for parsing questions.json
 import 'app_strings.dart';
 
 class Question {
@@ -46,7 +46,7 @@ class Question {
     return explanation;
   }
 
-  /// Factory constructor to parse JSON ÔÇö error-safe
+  /// Factory constructor to parse JSON — error-safe
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
       id: json['id']?.toString() ?? 'unknown',

@@ -1,22 +1,20 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
 import 'animations.dart';
 import 'initial_rank_screen.dart';
-import '../data/app_strings.dart';
 
 class RankScreen extends StatelessWidget {
   const RankScreen({super.key});
 
-  /// Build ranks with localized titles ÔÇö colors and emojis are ELO-fixed
-  static List<_RankInfo> get _ranks => [
-    _RankInfo(S.rankUstat, 1000, '­şææ', const Color(0xFFD32F2F)),
-    _RankInfo(S.rankUsta, 800, 'ÔÜí', const Color(0xFF7B1FA2)),
-    _RankInfo(S.rankUzman, 600, '­şÄ»', const Color(0xFF1976D2)),
-    _RankInfo(S.rankDeneyimli, 400, '­şÆí', const Color(0xFFD81B60)),
-    _RankInfo(S.rankYukselen, 200, '­şôê', const Color(0xFF388E3C)),
-    _RankInfo(S.rankCaylak, 0, '­şî▒', const Color(0xFF795548)),
+  static const _ranks = [
+    _RankInfo('Üstat', 1000, '👑', Color(0xFFE61600)),
+    _RankInfo('Usta', 800, '⚡', Color(0xFFAA09DB)),
+    _RankInfo('Uzman', 600, '🎯', Color(0xFF416FF0)),
+    _RankInfo('Deneyimli', 400, '💡', Color(0xFFFF00EA)),
+    _RankInfo('Yükselen', 200, '📈', Color(0xFFD99800)),
+    _RankInfo('Çaylak', 0, '🌱', Color(0xFFE6E212)),
   ];
 
   @override
@@ -24,16 +22,6 @@ class RankScreen extends StatelessWidget {
     final progress = storageService.progress;
     final currentRank = EloCalculator.getRankTitle(progress.elo);
     final rankColor = Color(EloCalculator.getRankColor(progress.elo));
-    final ranks = _ranks;
-
-    // Determine which rank ELO range the user is in
-    int currentRankMinElo = 0;
-    for (final r in ranks) {
-      if (progress.elo >= r.minElo) {
-        currentRankMinElo = r.minElo;
-        break;
-      }
-    }
 
     return Scaffold(
       backgroundColor: RheoTheme.brandScaffoldBg,
@@ -47,7 +35,7 @@ class RankScreen extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
-        title: Text(S.rutbeSistemi,
+        title: Text('Rütbe Sistemi',
             style: TextStyle(color: RheoTheme.brandText, fontWeight: FontWeight.bold)),
       ),
       body: SafeArea(
@@ -62,7 +50,7 @@ class RankScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      S.rutbeler,
+                      'RÜTBELER',
                       style: TextStyle(
                         color: RheoTheme.brandMuted,
                         fontSize: 11,
@@ -73,11 +61,11 @@ class RankScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     Expanded(
                       child: ListView.separated(
-                        itemCount: ranks.length,
+                        itemCount: _ranks.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
                         itemBuilder: (context, index) {
-                          final rank = ranks[index];
-                          final isCurrent = rank.minElo == currentRankMinElo;
+                          final rank = _ranks[index];
+                          final isCurrent = rank.title == currentRank;
                           return StaggeredFadeIn(
                             index: index,
                             child: AnimatedContainer(
@@ -122,9 +110,9 @@ class RankScreen extends StatelessWidget {
                                           ),
                                         ),
                                         Text(
-                                          rank.minElo >= 1000
-                                              ? S.puanUstu(rank.minElo)
-                                              : S.puanAraligi(rank.minElo, rank.minElo + 200),
+                                          rank.title == 'Üstat'
+                                              ? '${rank.minElo}+ puan'
+                                              : '${rank.minElo}-${rank.minElo + 200} puan',
                                           style: TextStyle(
                                             fontSize: 10,
                                             color: rank.color.withAlpha(150),
@@ -143,7 +131,7 @@ class RankScreen extends StatelessWidget {
                                             BorderRadius.circular(10),
                                       ),
                                       child: Text(
-                                        S.sen,
+                                        'SEN',
                                         style: TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
@@ -197,7 +185,7 @@ class RankScreen extends StatelessWidget {
                               ),
                               child: Center(
                                 child: Text(
-                                  ranks.firstWhere((r) => r.minElo == currentRankMinElo, orElse: () => ranks.last).emoji,
+                                  _ranks.firstWhere((r) => r.title == currentRank, orElse: () => _ranks.last).emoji,
                                   style: const TextStyle(fontSize: 22),
                                 ),
                               ),
@@ -213,7 +201,7 @@ class RankScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              S.puan,
+                              'Puan',
                               style: TextStyle(
                                 fontSize: 11,
                                 color: RheoTheme.brandMuted,
@@ -278,7 +266,7 @@ class _RankInfo {
   final int minElo;
   final String emoji;
   final Color color;
-  _RankInfo(this.title, this.minElo, this.emoji, this.color);
+  const _RankInfo(this.title, this.minElo, this.emoji, this.color);
 }
 
 class _HoverResetButton extends StatefulWidget {
@@ -335,7 +323,7 @@ class _HoverResetButtonState extends State<_HoverResetButton> {
               : Matrix4.identity(),
           child: Center(
             child: Text(
-              S.puanimiSifirla,
+              'Puanımı Sıfırla',
               style: TextStyle(
                 color: RheoColors.error,
                 fontWeight: FontWeight.bold,

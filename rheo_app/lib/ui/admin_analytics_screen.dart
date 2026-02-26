@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
 import '../data/app_strings.dart';
 
-/// Admin Analytics Dashboard ÔÇö accessible via triple-tap on version in About page
+/// Admin Analytics Dashboard — accessible via triple-tap on version in About page
 /// Shows local device stats + Firebase Console link for full analytics
 class AdminAnalyticsScreen extends StatelessWidget {
   const AdminAnalyticsScreen({super.key});
@@ -62,14 +62,14 @@ class AdminAnalyticsScreen extends StatelessWidget {
             children: [
               // User Overview Card
               _buildCard(
-                title: S.tr('Kullan─▒c─▒ ├ûzeti', 'User Overview'),
+                title: S.tr('Kullanıcı Özeti', 'User Overview'),
                 icon: Icons.person_rounded,
                 color: RheoColors.primary,
                 children: [
-                  _buildStatRow(S.tr('ELO Puan─▒', 'ELO Score'), '${p.elo}', rankColor),
+                  _buildStatRow(S.tr('ELO Puanı', 'ELO Score'), '${p.elo}', rankColor),
                   _buildStatRow(S.tr('Seviye', 'Rank'), rank, rankColor),
-                  _buildStatRow(S.tr('G├╝nl├╝k Hedef', 'Daily Goal'), '${p.dailyGoal}', RheoTheme.textColor),
-                  _buildStatRow(S.tr('Se├ğili Avatar', 'Selected Avatar'), '${p.selectedAvatarIndex}', RheoTheme.textColor),
+                  _buildStatRow(S.tr('Günlük Hedef', 'Daily Goal'), '${p.dailyGoal}', RheoTheme.textColor),
+                  _buildStatRow(S.tr('Seçili Avatar', 'Selected Avatar'), '${p.selectedAvatarIndex}', RheoTheme.textColor),
                   _buildStatRow(S.tr('Dil', 'Locale'), p.locale.toUpperCase(), RheoTheme.textColor),
                   _buildStatRow(S.tr('Tema', 'Theme'), p.isDarkMode ? 'Dark' : 'Light', RheoTheme.textColor),
                 ],
@@ -84,11 +84,11 @@ class AdminAnalyticsScreen extends StatelessWidget {
                 color: RheoColors.success,
                 children: [
                   _buildStatRow(S.tr('Toplam Cevap', 'Total Answers'), '$totalAnswered', RheoTheme.textColor),
-                  _buildStatRow(S.tr('Do─şru', 'Correct'), '${p.totalCorrect}', RheoColors.success),
-                  _buildStatRow(S.tr('Yanl─▒┼ş', 'Wrong'), '${p.totalWrong}', RheoColors.error),
-                  _buildStatRow(S.tr('Do─şruluk', 'Accuracy'), '$accuracy%', 
+                  _buildStatRow(S.tr('Doğru', 'Correct'), '${p.totalCorrect}', RheoColors.success),
+                  _buildStatRow(S.tr('Yanlış', 'Wrong'), '${p.totalWrong}', RheoColors.error),
+                  _buildStatRow(S.tr('Doğruluk', 'Accuracy'), '$accuracy%', 
                     double.parse(accuracy) >= 70 ? RheoColors.success : RheoColors.warning),
-                  _buildStatRow(S.tr('Ort. ELO De─şi┼şim/Soru', 'Avg ELO Change/Q'), avgEloChange, RheoTheme.textColor),
+                  _buildStatRow(S.tr('Ort. ELO Değişim/Soru', 'Avg ELO Change/Q'), avgEloChange, RheoTheme.textColor),
                 ],
               ),
 
@@ -96,12 +96,12 @@ class AdminAnalyticsScreen extends StatelessWidget {
 
               // Streak & Progress Card
               _buildCard(
-                title: S.tr('Seril & ─░lerleme', 'Streak & Progress'),
+                title: S.tr('Seril & İlerleme', 'Streak & Progress'),
                 icon: Icons.local_fire_department,
                 color: RheoColors.secondary,
                 children: [
-                  _buildStatRow(S.tr('G├╝nl├╝k Seri', 'Daily Streak'), '${p.currentStreak}', RheoColors.secondary),
-                  _buildStatRow(S.tr('Bug├╝nk├╝ Soru', 'Today\'s Questions'), '${p.dailyQuestionsToday}', RheoTheme.textColor),
+                  _buildStatRow(S.tr('Günlük Seri', 'Daily Streak'), '${p.currentStreak}', RheoColors.secondary),
+                  _buildStatRow(S.tr('Bugünkü Soru', 'Today\'s Questions'), '${p.dailyQuestionsToday}', RheoTheme.textColor),
                   _buildStatRow(S.tr('Son Oyun', 'Last Played'), p.lastPlayedDate?.toString().split(' ').first ?? '-', RheoTheme.textColor),
                 ],
               ),
@@ -118,7 +118,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
                       S.tr(
-                        'Detayl─▒ kullan─▒c─▒ analiti─şi, oturum verileri ve etkinlik izleme i├ğin Firebase Console\'u kullan─▒n.',
+                        'Detaylı kullanıcı analitiği, oturum verileri ve etkinlik izleme için Firebase Console\'u kullanın.',
                         'Use Firebase Console for detailed user analytics, session data and event tracking.',
                       ),
                       style: TextStyle(color: RheoTheme.textMuted, fontSize: 12, height: 1.4),
@@ -131,7 +131,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
                       ));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(S.tr('Firebase Console linki kopyaland─▒!', 'Firebase Console link copied!')),
+                          content: Text(S.tr('Firebase Console linki kopyalandı!', 'Firebase Console link copied!')),
                           backgroundColor: RheoColors.success,
                           duration: const Duration(seconds: 2),
                         ),
@@ -168,14 +168,14 @@ class AdminAnalyticsScreen extends StatelessWidget {
 
               // Quick Actions
               _buildCard(
-                title: S.tr('H─▒zl─▒ ─░┼şlemler', 'Quick Actions'),
+                title: S.tr('Hızlı İşlemler', 'Quick Actions'),
                 icon: Icons.settings_rounded,
                 color: RheoColors.warning,
                 children: [
                   _buildActionButton(
                     context,
                     icon: Icons.refresh_rounded,
-                    label: S.tr('─░lerlemeyi S─▒f─▒rla', 'Reset Progress'),
+                    label: S.tr('İlerlemeyi Sıfırla', 'Reset Progress'),
                     color: RheoColors.error,
                     onTap: () {
                       showDialog(
@@ -183,12 +183,12 @@ class AdminAnalyticsScreen extends StatelessWidget {
                         builder: (_) => AlertDialog(
                           backgroundColor: RheoTheme.cardBg,
                           title: Text(S.tr('Emin misin?', 'Are you sure?'), style: TextStyle(color: RheoTheme.textColor)),
-                          content: Text(S.tr('T├╝m ilerleme s─▒f─▒rlanacak!', 'All progress will be reset!'), 
+                          content: Text(S.tr('Tüm ilerleme sıfırlanacak!', 'All progress will be reset!'), 
                             style: TextStyle(color: RheoTheme.textMuted)),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: Text(S.tr('─░ptal', 'Cancel')),
+                              child: Text(S.tr('İptal', 'Cancel')),
                             ),
                             TextButton(
                               onPressed: () async {
@@ -211,7 +211,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
               const SizedBox(height: 24),
               Center(
                 child: Text(
-                  S.tr('Bu panel sadece kurucular i├ğindir', 'This panel is for founders only'),
+                  S.tr('Bu panel sadece kurucular içindir', 'This panel is for founders only'),
                   style: TextStyle(color: RheoTheme.textMuted.withAlpha(100), fontSize: 11),
                 ),
               ),

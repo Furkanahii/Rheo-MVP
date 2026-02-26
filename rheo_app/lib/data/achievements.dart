@@ -1,26 +1,22 @@
-﻿import 'package:flutter/material.dart';
-import 'app_strings.dart';
+import 'package:flutter/material.dart';
 
 /// Achievement definition
 class Achievement {
   final String id;
-  final String Function() titleGetter;
-  final String Function() descriptionGetter;
+  final String title;
+  final String description;
   final IconData icon;
   final int colorValue;
   final bool Function(AchievementProgress) unlockCondition;
 
   const Achievement({
     required this.id,
-    required this.titleGetter,
-    required this.descriptionGetter,
+    required this.title,
+    required this.description,
     required this.icon,
     required this.colorValue,
     required this.unlockCondition,
   });
-
-  String get title => titleGetter();
-  String get description => descriptionGetter();
 }
 
 /// Progress data for checking achievements
@@ -43,87 +39,87 @@ class AchievementProgress {
 /// All available achievements
 class Achievements {
   static final List<Achievement> all = [
-    // ÔöÇÔöÇ Streak achievements ÔöÇÔöÇ
+    // ── Streak achievements ──
     Achievement(
       id: 'streak_7',
-      titleGetter: () => S.yediGunSerisi,
-      descriptionGetter: () => S.yediGunAciklama,
+      title: '7 Gün Serisi',
+      description: '7 gün üst üste oyna',
       icon: Icons.local_fire_department_rounded,
       colorValue: 0xFFE91E63,
       unlockCondition: (p) => p.bestStreak >= 7,
     ),
     Achievement(
       id: 'streak_30',
-      titleGetter: () => S.otuzGunSerisi,
-      descriptionGetter: () => S.otuzGunAciklama,
+      title: '30 Gün Serisi',
+      description: '30 gün üst üste oyna',
       icon: Icons.whatshot_rounded,
       colorValue: 0xFFFF5722,
       unlockCondition: (p) => p.bestStreak >= 30,
     ),
     Achievement(
       id: 'streak_90',
-      titleGetter: () => S.doksanGunSerisi,
-      descriptionGetter: () => S.doksanGunAciklama,
+      title: '90 Gün Serisi',
+      description: '90 gün üst üste oyna',
       icon: Icons.bolt_rounded,
       colorValue: 0xFFFF9800,
       unlockCondition: (p) => p.bestStreak >= 90,
     ),
     Achievement(
       id: 'streak_365',
-      titleGetter: () => S.yilSerisi,
-      descriptionGetter: () => S.yilAciklama,
+      title: '365 Gün Serisi',
+      description: '1 yıl boyunca her gün oyna',
       icon: Icons.star_rounded,
       colorValue: 0xFFFFEB3B,
       unlockCondition: (p) => p.bestStreak >= 365,
     ),
 
-    // ÔöÇÔöÇ Question count achievements ÔöÇÔöÇ
+    // ── Question count achievements (FIX: uses totalQuestions, not bestStreak) ──
     Achievement(
       id: 'questions_10',
-      titleGetter: () => S.onSoru,
-      descriptionGetter: () => S.onSoruAciklama,
+      title: '10 Soru',
+      description: '10 soru çöz',
       icon: Icons.quiz_rounded,
       colorValue: 0xFF4CAF50,
       unlockCondition: (p) => p.totalQuestions >= 10,
     ),
     Achievement(
       id: 'questions_100',
-      titleGetter: () => S.yuzSoru,
-      descriptionGetter: () => S.yuzSoruAciklama,
+      title: '100 Soru',
+      description: '100 soru çöz',
       icon: Icons.school_rounded,
       colorValue: 0xFF2196F3,
       unlockCondition: (p) => p.totalQuestions >= 100,
     ),
     Achievement(
       id: 'questions_1000',
-      titleGetter: () => S.binSoru,
-      descriptionGetter: () => S.binSoruAciklama,
+      title: '1000 Soru',
+      description: '1000 soru çöz',
       icon: Icons.military_tech_rounded,
       colorValue: 0xFF9C27B0,
       unlockCondition: (p) => p.totalQuestions >= 1000,
     ),
 
-    // ÔöÇÔöÇ Correct answer achievements ÔöÇÔöÇ
+    // ── Correct answer achievements ──
     Achievement(
       id: 'correct_10',
-      titleGetter: () => S.onDogru,
-      descriptionGetter: () => S.onDogruAciklama,
+      title: '10 Doğru',
+      description: '10 doğru cevap ver',
       icon: Icons.check_circle_rounded,
       colorValue: 0xFF00BCD4,
       unlockCondition: (p) => p.totalCorrect >= 10,
     ),
     Achievement(
       id: 'correct_100',
-      titleGetter: () => S.yuzDogru,
-      descriptionGetter: () => S.yuzDogruAciklama,
+      title: '100 Doğru',
+      description: '100 doğru cevap ver',
       icon: Icons.verified_rounded,
       colorValue: 0xFF8BC34A,
       unlockCondition: (p) => p.totalCorrect >= 100,
     ),
     Achievement(
       id: 'correct_1000',
-      titleGetter: () => S.binDogru,
-      descriptionGetter: () => S.binDogruAciklama,
+      title: '1000 Doğru',
+      description: '1000 doğru cevap ver',
       icon: Icons.workspace_premium_rounded,
       colorValue: 0xFFFFD700,
       unlockCondition: (p) => p.totalCorrect >= 1000,

@@ -1,24 +1,24 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'animations.dart';
 import 'widgets/mascot_widget.dart';
 
-/// Leaderboard Screen - S─▒ralama Tablosu
+/// Leaderboard Screen - Sıralama Tablosu
 class LeaderboardScreen extends StatelessWidget {
   const LeaderboardScreen({super.key});
 
-  // Mock leaderboard data (ger├ğek uygulamada backend'den gelir)
+  // Mock leaderboard data (gerçek uygulamada backend'den gelir)
   static final List<LeaderboardEntry> _mockLeaderboard = [
-    LeaderboardEntry(rank: 1, name: 'CodeMaster', elo: 1850, streak: 15, avatar: '­şĞè'),
-    LeaderboardEntry(rank: 2, name: 'PyNinja', elo: 1720, streak: 12, avatar: '­şÉı'),
-    LeaderboardEntry(rank: 3, name: 'BugHunter', elo: 1680, streak: 8, avatar: '­şÉø'),
-    LeaderboardEntry(rank: 4, name: 'DevQueen', elo: 1520, streak: 6, avatar: '­şææ'),
-    LeaderboardEntry(rank: 5, name: 'RheoFan', elo: 1480, streak: 5, avatar: '­şĞĞ'),
-    LeaderboardEntry(rank: 6, name: 'Algoritma', elo: 1350, streak: 4, avatar: '­şğ«'),
-    LeaderboardEntry(rank: 7, name: 'Compiler', elo: 1280, streak: 3, avatar: 'ÔÜÖ´©Å'),
-    LeaderboardEntry(rank: 8, name: 'Debugger', elo: 1150, streak: 2, avatar: '­şöı'),
-    LeaderboardEntry(rank: 9, name: 'NewCoder', elo: 1050, streak: 1, avatar: '­şî▒'),
-    LeaderboardEntry(rank: 10, name: 'Starter', elo: 1000, streak: 0, avatar: '­şÄ«'),
+    LeaderboardEntry(rank: 1, name: 'CodeMaster', elo: 1850, streak: 15, avatar: '🦊'),
+    LeaderboardEntry(rank: 2, name: 'PyNinja', elo: 1720, streak: 12, avatar: '🐍'),
+    LeaderboardEntry(rank: 3, name: 'BugHunter', elo: 1680, streak: 8, avatar: '🐛'),
+    LeaderboardEntry(rank: 4, name: 'DevQueen', elo: 1520, streak: 6, avatar: '👑'),
+    LeaderboardEntry(rank: 5, name: 'RheoFan', elo: 1480, streak: 5, avatar: '🦦'),
+    LeaderboardEntry(rank: 6, name: 'Algoritma', elo: 1350, streak: 4, avatar: '🧮'),
+    LeaderboardEntry(rank: 7, name: 'Compiler', elo: 1280, streak: 3, avatar: '⚙️'),
+    LeaderboardEntry(rank: 8, name: 'Debugger', elo: 1150, streak: 2, avatar: '🔍'),
+    LeaderboardEntry(rank: 9, name: 'NewCoder', elo: 1050, streak: 1, avatar: '🌱'),
+    LeaderboardEntry(rank: 10, name: 'Starter', elo: 1000, streak: 0, avatar: '🎮'),
   ];
 
   @override
@@ -37,9 +37,9 @@ class LeaderboardScreen extends StatelessWidget {
         ),
         title: Row(
           children: [
-            const Text('­şÅå', style: TextStyle(fontSize: 24)),
+            const Text('🏆', style: TextStyle(fontSize: 24)),
             const SizedBox(width: 8),
-            Text('S─▒ralama', style: TextStyle(color: RheoTheme.brandText, fontWeight: FontWeight.bold)),
+            Text('Sıralama', style: TextStyle(color: RheoTheme.brandText, fontWeight: FontWeight.bold)),
           ],
         ),
         centerTitle: false,
@@ -181,9 +181,9 @@ class LeaderboardScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _buildPeriodTab('Bug├╝n', true),
+            _buildPeriodTab('Bugün', true),
             _buildPeriodTab('Bu Hafta', false),
-            _buildPeriodTab('T├╝m Zamanlar', false),
+            _buildPeriodTab('Tüm Zamanlar', false),
           ],
         ),
       ),
@@ -279,7 +279,7 @@ class LeaderboardScreen extends StatelessWidget {
                 ),
                 if (entry.streak > 0)
                   Text(
-                    '­şöÑ ${entry.streak} g├╝n seri',
+                    '🔥 ${entry.streak} gün seri',
                     style: TextStyle(
                       color: RheoTheme.brandMuted,
                       fontSize: 11,
@@ -335,7 +335,7 @@ class LeaderboardScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Senin S─▒ran',
+                    'Senin Sıran',
                     style: TextStyle(
                       color: RheoTheme.brandMuted,
                       fontSize: 12,

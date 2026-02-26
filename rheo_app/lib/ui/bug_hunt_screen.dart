@@ -1,8 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
-import 'package:flutter_highlight/themes/atom-one-light.dart';
 import '../logic/sound_service.dart';
 import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
@@ -40,11 +39,11 @@ class BugHuntQuestion {
   }
 }
 
-/// ÔöÇÔöÇÔöÇ BUG HUNT QUESTIONS ÔöÇÔöÇÔöÇ 30+ questions, difficulty 1-3
+/// ─── BUG HUNT QUESTIONS ─── 30+ questions, difficulty 1-3
 final List<BugHuntQuestion> _allBugHuntQuestions = [
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-  // DIFFICULTY 1 ÔÇö EASY (Syntax & Basic Errors)
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  // ═══════════════════════════════════════════════════
+  // DIFFICULTY 1 — EASY (Syntax & Basic Errors)
+  // ═══════════════════════════════════════════════════
   BugHuntQuestion(
     id: 'bug_001',
     codeLines: [
@@ -54,7 +53,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '',
     ],
     bugLineIndex: 2,
-    explanation: 'Typo hatas─▒: "massage" yerine "message" olmal─▒.',
+    explanation: 'Typo hatası: "massage" yerine "message" olmalı.',
     explanationEn: 'Typo error: "massage" should be "message".',
     difficulty: 1,
     topic: 'variables',
@@ -68,7 +67,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    print("Equal")',
     ],
     bugLineIndex: 2,
-    explanation: 'Kar┼ş─▒la┼şt─▒rma i├ğin == kullan─▒lmal─▒, = atama operat├Âr├╝d├╝r.',
+    explanation: 'Karşılaştırma için == kullanılmalı, = atama operatörüdür.',
     explanationEn: 'Use == for comparison, = is the assignment operator.',
     difficulty: 1,
     topic: 'if_else',
@@ -82,7 +81,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    print(word)',
     ],
     bugLineIndex: 2,
-    explanation: 'for d├Âng├╝s├╝n├╝n sonunda ":" eksik.',
+    explanation: 'for döngüsünün sonunda ":" eksik.',
     explanationEn: 'Missing ":" at the end of the for loop.',
     difficulty: 1,
     topic: 'loops',
@@ -98,7 +97,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print(total * 2)',
     ],
     bugLineIndex: 2,
-    explanation: 'Fonksiyon return yerine print kullan─▒yor. total None olur ve None * 2 hata verir.',
+    explanation: 'Fonksiyon return yerine print kullanıyor. total None olur ve None * 2 hata verir.',
     explanationEn: 'Function uses print instead of return. total becomes None and None * 2 causes an error.',
     difficulty: 1,
     topic: 'function',
@@ -113,7 +112,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'console.log(count);',
     ],
     bugLineIndex: 2,
-    explanation: 'JavaScript\'te sat─▒r sonunda ; eksik. Strict mode\'da hata verebilir.',
+    explanation: 'JavaScript\'te satır sonunda ; eksik. Strict mode\'da hata verebilir.',
     explanationEn: 'Missing ; at end of line in JavaScript. Can cause errors in strict mode.',
     difficulty: 1,
     topic: 'loops',
@@ -127,7 +126,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'System.out.println(name + length);',
     ],
     bugLineIndex: 2,
-    explanation: 'Java\'da String + int birle┼ştirme ├ğal─▒┼ş─▒r ama length() metod olmal─▒, name.length() ┼şeklinde.',
+    explanation: 'Java\'da String + int birleştirme çalışır ama length() metod olmalı, name.length() şeklinde.',
     explanationEn: 'In Java, length is a method for Strings: should be name.length() not name.length.',
     difficulty: 1,
     topic: 'string',
@@ -142,15 +141,15 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '        nums.remove(nums[i])',
     ],
     bugLineIndex: 3,
-    explanation: 'D├Âng├╝ i├ğinde listeden eleman silmek indeksleri bozar ve IndexError olu┼şabilir.',
+    explanation: 'Döngü içinde listeden eleman silmek indeksleri bozar ve IndexError oluşabilir.',
     explanationEn: 'Removing elements from a list during iteration shifts indices and may cause IndexError.',
     difficulty: 1,
     topic: 'list',
   ),
 
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-  // DIFFICULTY 2 ÔÇö MEDIUM (Logic & Algorithm Errors)  
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  // ═══════════════════════════════════════════════════
+  // DIFFICULTY 2 — MEDIUM (Logic & Algorithm Errors)  
+  // ═══════════════════════════════════════════════════
   BugHuntQuestion(
     id: 'bug_008',
     codeLines: [
@@ -160,8 +159,8 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    total += numbers[i]',
     ],
     bugLineIndex: 2,
-    explanation: 'range(6) ÔåÆ i=5 olunca IndexError. range(5) veya range(len(numbers)) olmal─▒.',
-    explanationEn: 'range(6) ÔåÆ when i=5, IndexError occurs. Should be range(5) or range(len(numbers)).',
+    explanation: 'range(6) → i=5 olunca IndexError. range(5) veya range(len(numbers)) olmalı.',
+    explanationEn: 'range(6) → when i=5, IndexError occurs. Should be range(5) or range(len(numbers)).',
     difficulty: 2,
     topic: 'loops',
   ),
@@ -181,7 +180,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return -1',
     ],
     bugLineIndex: 1,
-    explanation: 'right = len(arr) yerine len(arr) - 1 olmal─▒. Son indeks len-1\'dir, aksi halde IndexError.',
+    explanation: 'right = len(arr) yerine len(arr) - 1 olmalı. Son indeks len-1\'dir, aksi halde IndexError.',
     explanationEn: 'right should be len(arr) - 1, not len(arr). The last index is len-1, otherwise IndexError.',
     difficulty: 2,
     topic: 'array',
@@ -201,7 +200,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return True',
     ],
     bugLineIndex: 3,
-    explanation: 'right = len(s) yerine len(s) - 1 olmal─▒. s[len(s)] IndexError verir.',
+    explanation: 'right = len(s) yerine len(s) - 1 olmalı. s[len(s)] IndexError verir.',
     explanationEn: 'right should be len(s) - 1, not len(s). s[len(s)] causes IndexError.',
     difficulty: 2,
     topic: 'string',
@@ -219,7 +218,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return arr',
     ],
     bugLineIndex: 5,
-    explanation: 'Swap i┼şlemi yanl─▒┼ş! Ge├ğici de─şi┼şken olmadan atama yap─▒l─▒yor. arr[j], arr[j+1] = arr[j+1], arr[j] kullan─▒lmal─▒.',
+    explanation: 'Swap işlemi yanlış! Geçici değişken olmadan atama yapılıyor. arr[j], arr[j+1] = arr[j+1], arr[j] kullanılmalı.',
     explanationEn: 'Swap is wrong! Assignment without temp variable overwrites the value. Use arr[j], arr[j+1] = arr[j+1], arr[j].',
     difficulty: 2,
     topic: 'sorting',
@@ -235,7 +234,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return max_val',
     ],
     bugLineIndex: 1,
-    explanation: 'max_val = 0 ile ba┼şlamak negatif say─▒lar i├ğin yanl─▒┼ş. max_val = numbers[0] veya float("-inf") olmal─▒.',
+    explanation: 'max_val = 0 ile başlamak negatif sayılar için yanlış. max_val = numbers[0] veya float("-inf") olmalı.',
     explanationEn: 'Starting max_val = 0 fails for negative numbers. Should be numbers[0] or float("-inf").',
     difficulty: 2,
     topic: 'array',
@@ -252,7 +251,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 2,
-    explanation: 'i = str.length ile ba┼şlay─▒nca str[str.length] undefined olur. i = str.length - 1 olmal─▒.',
+    explanation: 'i = str.length ile başlayınca str[str.length] undefined olur. i = str.length - 1 olmalı.',
     explanationEn: 'Starting i = str.length makes str[str.length] undefined. Should start at str.length - 1.',
     difficulty: 2,
     topic: 'string',
@@ -272,7 +271,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print(count_vowels("HELLO"))',
     ],
     bugLineIndex: 1,
-    explanation: 'Sadece k├╝├ğ├╝k harf sesli harfler tan─▒ml─▒. "AEIOU" da eklenmeli veya text.lower() kullan─▒lmal─▒.',
+    explanation: 'Sadece küçük harf sesli harfler tanımlı. "AEIOU" da eklenmeli veya text.lower() kullanılmalı.',
     explanationEn: 'Only lowercase vowels defined. Should add "AEIOU" or use text.lower().',
     difficulty: 2,
     topic: 'string',
@@ -292,7 +291,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 3,
-    explanation: 'i < n yerine i <= n olmal─▒. Aksi halde fibonacci(5) yanl─▒┼ş sonu├ğ verir (3 yerine 5 olmal─▒).',
+    explanation: 'i < n yerine i <= n olmalı. Aksi halde fibonacci(5) yanlış sonuç verir (3 yerine 5 olmalı).',
     explanationEn: 'Should be i <= n instead of i < n. Otherwise fibonacci(5) returns wrong result.',
     difficulty: 2,
     topic: 'loop',
@@ -311,8 +310,8 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return []',
     ],
     bugLineIndex: 6,
-    explanation: 'seen[i] = num yanl─▒┼ş! seen[num] = i olmal─▒. De─şer ÔåÆ indeks e┼şlemesi yap─▒lmal─▒.',
-    explanationEn: 'seen[i] = num is wrong! Should be seen[num] = i. Need value ÔåÆ index mapping.',
+    explanation: 'seen[i] = num yanlış! seen[num] = i olmalı. Değer → indeks eşlemesi yapılmalı.',
+    explanationEn: 'seen[i] = num is wrong! Should be seen[num] = i. Need value → index mapping.',
     difficulty: 2,
     topic: 'array',
   ),
@@ -327,15 +326,15 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return result',
     ],
     bugLineIndex: 3,
-    explanation: '"item not in lst" yanl─▒┼ş, item daima lst i├ğinde olur. "item not in result" olmal─▒.',
+    explanation: '"item not in lst" yanlış, item daima lst içinde olur. "item not in result" olmalı.',
     explanationEn: '"item not in lst" is wrong, item is always in lst. Should be "item not in result".',
     difficulty: 2,
     topic: 'list',
   ),
 
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-  // DIFFICULTY 3 ÔÇö HARD (Advanced Algorithm Bugs)
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  // ═══════════════════════════════════════════════════
+  // DIFFICULTY 3 — HARD (Advanced Algorithm Bugs)
+  // ═══════════════════════════════════════════════════
   BugHuntQuestion(
     id: 'bug_018',
     codeLines: [
@@ -345,7 +344,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return n * factorial(n)',
     ],
     bugLineIndex: 3,
-    explanation: 'Sonsuz ├Âzyineleme: factorial(n) yerine factorial(n-1) olmal─▒. Stack overflow olu┼şur.',
+    explanation: 'Sonsuz özyineleme: factorial(n) yerine factorial(n-1) olmalı. Stack overflow oluşur.',
     explanationEn: 'Infinite recursion: factorial(n) should be factorial(n-1). Causes stack overflow.',
     difficulty: 3,
     topic: 'recursion',
@@ -375,7 +374,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    result += right[i:]',
     ],
     bugLineIndex: 19,
-    explanation: 'Son sat─▒rda right[i:] yerine right[j:] olmal─▒. i left, j right i├ğin kullan─▒l─▒r.',
+    explanation: 'Son satırda right[i:] yerine right[j:] olmalı. i left, j right için kullanılır.',
     explanationEn: 'Last line: right[i:] should be right[j:]. i is for left, j is for right.',
     difficulty: 3,
     topic: 'sorting',
@@ -393,7 +392,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return quick_sort(left) + middle + right',
     ],
     bugLineIndex: 7,
-    explanation: 'right k─▒sm─▒ s─▒ralanm─▒yor! quick_sort(right) olmal─▒, sadece right de─şil.',
+    explanation: 'right kısmı sıralanmıyor! quick_sort(right) olmalı, sadece right değil.',
     explanationEn: 'right part is not sorted! Should be quick_sort(right), not just right.',
     difficulty: 3,
     topic: 'sorting',
@@ -415,7 +414,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '        return self.items[-1]',
     ],
     bugLineIndex: 8,
-    explanation: 'Stack LIFO olmal─▒ ama pop(0) FIFO davran─▒┼ş─▒ verir (ilk eleman─▒ ├ğ─▒kar─▒r). pop() olmal─▒.',
+    explanation: 'Stack LIFO olmalı ama pop(0) FIFO davranışı verir (ilk elemanı çıkarır). pop() olmalı.',
     explanationEn: 'Stack should be LIFO but pop(0) gives FIFO behavior (removes first). Should be pop().',
     difficulty: 3,
     topic: 'stack_queue',
@@ -434,7 +433,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return False',
     ],
     bugLineIndex: 5,
-    explanation: 'Floyd\'s algoritmas─▒: fast.next yerine fast.next.next olmal─▒. Fast pointer 2 ad─▒m atmal─▒.',
+    explanation: 'Floyd\'s algoritması: fast.next yerine fast.next.next olmalı. Fast pointer 2 adım atmalı.',
     explanationEn: 'Floyd\'s algorithm: fast should move 2 steps (fast.next.next), not 1 step (fast.next).',
     difficulty: 3,
     topic: 'oop',
@@ -454,7 +453,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return True',
     ],
     bugLineIndex: 9,
-    explanation: 'Fonksiyon stack bo┼ş olup olmad─▒─ş─▒n─▒ kontrol etmiyor sonunda. "return len(stack) == 0" olmal─▒.',
+    explanation: 'Fonksiyon stack boş olup olmadığını kontrol etmiyor sonunda. "return len(stack) == 0" olmalı.',
     explanationEn: 'Function doesn\'t check if stack is empty at end. Should be "return len(stack) == 0".',
     difficulty: 3,
     topic: 'stack_queue',
@@ -472,7 +471,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '        return base * power(base, exp - 1)',
     ],
     bugLineIndex: 5,
-    explanation: 'half + half toplama yapar! half * half ├ğarpma olmal─▒. 2^4 = (2^2)*(2^2) = 4*4 = 16.',
+    explanation: 'half + half toplama yapar! half * half çarpma olmalı. 2^4 = (2^2)*(2^2) = 4*4 = 16.',
     explanationEn: 'half + half adds! Should be half * half. 2^4 = (2^2)*(2^2) = 4*4 = 16.',
     difficulty: 3,
     topic: 'recursion',
@@ -490,7 +489,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 4,
-    explanation: 'Deep clone de─şil shallow copy yap─▒l─▒yor. clone[key] = deepClone(obj[key]) olmal─▒.',
+    explanation: 'Deep clone değil shallow copy yapılıyor. clone[key] = deepClone(obj[key]) olmalı.',
     explanationEn: 'This is shallow copy, not deep clone. Should be clone[key] = deepClone(obj[key]).',
     difficulty: 3,
     topic: 'recursion',
@@ -507,7 +506,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return a',
     ],
     bugLineIndex: 4,
-    explanation: 'a = b yanl─▒┼ş s─▒rada! a = temp olmal─▒. b zaten g├╝ncellendi, eski b de─şeri (temp) a\'ya atanmal─▒.',
+    explanation: 'a = b yanlış sırada! a = temp olmalı. b zaten güncellendi, eski b değeri (temp) a\'ya atanmalı.',
     explanationEn: 'a = b is in wrong order! Should be a = temp. b was already updated, old b value (temp) should be assigned to a.',
     difficulty: 3,
     topic: 'recursion',
@@ -526,7 +525,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return result',
     ],
     bugLineIndex: 3,
-    explanation: '[[0] * cols_B] * rows_A t├╝m sat─▒rlar ayn─▒ listeyi referans eder! [[0]*cols_B for _ in range(rows_A)] olmal─▒.',
+    explanation: '[[0] * cols_B] * rows_A tüm satırlar aynı listeyi referans eder! [[0]*cols_B for _ in range(rows_A)] olmalı.',
     explanationEn: '[[0]*cols_B]*rows_A makes all rows reference the same list! Use [[0]*cols_B for _ in range(rows_A)].',
     difficulty: 3,
     topic: 'list',
@@ -543,7 +542,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 2,
-    explanation: 'i < n ├ğok yava┼ş! i <= Math.sqrt(n) yeterlidir. n=1000000 i├ğin ├ğok gereksiz d├Âng├╝.',
+    explanation: 'i < n çok yavaş! i <= Math.sqrt(n) yeterlidir. n=1000000 için çok gereksiz döngü.',
     explanationEn: 'i < n is too slow! i <= Math.sqrt(n) is sufficient. Unnecessarily iterates for large n.',
     difficulty: 3,
     topic: 'loop',
@@ -565,7 +564,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '# Expected: [1, 2, 3, 4, 5]',
     ],
     bugLineIndex: 4,
-    explanation: 'extend(item) sadece 1 seviye a├ğar. Recursive olmas─▒ laz─▒m: extend(flatten(item)) olmal─▒.',
+    explanation: 'extend(item) sadece 1 seviye açar. Recursive olması lazım: extend(flatten(item)) olmalı.',
     explanationEn: 'extend(item) only flattens one level. Should be recursive: extend(flatten(item)).',
     difficulty: 3,
     topic: 'recursion',
@@ -585,7 +584,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 4,
-    explanation: 'Debounce\'da fn hemen ├ğa─şr─▒lmamal─▒! Sat─▒r 5 silinmeli, sadece setTimeout i├ğinde ├ğa─şr─▒lmal─▒.',
+    explanation: 'Debounce\'da fn hemen çağrılmamalı! Satır 5 silinmeli, sadece setTimeout içinde çağrılmalı.',
     explanationEn: 'In debounce, fn should NOT be called immediately! Line 5 should be removed, only call inside setTimeout.',
     difficulty: 3,
     topic: 'function',
@@ -602,7 +601,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return rotated',
     ],
     bugLineIndex: 4,
-    explanation: 'i + k indeks ta┼şmas─▒ yapabilir! (i + k) % n olmal─▒.',
+    explanation: 'i + k indeks taşması yapabilir! (i + k) % n olmalı.',
     explanationEn: 'i + k can cause index overflow! Should be (i + k) % n.',
     difficulty: 2,
     topic: 'array',
@@ -620,7 +619,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return arr',
     ],
     bugLineIndex: 3,
-    explanation: 'j = i ile ba┼şl─▒yor ama i+1 ile ba┼şlamal─▒. Kendisiyle kar┼ş─▒la┼şt─▒rma gereksiz.',
+    explanation: 'j = i ile başlıyor ama i+1 ile başlamalı. Kendisiyle karşılaştırma gereksiz.',
     explanationEn: 'j starts at i but should start at i+1. Comparing with itself is unnecessary.',
     difficulty: 2,
     topic: 'sorting',
@@ -643,7 +642,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return prev',
     ],
     bugLineIndex: 9,
-    explanation: 'curr.next prev\'e atan─▒nca orijinal next kaybolur! ├ûnce next_node = curr.next saklamal─▒.',
+    explanation: 'curr.next prev\'e atanınca orijinal next kaybolur! Önce next_node = curr.next saklamalı.',
     explanationEn: 'Assigning curr.next = prev loses original next! Must save next_node = curr.next first.',
     difficulty: 3,
     topic: 'oop',
@@ -659,7 +658,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return freq',
     ],
     bugLineIndex: 4,
-    explanation: '─░lk kar┼ş─▒la┼şmada KeyError verir! freq.get(word, 0) + 1 veya defaultdict kullan─▒lmal─▒.',
+    explanation: 'İlk karşılaşmada KeyError verir! freq.get(word, 0) + 1 veya defaultdict kullanılmalı.',
     explanationEn: 'KeyError on first occurrence! Use freq.get(word, 0) + 1 or defaultdict.',
     difficulty: 2,
     topic: 'variable',
@@ -676,15 +675,15 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return wrapper',
     ],
     bugLineIndex: 4,
-    explanation: 'func(args) yanl─▒┼ş, tuple olarak ge├ğer. func(*args) olmal─▒, arg├╝manlar a├ğ─▒lmal─▒.',
+    explanation: 'func(args) yanlış, tuple olarak geçer. func(*args) olmalı, argümanlar açılmalı.',
     explanationEn: 'func(args) is wrong, passes as tuple. Should be func(*args) to unpack arguments.',
     difficulty: 3,
     topic: 'function',
   ),
 
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-  // BATCH 2 ÔÇö EASY (15 more)
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  // ═══════════════════════════════════════════════════
+  // BATCH 2 — EASY (15 more)
+  // ═══════════════════════════════════════════════════
   BugHuntQuestion(
     id: 'bug_036',
     codeLines: [
@@ -693,7 +692,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print("Name: " + name + ", Age: " + age)',
     ],
     bugLineIndex: 2,
-    explanation: 'String + int birle┼ştirilemez. str(age) kullan─▒lmal─▒.',
+    explanation: 'String + int birleştirilemez. str(age) kullanılmalı.',
     explanationEn: 'Cannot concatenate string + int. Use str(age).',
     difficulty: 1,
     topic: 'string',
@@ -706,7 +705,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'console.log(items.lenght);',
     ],
     bugLineIndex: 2,
-    explanation: '"lenght" yaz─▒m hatas─▒, "length" olmal─▒.',
+    explanation: '"lenght" yazım hatası, "length" olmalı.',
     explanationEn: 'Typo: "lenght" should be "length".',
     difficulty: 1,
     topic: 'array',
@@ -725,7 +724,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 3,
-    explanation: 'Java\'da String kar┼ş─▒la┼şt─▒rmas─▒ i├ğin == yerine .equals() kullan─▒lmal─▒.',
+    explanation: 'Java\'da String karşılaştırması için == yerine .equals() kullanılmalı.',
     explanationEn: 'In Java, use .equals() instead of == for String comparison.',
     difficulty: 1,
     topic: 'string',
@@ -739,7 +738,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print("Average: " + average)',
     ],
     bugLineIndex: 2,
-    explanation: 'String + float birle┼ştirilemez. str(average) veya f-string kullan─▒lmal─▒.',
+    explanation: 'String + float birleştirilemez. str(average) veya f-string kullanılmalı.',
     explanationEn: 'Cannot concatenate string + float. Use str(average) or f-string.',
     difficulty: 1,
     topic: 'variable',
@@ -751,8 +750,8 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print(colors["green"])',
     ],
     bugLineIndex: 1,
-    explanation: '"green" anahtar─▒ s├Âzl├╝kte yok ÔåÆ KeyError. colors.get("green", 0) kullan─▒lmal─▒.',
-    explanationEn: '"green" key not in dict ÔåÆ KeyError. Use colors.get("green", 0).',
+    explanation: '"green" anahtarı sözlükte yok → KeyError. colors.get("green", 0) kullanılmalı.',
+    explanationEn: '"green" key not in dict → KeyError. Use colors.get("green", 0).',
     difficulty: 1,
     topic: 'variable',
   ),
@@ -766,7 +765,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'console.log(result);',
     ],
     bugLineIndex: 3,
-    explanation: 'multiply 2 parametre bekliyor ama 1 verilmi┼ş. b undefined olur, sonu├ğ NaN.',
+    explanation: 'multiply 2 parametre bekliyor ama 1 verilmiş. b undefined olur, sonuç NaN.',
     explanationEn: 'multiply expects 2 args but got 1. b becomes undefined, result is NaN.',
     difficulty: 1,
     topic: 'function',
@@ -779,7 +778,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'numbers[3] = 40',
     ],
     bugLineIndex: 1,
-    explanation: 'index 3 yok (0,1,2 var). IndexError. append(40) kullan─▒lmal─▒.',
+    explanation: 'index 3 yok (0,1,2 var). IndexError. append(40) kullanılmalı.',
     explanationEn: 'Index 3 doesn\'t exist (0,1,2 do). IndexError. Use append(40).',
     difficulty: 1,
     topic: 'list',
@@ -793,7 +792,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 1,
-    explanation: 'i <= arr.length, son indeks arr.length-1. i < arr.length olmal─▒.',
+    explanation: 'i <= arr.length, son indeks arr.length-1. i < arr.length olmalı.',
     explanationEn: 'i <= arr.length causes ArrayIndexOutOfBounds. Should be i < arr.length.',
     difficulty: 1,
     topic: 'loop',
@@ -808,7 +807,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return False',
     ],
     bugLineIndex: 1,
-    explanation: 'Kar┼ş─▒la┼şt─▒rma = de─şil == olmal─▒. = atama operat├Âr├╝d├╝r.',
+    explanation: 'Karşılaştırma = değil == olmalı. = atama operatörüdür.',
     explanationEn: 'Comparison should be == not =. = is assignment operator.',
     difficulty: 1,
     topic: 'if_else',
@@ -821,7 +820,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'console.log(PI);',
     ],
     bugLineIndex: 1,
-    explanation: 'const de─şi┼şkene yeniden atama yap─▒lamaz. TypeError.',
+    explanation: 'const değişkene yeniden atama yapılamaz. TypeError.',
     explanationEn: 'Cannot reassign a const variable. TypeError.',
     difficulty: 1,
     topic: 'variable',
@@ -836,7 +835,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'result = divide(10, 0)',
     ],
     bugLineIndex: 3,
-    explanation: 'S─▒f─▒ra b├Âlme hatas─▒! b == 0 kontrol├╝ yap─▒lmal─▒.',
+    explanation: 'Sıfıra bölme hatası! b == 0 kontrolü yapılmalı.',
     explanationEn: 'Division by zero error! Should check b == 0.',
     difficulty: 1,
     topic: 'function',
@@ -849,7 +848,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'System.out.println(len);',
     ],
     bugLineIndex: 1,
-    explanation: 'null ├╝zerinde length() ├ğa─şr─▒l─▒nca NullPointerException olu┼şur.',
+    explanation: 'null üzerinde length() çağrılınca NullPointerException oluşur.',
     explanationEn: 'Calling length() on null causes NullPointerException.',
     difficulty: 1,
     topic: 'string',
@@ -863,8 +862,8 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print(len(my_list))  # 5 bekleniyor',
     ],
     bugLineIndex: 1,
-    explanation: 'append listeyi tek eleman olarak ekler ÔåÆ [1,2,3,[4,5]], len=4. extend kullan─▒lmal─▒.',
-    explanationEn: 'append adds list as single element ÔåÆ [1,2,3,[4,5]], len=4. Use extend instead.',
+    explanation: 'append listeyi tek eleman olarak ekler → [1,2,3,[4,5]], len=4. extend kullanılmalı.',
+    explanationEn: 'append adds list as single element → [1,2,3,[4,5]], len=4. Use extend instead.',
     difficulty: 1,
     topic: 'list',
   ),
@@ -876,8 +875,8 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'console.log(x + y);  // 8 bekleniyor',
     ],
     bugLineIndex: 2,
-    explanation: '"5" + 3 string birle┼ştirme yapar ÔåÆ "53". parseInt(x) + y kullan─▒lmal─▒.',
-    explanationEn: '"5" + 3 does string concatenation ÔåÆ "53". Use parseInt(x) + y.',
+    explanation: '"5" + 3 string birleştirme yapar → "53". parseInt(x) + y kullanılmalı.',
+    explanationEn: '"5" + 3 does string concatenation → "53". Use parseInt(x) + y.',
     difficulty: 1,
     topic: 'variable',
     language: 'javascript',
@@ -892,15 +891,15 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print(result.upper())',
     ],
     bugLineIndex: 4,
-    explanation: 'say_hello() return etmiyor ÔåÆ result None. None.upper() AttributeError verir.',
-    explanationEn: 'say_hello() returns nothing ÔåÆ result is None. None.upper() raises AttributeError.',
+    explanation: 'say_hello() return etmiyor → result None. None.upper() AttributeError verir.',
+    explanationEn: 'say_hello() returns nothing → result is None. None.upper() raises AttributeError.',
     difficulty: 1,
     topic: 'function',
   ),
 
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-  // BATCH 2 ÔÇö MEDIUM (15 more)
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  // ═══════════════════════════════════════════════════
+  // BATCH 2 — MEDIUM (15 more)
+  // ═══════════════════════════════════════════════════
   BugHuntQuestion(
     id: 'bug_051',
     codeLines: [
@@ -915,7 +914,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return arr',
     ],
     bugLineIndex: 7,
-    explanation: 'arr[j] = key yanl─▒┼ş! j d├Âng├╝ sonunda -1 olabilir. arr[j+1] = key olmal─▒.',
+    explanation: 'arr[j] = key yanlış! j döngü sonunda -1 olabilir. arr[j+1] = key olmalı.',
     explanationEn: 'arr[j] = key is wrong! j can be -1 after loop. Should be arr[j+1] = key.',
     difficulty: 2,
     topic: 'sorting',
@@ -929,7 +928,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return " ".join(reversed_words)',
     ],
     bugLineIndex: 2,
-    explanation: 'list.reverse() in-place ├ğal─▒┼ş─▒r ve None d├Âner. words[::-1] veya reversed() kullan─▒lmal─▒.',
+    explanation: 'list.reverse() in-place çalışır ve None döner. words[::-1] veya reversed() kullanılmalı.',
     explanationEn: 'list.reverse() works in-place and returns None. Use words[::-1] or reversed().',
     difficulty: 2,
     topic: 'list',
@@ -947,7 +946,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 3,
-    explanation: 'findIndex fonksiyonu indeks d├Ânmeli ama true d├Ân├╝yor. return i olmal─▒.',
+    explanation: 'findIndex fonksiyonu indeks dönmeli ama true dönüyor. return i olmalı.',
     explanationEn: 'findIndex should return index but returns true. Should be return i.',
     difficulty: 2,
     topic: 'array',
@@ -968,8 +967,8 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print(d.name)',
     ],
     bugLineIndex: 6,
-    explanation: 'super().__init__(name) ├ğa─şr─▒lmam─▒┼ş! self.name atanmaz ÔåÆ AttributeError.',
-    explanationEn: 'super().__init__(name) not called! self.name not set ÔåÆ AttributeError.',
+    explanation: 'super().__init__(name) çağrılmamış! self.name atanmaz → AttributeError.',
+    explanationEn: 'super().__init__(name) not called! self.name not set → AttributeError.',
     difficulty: 2,
     topic: 'oop',
   ),
@@ -987,7 +986,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return result',
     ],
     bugLineIndex: 7,
-    explanation: 'result[key] = val yanl─▒┼ş! result[new_key] = val olmal─▒. Prefix kaybolur.',
+    explanation: 'result[key] = val yanlış! result[new_key] = val olmalı. Prefix kaybolur.',
     explanationEn: 'result[key] = val is wrong! Should be result[new_key] = val. Prefix is lost.',
     difficulty: 2,
     topic: 'recursion',
@@ -1008,8 +1007,8 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 7,
-    explanation: 'map.put(i, nums[i]) yanl─▒┼ş! map.put(nums[i], i) olmal─▒. De─şer ÔåÆ indeks e┼şlemesi.',
-    explanationEn: 'map.put(i, nums[i]) is wrong! Should be map.put(nums[i], i). Value ÔåÆ index mapping.',
+    explanation: 'map.put(i, nums[i]) yanlış! map.put(nums[i], i) olmalı. Değer → indeks eşlemesi.',
+    explanationEn: 'map.put(i, nums[i]) is wrong! Should be map.put(nums[i], i). Value → index mapping.',
     difficulty: 2,
     topic: 'array',
     language: 'java',
@@ -1023,7 +1022,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       'print(anagram_check("Listen", "Silent"))',
     ],
     bugLineIndex: 1,
-    explanation: 'B├╝y├╝k/k├╝├ğ├╝k harf fark─▒! s1.lower() ve s2.lower() kullan─▒lmal─▒.',
+    explanation: 'Büyük/küçük harf farkı! s1.lower() ve s2.lower() kullanılmalı.',
     explanationEn: 'Case sensitivity issue! Should use s1.lower() and s2.lower().',
     difficulty: 2,
     topic: 'string',
@@ -1038,7 +1037,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 2,
-    explanation: 'compose sa─şdan sola ├ğal─▒┼şmal─▒. reduce yerine reduceRight kullan─▒lmal─▒.',
+    explanation: 'compose sağdan sola çalışmalı. reduce yerine reduceRight kullanılmalı.',
     explanationEn: 'compose should work right-to-left. Use reduceRight instead of reduce.',
     difficulty: 2,
     topic: 'function',
@@ -1060,7 +1059,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return result',
     ],
     bugLineIndex: 10,
-    explanation: 'Kalan elemanlar eklenmemi┼ş! result += a[i:] + b[j:] sat─▒r─▒ eksik.',
+    explanation: 'Kalan elemanlar eklenmemiş! result += a[i:] + b[j:] satırı eksik.',
     explanationEn: 'Remaining elements not added! Missing result += a[i:] + b[j:] line.',
     difficulty: 2,
     topic: 'sorting',
@@ -1077,7 +1076,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '        return True',
     ],
     bugLineIndex: 6,
-    explanation: 'return True d├Âng├╝ i├ğinde! ─░lk iterasyonda True d├Ân├╝yor. D─▒┼şar─▒ ta┼ş─▒nmal─▒ (indentation hatas─▒).',
+    explanation: 'return True döngü içinde! İlk iterasyonda True dönüyor. Dışarı taşınmalı (indentation hatası).',
     explanationEn: 'return True is inside loop! Returns True on first iteration. Should be moved outside (indentation error).',
     difficulty: 2,
     topic: 'loop',
@@ -1094,11 +1093,11 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return True',
       '',
       'print(unique_chars("Hello"))',
-      '# True bekleniyor ama False d├Âner',
+      '# True bekleniyor ama False döner',
     ],
     bugLineIndex: 0,
-    explanation: 'Fonksiyon do─şru ama "Hello" b├╝y├╝k H ve k├╝├ğ├╝k l i├ğerir; k├╝├ğ├╝k l 2 kez var ÔåÆ False. s.lower() gerekir mi kontrol et.',
-    explanationEn: 'Function is correct but "Hello" has lowercase l twice ÔåÆ False. Consider using s.lower() for case-insensitive check.',
+    explanation: 'Fonksiyon doğru ama "Hello" büyük H ve küçük l içerir; küçük l 2 kez var → False. s.lower() gerekir mi kontrol et.',
+    explanationEn: 'Function is correct but "Hello" has lowercase l twice → False. Consider using s.lower() for case-insensitive check.',
     difficulty: 2,
     topic: 'string',
   ),
@@ -1114,7 +1113,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return memo[n]',
     ],
     bugLineIndex: 5,
-    explanation: 'Recursive ├ğa─şr─▒larda memo ge├ğirilmemi┼ş! fibonacci_memo(n-1, memo) olmal─▒.',
+    explanation: 'Recursive çağrılarda memo geçirilmemiş! fibonacci_memo(n-1, memo) olmalı.',
     explanationEn: 'memo not passed in recursive calls! Should be fibonacci_memo(n-1, memo).',
     difficulty: 2,
     topic: 'recursion',
@@ -1134,7 +1133,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 7,
-    explanation: 'lastCall her ├ğa─şr─▒da g├╝ncelleniyor! Sadece fn ├ğal─▒┼şt─▒─ş─▒nda g├╝ncellenmeli (if blo─şu i├ğine).',
+    explanation: 'lastCall her çağrıda güncelleniyor! Sadece fn çalıştığında güncellenmeli (if bloğu içine).',
     explanationEn: 'lastCall updates on every call! Should only update when fn executes (inside if block).',
     difficulty: 2,
     topic: 'function',
@@ -1153,7 +1152,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 5,
-    explanation: 'Iterasyon s─▒ras─▒nda map\'den eleman silmek ConcurrentModificationException verir. Iterator kullan─▒lmal─▒.',
+    explanation: 'Iterasyon sırasında map\'den eleman silmek ConcurrentModificationException verir. Iterator kullanılmalı.',
     explanationEn: 'Removing from map during iteration causes ConcurrentModificationException. Use Iterator.',
     difficulty: 2,
     topic: 'list',
@@ -1169,15 +1168,15 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return chunks',
     ],
     bugLineIndex: 3,
-    explanation: 'lst[i:i+size-1] bir eksik eleman al─▒r. lst[i:i+size] olmal─▒ (slice end exclusive).',
+    explanation: 'lst[i:i+size-1] bir eksik eleman alır. lst[i:i+size] olmalı (slice end exclusive).',
     explanationEn: 'lst[i:i+size-1] takes one less element. Should be lst[i:i+size] (slice end is exclusive).',
     difficulty: 2,
     topic: 'list',
   ),
 
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-  // BATCH 2 ÔÇö HARD (15 more)
-  // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  // ═══════════════════════════════════════════════════
+  // BATCH 2 — HARD (15 more)
+  // ═══════════════════════════════════════════════════
   BugHuntQuestion(
     id: 'bug_066',
     codeLines: [
@@ -1201,7 +1200,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return get, put',
     ],
     bugLineIndex: 13,
-    explanation: 'order.pop() son eleman─▒ ├ğ─▒kar─▒r (en yeni). order.pop(0) olmal─▒ (en eski/LRU).',
+    explanation: 'order.pop() son elemanı çıkarır (en yeni). order.pop(0) olmalı (en eski/LRU).',
     explanationEn: 'order.pop() removes last (newest). Should be order.pop(0) to remove oldest/LRU.',
     difficulty: 3,
     topic: 'array',
@@ -1218,7 +1217,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return max_sum',
     ],
     bugLineIndex: 1,
-    explanation: 'max_sum = 0 ile ba┼şlamak t├╝m negatif dizilerde yanl─▒┼ş sonu├ğ verir. arr[0] veya -inf olmal─▒.',
+    explanation: 'max_sum = 0 ile başlamak tüm negatif dizilerde yanlış sonuç verir. arr[0] veya -inf olmalı.',
     explanationEn: 'max_sum = 0 gives wrong result for all-negative arrays. Should be arr[0] or -inf.',
     difficulty: 3,
     topic: 'array',
@@ -1239,7 +1238,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return result',
     ],
     bugLineIndex: 5,
-    explanation: 'queue.pop() son eleman─▒ ├ğ─▒kar─▒r (DFS). BFS i├ğin queue.pop(0) veya deque.popleft() kullan─▒lmal─▒.',
+    explanation: 'queue.pop() son elemanı çıkarır (DFS). BFS için queue.pop(0) veya deque.popleft() kullanılmalı.',
     explanationEn: 'queue.pop() removes last element (DFS). For BFS use queue.pop(0) or deque.popleft().',
     difficulty: 3,
     topic: 'recursion',
@@ -1259,7 +1258,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 6,
-    explanation: '├ûnceki arg├╝manlar kaybolur! curried(...args.concat(args2)) olmal─▒.',
+    explanation: 'Önceki argümanlar kaybolur! curried(...args.concat(args2)) olmalı.',
     explanationEn: 'Previous args are lost! Should be curried(...args.concat(args2)).',
     difficulty: 3,
     topic: 'function',
@@ -1280,7 +1279,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return dp[m][n]',
     ],
     bugLineIndex: 5,
-    explanation: 's1[i] ve s2[j] yanl─▒┼ş! 1-indexed dp ama 0-indexed string. s1[i-1] ve s2[j-1] olmal─▒.',
+    explanation: 's1[i] ve s2[j] yanlış! 1-indexed dp ama 0-indexed string. s1[i-1] ve s2[j-1] olmalı.',
     explanationEn: 's1[i] and s2[j] are wrong! dp is 1-indexed but string is 0-indexed. Use s1[i-1] and s2[j-1].',
     difficulty: 3,
     topic: 'string',
@@ -1299,7 +1298,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    )',
     ],
     bugLineIndex: 6,
-    explanation: 'n yerine n-1 olmal─▒! Ayn─▒ eleman tekrar kullan─▒l─▒yor (unbounded knapsack).',
+    explanation: 'n yerine n-1 olmalı! Aynı eleman tekrar kullanılıyor (unbounded knapsack).',
     explanationEn: 'Should be n-1, not n! Same item is reused (becomes unbounded knapsack).',
     difficulty: 3,
     topic: 'recursion',
@@ -1341,7 +1340,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '            self.heap[i], self.heap[smallest] = self.heap[smallest], self.heap[i]',
     ],
     bugLineIndex: 31,
-    explanation: 'Heapify recursive ├ğa─şr─▒ eksik! Swap sonras─▒ self._heapify(smallest) gerekli.',
+    explanation: 'Heapify recursive çağrı eksik! Swap sonrası self._heapify(smallest) gerekli.',
     explanationEn: 'Missing recursive heapify call! Need self._heapify(smallest) after swap.',
     difficulty: 3,
     topic: 'sorting',
@@ -1360,7 +1359,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 3,
-    explanation: 'fetch(url) await edilmemi┼ş! const res = await fetch(url) olmal─▒. Promise d├Âner.',
+    explanation: 'fetch(url) await edilmemiş! const res = await fetch(url) olmalı. Promise döner.',
     explanationEn: 'fetch(url) is not awaited! Should be const res = await fetch(url). Returns Promise.',
     difficulty: 3,
     topic: 'function',
@@ -1378,7 +1377,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return dp[amount] if dp[amount] != float("inf") else -1',
     ],
     bugLineIndex: 5,
-    explanation: 'dp[i - coin] + 1 olmal─▒! Her coin kullan─▒m─▒ 1 ekstra ad─▒m. + 1 eksik.',
+    explanation: 'dp[i - coin] + 1 olmalı! Her coin kullanımı 1 ekstra adım. + 1 eksik.',
     explanationEn: 'Should be dp[i - coin] + 1! Each coin usage is 1 extra step. Missing + 1.',
     difficulty: 3,
     topic: 'array',
@@ -1401,7 +1400,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return result',
     ],
     bugLineIndex: 9,
-    explanation: 'insert(0, node) do─şru gibi ama result.append(node) + sonra reverse daha verimli. Ancak as─▒l hata: cycle detection yok! DAG de─şilse sonsuz d├Âng├╝.',
+    explanation: 'insert(0, node) doğru gibi ama result.append(node) + sonra reverse daha verimli. Ancak asıl hata: cycle detection yok! DAG değilse sonsuz döngü.',
     explanationEn: 'Missing cycle detection! Without it, non-DAG graphs cause infinite loops.',
     difficulty: 3,
     topic: 'recursion',
@@ -1422,7 +1421,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 5,
-    explanation: 'Thread-safe de─şil! ├çoklu thread\'de birden fazla instance olu┼şabilir. synchronized veya double-check locking gerekli.',
+    explanation: 'Thread-safe değil! Çoklu thread\'de birden fazla instance oluşabilir. synchronized veya double-check locking gerekli.',
     explanationEn: 'Not thread-safe! Multiple threads can create multiple instances. Need synchronized or double-check locking.',
     difficulty: 3,
     topic: 'oop',
@@ -1444,7 +1443,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return dist',
     ],
     bugLineIndex: 5,
-    explanation: 'dist.items() t├╝m d├╝─ş├╝mleri kontrol eder ÔåÆ O(V┬▓). Ancak as─▒l bug: negatif a─ş─▒rl─▒klarda yanl─▒┼ş sonu├ğ verir, Dijkstra negatif a─ş─▒rl─▒k desteklemez.',
+    explanation: 'dist.items() tüm düğümleri kontrol eder → O(V²). Ancak asıl bug: negatif ağırlıklarda yanlış sonuç verir, Dijkstra negatif ağırlık desteklemez.',
     explanationEn: 'Dijkstra doesn\'t support negative weights. Gives wrong results for negative edge weights.',
     difficulty: 3,
     topic: 'recursion',
@@ -1467,8 +1466,8 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '}',
     ],
     bugLineIndex: 9,
-    explanation: '.catch() eksik! Herhangi bir promise reject olursa yakalanmaz ÔåÆ unhandled rejection.',
-    explanationEn: 'Missing .catch()! If any promise rejects, it\'s unhandled ÔåÆ unhandled rejection.',
+    explanation: '.catch() eksik! Herhangi bir promise reject olursa yakalanmaz → unhandled rejection.',
+    explanationEn: 'Missing .catch()! If any promise rejects, it\'s unhandled → unhandled rejection.',
     difficulty: 3,
     topic: 'function',
     language: 'javascript',
@@ -1494,7 +1493,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '                right = mid - 1',
     ],
     bugLineIndex: 12,
-    explanation: 'target < arr[right] yerine target <= arr[right] olmal─▒. target == arr[right] durumu ka├ğ─▒r─▒l─▒yor.',
+    explanation: 'target < arr[right] yerine target <= arr[right] olmalı. target == arr[right] durumu kaçırılıyor.',
     explanationEn: 'Should be target <= arr[right], not target < arr[right]. Misses target == arr[right] case.',
     difficulty: 3,
     topic: 'array',
@@ -1516,7 +1515,7 @@ final List<BugHuntQuestion> _allBugHuntQuestions = [
       '    return left + right',
     ],
     bugLineIndex: 11,
-    explanation: 'left + right derinlik de─şil d├╝─ş├╝m say─▒s─▒ hesaplar! max(left, right) + 1 olmal─▒.',
+    explanation: 'left + right derinlik değil düğüm sayısı hesaplar! max(left, right) + 1 olmalı.',
     explanationEn: 'left + right counts nodes, not depth! Should be max(left, right) + 1.',
     difficulty: 3,
     topic: 'recursion',
@@ -1563,59 +1562,28 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
         .chain(CurveTween(curve: Curves.elasticIn))
         .animate(_shakeController);
     
-    _questions = _buildRankBasedQuestions();
-    setState(() => _isLoading = false);
-  }
-
-  /// Build question list based on user rank (ELO) difficulty distribution.
-  /// Same ratios as Output Quiz and Time Attack modes.
-  List<BugHuntQuestion> _buildRankBasedQuestions() {
+    // Filter by selected programming language
     final selectedLang = languageService.selected.name;
-    final pool = _allBugHuntQuestions.where(
+    final langQuestions = _allBugHuntQuestions.where(
       (q) => q.language == selectedLang
     ).toList();
     
+    // Fallback to all if not enough for selected language
+    final pool = langQuestions.length >= 12 ? langQuestions : _allBugHuntQuestions;
+    
+    // Sort by difficulty then shuffle within groups for progressive difficulty
     final easy = pool.where((q) => q.difficulty == 1).toList()..shuffle();
     final medium = pool.where((q) => q.difficulty == 2).toList()..shuffle();
     final hard = pool.where((q) => q.difficulty == 3).toList()..shuffle();
     
-    final elo = storageService.progress.elo;
-    final totalCount = 12;
-    
-    // Rank-based difficulty ratios
-    double easyRatio, mediumRatio, hardRatio;
-    if (elo < 200) {
-      easyRatio = 0.80; mediumRatio = 0.20; hardRatio = 0.0;
-    } else if (elo < 400) {
-      easyRatio = 0.60; mediumRatio = 0.40; hardRatio = 0.0;
-    } else if (elo < 600) {
-      easyRatio = 0.40; mediumRatio = 0.50; hardRatio = 0.10;
-    } else if (elo < 800) {
-      easyRatio = 0.40; mediumRatio = 0.40; hardRatio = 0.20;
-    } else if (elo < 1000) {
-      easyRatio = 0.30; mediumRatio = 0.40; hardRatio = 0.30;
-    } else {
-      easyRatio = 0.30; mediumRatio = 0.30; hardRatio = 0.40;
-    }
-    
-    final easyCount = (totalCount * easyRatio).round().clamp(0, easy.length);
-    final hardCount = (totalCount * hardRatio).round().clamp(0, hard.length);
-    final mediumCount = (totalCount - easyCount - hardCount).clamp(0, medium.length);
-    
-    var result = [
-      ...easy.take(easyCount),
-      ...medium.take(mediumCount),
-      ...hard.take(hardCount),
+    // Take a balanced set: 4 easy, 4 medium, 4 hard = 12 questions per game
+    _questions = [
+      ...easy.take(4),
+      ...medium.take(4),
+      ...hard.take(4),
     ];
     
-    // Fill remaining if not enough questions
-    if (result.length < 6) {
-      final usedIds = result.map((q) => q.id).toSet();
-      final remaining = pool.where((q) => !usedIds.contains(q.id)).toList()..shuffle();
-      result.addAll(remaining.take(12 - result.length));
-    }
-    
-    return result;
+    setState(() => _isLoading = false);
   }
 
   @override
@@ -1701,14 +1669,14 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(S.tr('Bug Hunt Bitti! ­şÉŞ', 'Bug Hunt Complete! ­şÉŞ'), 
+              Text(S.tr('Bug Hunt Bitti! 🐞', 'Bug Hunt Complete! 🐞'), 
                 style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               MascotResultCard(accuracy: accuracy),
               const SizedBox(height: 12),
               _buildStatRow(S.tr('Skor', 'Score'), '$_score', Colors.amber),
               _buildStatRow(S.tr('Bulunan Bug', 'Bugs Found'), '$_correct', RheoColors.success),
-              _buildStatRow(S.tr('Ka├ğ─▒r─▒lan', 'Missed'), '$_wrong', RheoColors.error),
+              _buildStatRow(S.tr('Kaçırılan', 'Missed'), '$_wrong', RheoColors.error),
               _buildStatRow(S.basari, '%$accuracy', RheoColors.primary),
               const SizedBox(height: 20),
               Row(
@@ -1729,8 +1697,9 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                       onPressed: () {
                         HapticService.lightTap();
                         Navigator.pop(context);
-                        // Filter by selected language on replay too
-                        final newQuestions = _buildRankBasedQuestions();
+                        final easy = _allBugHuntQuestions.where((q) => q.difficulty == 1).toList()..shuffle();
+                        final medium = _allBugHuntQuestions.where((q) => q.difficulty == 2).toList()..shuffle();
+                        final hard = _allBugHuntQuestions.where((q) => q.difficulty == 3).toList()..shuffle();
                         setState(() {
                           _currentIndex = 0;
                           _selectedLine = null;
@@ -1738,7 +1707,7 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                           _score = 0;
                           _correct = 0;
                           _wrong = 0;
-                          _questions = newQuestions;
+                          _questions = [...easy.take(4), ...medium.take(4), ...hard.take(4)];
                         });
                       },
                       style: ElevatedButton.styleFrom(
@@ -1772,7 +1741,17 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
     );
   }
 
-
+  Color _getLineColor(int lineIndex) {
+    if (_selectedLine == null) return Colors.transparent;
+    
+    if (lineIndex == currentQuestion.bugLineIndex) {
+      return RheoColors.success.withAlpha(60);
+    }
+    if (lineIndex == _selectedLine && !_isCorrect!) {
+      return RheoColors.error.withAlpha(60);
+    }
+    return Colors.transparent;
+  }
 
   /// Difficulty badge color & label
   Widget _difficultyBadge(int difficulty) {
@@ -1891,7 +1870,7 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                     const SizedBox(height: 16),
                     
                     Text(
-                      S.tr('­şÉŞ Hatal─▒ sat─▒r─▒ bul ve t─▒kla!', '­şÉŞ Find the buggy line and tap it!'),
+                      S.tr('🐞 Hatalı satırı bul ve tıkla!', '🐞 Find the buggy line and tap it!'),
                       style: TextStyle(fontSize: 16, color: RheoTheme.textColor, fontWeight: FontWeight.w500),
                       textAlign: TextAlign.center,
                     ),
@@ -1911,11 +1890,11 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                              color: RheoTheme.codeBg,
+                              color: const Color(0xFF1E1E2E),
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color: _selectedLine == null 
-                                    ? RheoTheme.codeBorder
+                                    ? const Color(0xFF313244)
                                     : (_isCorrect! ? RheoColors.success.withAlpha(150) : RheoColors.error.withAlpha(150)),
                                 width: _selectedLine == null ? 1 : 2,
                               ),
@@ -1932,8 +1911,8 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                                 // Terminal-style header
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: RheoTheme.codeHeaderBg,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF181825),
                                     borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(13),
                                       topRight: Radius.circular(13),
@@ -1950,8 +1929,8 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                                       const Spacer(),
                                       Text(
                                         currentQuestion.language.toUpperCase(),
-                                        style: TextStyle(
-                                          color: RheoTheme.codeHeaderText,
+                                        style: const TextStyle(
+                                          color: Color(0xFF6c7086),
                                           fontSize: 10,
                                           fontWeight: FontWeight.w600,
                                           letterSpacing: 1,
@@ -1973,82 +1952,65 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                                       return StaggeredFadeIn(
                                         index: index,
                                         delay: const Duration(milliseconds: 50),
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            onTap: _selectedLine == null 
-                                                ? () => _onLineSelected(index)
-                                                : null,
-                                            splashColor: RheoTheme.optionBg,
-                                            highlightColor: RheoTheme.optionBg,
-                                            child: Container(
-                                              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                              decoration: BoxDecoration(
-                                                color: isBugLine
-                                                    ? RheoColors.success.withAlpha(30)
-                                                    : (isSelected && !_isCorrect!)
-                                                        ? RheoColors.error.withAlpha(30)
-                                                        : Colors.transparent,
-                                                borderRadius: BorderRadius.circular(6),
-                                                border: (isBugLine || (isSelected && !_isCorrect!))
-                                                    ? Border.all(
-                                                        color: isBugLine 
-                                                            ? RheoColors.success.withAlpha(80) 
-                                                            : RheoColors.error.withAlpha(80),
-                                                        width: 1,
-                                                      )
-                                                    : null,
-                                              ),
-                                              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  // Line number gutter
-                                                  Container(
-                                                    width: 40,
-                                                    padding: const EdgeInsets.symmetric(vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      border: Border(
-                                                        right: BorderSide(color: RheoTheme.codeBorder, width: 1),
-                                                      ),
+                                        child: InkWell(
+                                          onTap: _selectedLine == null 
+                                              ? () => _onLineSelected(index)
+                                              : null,
+                                          child: Container(
+                                            color: isBugLine
+                                                ? RheoColors.success.withAlpha(30)
+                                                : (isSelected && !_isCorrect!)
+                                                    ? RheoColors.error.withAlpha(30)
+                                                    : (_selectedLine == null ? Colors.transparent : Colors.transparent),
+                                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                // Line number gutter
+                                                Container(
+                                                  width: 40,
+                                                  padding: const EdgeInsets.symmetric(vertical: 5),
+                                                  decoration: BoxDecoration(
+                                                    border: Border(
+                                                      right: BorderSide(color: const Color(0xFF313244), width: 1),
                                                     ),
-                                                    child: Text(
-                                                      '${index + 1}',
-                                                      textAlign: TextAlign.center,
-                                                      style: TextStyle(
-                                                        color: isBugLine 
-                                                            ? RheoColors.success
-                                                            : RheoTheme.codeLineNumber,
-                                                        fontSize: 12,
+                                                  ),
+                                                  child: Text(
+                                                    '${index + 1}',
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      color: isBugLine 
+                                                          ? RheoColors.success
+                                                          : const Color(0xFF585b70),
+                                                      fontSize: 12,
+                                                      fontFamily: 'monospace',
+                                                      fontWeight: isBugLine ? FontWeight.bold : FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Code content
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.only(left: 8, top: 1, bottom: 1),
+                                                    child: HighlightView(
+                                                      line.isEmpty ? ' ' : line,
+                                                      language: currentQuestion.language,
+                                                      theme: atomOneDarkTheme,
+                                                      padding: const EdgeInsets.symmetric(vertical: 3),
+                                                      textStyle: const TextStyle(
                                                         fontFamily: 'monospace',
-                                                        fontWeight: isBugLine ? FontWeight.bold : FontWeight.normal,
+                                                        fontSize: 13,
+                                                        height: 1.4,
                                                       ),
                                                     ),
                                                   ),
-                                                  // Code content
-                                                  Expanded(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.only(left: 8, top: 1, bottom: 1),
-                                                      child: HighlightView(
-                                                        line.isEmpty ? ' ' : line,
-                                                        language: currentQuestion.language,
-                                                        theme: RheoTheme.isDark ? atomOneDarkTheme : atomOneLightTheme,
-                                                        padding: const EdgeInsets.symmetric(vertical: 3),
-                                                        textStyle: const TextStyle(
-                                                          fontFamily: 'monospace',
-                                                          fontSize: 13,
-                                                          height: 1.4,
-                                                        ),
-                                                      ),
-                                                    ),
+                                                ),
+                                                if (_selectedLine != null && index == currentQuestion.bugLineIndex)
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(right: 8, top: 4),
+                                                    child: Icon(Icons.bug_report, color: RheoColors.success, size: 16),
                                                   ),
-                                                  if (_selectedLine != null && index == currentQuestion.bugLineIndex)
-                                                    const Padding(
-                                                      padding: EdgeInsets.only(right: 8, top: 4),
-                                                      child: Icon(Icons.bug_report, color: RheoColors.success, size: 16),
-                                                    ),
-                                                ],
-                                              ),
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -2101,7 +2063,7 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                                     Expanded(
                                       child: Text(
                                         S.tr(
-                                          'Bug sat─▒r ${currentQuestion.bugLineIndex + 1} numaral─▒ sat─▒rda',
+                                          'Bug satır ${currentQuestion.bugLineIndex + 1} numaralı satırda',
                                           'Bug is on line ${currentQuestion.bugLineIndex + 1}',
                                         ),
                                         style: TextStyle(
@@ -2132,7 +2094,7 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                                       Icon(Icons.lightbulb_outline, color: RheoColors.secondary, size: 16),
                                       const SizedBox(width: 6),
                                       Text(
-                                        S.tr('Bug A├ğ─▒klamas─▒', 'Bug Explanation'),
+                                        S.tr('Bug Açıklaması', 'Bug Explanation'),
                                         style: TextStyle(
                                           color: RheoColors.secondary,
                                           fontWeight: FontWeight.bold,
@@ -2165,8 +2127,8 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
                           ),
                           child: Text(
                             _currentIndex + 1 >= _questions.length 
-                                ? S.tr('Sonu├ğlar─▒ G├Âr', 'See Results')
-                                : S.tr('Sonraki Bug ÔåÆ', 'Next Bug ÔåÆ'),
+                                ? S.tr('Sonuçları Gör', 'See Results')
+                                : S.tr('Sonraki Bug →', 'Next Bug →'),
                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                         ),

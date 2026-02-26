@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'theme.dart';
 import 'animations.dart';
@@ -17,10 +17,10 @@ class FeedbackDialog extends StatelessWidget {
   Future<void> _sendEmail() async {
     final Uri emailUri = Uri(
       scheme: 'mailto',
-      path: 'rheocode.app@gmail.com',
+      path: 'team@rheo.app',
       queryParameters: {
         'subject': 'Rheo Feedback',
-        'body': 'Uygulama: Rheo v1.0.0\n\n---\nMesaj─▒n─▒z:\n',
+        'body': 'Uygulama: Rheo v1.0.0\n\n---\nMesajınız:\n',
       },
     );
     if (await canLaunchUrl(emailUri)) {
@@ -54,7 +54,7 @@ class FeedbackDialog extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Bir hata m─▒ buldun? ├ûnerilerin mi var?\nBize ula┼şmaktan ├ğekinme!',
+              'Bir hata mı buldun? Önerilerin mi var?\nBize ulaşmaktan çekinme!',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: RheoColors.textSecondary,
@@ -71,7 +71,7 @@ class FeedbackDialog extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     child: Text(
-                      '─░ptal',
+                      'İptal',
                       style: TextStyle(color: RheoColors.textMuted),
                     ),
                   ),

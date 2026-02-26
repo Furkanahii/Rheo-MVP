@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../animations.dart';
@@ -6,17 +6,17 @@ import '../../data/app_strings.dart';
 
 /// Mascot ruh halleri
 enum MascotMood {
-  greeting,      // Kar┼ş─▒lama
+  greeting,      // Karşılama
   happy,         // Mutlu
   celebrating,   // Kutlama
-  thinking,      // D├╝┼ş├╝n├╝yor
+  thinking,      // Düşünüyor
   encouraging,   // Cesaretlendirici
-  sad,           // ├£zg├╝n
+  sad,           // Üzgün
   sleeping,      // Uyuyor
-  excited,       // Heyecanl─▒
+  excited,       // Heyecanlı
 }
 
-/// Her ruh haline g├Âre do─şru mascot g├Ârseli
+/// Her ruh haline göre doğru mascot görseli
 String getMascotAsset(MascotMood mood) {
   switch (mood) {
     case MascotMood.greeting:
@@ -37,60 +37,60 @@ String getMascotAsset(MascotMood mood) {
   }
 }
 
-/// Mascot mesaj yard─▒mc─▒s─▒ - duruma g├Âre rastgele mesajlar d├Ând├╝r├╝r
+/// Mascot mesaj yardımcısı - duruma göre rastgele mesajlar döndürür
 class MascotHelper {
   static final _random = Random();
 
-  /// Zamana g├Âre kar┼ş─▒lama mesaj─▒
+  /// Zamana göre karşılama mesajı
   static String getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 6) {
       return _pick(S.isEn 
-        ? ['Night owl! ­şĞë', 'Coding this late? Respect! ­şîÖ', 'Midnight coder? ­şİ┤']
-        : ['Gece ku┼şu! ­şĞë', 'Bu saatte mi? Helal! ­şîÖ', 'Gece gece kod mu okuyoruz? ­şİ┤']);
+        ? ['Night owl! 🦉', 'Coding this late? Respect! 🌙', 'Midnight coder? 😴']
+        : ['Gece kuşu! 🦉', 'Bu saatte mi? Helal! 🌙', 'Gece gece kod mu okuyoruz? 😴']);
     } else if (hour < 12) {
       return _pick(S.isEn
-        ? ['Good morning! ÔİÇ´©Å', 'Start the day with code! ­şîà', 'Morning energy! ­şÆ¬']
-        : ['G├╝nayd─▒n! ÔİÇ´©Å', 'G├╝ne kodla ba┼şla! ­şîà', 'Sabah enerjisiyle devam! ­şÆ¬']);
+        ? ['Good morning! ☀️', 'Start the day with code! 🌅', 'Morning energy! 💪']
+        : ['Günaydın! ☀️', 'Güne kodla başla! 🌅', 'Sabah enerjisiyle devam! 💪']);
     } else if (hour < 18) {
       return _pick(S.isEn
-        ? ['Hello! ­şæï', 'Good afternoon! ÔİÇ´©Å', 'Afternoon challenge? ­şöÑ']
-        : ['Merhaba! ­şæï', '─░yi g├╝nler! ÔİÇ´©Å', '├û─şleden sonra challenge? ­şöÑ']);
+        ? ['Hello! 👋', 'Good afternoon! ☀️', 'Afternoon challenge? 🔥']
+        : ['Merhaba! 👋', 'İyi günler! ☀️', 'Öğleden sonra challenge? 🔥']);
     } else {
       return _pick(S.isEn
-        ? ['Good evening! ­şîå', 'Evening workout! ­şÆ¬', 'Night quiz? Let\'s go! ­şîÖ']
-        : ['─░yi ak┼şamlar! ­şîå', 'Ak┼şam antrenman─▒! ­şÆ¬', 'Gece s─▒nav─▒ m─▒? Haydi! ­şîÖ']);
+        ? ['Good evening! 🌆', 'Evening workout! 💪', 'Night quiz? Let\'s go! 🌙']
+        : ['İyi akşamlar! 🌆', 'Akşam antrenmanı! 💪', 'Gece sınavı mı? Haydi! 🌙']);
     }
   }
 
-  /// Zamana g├Âre kar┼ş─▒lama mood'u
+  /// Zamana göre karşılama mood'u
   static MascotMood getGreetingMood() {
     final hour = DateTime.now().hour;
     if (hour < 6) return MascotMood.sleeping;
     return MascotMood.greeting;
   }
 
-  /// Do─şru cevap mesajlar─▒
+  /// Doğru cevap mesajları
   static String getCorrectMessage() {
     return _pick(S.correctMessages);
   }
 
-  /// Yanl─▒┼ş cevap mesajlar─▒
+  /// Yanlış cevap mesajları
   static String getWrongMessage() {
     return _pick(S.wrongMessages);
   }
 
-  /// Seri uyar─▒ mesajlar─▒ (bug├╝n oynamad─▒ysa)
+  /// Seri uyarı mesajları (bugün oynamadıysa)
   static String getStreakWarning() {
     return _pick(S.streakWarnings);
   }
 
-  /// Sonu├ğ yorumlar─▒ (ba┼şar─▒ oran─▒na g├Âre)
+  /// Sonuç yorumları (başarı oranına göre)
   static String getResultComment(int accuracy) {
     return _pick(S.getResultComment(accuracy));
   }
 
-  /// Bug Hunt ├Âzel mesajlar
+  /// Bug Hunt özel mesajlar
   static String getBugHuntCorrect() {
     return _pick(S.bugHuntCorrect);
   }
@@ -99,17 +99,17 @@ class MascotHelper {
     return _pick(S.bugHuntWrong);
   }
 
-  /// Time Attack ├Âzel mesajlar
+  /// Time Attack özel mesajlar
   static String getTimeUpMessage() {
     return _pick(S.timeUpMessages);
   }
 
-  /// AI soru y├╝kleme bekleme mesajlar─▒
+  /// AI soru yükleme bekleme mesajları
   static String getWaitingMessage() {
     return _pick(S.waitingMessages);
   }
 
-  /// G├╝nl├╝k hedef tamamland─▒ mesajlar─▒
+  /// Günlük hedef tamamlandı mesajları
   static String getDailyGoalComplete() {
     return _pick(S.dailyGoalComplete);
   }
@@ -124,7 +124,7 @@ class MascotHelper {
   }
 }
 
-/// Maskot widget - ruh haline g├Âre farkl─▒ g├Ârsel + konu┼şma balonu
+/// Maskot widget - ruh haline göre farklı görsel + konuşma balonu
 class MascotWidget extends StatelessWidget {
   final MascotMood mood;
   final String? message;
@@ -176,7 +176,7 @@ class MascotWidget extends StatelessWidget {
   }
 }
 
-/// Konu┼şma balonu widget
+/// Konuşma balonu widget
 class _SpeechBubble extends StatelessWidget {
   final String message;
   final Color? color;
@@ -236,7 +236,7 @@ class _SpeechBubble extends StatelessWidget {
   }
 }
 
-/// Home Screen'de kullan─▒lacak b├╝y├╝k mascot kar┼ş─▒lama kart─▒
+/// Home Screen'de kullanılacak büyük mascot karşılama kartı
 class MascotGreetingCard extends StatelessWidget {
   final String greeting;
   final String? subtitle;
@@ -294,7 +294,7 @@ class MascotGreetingCard extends StatelessWidget {
   }
 }
 
-/// Sonu├ğ diyaloglar─▒nda mascot performans yorumu
+/// Sonuç diyaloglarında mascot performans yorumu
 class MascotResultCard extends StatelessWidget {
   final int accuracy;
   final String? customMessage;
