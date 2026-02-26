@@ -725,11 +725,7 @@ class _JourneyScreenState extends State<JourneyScreen> with TickerProviderStateM
       context,
       PageTransitions.slideRight(
         QuizScreen(
-          language: languageService.selected,
           topic: node.topic,
-          questionsCount: node.requiredCorrect + 2,
-          journeyNodeId: node.id,
-          onJourneyComplete: (correct, total) => _onLessonComplete(node, correct, total),
         ),
       ),
     );
