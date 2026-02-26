@@ -1,25 +1,26 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../logic/storage_service.dart';
+import '../data/app_strings.dart';
 import 'theme.dart';
 import 'animations.dart';
 
-/// Rank seçim bilgisi
+/// Rank se├ğim bilgisi
 class RankOption {
   final String title;
   final int startElo;
   final String emoji;
   final Color color;
 
-  const RankOption(this.title, this.startElo, this.emoji, this.color);
+  RankOption(this.title, this.startElo, this.emoji, this.color);
 }
 
-final _rankOptions = [
-  RankOption('Üstat', 1000, '👑', const Color(0xFFE61600)),
-  RankOption('Usta', 800, '⚡', const Color(0xFFAA09DB)),
-  RankOption('Uzman', 600, '🎯', const Color(0xFF416FF0)),
-  RankOption('Deneyimli', 400, '💡', const Color(0xFFFF00EA)),
-  RankOption('Yükselen', 200, '📈', const Color(0xFFD99800)),
-  RankOption('Çaylak', 0, '🌱', const Color(0xFFE6E212)),
+List<RankOption> get _rankOptions => [
+  RankOption(S.rankUstat, 1000, '­şææ', const Color(0xFFD32F2F)),
+  RankOption(S.rankUsta, 800, 'ÔÜí', const Color(0xFF7B1FA2)),
+  RankOption(S.rankUzman, 600, '­şÄ»', const Color(0xFF1976D2)),
+  RankOption(S.rankDeneyimli, 400, '­şÆí', const Color(0xFFD81B60)),
+  RankOption(S.rankYukselen, 200, '­şôê', const Color(0xFF388E3C)),
+  RankOption(S.rankCaylak, 0, '­şî▒', const Color(0xFF795548)),
 ];
 
 class InitialRankScreen extends StatelessWidget {
@@ -48,7 +49,7 @@ class InitialRankScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 12),
               Text(
-                isReset ? 'Seviyeni Seç' : 'Hoş Geldin! 🎉',
+                isReset ? S.seviyeSecimi : S.tr('Ho┼ş Geldin! ­şÄë', 'Welcome! ­şÄë'),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
@@ -58,8 +59,8 @@ class InitialRankScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 isReset
-                    ? 'Yeniden başlamak istediğin seviyeyi seç'
-                    : 'Kendini hangi seviyede görüyorsun?',
+                    ? S.tr('Yeniden ba┼şlamak istedi─şin seviyeyi se├ğ', 'Choose the level you want to restart from')
+                    : S.tr('Kendini hangi seviyede g├Âr├╝yorsun?', 'What level do you see yourself at?'),
                 style: TextStyle(
                   fontSize: 14,
                   color: RheoTheme.textMuted,
@@ -106,13 +107,13 @@ class InitialRankScreen extends StatelessWidget {
           ),
         ),
         content: Text(
-          '${rank.startElo} puandan başlamak istediğine emin misin?',
+          S.tr('${rank.startElo} puandan ba┼şlamak istedi─şine emin misin?', 'Are you sure you want to start from ${rank.startElo} points?'),
           style: TextStyle(color: RheoTheme.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('İptal', style: TextStyle(color: RheoTheme.textMuted)),
+            child: Text(S.iptal, style: TextStyle(color: RheoTheme.textMuted)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -139,7 +140,7 @@ class InitialRankScreen extends StatelessWidget {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Onayla'),
+            child: Text(S.onayla),
           ),
         ],
       ),
@@ -218,7 +219,7 @@ class _RankCardState extends State<_RankCard> {
                       ),
                     ),
                     Text(
-                      '${widget.rank.startElo} puandan başla',
+                      S.tr('${widget.rank.startElo} puandan ba┼şla', 'Start from ${widget.rank.startElo} pts'),
                       style: TextStyle(
                         fontSize: 12,
                         color: widget.rank.color.withAlpha(160),

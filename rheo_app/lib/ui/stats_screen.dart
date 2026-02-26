@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import '../data/app_strings.dart';
 import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
@@ -28,19 +29,19 @@ class StatsScreen extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          title: const Text('İstatistikler', style: TextStyle(color: Colors.white)),
+          title: Text(S.istatistikBaslik, style: TextStyle(color: Colors.white)),
           actions: [
             IconButton(
               icon: Icon(Icons.share_rounded, color: RheoColors.primary),
               onPressed: () {
                 HapticService.lightTap();
-                final text = '🎮 Rheo\'da $rankTitle rütbesinde ${progress.elo} ELO puanım var!\n'
-                    '✅ ${progress.totalCorrect} doğru | 📊 %${progress.accuracy.toStringAsFixed(0)} başarı\n'
-                    '🔥 En yüksek seri: ${progress.bestStreak} gün\n\n'
-                    'Sen de kod okuma ustası ol! #Rheo';
+                final text = '­şÄ« Rheo\'da $rankTitle r├╝tbesinde ${progress.elo} ELO puan─▒m var!\n'
+                    'Ô£à ${progress.totalCorrect} do─şru | ­şôè %${progress.accuracy.toStringAsFixed(0)} ba┼şar─▒\n'
+                    '­şöÑ En y├╝ksek seri: ${progress.bestStreak} g├╝n\n\n'
+                    'Sen de kod okuma ustas─▒ ol! #Rheo';
                 SharePlus.instance.share(ShareParams(text: text));
               },
-              tooltip: 'Paylaş',
+              tooltip: 'Payla┼ş',
             ),
           ],
         ),
@@ -103,7 +104,7 @@ class StatsScreen extends StatelessWidget {
                         child: _buildStatCard(
                           icon: Icons.check_circle,
                           value: '${progress.totalCorrect}',
-                          label: 'Doğru',
+                          label: S.dogru,
                           color: RheoColors.success,
                         ),
                       ),
@@ -112,7 +113,7 @@ class StatsScreen extends StatelessWidget {
                         child: _buildStatCard(
                           icon: Icons.cancel,
                           value: '${progress.totalWrong}',
-                          label: 'Yanlış',
+                          label: S.yanlis,
                           color: RheoColors.error,
                         ),
                       ),
@@ -131,7 +132,7 @@ class StatsScreen extends StatelessWidget {
                         child: _buildStatCard(
                           icon: Icons.percent,
                           value: '${progress.accuracy.toStringAsFixed(1)}%',
-                          label: 'Doğruluk',
+                          label: S.dogruOran,
                           color: RheoColors.primary,
                         ),
                       ),
@@ -140,7 +141,7 @@ class StatsScreen extends StatelessWidget {
                         child: _buildStatCard(
                           icon: Icons.quiz,
                           value: '${progress.totalQuestions}',
-                          label: 'Toplam',
+                          label: S.toplam,
                           color: RheoColors.accent,
                         ),
                       ),
@@ -161,18 +162,18 @@ class StatsScreen extends StatelessWidget {
                           children: [
                             Icon(Icons.local_fire_department, color: RheoColors.secondary, size: 22),
                             const SizedBox(width: 8),
-                            const Text(
-                              'Seri İstatistikleri',
+                            Text(
+                              S.tr('Seri ─░statistikleri', 'Streak Statistics'),
                               style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
                         const Divider(color: RheoColors.glassBorder, height: 24),
-                        _buildInfoRow('Güncel Seri', '${progress.currentStreak} gün', RheoColors.secondary),
+                        _buildInfoRow(S.tr('G├╝ncel Seri', 'Current Streak'), '${progress.currentStreak} ${S.tr('g├╝n', 'days')}', RheoColors.secondary),
                         const SizedBox(height: 8),
-                        _buildInfoRow('En İyi Seri', '${progress.bestStreak} gün', RheoColors.gold),
+                        _buildInfoRow(S.tr('En ─░yi Seri', 'Best Streak'), '${progress.bestStreak} ${S.tr('g├╝n', 'days')}', RheoColors.gold),
                         const SizedBox(height: 8),
-                        _buildInfoRow('Son Oynama', _formatDate(progress.lastPlayedDate ?? DateTime.now()), RheoColors.textSecondary),
+                        _buildInfoRow(S.tr('Son Oynama', 'Last Played'), _formatDate(progress.lastPlayedDate ?? DateTime.now()), RheoColors.textSecondary),
                       ],
                     ),
                   ),
@@ -187,8 +188,8 @@ class StatsScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Rütbe İlerlemesi',
+                        Text(
+                          S.tr('R├╝tbe ─░lerlemesi', 'Rank Progress'),
                           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 16),
@@ -230,11 +231,11 @@ class StatsScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Başarımlar',
+                                  S.basarimlar,
                                   style: TextStyle(color: RheoColors.gold, fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  'Rozetlerini görüntüle',
+                                  S.tr('Rozetlerini g├Âr├╝nt├╝le', 'View your badges'),
                                   style: TextStyle(color: RheoColors.textMuted, fontSize: 12),
                                 ),
                               ],
@@ -296,11 +297,11 @@ class StatsScreen extends StatelessWidget {
 
   Widget _buildRankProgress(int elo) {
     final ranks = [
-      ('Bronz', 0, RheoColors.bronze),
-      ('Gümüş', 1000, RheoColors.silver),
-      ('Altın', 1500, RheoColors.gold),
-      ('Platin', 2000, RheoColors.platinum),
-      ('Elmas', 2500, RheoColors.diamond),
+      (S.tr('Bronz', 'Bronze'), 0, RheoColors.bronze),
+      (S.tr('G├╝m├╝┼ş', 'Silver'), 1000, RheoColors.silver),
+      (S.tr('Alt─▒n', 'Gold'), 1500, RheoColors.gold),
+      (S.tr('Platin', 'Platinum'), 2000, RheoColors.platinum),
+      (S.tr('Elmas', 'Diamond'), 2500, RheoColors.diamond),
     ];
     
     return Column(
@@ -356,9 +357,9 @@ class StatsScreen extends StatelessWidget {
     final now = DateTime.now();
     final diff = now.difference(date);
     
-    if (diff.inDays == 0) return 'Bugün';
-    if (diff.inDays == 1) return 'Dün';
-    if (diff.inDays < 7) return '${diff.inDays} gün önce';
+    if (diff.inDays == 0) return S.tr('Bug├╝n', 'Today');
+    if (diff.inDays == 1) return S.tr('D├╝n', 'Yesterday');
+    if (diff.inDays < 7) return S.tr('${diff.inDays} g├╝n ├Ânce', '${diff.inDays} days ago');
     return '${date.day}/${date.month}/${date.year}';
   }
 }
