@@ -42,3 +42,6 @@ pubspec.lock
 *.class
 *.log
 *.pyc
+rheo_app/.env
+*.env
+rheo_app/build/
