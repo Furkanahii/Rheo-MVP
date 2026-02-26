@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -6,8 +6,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../data/question_model.dart';
 
-/// AI Service - Google Gemini (Flash-Lite) ile dinamik soru üretimi
-/// Caching + Fallback mekanizması ile güvenli çalışır
+/// AI Service - Google Gemini (Flash-Lite) ile dinamik soru ├╝retimi
+/// Caching + Fallback mekanizmas─▒ ile g├╝venli ├ğal─▒┼ş─▒r
 
 
 /// Global singleton instance
@@ -27,16 +27,16 @@ class AIService {
   static const String _baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
   static const String _model = 'gemini-2.5-flash';
 
-  /// System prompt - Senior Software Engineer rolü
+  /// System prompt - Senior Software Engineer rol├╝
   static const String _systemPrompt = '''
 You are a Senior Software Engineer creating coding quiz questions. Generate ONE unique Python question.
 
 CRITICAL RULES FOR VARIETY:
 - NEVER repeat the same code pattern. Each question MUST use DIFFERENT variables, functions, and logic.
-- Use creative, descriptive variable names from real-world contexts (shopping_cart, student_scores, recipe_ingredients — NOT x, y, a, b).
+- Use creative, descriptive variable names from real-world contexts (shopping_cart, student_scores, recipe_ingredients ÔÇö NOT x, y, a, b).
 - Mix different Python concepts: string methods, dictionary operations, set operations, tuple unpacking, enumerate, zip, map, filter, list comprehensions, generators, exception handling, class inheritance, magic methods, decorators, closures.
 - Code snippets MUST be between 5-12 lines. Make them substantial enough to require careful reading.
-- The 4 answer options MUST all be plausible — include common mistakes as wrong answers.
+- The 4 answer options MUST all be plausible ÔÇö include common mistakes as wrong answers.
 
 DIFFICULTY LEVELS (you MUST follow this strictly):
 - Easy: single concept, straightforward logic, basic operations. A beginner solves in 10 seconds.
@@ -44,9 +44,9 @@ DIFFICULTY LEVELS (you MUST follow this strictly):
 - Hard: subtle traps (mutable defaults, scope issues, operator precedence, shallow copy, generator exhaustion, closure late binding). Even experienced developers should pause and think.
 
 Question types (pick ONE randomly):
-1. type: "output" — "What is the output of this code?" The code must have a non-obvious output that requires careful mental execution.
-2. type: "missing_code" — Show code with one line replaced by "_____" and ask what should fill the blank to achieve the described goal.
-3. type: "debug" — "Which line contains a bug?" Code with a subtle logical error.
+1. type: "output" ÔÇö "What is the output of this code?" The code must have a non-obvious output that requires careful mental execution.
+2. type: "missing_code" ÔÇö Show code with one line replaced by "_____" and ask what should fill the blank to achieve the described goal.
+3. type: "debug" ÔÇö "Which line contains a bug?" Code with a subtle logical error.
 
 Respond with ONLY valid JSON, no markdown, no extra text:
 {"type": "output", "question_text": "...", "code_snippet": "...", "options": ["a","b","c","d"], "correct_index": 0, "explanation": "Step-by-step explanation of why the answer is correct"}
@@ -59,39 +59,39 @@ Respond with ONLY valid JSON, no markdown, no extra text:
     try {
       _cacheBox = await Hive.openBox('ai_questions_cache');
 
-      // 1. Önce dart-define'dan kontrol et (web build için en güvenilir)
+      // 1. ├ûnce dart-define'dan kontrol et (web build i├ğin en g├╝venilir)
       var apiKey = const String.fromEnvironment('GEMINI_API_KEY');
       if (apiKey.isNotEmpty) {
-        debugPrint('🔑 Using dart-define API key (${apiKey.length} chars)');
+        debugPrint('­şöæ Using dart-define API key (${apiKey.length} chars)');
       } else {
-        // 2. dotenv'den kontrol et (mobil ve dev server için)
+        // 2. dotenv'den kontrol et (mobil ve dev server i├ğin)
         apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
         if (apiKey.isNotEmpty && apiKey != 'your_gemini_api_key_here') {
-          debugPrint('🔑 Using dotenv API key (${apiKey.length} chars)');
+          debugPrint('­şöæ Using dotenv API key (${apiKey.length} chars)');
         } else {
           apiKey = '';
         }
       }
       
       if (apiKey.isEmpty) {
-        debugPrint('⚠️ GEMINI_API_KEY not configured');
+        debugPrint('ÔÜá´©Å GEMINI_API_KEY not configured');
         _isDemoMode = true;
-        debugPrint('✅ AIService started in DEMO MODE');
+        debugPrint('Ô£à AIService started in DEMO MODE');
         _isInitialized = true;
         return;
       }
 
       _apiKey = apiKey;
       _isInitialized = true;
-      debugPrint('✅ AIService initialized (Gemini Flash-Lite)');
+      debugPrint('Ô£à AIService initialized (Gemini Flash-Lite)');
     } catch (e) {
-      debugPrint('❌ AIService init error: $e');
+      debugPrint('ÔØî AIService init error: $e');
       _isDemoMode = true; // Fallback to Demo Mode on error
       _isInitialized = true;
     }
   }
 
-  /// AI ile soru üret
+  /// AI ile soru ├╝ret
   Future<Question?> generateQuestion({
     required String topic,
     int difficulty = 2,
@@ -100,14 +100,14 @@ Respond with ONLY valid JSON, no markdown, no extra text:
 
     // DEMO MODE CHECK
     if (_isDemoMode) {
-      debugPrint('🤖 Generating DEMO question for $topic');
+      debugPrint('­şñû Generating DEMO question for $topic');
       return _generateDemoQuestion(topic);
     }
 
     final topicLabel = _getTopicLabel(topic);
     final difficultyLabel = _getDifficultyLabel(difficulty);
 
-    // 1. Önce API'den dene
+    // 1. ├ûnce API'den dene
     if (_apiKey != null) {
       try {
         final question = await _generateFromAPI(topicLabel, difficultyLabel, topic);
@@ -116,7 +116,7 @@ Respond with ONLY valid JSON, no markdown, no extra text:
           return question;
         }
       } catch (e) {
-        debugPrint('⚠️ AI generation failed, trying cache: $e');
+        debugPrint('ÔÜá´©Å AI generation failed, trying cache: $e');
         lastError = e.toString();
       }
     }
@@ -124,16 +124,16 @@ Respond with ONLY valid JSON, no markdown, no extra text:
     // 2. Cache'den dene (Fallback)
     final cachedQuestion = _getCachedQuestion(topic);
     if (cachedQuestion != null) {
-      debugPrint('📦 Serving from cache');
+      debugPrint('­şôĞ Serving from cache');
       return cachedQuestion;
     }
 
-    // 3. Hiçbiri yoksa null döner
-    debugPrint('❌ No questions available (no API, no cache)');
+    // 3. Hi├ğbiri yoksa null d├Âner
+    debugPrint('ÔØî No questions available (no API, no cache)');
     return null;
   }
 
-  /// Demo Modu için statik sorular
+  /// Demo Modu i├ğin statik sorular
   Question _generateDemoQuestion(String topic) {
     // Simulate network delay for realism
     // await Future.delayed(const Duration(milliseconds: 1500));
@@ -218,7 +218,7 @@ def maxDepth(root):
     }
   }
 
-  /// Çeşitlilik için rastgele odak noktası seç — geçmiş takibi ile
+  /// ├çe┼şitlilik i├ğin rastgele odak noktas─▒ se├ğ ÔÇö ge├ğmi┼ş takibi ile
   static final _random = Random();
   final List<String> _recentFocusAreas = [];
   final List<String> _recentScenarios = [];
@@ -309,7 +309,7 @@ def maxDepth(root):
         '$avoidNote';
   }
 
-  /// Gemini API'den soru üret
+  /// Gemini API'den soru ├╝ret
   Future<Question?> _generateFromAPI(
     String topicLabel,
     String difficultyLabel,
@@ -353,7 +353,7 @@ def maxDepth(root):
 
     if (content == null || content.isEmpty) return null;
 
-    // JSON parse - content içinden JSON'ı çıkar
+    // JSON parse - content i├ğinden JSON'─▒ ├ğ─▒kar
     try {
       // Bazen model markdown ile sarabilir, temizle
       String cleanContent = content.trim();
@@ -370,12 +370,12 @@ def maxDepth(root):
       final jsonData = json.decode(cleanContent) as Map<String, dynamic>;
       return _parseAIResponse(jsonData, topicId);
     } catch (e) {
-      debugPrint('❌ JSON parse error: $e\nResponse: $content');
+      debugPrint('ÔØî JSON parse error: $e\nResponse: $content');
       return null;
     }
   }
 
-  /// AI yanıtını Question modeline dönüştür
+  /// AI yan─▒t─▒n─▒ Question modeline d├Ân├╝┼şt├╝r
   Question _parseAIResponse(Map<String, dynamic> json, String topicId) {
     final options = List<String>.from(json['options'] as List);
     final correctIndex = json['correct_index'] as int;
@@ -418,9 +418,9 @@ def maxDepth(root):
       existing.add(questionJson);
       if (existing.length > 20) existing.removeAt(0);
       await _cacheBox!.put(cacheKey, existing);
-      debugPrint('💾 Cached question for $topic (${existing.length} total)');
+      debugPrint('­şÆ¥ Cached question for $topic (${existing.length} total)');
     } catch (e) {
-      debugPrint('❌ Cache write error: $e');
+      debugPrint('ÔØî Cache write error: $e');
     }
   }
 
@@ -435,7 +435,7 @@ def maxDepth(root):
       final json = Map<String, dynamic>.from(cached.first as Map);
       return Question.fromJson(json);
     } catch (e) {
-      debugPrint('❌ Cache read error: $e');
+      debugPrint('ÔØî Cache read error: $e');
       return null;
     }
   }
@@ -507,7 +507,7 @@ def maxDepth(root):
 
   Future<void> clearCache() async {
     await _cacheBox?.clear();
-    debugPrint('🗑️ AI cache cleared');
+    debugPrint('­şùæ´©Å AI cache cleared');
   }
 
   bool get isAvailable => _apiKey != null || _isDemoMode;

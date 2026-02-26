@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../logic/language_service.dart';
 import '../logic/storage_service.dart';
@@ -8,7 +8,7 @@ import '../logic/storage_service.dart';
 class RheoTheme {
   static bool get isDark => storageService.progress.isDarkMode;
 
-  // ── Language accent colors (dark variants for text) ──
+  // ÔöÇÔöÇ Language accent colors (dark variants for text) ÔöÇÔöÇ
   static Color langAccent(ProgrammingLanguage lang) {
     switch (lang) {
       case ProgrammingLanguage.python:
@@ -20,7 +20,7 @@ class RheoTheme {
     }
   }
 
-  // ── Language light bg colors ──
+  // ÔöÇÔöÇ Language light bg colors ÔöÇÔöÇ
   static Color langLightBg(ProgrammingLanguage lang) {
     switch (lang) {
       case ProgrammingLanguage.python:
@@ -32,7 +32,7 @@ class RheoTheme {
     }
   }
 
-  // ── Language dark bg colors (for dark mode) ──
+  // ÔöÇÔöÇ Language dark bg colors (for dark mode) ÔöÇÔöÇ
   static Color langDarkBg(ProgrammingLanguage lang) {
     switch (lang) {
       case ProgrammingLanguage.python:
@@ -44,75 +44,109 @@ class RheoTheme {
     }
   }
 
-  // ── Language light accent colors (for dark mode text) ──
+  // ÔöÇÔöÇ Language light accent colors (for dark mode text) ÔöÇÔöÇ
   static Color langLightAccent(ProgrammingLanguage lang) {
     switch (lang) {
       case ProgrammingLanguage.python:
-        return const Color(0xFFE8EAFF); // Light blue pastel — dark mode accent
+        return const Color(0xFFE8EAFF); // Light blue pastel ÔÇö dark mode accent
       case ProgrammingLanguage.java:
-        return const Color(0xFFFFF0E0); // Light orange pastel — dark mode accent
+        return const Color(0xFFFFF0E0); // Light orange pastel ÔÇö dark mode accent
       case ProgrammingLanguage.javascript:
-        return const Color(0xFFE0F5E6); // Light green pastel — dark mode accent
+        return const Color(0xFFE0F5E6); // Light green pastel ÔÇö dark mode accent
     }
   }
 
-  // ── Main scaffold bg = language color ──
+  // ÔöÇÔöÇ Main scaffold bg = language color ÔöÇÔöÇ
   static Color scaffoldBg([ProgrammingLanguage? lang]) {
     final l = lang ?? languageService.selected;
     return isDark ? langDarkBg(l) : langLightBg(l);
   }
 
-  // ── Card / button bg = white (or dark surface) ──
+  // ÔöÇÔöÇ Card / button bg = white (or dark surface) ÔöÇÔöÇ
   static Color get cardBg => isDark ? const Color(0xFF1E1E2E) : Colors.white;
 
-  // ── All regular text = black (or white in dark) ──
+  // ÔöÇÔöÇ All regular text = black (or white in dark) ÔöÇÔöÇ
   static Color get textColor => isDark ? Colors.white : Colors.black;
 
-  // ── Muted text ──
+  // ÔöÇÔöÇ Muted text ÔöÇÔöÇ
   static Color get textMuted => isDark ? const Color(0xFF999999) : const Color(0xFF666666);
 
-  // ── Language label text (stays dark accent) ──
+  // ÔöÇÔöÇ Language label text (stays dark accent) ÔöÇÔöÇ
   static Color langText([ProgrammingLanguage? lang]) {
     final l = lang ?? languageService.selected;
     return isDark ? langLightAccent(l) : langAccent(l);
   }
 
-  // ── Border color for cards (language-tinted) ──
+  // ÔöÇÔöÇ Border color for cards (language-tinted) ÔöÇÔöÇ
   static Color get cardBorder {
     final lang = languageService.selected;
     final accent = isDark ? langLightAccent(lang) : langAccent(lang);
     return accent.withAlpha(isDark ? 80 : 50);
   }
 
-  // ── Button border color (more visible) ──
+  // ÔöÇÔöÇ Button border color (more visible) ÔöÇÔöÇ
   static Color get buttonBorder {
     final lang = languageService.selected;
     final accent = isDark ? langLightAccent(lang) : langAccent(lang);
     return accent.withAlpha(isDark ? 120 : 80);
   }
 
-  // ── Logo brand palette (for Settings, Profile, Leaderboard, Achievements, Rank) ──
+  // ÔöÇÔöÇ Logo brand palette (for Settings, Profile, Leaderboard, Achievements, Rank) ÔöÇÔöÇ
   static const Color brandNavy = Color(0xFF0D1B2A);
   static const Color brandBlue = Color(0xFF1565C0);
   static const Color brandCyan = Color(0xFF4DD0E1);
 
-  // ── Brand scaffold bg ──
+  // ÔöÇÔöÇ Brand scaffold bg ÔöÇÔöÇ
   static Color get brandScaffoldBg => isDark ? const Color(0xFF0A1420) : const Color(0xFFECF5F8);
 
-  // ── Brand card bg ──
+  // ÔöÇÔöÇ Brand card bg ÔöÇÔöÇ
   static Color get brandCardBg => isDark ? const Color(0xFF0D1B2A) : Colors.white;
 
-  // ── Brand text ──
+  // ÔöÇÔöÇ Brand text ÔöÇÔöÇ
   static Color get brandText => isDark ? Colors.white : brandNavy;
 
-  // ── Brand muted ──
+  // ÔöÇÔöÇ Brand muted ÔöÇÔöÇ
   static Color get brandMuted => isDark ? const Color(0xFF8899AA) : const Color(0xFF5A6B7D);
 
-  // ── Brand accent ──
+  // ÔöÇÔöÇ Brand accent ÔöÇÔöÇ
   static Color get brandAccent => isDark ? brandCyan : brandBlue;
 
-  // ── Brand card border ──
+  // ÔöÇÔöÇ Brand card border ÔöÇÔöÇ
   static Color get brandCardBorder => isDark ? brandCyan.withAlpha(60) : brandBlue.withAlpha(40);
+
+  // ÔöÇÔöÇ Code block colors (for quiz/bug-hunt/time-attack screens) ÔöÇÔöÇ
+  static Color get codeBg => isDark
+      ? const Color(0xFF1E1E2E)   // Catppuccin Mocha base
+      : const Color(0xFFF5F5F9);  // Soft lavender-gray
+
+  static Color get codeHeaderBg => isDark
+      ? const Color(0xFF181825)   // Catppuccin Mocha mantle
+      : const Color(0xFFEBEBF2);  // Slightly darker header
+
+  static Color get codeBorder => isDark
+      ? const Color(0xFF313244)   // Catppuccin Mocha surface0
+      : const Color(0xFFD0D0DD);  // Subtle cool border
+
+  static Color get codeLineNumber => isDark
+      ? const Color(0xFF585b70)   // Catppuccin Mocha overlay0
+      : const Color(0xFF9090A0);  // Muted number color
+
+  static Color get codeHeaderText => isDark
+      ? const Color(0xFF6c7086)   // Catppuccin Mocha overlay1
+      : const Color(0xFF8080A0);  // Muted header text
+
+  // ÔöÇÔöÇ Answer option colors (transparent glass style) ÔöÇÔöÇ
+  static Color get optionBg => isDark
+      ? const Color(0x14FFFFFF)   // 8% white (same as glassLight)
+      : const Color(0x18000000);  // ~9% black ÔÇö subtle on light bg
+
+  static Color get optionBorder => isDark
+      ? const Color(0x1AFFFFFF)   // 10% white (same as glassBorder)
+      : const Color(0x22000000);  // ~13% black
+
+  static Color get optionText => isDark
+      ? Colors.white
+      : Colors.black;
 }
 
 /// Legacy color constants (kept for backward compatibility)

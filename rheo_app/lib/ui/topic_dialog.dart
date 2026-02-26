@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'animations.dart';
 import '../data/app_strings.dart';
@@ -53,25 +53,25 @@ class Topics {
   static const List<TopicOption> all = [
     TopicOption(
       id: '',
-      label: 'Tümü',
+      label: 'T├╝m├╝',
       icon: Icons.grid_view_rounded,
       color: RheoColors.primary,
     ),
     TopicOption(
       id: 'variable',
-      label: 'Değişkenler',
+      label: 'De─şi┼şkenler',
       icon: Icons.data_object_rounded,
       color: Color(0xFF4CAF50),
     ),
     TopicOption(
       id: 'loop',
-      label: 'Döngüler',
+      label: 'D├Âng├╝ler',
       icon: Icons.loop_rounded,
       color: Color(0xFFFF9800),
     ),
     TopicOption(
       id: 'if_else',
-      label: 'Koşullar',
+      label: 'Ko┼şullar',
       icon: Icons.call_split_rounded,
       color: Color(0xFF2196F3),
     ),
@@ -107,19 +107,19 @@ class Topics {
     ),
     TopicOption(
       id: 'recursion',
-      label: 'Özyineleme',
+      label: '├ûzyineleme',
       icon: Icons.replay_rounded,
       color: Color(0xFF673AB7),
     ),
     TopicOption(
       id: 'sorting',
-      label: 'Sıralama',
+      label: 'S─▒ralama',
       icon: Icons.sort_rounded,
       color: Color(0xFFFF9800),
     ),
     TopicOption(
       id: 'stack_queue',
-      label: 'Yığın & Kuyruk',
+      label: 'Y─▒─ş─▒n & Kuyruk',
       icon: Icons.layers_rounded,
       color: Color(0xFF795548),
     ),
@@ -199,7 +199,7 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
             ),
             const SizedBox(height: 20),
             
-            // Statik konular — hepsi dil renginde
+            // Statik konular ÔÇö hepsi dil renginde
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -210,7 +210,7 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
             
             const SizedBox(height: 20),
             
-            // AI Ayırıcısı
+            // AI Ay─▒r─▒c─▒s─▒
             Row(
               children: [
                 Expanded(child: Divider(color: RheoTheme.textMuted.withAlpha(60))),
@@ -239,7 +239,7 @@ Future<TopicOption?> showTopicDialog(BuildContext context) {
             
             const SizedBox(height: 16),
             
-            // AI kategorileri — hepsi dil renginde
+            // AI kategorileri ÔÇö hepsi dil renginde
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -350,7 +350,7 @@ class _TopicTileButtonState extends State<_TopicTileButton> {
                     if (widget.topic.isAI) ...[
                       const SizedBox(height: 2),
                       Text(
-                        'AI ✨',
+                        'AI Ô£¿',
                         style: TextStyle(
                           color: widget.langColor.withAlpha(150),
                           fontSize: 10,

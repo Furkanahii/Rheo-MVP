@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../logic/storage_service.dart';
 import '../logic/elo_calculator.dart';
 import '../data/achievements.dart';
+import '../data/app_strings.dart';
 import 'achievements_screen.dart';
 import 'rank_screen.dart';
 import 'customize_profile_screen.dart';
@@ -12,8 +13,8 @@ import 'animations.dart';
 /// Available avatar options (emoji-based)
 class AvatarData {
   static const List<String> avatars = [
-    '🐶', '🐱', '🐼', '🦊', '🐸', '🦉', '🐰',
-    '🐻', '🦁', '🐺', '🐯', '🐨', '🦋', '🐬',
+    '­şÉÂ', '­şÉ▒', '­şÉ╝', '­şĞè', '­şÉ©', '­şĞë', '­şÉ░',
+    '­şÉ╗', '­şĞü', '­şÉ║', '­şÉ»', '­şÉ¿', '­şĞï', '­şÉ¼',
   ];
 
   static const List<Color> avatarColors = [
@@ -67,7 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Navigator.pop(context);
           },
         ),
-        title: Text('Profil', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.bold)),
+        title: Text(S.profil, style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.bold)),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -76,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               const SizedBox(height: 16),
 
-              // === Profile Header: Puan — Avatar — Lig ===
+              // === Profile Header: Puan ÔÇö Avatar ÔÇö Lig ===
               StaggeredFadeIn(
                 index: 0,
                 child: Row(
@@ -196,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 Icon(Icons.edit, size: 13, color: RheoTheme.textColor.withAlpha(160)),
                                 const SizedBox(width: 4),
-                                Text('Özelleştir',
+                                Text(S.ozellestir,
                                   style: TextStyle(fontSize: 11, color: RheoTheme.textColor.withAlpha(180), fontWeight: FontWeight.w600)),
                               ],
                             ),
@@ -205,7 +206,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
 
-                    // LİG (right)
+                    // L─░G (right)
                     Expanded(
                       child: _ProfileHoverButton(
                         onTap: () {
@@ -236,7 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       Icon(Icons.shield_outlined, color: RheoTheme.textColor, size: 36),
                                       const SizedBox(height: 12),
                                       Text(
-                                        'Çok Yakında! 🚀',
+                                        S.cokYakinda,
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
@@ -245,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                       const SizedBox(height: 6),
                                       Text(
-                                        'Lig sistemi geliyor...',
+                                        S.ligGeliyor,
                                         style: TextStyle(
                                           fontSize: 13,
                                           color: RheoTheme.textMuted,
@@ -287,10 +288,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             const SizedBox(height: 6),
-                            Text('Lig',
+                            Text(S.lig,
                               style: TextStyle(fontSize: 11, color: RheoTheme.textMuted, fontWeight: FontWeight.w500)),
                             const SizedBox(height: 2),
-                            Text('Yakında',
+                            Text(S.yakinda,
                               style: TextStyle(fontSize: 14, color: RheoTheme.textColor, fontWeight: FontWeight.bold)),
                           ],
                         ),
@@ -307,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 index: 1,
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('İSTATİSTİKLER',
+                  child: Text(S.istatistikler,
                     style: TextStyle(color: RheoTheme.textMuted, fontSize: 12, letterSpacing: 3, fontWeight: FontWeight.w500)),
                 ),
               ),
@@ -328,13 +329,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _MiniStat(icon: Icons.check_circle, value: '${progress.totalCorrect}', label: 'Doğru', color: const Color(0xFF4CAF50)),
+                      _MiniStat(icon: Icons.check_circle, value: '${progress.totalCorrect}', label: S.dogru, color: const Color(0xFF4CAF50)),
                       _divider(),
-                      _MiniStat(icon: Icons.cancel, value: '${progress.totalWrong}', label: 'Yanlış', color: RheoColors.error),
+                      _MiniStat(icon: Icons.cancel, value: '${progress.totalWrong}', label: S.yanlis, color: RheoColors.error),
                       _divider(),
-                      _MiniStat(icon: Icons.percent, value: '${progress.accuracy.toStringAsFixed(0)}%', label: 'Doğruluk', color: RheoTheme.textColor),
+                      _MiniStat(icon: Icons.percent, value: '${progress.accuracy.toStringAsFixed(0)}%', label: S.dogruluk, color: RheoTheme.textColor),
                       _divider(),
-                      _MiniStat(icon: Icons.quiz, value: '${progress.totalQuestions}', label: 'Toplam', color: RheoTheme.textColor.withAlpha(160)),
+                      _MiniStat(icon: Icons.quiz, value: '${progress.totalQuestions}', label: S.toplam, color: RheoTheme.textColor.withAlpha(160)),
                     ],
                   ),
                 ),
@@ -355,13 +356,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _MiniStat(icon: Icons.local_fire_department, value: '${progress.currentStreak}', label: 'Güncel Doğru Seri', color: const Color(0xFFFF9800)),
+                      _MiniStat(icon: Icons.local_fire_department, value: '${progress.currentStreak}', label: S.guncelDogruSeri, color: const Color(0xFFFF9800)),
                       _divider(),
-                      _MiniStat(icon: Icons.whatshot, value: '${progress.bestStreak}', label: 'En İyi Doğru Seri', color: const Color(0xFFFFD700)),
+                      _MiniStat(icon: Icons.whatshot, value: '${progress.bestStreak}', label: S.enIyiDogruSeri, color: const Color(0xFFFFD700)),
                       _divider(),
-                      _MiniStat(icon: Icons.login, value: '${progress.currentStreak}', label: 'Güncel Giriş Serisi', color: const Color(0xFF42A5F5)),
+                      _MiniStat(icon: Icons.login, value: '${progress.currentStreak}', label: S.guncelGirisSeri, color: const Color(0xFF42A5F5)),
                       _divider(),
-                      _MiniStat(icon: Icons.star, value: '${progress.bestStreak}', label: 'En İyi Giriş Serisi', color: const Color(0xFFAB47BC)),
+                      _MiniStat(icon: Icons.star, value: '${progress.bestStreak}', label: S.enIyiGirisSeri, color: const Color(0xFFAB47BC)),
                     ],
                   ),
                 ),
@@ -405,10 +406,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Başarımlar',
+                              Text(S.basarimlar,
                                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: RheoTheme.textColor)),
                               const SizedBox(height: 2),
-                              Text('$unlockedCount /$totalCount başarım kilidi açıldı',
+                              Text(S.basarimKilidi(unlockedCount, totalCount),
                                 style: TextStyle(fontSize: 12, color: RheoTheme.textMuted)),
                             ],
                           ),
