@@ -20,10 +20,19 @@ export default function App() {
     const [milestoneChapter, setMilestoneChapter] = useState(null)
     const [, forceUpdate] = useState(0)
 
-    // Load saved progress on mount
+    // Load saved progress on mount + check daily reward
     useEffect(() => {
         loadProgress()
         forceUpdate(n => n + 1)
+
+        // Show daily reward if onboarding already done and not yet claimed today
+        if (isOnboardingDone()) {
+            const today = new Date().toDateString()
+            const lastClaim = localStorage.getItem('rheo_last_daily')
+            if (lastClaim !== today) {
+                setShowDaily(true)
+            }
+        }
     }, [])
 
     useEffect(() => {
