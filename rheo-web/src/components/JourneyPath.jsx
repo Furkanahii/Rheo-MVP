@@ -194,7 +194,7 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId }) {
             )}
 
             {/* Lesson Modal */}
-            {popupType === 'start' && <LessonModal node={node} onClose={() => setPopup(null)} onStart={() => { setPopup(null); window.__openLesson?.(node.id) }} />}
+            {popupType === 'start' && <LessonModal node={node} onClose={() => setPopup(null)} onStart={() => { window.__openLesson?.(node.id); setPopup(null) }} />}
             {/* Code preview (completed) */}
             {popupType === 'code' && isCompleted && <CodePreview iconKey={node.iconKey} onClose={() => setPopup(null)} />}
             {/* Video preview */}
