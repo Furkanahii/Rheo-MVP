@@ -1,6 +1,10 @@
 /* ══════════════════════════════════════════
    Rheo Journey Data — v10 Production Ready
    ══════════════════════════════════════════ */
+import { jsExercises } from './exercises_js.js'
+import { jsExercisesCh6to10 } from './exercises_js2.js'
+import { javaExercises } from './exercises_java.js'
+import { javaExercisesCh6to10 } from './exercises_java2.js'
 
 /* ── localStorage Persistence ── */
 const STORAGE_KEY = 'rheo_progress'
@@ -686,7 +690,9 @@ const nodeExercises = {
     },
 }
 
-// JS and Java share Python's structure with syntax-appropriate fallback
+// Merge imported JS and Java exercises into nodeExercises
+nodeExercises.javascript = { ...jsExercises, ...jsExercisesCh6to10 }
+nodeExercises.java = { ...javaExercises, ...javaExercisesCh6to10 }
 export function getExercisesForNode(nodeId, lang) {
     const l = lang || _activeLang
     const exercises = nodeExercises[l]?.[nodeId] || nodeExercises.python?.[nodeId] || []
