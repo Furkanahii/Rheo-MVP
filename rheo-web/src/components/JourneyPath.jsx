@@ -8,7 +8,7 @@ import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chap
    ═══════════════════════════════════════════════════════ */
 
 /* Haptic helper */
-const haptic = () => { try { navigator.vibrate?.(15) } catch { } }
+const haptic = () => { try { navigator.vibrate?.(15) } catch (e) { } }
 
 /* ── SVG Icons ── */
 const ICONS = {
@@ -48,10 +48,13 @@ const getX = i => NODE_X[i % NODE_X.length]
 const SPACING = 105
 
 export default function JourneyPath({ nodes }) {
+    const [openNodeId, setOpenNodeId] = useState(null)
     const TIP_OFFSET = 90
     const totalH = nodes.length * SPACING + TIP_OFFSET + 120
     return (
         <div className="relative w-full px-2 pt-0 pb-24 z-10" style={{ minHeight: totalH }}>
+            {/* Global backdrop to close any open popup */}
+            {openNodeId != null && <div className="fixed inset-0 z-20" onClick={() => setOpenNodeId(null)} />}
             {/* path content below — close outer div is at bottom */}
             {(() => {
                 const todayTip = getTipOfTheDay(); return (
@@ -83,7 +86,7 @@ export default function JourneyPath({ nodes }) {
             {nodes.map((node, i) => (
                 <div key={node.id} className="absolute z-10" data-chapter={node.chapter} style={{ left: `${getX(i)}%`, top: i * SPACING + TIP_OFFSET + 18, transform: 'translateX(-50%)' }}
                     {...(node.status === 'active' ? { 'data-active-node': true } : {})}>
-                    <NodeButton node={node} index={i} />
+                    <NodeButton node={node} index={i} openNodeId={openNodeId} setOpenNodeId={setOpenNodeId} />
                 </div>
             ))}
 
@@ -108,8 +111,15 @@ export default function JourneyPath({ nodes }) {
 /* ═══════════════════════════════════════════
    NODE BUTTON — all features integrated
    ═══════════════════════════════════════════ */
-function NodeButton({ node, index }) {
-    const [popup, setPopup] = useState(null) // 'start' | 'code' | 'video' | 'playground' | null
+function NodeButton({ node, index, openNodeId, setOpenNodeId }) {
+    // Derive popup type from openNodeId — only this node's popup is visible
+    const isOpen = openNodeId === node.id
+    const popupType = isOpen ? (node.type === 'video' ? 'video' : node.type === 'playground' ? 'playground' : 'start') : null
+
+    const setPopup = (val) => {
+        if (val) setOpenNodeId(node.id)
+        else setOpenNodeId(null)
+    }
 
     const isActive = node.status === 'active'
     const isCompleted = node.status === 'completed'
@@ -131,10 +141,8 @@ function NodeButton({ node, index }) {
 
     const handleClick = () => {
         haptic()
-        if (isVideo) setPopup(p => p === 'video' ? null : 'video')
-        else if (isPlayground) setPopup(p => p === 'playground' ? null : 'playground')
-        else if (isChest) setPopup(p => p === 'start' ? null : 'start')
-        else setPopup(p => p === 'start' ? null : 'start')
+        if (isOpen) setOpenNodeId(null)
+        else setOpenNodeId(node.id)
     }
 
     // Find the next node to determine otter mood
@@ -142,9 +150,7 @@ function NodeButton({ node, index }) {
     const mood = getOtterMood(stats.streak, nextNode?.type)
 
     return (
-        <div className="flex flex-col items-center relative">
-            {/* Backdrop to close popups on outside click */}
-            {popup && <div className="fixed inset-0 z-20" onClick={() => setPopup(null)} />}
+        <div className="flex flex-col items-center relative" style={{ zIndex: isOpen ? 30 : 10 }}>
             {/* Otter with mood-based expression */}
             {isActive && <MoodOtter mood={mood} />}
 
@@ -188,16 +194,16 @@ function NodeButton({ node, index }) {
             )}
 
             {/* Lesson Modal */}
-            {popup === 'start' && <LessonModal node={node} onClose={() => setPopup(null)} onStart={() => { setPopup(null); window.__openLesson?.(node.id) }} />}
+            {popupType === 'start' && <LessonModal node={node} onClose={() => setPopup(null)} onStart={() => { setPopup(null); window.__openLesson?.(node.id) }} />}
             {/* Code preview (completed) */}
-            {popup === 'code' && isCompleted && <CodePreview iconKey={node.iconKey} onClose={() => setPopup(null)} />}
+            {popupType === 'code' && isCompleted && <CodePreview iconKey={node.iconKey} onClose={() => setPopup(null)} />}
             {/* Video preview */}
-            {popup === 'video' && <VideoPreviewModal node={node} onClose={() => setPopup(null)} />}
+            {popupType === 'video' && <VideoPreviewModal node={node} onClose={() => setPopup(null)} />}
             {/* Playground */}
-            {popup === 'playground' && <PlaygroundModal node={node} onClose={() => setPopup(null)} />}
+            {popupType === 'playground' && <PlaygroundModal node={node} onClose={() => setPopup(null)} />}
 
             {/* Stars with pop animation */}
-            {!isChest && !isDaily && !isVideo && !isPlayground && popup !== 'start' && (
+            {!isChest && !isDaily && !isVideo && !isPlayground && !isOpen && (
                 <div className="flex gap-1 mt-1.5">
                     {[0, 1, 2].map(s => (
                         <div key={s} className={`w-[18px] h-[18px] flex items-center justify-center rounded-full
