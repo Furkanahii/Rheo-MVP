@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage } from '../data'
+import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage, t } from '../data'
 
 /* ═══════════════════════════════════════════════════════
    JourneyPath v9 — Mega Feature Pack
@@ -48,6 +48,7 @@ const getX = i => NODE_X[i % NODE_X.length]
 const SPACING = 105
 
 export default function JourneyPath({ nodes }) {
+    const [openNodeId, setOpenNodeId] = useState(null)
     const TIP_OFFSET = 90
     const totalH = nodes.length * SPACING + TIP_OFFSET + 120
     return (
@@ -58,7 +59,7 @@ export default function JourneyPath({ nodes }) {
                     <div className="relative z-20 mx-4 mb-4 mt-2 rounded-2xl px-4 py-3 bg-slate-800/80 border border-teal-700/30 border-b-[3px] border-b-slate-950 flex items-start gap-3">
                         <span className="text-lg mt-0.5">💡</span>
                         <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-extrabold text-teal-400 mb-0.5">TIP OF THE DAY</p>
+                            <p className="text-[10px] font-extrabold text-teal-400 mb-0.5">{t('TIP OF THE DAY')}</p>
                             <p className="text-[11px] font-bold text-slate-300 leading-snug">{todayTip.tip}</p>
                             <code className="text-[9px] font-mono text-teal-300/80 mt-1 block">{todayTip.code}</code>
                         </div>
@@ -83,7 +84,7 @@ export default function JourneyPath({ nodes }) {
             {nodes.map((node, i) => (
                 <div key={node.id} className="absolute z-10" data-chapter={node.chapter} style={{ left: `${getX(i)}%`, top: i * SPACING + TIP_OFFSET + 18, transform: 'translateX(-50%)' }}
                     {...(node.status === 'active' ? { 'data-active-node': true } : {})}>
-                    <NodeButton node={node} index={i} />
+                    <NodeButton node={node} index={i} openNodeId={openNodeId} setOpenNodeId={setOpenNodeId} />
                 </div>
             ))}
 
@@ -108,8 +109,12 @@ export default function JourneyPath({ nodes }) {
 /* ═══════════════════════════════════════════
    NODE BUTTON — all features integrated
    ═══════════════════════════════════════════ */
-function NodeButton({ node, index }) {
-    const [popup, setPopup] = useState(null) // 'start' | 'code' | 'video' | 'playground' | null
+function NodeButton({ node, index, openNodeId, setOpenNodeId }) {
+    const popup = openNodeId === node.id ? '_open' : null
+    const setPopup = (val) => {
+        if (val === null) setOpenNodeId(null)
+        else setOpenNodeId(node.id)
+    }
 
     const isActive = node.status === 'active'
     const isCompleted = node.status === 'completed'
@@ -131,10 +136,8 @@ function NodeButton({ node, index }) {
 
     const handleClick = () => {
         haptic()
-        if (isVideo) setPopup(p => p === 'video' ? null : 'video')
-        else if (isPlayground) setPopup(p => p === 'playground' ? null : 'playground')
-        else if (isChest) setPopup(p => p === 'start' ? null : 'start')
-        else setPopup(p => p === 'start' ? null : 'start')
+        if (openNodeId === node.id) setOpenNodeId(null)
+        else setOpenNodeId(node.id)
     }
 
     // Find the next node to determine otter mood
@@ -183,21 +186,17 @@ function NodeButton({ node, index }) {
             {/* Daily label */}
             {isDaily && (
                 <div className="absolute -top-[18px] left-1/2 -translate-x-1/2 bg-amber-500 rounded-full px-2 py-0.5">
-                    <span className="text-[8px] font-black text-amber-950">TODAY</span>
+                    <span className="text-[8px] font-black text-amber-950">{t('TODAY')}</span>
                 </div>
             )}
 
             {/* Lesson Modal */}
-            {popup === 'start' && <LessonModal node={node} onClose={() => setPopup(null)} onStart={() => { setPopup(null); window.__openLesson?.(node.id) }} />}
-            {/* Code preview (completed) */}
-            {popup === 'code' && isCompleted && <CodePreview iconKey={node.iconKey} onClose={() => setPopup(null)} />}
-            {/* Video preview */}
-            {popup === 'video' && <VideoPreviewModal node={node} onClose={() => setPopup(null)} />}
-            {/* Playground */}
-            {popup === 'playground' && <PlaygroundModal node={node} onClose={() => setPopup(null)} />}
+            {popup && isVideo && <VideoPreviewModal node={node} onClose={() => setOpenNodeId(null)} />}
+            {popup && isPlayground && <PlaygroundModal node={node} onClose={() => setOpenNodeId(null)} />}
+            {popup && !isVideo && !isPlayground && <LessonModal node={node} onClose={() => setOpenNodeId(null)} onStart={() => { setOpenNodeId(null); window.__openLesson?.(node.id) }} />}
 
             {/* Stars with pop animation */}
-            {!isChest && !isDaily && !isVideo && !isPlayground && popup !== 'start' && (
+            {!isChest && !isDaily && !isVideo && !isPlayground && !popup && (
                 <div className="flex gap-1 mt-1.5">
                     {[0, 1, 2].map(s => (
                         <div key={s} className={`w-[18px] h-[18px] flex items-center justify-center rounded-full
@@ -213,7 +212,7 @@ function NodeButton({ node, index }) {
             )}
 
             <span className={`mt-0.5 text-[10px] font-extrabold tracking-wide ${isLocked ? 'text-slate-600' : (isActive || isAvailable) ? 'text-teal-300' : isDaily ? 'text-amber-400' : 'text-slate-400'
-                }`}>{node.title}</span>
+                }`}>{t(node.title)}</span>
         </div>
     )
 }
@@ -386,12 +385,12 @@ function LessonModal({ node, onClose, onStart }) {
                 {/* Accent header */}
                 <div className="h-2 w-full" style={{ backgroundColor: chapter.accent }} />
                 <div className="p-4 text-center">
-                    <h3 className="text-sm font-black text-white mb-1">{node.title}</h3>
-                    <p className="text-[9px] font-bold text-slate-500 mb-3">{chapter.name} • {qCount} questions</p>
+                    <h3 className="text-sm font-black text-white mb-1">{t(node.title)}</h3>
+                    <p className="text-[9px] font-bold text-slate-500 mb-3">{t(chapter.name)} • {qCount} {t('questions')}</p>
 
                     {/* Difficulty */}
                     <div className="flex items-center justify-center gap-1 mb-3">
-                        <span className="text-[9px] font-extrabold text-slate-500 mr-1">Difficulty:</span>
+                        <span className="text-[9px] font-extrabold text-slate-500 mr-1">{t('Difficulty:')}</span>
                         {[0, 1, 2].map(s => (
                             <svg key={s} className={`w-3 h-3 ${s < diffStars ? 'text-amber-400' : 'text-slate-700'}`} fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -410,7 +409,7 @@ function LessonModal({ node, onClose, onStart }) {
                     <button onClick={() => { haptic(); onStart?.() }}
                         className="w-full py-2.5 rounded-xl font-black text-sm text-white border-b-[4px] active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer"
                         style={{ backgroundColor: chapter.accent, borderBottomColor: chapter.accent + '80' }}>
-                        START
+                        {t('START')}
                     </button>
                 </div>
             </div>

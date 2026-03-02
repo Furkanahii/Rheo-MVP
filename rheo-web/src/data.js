@@ -34,6 +34,65 @@ let _activeLang = 'python'
 export function getActiveLanguage() { return _activeLang }
 export function setActiveLanguage(id) { _activeLang = id }
 
+/* ── Locale / i18n ── */
+const _urlLocale = new URLSearchParams(window.location.search).get('locale')
+const _browserLang = navigator.language?.startsWith('tr') ? 'tr' : 'en'
+let _locale = _urlLocale || localStorage.getItem('rheo_locale') || _browserLang
+if (_urlLocale) try { localStorage.setItem('rheo_locale', _urlLocale) } catch { }
+export function getLocale() { return _locale }
+export function setLocale(loc) { _locale = loc; try { localStorage.setItem('rheo_locale', loc) } catch { } }
+
+const _tr = {
+    // UI labels
+    'START': 'BAŞLA', 'Difficulty:': 'Zorluk:', 'TODAY': 'BUGÜN',
+    'questions': 'soru', 'TIP OF THE DAY': 'GÜNÜN İPUCU',
+    'Journey': 'Yolculuk', 'Quests': 'Görevler', 'League': 'Lig',
+    'Profile': 'Profil', 'More': 'Daha Fazla',
+    'Daily Reward': 'Günlük Ödül', 'CLAIM': 'AL',
+    'Come back every day for bigger prizes!': 'Her gün gel, daha büyük ödüller kazan!',
+    'DAY': 'GÜN',
+    // Chapter names
+    'Basics': 'Temeller', 'Flow Control': 'Akış Kontrolü', 'Loops': 'Döngüler',
+    'Functions': 'Fonksiyonlar', 'Data Struct I': 'Veri Yapıları I',
+    'Algorithms I': 'Algoritmalar I', 'Data Struct II': 'Veri Yapıları II',
+    'Algorithms II': 'Algoritmalar II', 'Advanced': 'İleri Seviye', 'Mastery': 'Ustalık',
+    // Node titles
+    'Read & Trace': 'Oku & Takip Et', 'Debug It!': 'Hatayı Bul!',
+    'Watch: Variables': 'İzle: Değişkenler', 'Loot Crate': 'Ödül Sandığı',
+    'Conditional Logic': 'Koşullu Mantık', 'Boolean Mastery': 'Boolean Ustalığı',
+    "Today's Challenge": 'Günün Mücadelesi', 'Watch: Conditionals': 'İzle: Koşullar',
+    'Loop Basics': 'Döngü Temelleri', 'Nested Loops': 'İç İçe Döngüler',
+    'Try: Loops': 'Dene: Döngüler', 'Function Design': 'Fonksiyon Tasarımı',
+    'Scope & Closures': 'Kapsam & Closure', 'Watch: Functions': 'İzle: Fonksiyonlar',
+    'Boss: Recursion': 'Boss: Özyineleme', 'Arrays Deep': 'Diziler Derinlemesine',
+    'Strings & Maps': 'String & Map', 'Try: Collections': 'Dene: Koleksiyonlar',
+    'Sorting Showdown': 'Sıralama Düellosu', 'Binary Search': 'İkili Arama',
+    'Time Complexity': 'Zaman Karmaşıklığı', 'Boss: Algorithms': 'Boss: Algoritmalar',
+    'Stack & Queue': 'Stack & Kuyruk', 'Linked Lists': 'Bağlı Listeler',
+    'Trees Intro': 'Ağaçlara Giriş', 'Watch: Structures': 'İzle: Yapılar',
+    'Recursive Thinking': 'Özyinelemeli Düşünme', 'Divide & Conquer': 'Böl & Yönet',
+    'Memoization & DP': 'Memoization & DP', 'Boss: Recursion++': 'Boss: Özyineleme++',
+    'Graph Basics': 'Graf Temelleri', 'BFS & DFS': 'BFS & DFS',
+    'Two Pointer': 'İki İşaretçi', 'Try: Graphs': 'Dene: Graflar',
+    'DP Patterns': 'DP Kalıpları', 'Problem Strategy': 'Problem Stratejisi',
+    'Interview Sim': 'Mülakat Simülasyonu', 'Final Boss': 'Son Boss',
+    'Gold Chest': 'Altın Sandık', 'Graduation 🎓': 'Mezuniyet 🎓',
+    // Otter moods
+    'Boss time! ⚔️': 'Boss zamanı! ⚔️', 'Loot time! 🎁': 'Ödül zamanı! 🎁',
+    'Good morning! ☀️': 'Günaydın! ☀️', 'Night owl! 🌙': 'Gece kuşu! 🌙',
+    "On fire! 🔥": 'Alevlerdesin! 🔥', "Let's go! 💪": 'Hadi! 💪',
+    'Keep it up! ⭐': 'Devam et! ⭐',
+    // Mascot messages
+    "Let's code! 🚀": 'Kodlayalım! 🚀', "You got this! 💪": 'Yapabilirsin! 💪',
+    "Keep going! 🔥": 'Devam et! 🔥', "Almost there! ⭐": 'Az kaldı! ⭐',
+    "Debug time! 🐛": 'Debug zamanı! 🐛',
+}
+
+export function t(key) {
+    if (_locale === 'tr' && _tr[key]) return _tr[key]
+    return key
+}
+
 /* ── Otter Tip of the Day ── */
 const tips = {
     python: [
