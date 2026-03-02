@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { stats, journeyNodes, skillRadar, chapterColors, languages, setActiveLanguage, getActiveLanguage, getTipOfTheDay, t, setLocale, getLocale } from '../data'
+import { stats, journeyNodes, skillRadar, chapterColors, languages, setActiveLanguage, getActiveLanguage, getTipOfTheDay } from '../data'
 import JourneyPath from './JourneyPath'
 
 export default function JourneyView() {
@@ -87,7 +87,7 @@ function ChapterMap({ visibleChapter, onChapterClick }) {
                                 CH {num}
                             </p>
                             <p className={`text-[9px] font-black mt-0.5 ${isActive ? 'text-white' : isPast ? 'text-slate-400' : 'text-slate-600'}`}>
-                                {t(ch.name)}
+                                {ch.name}
                             </p>
                             {/* Mini progress */}
                             <div className="mt-1.5 h-[4px] rounded-full bg-slate-900/60 overflow-hidden">
@@ -117,9 +117,6 @@ function TopBar() {
     const handleLangChange = (langId) => {
         setActiveLanguage(langId)
         setShowPicker(false)
-        // Sync locale: detect TR locale from URL params or default
-        const urlLocale = new URLSearchParams(window.location.search).get('locale')
-        if (urlLocale) setLocale(urlLocale)
         window.__refreshApp?.()
     }
 

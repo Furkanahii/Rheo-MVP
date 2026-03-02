@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { t } from '../data'
 
 const TABS = [
     { id: 'journey', label: 'Journey', icon: PathIcon },
@@ -54,7 +53,7 @@ export default function BottomNav({ activeTab, onTabChange }) {
                             </div>
                             <span className={`text-[10px] font-extrabold mt-0.5 ${isActive ? 'text-teal-400' : 'text-slate-500'
                                 }`}>
-                                {t(tab.label)}
+                                {tab.label}
                             </span>
                         </button>
                     )
