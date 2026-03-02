@@ -84,7 +84,7 @@ export default function JourneyPath({ nodes }) {
             </svg>
 
             {nodes.map((node, i) => (
-                <div key={node.id} className="absolute z-10" data-chapter={node.chapter} style={{ left: `${getX(i)}%`, top: i * SPACING + TIP_OFFSET + 18, transform: 'translateX(-50%)' }}
+                <div key={node.id} className="absolute" data-chapter={node.chapter} style={{ zIndex: openNodeId === node.id ? 50 : 10, left: `${getX(i)}%`, top: i * SPACING + TIP_OFFSET + 18, transform: 'translateX(-50%)' }}
                     {...(node.status === 'active' ? { 'data-active-node': true } : {})}>
                     <NodeButton node={node} index={i} openNodeId={openNodeId} setOpenNodeId={setOpenNodeId} />
                 </div>
