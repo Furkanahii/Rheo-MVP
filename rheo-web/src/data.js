@@ -15,11 +15,11 @@ function loadSaved(key, fallback) {
     try {
         const raw = localStorage.getItem(key)
         return raw ? JSON.parse(raw) : fallback
-    } catch { return fallback }
+    } catch (e) { return fallback }
 }
 
 function saveTo(key, data) {
-    try { localStorage.setItem(key, JSON.stringify(data)) } catch { }
+    try { localStorage.setItem(key, JSON.stringify(data)) } catch (e) { }
 }
 
 export const mascotMessages = [

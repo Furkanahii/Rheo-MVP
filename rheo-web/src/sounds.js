@@ -16,7 +16,7 @@ export function isMuted() { return muted }
 
 function play(fn) {
     if (muted) return
-    try { fn(getCtx()) } catch { }
+    try { fn(getCtx()) } catch (e) { }
 }
 
 /* ── Correct answer — cheerful ding ── */

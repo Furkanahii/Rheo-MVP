@@ -20,9 +20,9 @@ export default function DailyReward({ onClose }) {
 
     const handleClaim = () => {
         setClaimedToday(true)
-        try { navigator.vibrate?.(40) } catch { }
+        try { navigator.vibrate?.(40) } catch (e) { }
         // Save claim date so it won't show again today
-        try { localStorage.setItem('rheo_last_daily', new Date().toDateString()) } catch { }
+        try { localStorage.setItem('rheo_last_daily', new Date().toDateString()) } catch (e) { }
         // Show XP toast if available
         window.__showXP?.(50)
         setTimeout(onClose, 1200)

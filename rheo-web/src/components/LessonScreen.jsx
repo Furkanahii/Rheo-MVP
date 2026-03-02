@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
+import { getActiveLanguage } from '../data'
 
 /* ═══════════════════════════════════════════════════════
    LESSON SCREEN — 12 Exercise Types, Full-screen overlay
@@ -276,14 +277,17 @@ export default function LessonScreen({ onClose, exercises = [] }) {
 /* ═══════════════════════════════════════════
    IDE-STYLE CODE BLOCK (shared component)
    ═══════════════════════════════════════════ */
-function IDEBlock({ children, filename = 'main.py' }) {
+function IDEBlock({ children, filename }) {
+    const lang = getActiveLanguage()
+    const defaultName = lang === 'java' ? 'Main.java' : lang === 'javascript' ? 'main.js' : 'main.py'
+    const display = filename || defaultName
     return (
         <div className="rounded-2xl bg-slate-950 border border-slate-700/50 border-b-[4px] border-b-slate-950 overflow-hidden">
             <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-800">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
                 <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
-                <span className="text-[8px] font-bold text-slate-600 ml-2">{filename}</span>
+                <span className="text-[8px] font-bold text-slate-600 ml-2">{display}</span>
             </div>
             <div className="p-4 font-mono text-sm space-y-0.5">{children}</div>
         </div>

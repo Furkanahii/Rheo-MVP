@@ -143,7 +143,7 @@ function MysteryQuest({ data }) {
             <AnimatePresence mode="wait">
                 {!revealed ? (
                     <motion.button key="hidden" exit={{ scale: 0.8, opacity: 0 }}
-                        onClick={() => { setRevealed(true); try { navigator.vibrate?.(30) } catch { } }}
+                        onClick={() => { setRevealed(true); try { navigator.vibrate?.(30) } catch (e) { } }}
                         className="w-full rounded-2xl p-6 bg-slate-800 border-2 border-slate-700/30 border-b-[5px] border-b-slate-950 cursor-pointer active:translate-y-[4px] active:border-b-0 transition-all duration-75 text-center">
                         <div className="text-3xl mb-2 opacity-80">🎁</div>
                         <p className="text-sm font-black text-slate-300">TAP TO REVEAL</p>

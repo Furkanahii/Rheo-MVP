@@ -72,7 +72,8 @@ export default function App() {
                 if (allDone) {
                     setMilestoneChapter(node.chapter)
                 }
-                // Activate next locked node in order
+                // Deactivate any other active nodes first, then activate next locked
+                journeyNodes.forEach(n => { if (n.id !== node.id && n.status === 'active') n.status = 'completed' })
                 const nextLocked = journeyNodes.find(n => n.status === 'locked')
                 if (nextLocked) nextLocked.status = 'active'
             }

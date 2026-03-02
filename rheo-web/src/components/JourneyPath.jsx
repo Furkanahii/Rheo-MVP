@@ -527,7 +527,7 @@ function PlaygroundModal({ node, onClose }) {
                             <div className="w-2 h-2 rounded-full bg-red-400" />
                             <div className="w-2 h-2 rounded-full bg-amber-400" />
                             <div className="w-2 h-2 rounded-full bg-green-400" />
-                            <span className="text-[8px] font-bold text-slate-500 ml-auto">main.py</span>
+                            <span className="text-[8px] font-bold text-slate-500 ml-auto">{(() => { const l = getActiveLanguage(); return l === 'java' ? 'Main.java' : l === 'javascript' ? 'main.js' : 'main.py' })()}</span>
                         </div>
                         <textarea
                             value={code}
