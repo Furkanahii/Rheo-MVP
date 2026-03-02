@@ -230,7 +230,7 @@ function CodePreview({ iconKey, onClose }) {
     if (!snippet) return null
 
     return (
-        <div className="absolute -bottom-[120px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[200px]">
+        <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[200px]">
             <div className="bg-slate-900 border-2 border-slate-700 border-b-[4px] border-b-slate-800 rounded-xl overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800">
@@ -242,7 +242,7 @@ function CodePreview({ iconKey, onClose }) {
                     {snippet.code}
                 </pre>
             </div>
-            <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-l-2 border-t-2 border-slate-700 rotate-45" />
+            <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-r-2 border-b-2 border-slate-700 rotate-45" />
         </div>
     )
 }
@@ -387,7 +387,7 @@ function LessonModal({ node, onClose, onStart }) {
     const qCount = exercises.filter(e => e.type !== 'video').length || 1
 
     return (
-        <div className="absolute -bottom-[180px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[220px]">
+        <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[220px]">
             <div className="bg-slate-900 border-2 border-slate-700 border-b-[5px] border-b-slate-800 rounded-2xl overflow-hidden">
                 {/* Accent header */}
                 <div className="h-2 w-full" style={{ backgroundColor: chapter.accent }} />
@@ -420,7 +420,7 @@ function LessonModal({ node, onClose, onStart }) {
                     </button>
                 </div>
             </div>
-            <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-l-2 border-t-2 border-slate-700 rotate-45" />
+            <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-r-2 border-b-2 border-slate-700 rotate-45" />
         </div>
     )
 }
@@ -432,7 +432,7 @@ function VideoPreviewModal({ node, onClose }) {
     const isCompleted = node.status === 'completed'
 
     return (
-        <div className="absolute -bottom-[200px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[240px]">
+        <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[240px]">
             <div className="bg-slate-900 border-2 border-purple-600/50 border-b-[5px] border-b-purple-900 rounded-2xl overflow-hidden">
                 {/* Purple accent */}
                 <div className="h-2 w-full bg-purple-500" />
@@ -485,7 +485,7 @@ function VideoPreviewModal({ node, onClose }) {
                     </button>
                 </div>
             </div>
-            <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-l-2 border-t-2 border-purple-600/50 rotate-45" />
+            <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-r-2 border-b-2 border-purple-600/50 rotate-45" />
         </div>
     )
 }
@@ -507,7 +507,7 @@ function PlaygroundModal({ node, onClose }) {
     const isCorrect = ran && output === pg.expectedOutput
 
     return (
-        <div className="absolute -bottom-[300px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[280px]">
+        <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[280px]">
             <div className="bg-slate-900 border-2 border-indigo-600/50 border-b-[5px] border-b-indigo-900 rounded-2xl overflow-hidden">
                 {/* Indigo accent */}
                 <div className="h-2 w-full bg-indigo-500" />
@@ -554,7 +554,7 @@ function PlaygroundModal({ node, onClose }) {
                     )}
                 </div>
             </div>
-            <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-l-2 border-t-2 border-indigo-600/50 rotate-45" />
+            <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-r-2 border-b-2 border-indigo-600/50 rotate-45" />
         </div>
     )
 }
