@@ -83,12 +83,15 @@ export default function JourneyPath({ nodes }) {
                 })}
             </svg>
 
-            {nodes.map((node, i) => (
-                <div key={node.id} className="absolute" data-chapter={node.chapter} style={{ zIndex: openNodeId === node.id ? 50 : 10, left: `${getX(i)}%`, top: i * SPACING + TIP_OFFSET + 18, transform: 'translateX(-50%)' }}
-                    {...(node.status === 'active' ? { 'data-active-node': true } : {})}>
-                    <NodeButton node={node} index={i} openNodeId={openNodeId} setOpenNodeId={setOpenNodeId} />
-                </div>
-            ))}
+            {nodes.map((node, i) => {
+                const firstActiveIdx = nodes.findIndex(n => n.status === 'active')
+                return (
+                    <div key={node.id} className="absolute" data-chapter={node.chapter} style={{ zIndex: openNodeId === node.id ? 50 : 10, left: `${getX(i)}%`, top: i * SPACING + TIP_OFFSET + 18, transform: 'translateX(-50%)' }}
+                        {...(node.status === 'active' ? { 'data-active-node': true } : {})}>
+                        <NodeButton node={node} index={i} openNodeId={openNodeId} setOpenNodeId={setOpenNodeId} showOtter={i === firstActiveIdx} />
+                    </div>
+                )
+            })}
 
             {/* Streak Shield on path (between active and next) */}
             {stats.streakShield && (() => {
@@ -111,7 +114,7 @@ export default function JourneyPath({ nodes }) {
 /* ═══════════════════════════════════════════
    NODE BUTTON — all features integrated
    ═══════════════════════════════════════════ */
-function NodeButton({ node, index, openNodeId, setOpenNodeId }) {
+function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
     // Derive popup type from openNodeId — only this node's popup is visible
     const isOpen = openNodeId === node.id
     const popupType = isOpen ? (node.type === 'video' ? 'video' : node.type === 'playground' ? 'playground' : 'start') : null
@@ -151,8 +154,8 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId }) {
 
     return (
         <div className="flex flex-col items-center relative" style={{ zIndex: isOpen ? 30 : 10 }}>
-            {/* Otter with mood-based expression */}
-            {isActive && <MoodOtter mood={mood} />}
+            {/* Otter with mood-based expression — only on the first active node */}
+            {showOtter && <MoodOtter mood={mood} />}
 
             {/* Pulse ring */}
             {(isActive || isAvailable) && (
