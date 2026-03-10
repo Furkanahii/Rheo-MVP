@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
+import 'package:flutter_highlight/themes/atom-one-light.dart';
 import '../logic/game_controller.dart';
 import '../logic/elo_calculator.dart';
 import '../logic/sound_service.dart';
@@ -16,21 +17,7 @@ class QuizScreen extends StatefulWidget {
   final String? topic;
   final bool isAI;
   
-  // Journey mode parameters
-  final ProgrammingLanguage? language;  // Override current language
-  final int? questionsCount;            // Override default question count
-  final String? journeyNodeId;          // Journey node being played
-  final void Function(int correct, int total)? onJourneyComplete;  // Callback when done
-  
-  const QuizScreen({
-    super.key, 
-    this.topic, 
-    this.isAI = false,
-    this.language,
-    this.questionsCount,
-    this.journeyNodeId,
-    this.onJourneyComplete,
-  });
+  const QuizScreen({super.key, this.topic, this.isAI = false});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -86,7 +73,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
       
       // If no questions for this topic+language, try without language filter
       if (_controller.totalQuestions == 0 && widget.topic != null) {
-        debugPrint('📭 No questions for "${widget.topic}" in ${languageService.selected.name}, trying all languages');
+        debugPrint('­şô¡ No questions for "${widget.topic}" in ${languageService.selected.name}, trying all languages');
         await _controller.loadQuestions(
           maxQuestions: 10,
           topic: widget.topic,
@@ -95,7 +82,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
       
       // If still no questions, load ALL questions (no filters)
       if (_controller.totalQuestions == 0) {
-        debugPrint('📭 No questions for topic, loading all');
+        debugPrint('­şô¡ No questions for topic, loading all');
         await _controller.loadQuestions(maxQuestions: 10);
       }
       
@@ -104,7 +91,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     setState(() => _isLoading = false);
   }
   
-  /// AI modunda yeni soru üret
+  /// AI modunda yeni soru ├╝ret
   Future<void> _loadNextAIQuestion() async {
     if (!mounted) return;
     setState(() {
@@ -215,7 +202,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     _controller.nextQuestion();
     
     if (_isAIMode) {
-      // AI modda: max soruya ulaştıysa sonuçları göster, yoksa yeni soru üret
+      // AI modda: max soruya ula┼şt─▒ysa sonu├ğlar─▒ g├Âster, yoksa yeni soru ├╝ret
       if (_aiQuestionCount >= _aiMaxQuestions) {
         _showResults();
       } else {
@@ -225,7 +212,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
         });
       }
     } else {
-      // Statik mod: eski davranış
+      // Statik mod: eski davran─▒┼ş
       if (_controller.isFinished) {
         _showResults();
       } else {
@@ -238,13 +225,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     final summary = _controller.getSessionSummary();
     HapticService.achievement();
     
-    // If in journey mode, call the completion callback
-    if (widget.onJourneyComplete != null) {
-      widget.onJourneyComplete!(summary['correct'] as int, 
-          (summary['correct'] as int) + (summary['wrong'] as int));
-    }
-    
-    // Fire confetti! 🎉
+    // Fire confetti! ­şÄë
     _confettiController.play();
     
     showDialog(
@@ -283,12 +264,12 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Quiz Bitti! 🎉', 
+              Text(S.tr('Quiz Bitti! ­şÄë', 'Quiz Complete! ­şÄë'), 
                 style: TextStyle(color: RheoTheme.textColor, fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               MascotResultCard(accuracy: summary['accuracy']),
               const SizedBox(height: 12),
-              _buildStatRow('Skor', '${summary['score']}', Colors.amber),
+              _buildStatRow(S.tr('Skor', 'Score'), '${summary['score']}', Colors.amber),
               _buildStatRow(S.dogru, '${summary['correct']}', RheoColors.success),
               _buildStatRow(S.yanlis, '${summary['wrong']}', RheoColors.error),
               _buildStatRow(S.basari, '%${summary['accuracy']}', RheoColors.primary),
@@ -297,7 +278,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                   Color(EloCalculator.getRankColor(summary['elo']))),
               _buildStatRow('Rank', summary['rank'], 
                   Color(EloCalculator.getRankColor(summary['elo']))),
-              _buildStatRow('Seri', '🔥 ${summary['streak']}', RheoColors.secondary),
+              _buildStatRow(S.tr('Seri', 'Streak'), '­şöÑ ${summary['streak']}', RheoColors.secondary),
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -308,7 +289,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                         Navigator.pop(context);
                         Navigator.pop(context);
                       },
-                      child: Text('Ana Sayfa', style: TextStyle(color: RheoTheme.textMuted)),
+                      child: Text(S.tr('Ana Sayfa', 'Home'), style: TextStyle(color: RheoTheme.textMuted)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -318,7 +299,11 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                         HapticService.lightTap();
                         Navigator.pop(context);
                         setState(() => _isLoading = true);
-                        await _controller.loadQuestions(maxQuestions: 10);
+                        await _controller.loadQuestions(
+                          maxQuestions: 10,
+                          language: languageService.selected.name,
+                          topic: widget.topic,
+                        );
                         _controller.reset();
                         _prepareQuestion();
                         setState(() => _isLoading = false);
@@ -329,7 +314,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Tekrar Oyna'),
+                      child: Text(S.tr('Tekrar Oyna', 'Play Again')),
                     ),
                   ),
                 ],
@@ -357,17 +342,17 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
   }
 
   Color _getButtonColor(String option) {
-    if (_selectedAnswer == null) return RheoTheme.cardBg;
+    if (_selectedAnswer == null) return RheoTheme.optionBg;
     if (option == _controller.currentQuestion?.correctAnswer) return RheoColors.success.withAlpha(30);
     if (option == _selectedAnswer && !_isCorrect!) return RheoColors.error.withAlpha(30);
-    return RheoTheme.cardBg;
+    return RheoTheme.optionBg;
   }
 
   Color _getButtonBorder(String option) {
-    if (_selectedAnswer == null) return RheoTheme.buttonBorder;
+    if (_selectedAnswer == null) return RheoTheme.optionBorder;
     if (option == _controller.currentQuestion?.correctAnswer) return RheoColors.success;
     if (option == _selectedAnswer && !_isCorrect!) return RheoColors.error;
-    return RheoTheme.buttonBorder;
+    return RheoTheme.optionBorder;
   }
 
   @override
@@ -435,7 +420,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                     });
                   },
                   icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Tekrar Dene'),
+                  label: Text(S.tekrarDeneButon),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: RheoColors.primary,
                     foregroundColor: RheoTheme.textColor,
@@ -472,7 +457,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
           ),
           title: Text(
             _isAIMode 
-                ? '🤖 Soru $_aiQuestionCount/$_aiMaxQuestions'
+                ? '­şñû ${S.tr('Soru', 'Question')} $_aiQuestionCount/$_aiMaxQuestions'
                 : S.soruN(_controller.currentIndex + 1, _controller.totalQuestions),
             style: TextStyle(color: RheoTheme.textColor, fontSize: 16),
           ),
@@ -570,11 +555,11 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                         child: Container(
                           constraints: const BoxConstraints(maxHeight: 260),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E1E2E),
+                            color: RheoTheme.codeBg,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: _selectedAnswer == null 
-                                  ? const Color(0xFF313244)
+                                  ? RheoTheme.codeBorder
                                   : (_isCorrect! ? RheoColors.success.withAlpha(150) : RheoColors.error.withAlpha(150)),
                               width: _selectedAnswer == null ? 1 : 2,
                             ),
@@ -593,8 +578,8 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                                 // Terminal header
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF181825),
+                                  decoration: BoxDecoration(
+                                    color: RheoTheme.codeHeaderBg,
                                   ),
                                   child: Row(
                                     children: [
@@ -606,8 +591,8 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                                       const Spacer(),
                                       Text(
                                         question.language.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Color(0xFF6c7086),
+                                        style: TextStyle(
+                                          color: RheoTheme.codeHeaderText,
                                           fontSize: 10,
                                           fontWeight: FontWeight.w600,
                                           letterSpacing: 1,
@@ -622,7 +607,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                                     child: HighlightView(
                                       question.codeSnippet,
                                       language: question.language,
-                                      theme: atomOneDarkTheme,
+                                      theme: RheoTheme.isDark ? atomOneDarkTheme : atomOneLightTheme,
                                       padding: const EdgeInsets.all(14),
                                       textStyle: const TextStyle(
                                         fontFamily: 'monospace',

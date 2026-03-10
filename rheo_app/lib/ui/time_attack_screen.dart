@@ -1,12 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
+import 'package:flutter_highlight/themes/atom-one-light.dart';
 import '../logic/game_controller.dart';
 import '../logic/elo_calculator.dart';
 import '../logic/sound_service.dart';
 import '../logic/language_service.dart';
+import '../data/app_strings.dart';
 import 'theme.dart';
 import 'animations.dart';
 import 'widgets/mascot_widget.dart';
@@ -181,15 +183,15 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('⏱️ Time Attack Bitti!', 
+              Text(S.tr('ÔÅ▒´©Å Time Attack Bitti!', 'ÔÅ▒´©Å Time Attack Complete!'), 
                 style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               MascotResultCard(accuracy: summary['accuracy']),
               const SizedBox(height: 8),
-              _buildStatRow('Skor', '${summary['score']}', Colors.amber),
-              _buildStatRow('Doğru', '${summary['correct']}', RheoColors.success),
-              _buildStatRow('Yanlış', '${summary['wrong']}', RheoColors.error),
-              _buildStatRow('Başarı', '%${summary['accuracy']}', RheoColors.primary),
+              _buildStatRow(S.tr('Skor', 'Score'), '${summary['score']}', Colors.amber),
+              _buildStatRow(S.dogru, '${summary['correct']}', RheoColors.success),
+              _buildStatRow(S.yanlis, '${summary['wrong']}', RheoColors.error),
+              _buildStatRow(S.basari, '%${summary['accuracy']}', RheoColors.primary),
               const Divider(color: RheoColors.glassBorder, height: 20),
               _buildStatRow('ELO', '${summary['elo']}', 
                   Color(EloCalculator.getRankColor(summary['elo']))),
@@ -203,7 +205,7 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                         Navigator.pop(context);
                         Navigator.pop(context);
                       },
-                      child: Text('Ana Sayfa', style: TextStyle(color: RheoColors.textMuted)),
+                      child: Text(S.tr('Ana Sayfa', 'Home'), style: TextStyle(color: RheoColors.textMuted)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -227,7 +229,7 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Tekrar'),
+                      child: Text(S.tr('Tekrar', 'Replay')),
                     ),
                   ),
                 ],
@@ -259,14 +261,14 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
   }
 
   Color _getButtonColor(String option) {
-    if (_selectedAnswer == null) return RheoColors.glassLight;
+    if (_selectedAnswer == null) return RheoTheme.optionBg;
     if (_timeUp) {
       if (option == _controller.currentQuestion?.correctAnswer) return RheoColors.success;
-      return RheoColors.glassLight;
+      return RheoTheme.optionBg;
     }
     if (option == _controller.currentQuestion?.correctAnswer) return RheoColors.success;
     if (option == _selectedAnswer && !_isCorrect!) return RheoColors.error;
-    return RheoColors.glassLight;
+    return RheoTheme.optionBg;
   }
 
   @override
@@ -282,7 +284,7 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
     if (question == null) {
       return Scaffold(
         backgroundColor: RheoTheme.scaffoldBg(),
-        body: Center(child: Text('Soru yok', style: TextStyle(color: RheoTheme.textMuted))),
+        body: Center(child: Text(S.tr('Soru yok', 'No questions'), style: TextStyle(color: RheoTheme.textMuted))),
       );
     }
 
@@ -381,7 +383,7 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  '⏳ TIME ATTACK',
+                                  'ÔÅ│ TIME ATTACK',
                                   style: TextStyle(fontSize: 10, color: RheoColors.accent, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -427,7 +429,7 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                                   child: HighlightView(
                                     question.codeSnippet,
                                     language: languageService.selected.highlightLang,
-                                    theme: atomOneDarkTheme,
+                                    theme: RheoTheme.isDark ? atomOneDarkTheme : atomOneLightTheme,
                                     padding: const EdgeInsets.all(14),
                                     textStyle: const TextStyle(
                                       fontFamily: 'monospace',
@@ -443,10 +445,10 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                           
                           // Question text
                           Text(
-                            question.questionText,
-                            style: const TextStyle(
+                            question.localizedQuestionText,
+                            style: TextStyle(
                               fontSize: 15,
-                              color: Colors.white,
+                              color: RheoTheme.textColor,
                               fontWeight: FontWeight.w500,
                             ),
                             textAlign: TextAlign.center,
@@ -469,7 +471,7 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Doğru cevap: ${_controller.currentQuestion?.correctAnswer ?? ""}',
+                                    S.tr('Do─şru cevap: ${_controller.currentQuestion?.correctAnswer ?? ""}', 'Correct answer: ${_controller.currentQuestion?.correctAnswer ?? ""}'),
                                     style: TextStyle(color: RheoColors.success, fontWeight: FontWeight.w600, fontSize: 13),
                                     textAlign: TextAlign.center,
                                   ),
@@ -501,13 +503,13 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                                             decoration: BoxDecoration(
                                               color: _getButtonColor(option),
                                               borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: _getButtonColor(option) == RheoColors.glassLight 
-                                                  ? RheoColors.glassBorder 
+                                              border: Border.all(color: _getButtonColor(option) == RheoTheme.optionBg 
+                                                  ? RheoTheme.optionBorder 
                                                   : _getButtonColor(option)),
                                             ),
                                             child: Text(
                                               option,
-                                              style: const TextStyle(fontSize: 14, color: Colors.white),
+                                              style: TextStyle(fontSize: 14, color: RheoTheme.optionText),
                                               textAlign: TextAlign.center,
                                             ),
                                           ),
@@ -543,7 +545,7 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                         children: [
                           const Spacer(flex: 2),
                           Text(
-                            _isCorrect! ? 'Doğru Cevap!' : 'Yanlış Cevap!',
+                            _isCorrect! ? S.dogruCevap : S.yanlisCevap,
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
@@ -579,8 +581,8 @@ class _TimeAttackScreenState extends State<TimeAttackScreen>
                             ),
                           ),
                           const Spacer(flex: 3),
-                          const Text(
-                            'İlerlemek için tıklayın',
+                          Text(
+                            S.ilerlemekIcinTikla,
                             style: TextStyle(
                               color: Colors.white54,
                               fontSize: 16,

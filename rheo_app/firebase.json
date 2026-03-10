@@ -1,4 +1,4 @@
-{
+﻿{
   "hosting": {
     "public": "build/web",
     "ignore": [
@@ -26,15 +26,6 @@
         ]
       },
       {
-        "source": "journey/**",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
-          }
-        ]
-      },
-      {
         "source": "flutter_bootstrap.js",
         "headers": [
           {
@@ -45,10 +36,6 @@
       }
     ],
     "rewrites": [
-      {
-        "source": "/journey/**",
-        "destination": "/journey/index.html"
-      },
       {
         "source": "**",
         "destination": "/index.html"

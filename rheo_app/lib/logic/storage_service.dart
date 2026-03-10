@@ -1,4 +1,4 @@
-import 'package:hive_flutter/hive_flutter.dart';
+﻿import 'package:hive_flutter/hive_flutter.dart';
 import '../data/user_progress.dart';
 
 /// Service for managing local storage with Hive

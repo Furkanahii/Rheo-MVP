@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'home_screen.dart';
@@ -61,7 +61,7 @@ class OnboardingScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Hoş Geldin! 👋',
+                  'Ho┼ş Geldin! ­şæï',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -77,24 +77,24 @@ class OnboardingScreen extends StatelessWidget {
           ),
           _buildPage(
             title: 'Kodu Oku',
-            body: 'Kod parçacıklarını incele ve çıktıyı tahmin et.\nIDE açmadan, sadece parmak ucunuzla.',
+            body: 'Kod par├ğac─▒klar─▒n─▒ incele ve ├ğ─▒kt─▒y─▒ tahmin et.\nIDE a├ğmadan, sadece parmak ucunuzla.',
             icon: Icons.code_rounded,
             color: RheoColors.primary,
-            emoji: '📖',
+            emoji: '­şôû',
           ),
           _buildPage(
             title: 'Bug Avla',
-            body: 'Hatalı satırı bul ve tıkla!\nGerçek debugging kaslarını geliştir.',
+            body: 'Hatal─▒ sat─▒r─▒ bul ve t─▒kla!\nGer├ğek debugging kaslar─▒n─▒ geli┼ştir.',
             icon: Icons.bug_report_rounded,
             color: RheoColors.secondary,
-            emoji: '🐞',
+            emoji: '­şÉŞ',
           ),
           _buildPage(
-            title: 'Yüksel',
-            body: 'Her gün oyna, serini koru.\nELO puanını yükselt, rütbeni kazan!',
+            title: 'Y├╝ksel',
+            body: 'Her g├╝n oyna, serini koru.\nELO puan─▒n─▒ y├╝kselt, r├╝tbeni kazan!',
             icon: Icons.trending_up_rounded,
             color: RheoColors.success,
-            emoji: '🚀',
+            emoji: '­şÜÇ',
           ),
         ],
         showSkipButton: true,
@@ -120,7 +120,7 @@ class OnboardingScreen extends StatelessWidget {
               ),
             ],
           ),
-          child: Text('İleri', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.w600)),
+          child: Text('─░leri', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.w600)),
         ),
         done: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -135,7 +135,7 @@ class OnboardingScreen extends StatelessWidget {
               ),
             ],
           ),
-          child: Text('Başla!', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.bold, fontSize: 16)),
+          child: Text('Ba┼şla!', style: TextStyle(color: RheoTheme.textColor, fontWeight: FontWeight.bold, fontSize: 16)),
         ),
         onDone: () => _finishOnboarding(context),
         onSkip: () => _finishOnboarding(context),

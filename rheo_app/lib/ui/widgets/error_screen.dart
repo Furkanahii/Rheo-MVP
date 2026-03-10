@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../theme.dart';
 
-/// Error Screen - Uygulama hatası olduğunda gösterilir
+/// Error Screen - Uygulama hatas─▒ oldu─şunda g├Âsterilir
 class ErrorScreen extends StatelessWidget {
   final FlutterErrorDetails? errorDetails;
   final VoidCallback? onRetry;
@@ -32,7 +32,7 @@ class ErrorScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: const Text(
-                      '🦦💔',
+                      '­şĞĞ­şÆö',
                       style: TextStyle(fontSize: 48),
                     ),
                   ),
@@ -40,7 +40,7 @@ class ErrorScreen extends StatelessWidget {
                   
                   // Title
                   const Text(
-                    'Bir şeyler ters gitti!',
+                    'Bir ┼şeyler ters gitti!',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -52,7 +52,7 @@ class ErrorScreen extends StatelessWidget {
                   
                   // Subtitle
                   Text(
-                    'Endişelenme, bu bizim hatamız.\nUygulamayı yeniden başlatmayı dene.',
+                    'Endi┼şelenme, bu bizim hatam─▒z.\nUygulamay─▒ yeniden ba┼şlatmay─▒ dene.',
                     style: TextStyle(
                       color: RheoColors.textMuted,
                       fontSize: 14,

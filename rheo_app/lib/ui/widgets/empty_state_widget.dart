@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../theme.dart';
 
 /// Reusable Empty State Widget
-/// Kullanıcı henüz veri oluşturmamışsa gösterilir
+/// Kullan─▒c─▒ hen├╝z veri olu┼şturmam─▒┼şsa g├Âsterilir
 class EmptyStateWidget extends StatelessWidget {
   final String icon;
   final String title;

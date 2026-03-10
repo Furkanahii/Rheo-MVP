@@ -1,4 +1,4 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
+﻿import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
 /// Analytics Service - Firebase Analytics entegrasyonu
@@ -13,7 +13,7 @@ class AnalyticsService {
   /// Initialize analytics
   Future<void> init() async {
     if (kIsWeb) {
-      debugPrint('AnalyticsService: Web platformunda çalışıyor');
+      debugPrint('AnalyticsService: Web platformunda ├ğal─▒┼ş─▒yor');
     }
     _analytics = FirebaseAnalytics.instance;
     _observer = FirebaseAnalyticsObserver(analytics: _analytics!);
@@ -24,7 +24,7 @@ class AnalyticsService {
 
   // ==================== EVENTS ====================
 
-  /// Quiz tamamlandığında
+  /// Quiz tamamland─▒─ş─▒nda
   Future<void> logQuizCompleted({
     required String language,
     required bool isCorrect,
@@ -42,7 +42,7 @@ class AnalyticsService {
     );
   }
 
-  /// Bug hunt tamamlandığında
+  /// Bug hunt tamamland─▒─ş─▒nda
   Future<void> logBugHuntCompleted({
     required String language,
     required bool isCorrect,
@@ -58,7 +58,7 @@ class AnalyticsService {
     );
   }
 
-  /// Time attack tamamlandığında
+  /// Time attack tamamland─▒─ş─▒nda
   Future<void> logTimeAttackCompleted({
     required String language,
     required int correctCount,
@@ -76,7 +76,7 @@ class AnalyticsService {
     );
   }
 
-  /// Achievement kazanıldığında
+  /// Achievement kazan─▒ld─▒─ş─▒nda
   Future<void> logAchievementUnlocked({
     required String achievementId,
     required String achievementTitle,
@@ -90,7 +90,7 @@ class AnalyticsService {
     );
   }
 
-  /// Streak güncelleme
+  /// Streak g├╝ncelleme
   Future<void> logStreakUpdated({
     required int currentStreak,
     required int bestStreak,
@@ -104,7 +104,7 @@ class AnalyticsService {
     );
   }
 
-  /// Dil değişikliği
+  /// Dil de─şi┼şikli─şi
   Future<void> logLanguageChanged({
     required String newLanguage,
   }) async {
@@ -116,7 +116,7 @@ class AnalyticsService {
     );
   }
 
-  /// Onboarding tamamlandı
+  /// Onboarding tamamland─▒
   Future<void> logOnboardingCompleted() async {
     await _analytics?.logEvent(name: 'onboarding_completed');
   }

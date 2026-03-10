@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'animations.dart';
 
@@ -17,7 +17,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text('Gizlilik Politikası', style: TextStyle(color: Colors.white)),
+          title: const Text('Gizlilik Politikas─▒', style: TextStyle(color: Colors.white)),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -37,14 +37,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
                             Icon(Icons.shield_rounded, color: RheoColors.primary, size: 24),
                             const SizedBox(width: 10),
                             const Text(
-                              'Gizlilik Politikası',
+                              'Gizlilik Politikas─▒',
                               style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Son güncelleme: 21 Şubat 2026',
+                          'Son g├╝ncelleme: 21 ┼Şubat 2026',
                           style: TextStyle(color: RheoColors.textMuted, fontSize: 11),
                         ),
                       ],
@@ -54,57 +54,57 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
                 const SizedBox(height: 16),
                 _buildSection(1, 'Toplanan Veriler', Icons.data_usage_rounded, [
-                  'Rheo uygulaması, kullanıcı deneyimini iyileştirmek için yalnızca cihazınızda saklanan yerel verileri kullanır:',
-                  '• ELO puanı ve sıralama bilgileri',
-                  '• Quiz istatistikleri (doğru/yanlış sayıları)',
-                  '• Günlük hedef ve seri bilgileri',
-                  '• Seçilen avatar ve kullanıcı adı',
-                  '• Tercih edilen programlama dili',
+                  'Rheo uygulamas─▒, kullan─▒c─▒ deneyimini iyile┼ştirmek i├ğin yaln─▒zca cihaz─▒n─▒zda saklanan yerel verileri kullan─▒r:',
+                  'ÔÇó ELO puan─▒ ve s─▒ralama bilgileri',
+                  'ÔÇó Quiz istatistikleri (do─şru/yanl─▒┼ş say─▒lar─▒)',
+                  'ÔÇó G├╝nl├╝k hedef ve seri bilgileri',
+                  'ÔÇó Se├ğilen avatar ve kullan─▒c─▒ ad─▒',
+                  'ÔÇó Tercih edilen programlama dili',
                   '',
-                  'Bu veriler YALNIZCA cihazınızda saklanır ve hiçbir sunucuya gönderilmez.',
+                  'Bu veriler YALNIZCA cihaz─▒n─▒zda saklan─▒r ve hi├ğbir sunucuya g├Ânderilmez.',
                 ]),
 
                 const SizedBox(height: 12),
-                _buildSection(2, 'AI Soru Üretimi', Icons.auto_awesome_rounded, [
-                  'AI destekli soru üretimi özelliği, Google Gemini API kullanılarak çalışır.',
-                  '• API\'ye yalnızca soru üretim istekleri gönderilir.',
-                  '• Kişisel bilgileriniz API\'ye gönderilmez.',
-                  '• Statik soru bankası (752+ soru) API olmadan çalışır.',
+                _buildSection(2, 'AI Soru ├£retimi', Icons.auto_awesome_rounded, [
+                  'AI destekli soru ├╝retimi ├Âzelli─şi, Google Gemini API kullan─▒larak ├ğal─▒┼ş─▒r.',
+                  'ÔÇó API\'ye yaln─▒zca soru ├╝retim istekleri g├Ânderilir.',
+                  'ÔÇó Ki┼şisel bilgileriniz API\'ye g├Ânderilmez.',
+                  'ÔÇó Statik soru bankas─▒ (752+ soru) API olmadan ├ğal─▒┼ş─▒r.',
                 ]),
 
                 const SizedBox(height: 12),
-                _buildSection(3, 'Veri Güvenliği', Icons.lock_rounded, [
-                  '• Tüm kullanıcı verileri cihazınızda yerel olarak şifreli şekilde saklanır (Hive veritabanı).',
-                  '• Uygulama, kullanıcı hesabı veya kayıt gerektirmez.',
-                  '• Veri silme: Ayarlar > İlerlemeyi Sıfırla ile tüm verilerinizi silebilirsiniz.',
+                _buildSection(3, 'Veri G├╝venli─şi', Icons.lock_rounded, [
+                  'ÔÇó T├╝m kullan─▒c─▒ verileri cihaz─▒n─▒zda yerel olarak ┼şifreli ┼şekilde saklan─▒r (Hive veritaban─▒).',
+                  'ÔÇó Uygulama, kullan─▒c─▒ hesab─▒ veya kay─▒t gerektirmez.',
+                  'ÔÇó Veri silme: Ayarlar > ─░lerlemeyi S─▒f─▒rla ile t├╝m verilerinizi silebilirsiniz.',
                 ]),
 
                 const SizedBox(height: 12),
-                _buildSection(4, 'Üçüncü Taraf Hizmetleri', Icons.hub_rounded, [
-                  '• Google Gemini API: AI soru üretimi (opsiyonel)',
-                  '• Firebase Hosting: Web versiyonu barındırma',
-                  '• Bu hizmetlerin gizlilik politikaları kendi web sitelerinde bulunmaktadır.',
+                _buildSection(4, '├£├ğ├╝nc├╝ Taraf Hizmetleri', Icons.hub_rounded, [
+                  'ÔÇó Google Gemini API: AI soru ├╝retimi (opsiyonel)',
+                  'ÔÇó Firebase Hosting: Web versiyonu bar─▒nd─▒rma',
+                  'ÔÇó Bu hizmetlerin gizlilik politikalar─▒ kendi web sitelerinde bulunmaktad─▒r.',
                 ]),
 
                 const SizedBox(height: 12),
-                _buildSection(5, 'Çocuk Güvenliği', Icons.child_care_rounded, [
-                  'Rheo, her yaştan kullanıcı için uygundur. Uygulama:',
-                  '• Kişisel bilgi toplamaz',
-                  '• Reklam göstermez',
-                  '• Uygulama içi satın alma içermez',
-                  '• Sosyal medya entegrasyonu yoktur',
+                _buildSection(5, '├çocuk G├╝venli─şi', Icons.child_care_rounded, [
+                  'Rheo, her ya┼ştan kullan─▒c─▒ i├ğin uygundur. Uygulama:',
+                  'ÔÇó Ki┼şisel bilgi toplamaz',
+                  'ÔÇó Reklam g├Âstermez',
+                  'ÔÇó Uygulama i├ği sat─▒n alma i├ğermez',
+                  'ÔÇó Sosyal medya entegrasyonu yoktur',
                 ]),
 
                 const SizedBox(height: 12),
-                _buildSection(6, 'İletişim', Icons.email_rounded, [
-                  'Gizlilik politikası hakkında sorularınız için:',
-                  '📧 rheoapp@gmail.com',
+                _buildSection(6, '─░leti┼şim', Icons.email_rounded, [
+                  'Gizlilik politikas─▒ hakk─▒nda sorular─▒n─▒z i├ğin:',
+                  '­şôğ rheocode.app@gmail.com',
                 ]),
 
                 const SizedBox(height: 24),
                 Center(
                   child: Text(
-                    '© 2026 Rheo Team — Boğaziçi Üniversitesi',
+                    '┬® 2026 Rheo Team ÔÇö Bo─şazi├ği ├£niversitesi',
                     style: TextStyle(color: RheoColors.textMuted, fontSize: 11),
                   ),
                 ),

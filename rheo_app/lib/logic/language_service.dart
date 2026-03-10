@@ -1,10 +1,10 @@
-import 'package:hive_flutter/hive_flutter.dart';
+﻿import 'package:hive_flutter/hive_flutter.dart';
 
 /// Supported programming languages
 enum ProgrammingLanguage {
-  python('Python', '🐍', 'python', 0xFF3572A5),
-  java('Java', '☕', 'java', 0xFFB07219),
-  javascript('JavaScript', '🟨', 'javascript', 0xFFF7DF1E);
+  python('Python', '­şÉı', 'python', 0xFF3572A5),
+  java('Java', 'Ôİò', 'java', 0xFFB07219),
+  javascript('JavaScript', '­şş¿', 'javascript', 0xFFF7DF1E);
 
   final String label;
   final String emoji;
