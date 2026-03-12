@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { profile, stats, skillRadar, achievements, otterCostumes } from '../data'
+import { profile, stats, skillRadar, achievements, otterCostumes, powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, DAILY_XP_GOAL, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress } from '../data'
 
 /* ═══════════════════════════════════════════
    PROFILE VIEW — polished, 3D, Costume Shop
@@ -8,7 +8,22 @@ import { profile, stats, skillRadar, achievements, otterCostumes } from '../data
 export default function ProfileView() {
     const xpPct = Math.round((profile.xpCurrent / profile.xpNext) * 100)
     const [showShop, setShowShop] = useState(false)
+    const [showPowerUps, setShowPowerUps] = useState(false)
     const [costumes, setCostumes] = useState(otterCostumes)
+    const [freezeMsg, setFreezeMsg] = useState(null)
+
+    const handleFreeze = () => {
+        if (stats.gems < 50) {
+            setFreezeMsg('not_enough')
+            setTimeout(() => setFreezeMsg(null), 2000)
+            return
+        }
+        stats.gems -= 50
+        stats.streakShield = true
+        setFreezeMsg('activated')
+        try { navigator.vibrate?.(40) } catch (e) { }
+        setTimeout(() => setFreezeMsg(null), 2000)
+    }
 
     const equipped = costumes.filter(c => c.equipped && c.slot !== null)
 
@@ -25,9 +40,18 @@ export default function ProfileView() {
     }
 
     const handleBuy = (id) => {
+        const item = costumes.find(c => c.id === id)
+        if (!item || item.owned) return
+        if (stats.gems < item.price) {
+            setFreezeMsg('not_enough')
+            setTimeout(() => setFreezeMsg(null), 2000)
+            return
+        }
+        stats.gems -= item.price
         setCostumes(prev => prev.map(c =>
             c.id === id ? { ...c, owned: true } : c
         ))
+        try { navigator.vibrate?.(40) } catch (e) { }
     }
 
     return (
@@ -47,11 +71,18 @@ export default function ProfileView() {
                     <h1 className="text-xl font-black text-white mt-3">{profile.name}</h1>
                     <p className="text-xs font-bold text-slate-500">Level {profile.level} Coder</p>
 
-                    <motion.button whileTap={{ scale: 0.95 }}
-                        onClick={() => setShowShop(true)}
-                        className="mt-3 px-5 py-2 rounded-xl font-black text-xs text-white bg-purple-500 border-b-[4px] border-purple-700 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer">
-                        🛍️ COSTUME SHOP
-                    </motion.button>
+                    <div className="flex gap-2 mt-3">
+                        <motion.button whileTap={{ scale: 0.95 }}
+                            onClick={() => setShowShop(true)}
+                            className="flex-1 px-4 py-2 rounded-xl font-black text-xs text-white bg-purple-500 border-b-[4px] border-purple-700 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer">
+                            🛍️ {t('COSTUME SHOP')}
+                        </motion.button>
+                        <motion.button whileTap={{ scale: 0.95 }}
+                            onClick={() => setShowPowerUps(true)}
+                            className="flex-1 px-4 py-2 rounded-xl font-black text-xs text-white bg-amber-500 border-b-[4px] border-amber-700 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer">
+                            ⚡ {t('POWER-UPS')}
+                        </motion.button>
+                    </div>
                 </motion.div>
 
                 {/* XP progress */}
@@ -88,10 +119,15 @@ export default function ProfileView() {
                     <StreakCalendar />
                     {/* Freeze button */}
                     <motion.button whileTap={{ scale: 0.95 }}
+                        onClick={handleFreeze}
                         className="w-full mt-4 py-2.5 rounded-xl font-black text-xs text-white bg-sky-500/15 border border-sky-700/30 border-b-[3px] border-b-sky-900/40 cursor-pointer flex items-center justify-center gap-2">
-                        <span>🧊</span>
-                        <span className="text-sky-300">Freeze a Day</span>
-                        <span className="text-sky-500/70">• 50 💎</span>
+                        {freezeMsg === 'activated' ? (
+                            <><span>✅</span><span className="text-teal-400">Streak Shield Activated!</span></>
+                        ) : freezeMsg === 'not_enough' ? (
+                            <><span>❌</span><span className="text-red-400">Not enough gems!</span></>
+                        ) : (
+                            <><span>🧊</span><span className="text-sky-300">Freeze a Day</span><span className="text-sky-500/70">• 50 💎</span></>
+                        )}
                     </motion.button>
                 </motion.div>
 
@@ -102,6 +138,52 @@ export default function ProfileView() {
                     <StatBox icon="🔥" label="Streak" value={`${stats.streak} days`} color="text-orange-400" />
                     <StatBox icon="📅" label="Days Active" value={profile.daysLearning} color="text-sky-400" />
                     <StatBox icon="🏆" label="Best Streak" value={`${profile.longestStreak} days`} color="text-purple-400" />
+                </motion.div>
+
+                {/* XP REWARDS ZONE */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.17 }}
+                    className="rounded-2xl p-5 bg-gradient-to-br from-amber-950/30 to-slate-800 border-2 border-amber-700/20 border-b-[5px] border-b-slate-950">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xs font-extrabold text-amber-400 tracking-wider">⚡ XP REWARDS</h3>
+                        {(() => { const m = getXPMultiplier(); return m.label ? <span className="text-[10px] font-black text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full">{m.label} BONUS</span> : null })()}
+                    </div>
+
+                    {/* Daily XP Goal */}
+                    <DailyGoalRing />
+
+                    {/* XP Milestones */}
+                    <div className="mt-4">
+                        <p className="text-[10px] font-black text-slate-400 mb-2">🏔️ MILESTONES</p>
+                        <div className="space-y-1.5">
+                            {xpMilestones.map(m => {
+                                const totalXP = getTotalXP()
+                                const claimed = isMilestoneClaimed(m.xp)
+                                const pct = Math.min((totalXP / m.xp) * 100, 100)
+                                return (
+                                    <div key={m.xp} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 ${claimed ? 'bg-amber-500/10 border border-amber-700/20' : 'bg-slate-900/40'}`}>
+                                        <span className={`text-lg ${claimed ? '' : 'grayscale opacity-40'}`}>{m.icon}</span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-[10px] font-black text-slate-300">{m.title}</p>
+                                                <p className="text-[8px] font-bold text-slate-600">{m.xp.toLocaleString()} XP</p>
+                                            </div>
+                                            <div className="w-full h-1.5 bg-slate-800 rounded-full mt-1 overflow-hidden">
+                                                <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                                                    className={`h-full rounded-full ${claimed ? 'bg-amber-500' : 'bg-slate-600'}`} />
+                                            </div>
+                                        </div>
+                                        <span className="text-[8px] font-black text-amber-400 shrink-0">{claimed ? '✓' : m.reward}</span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Theme Gallery */}
+                    <ThemeGallery />
+
+                    {/* Next Level Perk */}
+                    <NextPerkPreview />
                 </motion.div>
 
                 {/* Skill Radar */}
@@ -116,22 +198,29 @@ export default function ProfileView() {
                     <ShareCard equipped={equipped} />
                 </motion.div>
 
-                {/* Achievements */}
+                {/* Achievements — mascot-themed with real unlock */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-3">ACHIEVEMENTS</h3>
-                    <div className="grid grid-cols-4 gap-3">
-                        {achievements.map((a, i) => (
-                            <motion.div key={a.id}
-                                initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.3 + i * 0.05 }}
-                                className={`rounded-2xl p-3 flex flex-col items-center text-center border-b-[4px] ${a.unlocked
-                                    ? 'bg-slate-800 border-slate-950 border border-slate-700/40'
-                                    : 'bg-slate-900/60 border-slate-950 opacity-30'
-                                    }`}>
-                                <span className="text-3xl mb-1">{a.icon}</span>
-                                <span className="text-[8px] font-extrabold text-slate-400 leading-tight">{a.title}</span>
-                            </motion.div>
-                        ))}
+                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-3">{t('ACHIEVEMENTS')}</h3>
+                    <div className="grid grid-cols-3 gap-3">
+                        {achievements.map((a, i) => {
+                            const unlocked = isAchievementUnlocked(a.id)
+                            return (
+                                <motion.div key={a.id}
+                                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.3 + i * 0.05 }}
+                                    className={`rounded-2xl p-3 flex flex-col items-center text-center border-b-[4px] relative overflow-hidden ${unlocked
+                                        ? 'bg-slate-800 border-slate-950 border border-amber-600/30'
+                                        : 'bg-slate-900/60 border-slate-950 opacity-40'
+                                        }`}>
+                                    {unlocked && <div className="absolute top-0 right-0 w-4 h-4 bg-amber-500 rounded-bl-lg flex items-center justify-center">
+                                        <span className="text-[6px]">✓</span>
+                                    </div>}
+                                    <div className={`text-2xl mb-1 ${unlocked ? '' : 'grayscale'}`}>{a.icon}</div>
+                                    <span className="text-[8px] font-extrabold text-slate-400 leading-tight">{a.title}</span>
+                                    <span className="text-[7px] font-bold text-slate-600 leading-tight mt-0.5">{a.desc}</span>
+                                </motion.div>
+                            )
+                        })}
                     </div>
                 </motion.div>
             </div>
@@ -139,6 +228,11 @@ export default function ProfileView() {
             {/* Costume Shop Overlay */}
             <AnimatePresence>
                 {showShop && <CostumeShop costumes={costumes} equipped={costumes.filter(c => c.equipped && c.slot !== null)} onEquip={handleEquip} onBuy={handleBuy} onClose={() => setShowShop(false)} gems={stats.gems} />}
+            </AnimatePresence>
+
+            {/* Power-Up Shop Overlay */}
+            <AnimatePresence>
+                {showPowerUps && <PowerUpShop onClose={() => setShowPowerUps(false)} />}
             </AnimatePresence>
         </div>
     )
@@ -316,7 +410,7 @@ function CostumeShop({ costumes, equipped, onEquip, onBuy, onClose, gems }) {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/80 flex flex-col"
+            className="fixed inset-0 z-[200] bg-black/80 flex flex-col"
             style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 16px))' }}>
 
             {/* Header */}
@@ -436,14 +530,23 @@ function BigRadar() {
 /* ═══════════════ STREAK CALENDAR ═══════════════ */
 function StreakCalendar() {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    const today = new Date().getDay()
-    const todayIdx = today === 0 ? 6 : today - 1
+    const today = new Date()
+    const todayIdx = today.getDay() === 0 ? 6 : today.getDay() - 1
 
-    // Simulate streak data: days before today in streak are completed
-    const streakDays = Array.from({ length: 7 }, (_, i) => {
-        if (i < todayIdx) return i >= todayIdx - stats.streak ? 'done' : 'missed'
+    // Get real login history from localStorage
+    let loginHistory = []
+    try { loginHistory = JSON.parse(localStorage.getItem('rheo_login_history') || '[]') } catch (e) { }
+
+    // Build this week's dates
+    const mondayOffset = todayIdx
+    const streakDays = days.map((_, i) => {
+        const date = new Date(today)
+        date.setDate(today.getDate() - mondayOffset + i)
+        const dateStr = date.toDateString()
         if (i === todayIdx) return 'today'
-        return 'future'
+        if (i > todayIdx) return 'future'
+        if (loginHistory.includes(dateStr)) return 'done'
+        return 'missed'
     })
 
     return (
@@ -474,10 +577,20 @@ function StreakCalendar() {
 function ShareCard({ equipped }) {
     const [copied, setCopied] = useState(false)
 
-    const handleShare = () => {
+    const handleShare = async () => {
+        const shareText = `🦦 I'm Level ${profile.level} on Rheo! Streak: ${stats.streak} days, XP: ${profile.xpCurrent}. Learn coding with me! https://play.google.com/store/apps/details?id=com.rheo.rheo_app`
+        try {
+            if (navigator.share) {
+                await navigator.share({ title: 'My Rheo Profile', text: shareText })
+            } else {
+                await navigator.clipboard.writeText(shareText)
+            }
+        } catch (e) {
+            try { await navigator.clipboard.writeText(shareText) } catch (e2) { }
+        }
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
-        // Show XP toast
+        // Grant 10 XP for sharing
         window.__showXP?.(10)
     }
 
@@ -527,6 +640,179 @@ function ShareCard({ equipped }) {
                     )}
                 </motion.button>
             </div>
+        </div>
+    )
+}
+
+/* ═══════════════ POWER-UP SHOP ═══════════════ */
+function PowerUpShop({ onClose }) {
+    const [msg, setMsg] = useState(null)
+    const [, forceUpdate] = useState(0)
+
+    const handleBuy = (id) => {
+        const ok = buyPowerUp(id)
+        if (ok) {
+            setMsg('purchased')
+            try { navigator.vibrate?.(40) } catch (e) { }
+        } else {
+            setMsg('not_enough')
+        }
+        forceUpdate(v => v + 1)
+        setTimeout(() => setMsg(null), 1500)
+    }
+
+    return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/80 flex items-end justify-center"
+            onClick={onClose}>
+            <motion.div
+                initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }}
+                transition={{ type: 'spring', damping: 25 }}
+                onClick={e => e.stopPropagation()}
+                className="w-full max-w-md rounded-t-3xl bg-slate-800 border-t-2 border-slate-700/40 overflow-y-auto"
+                style={{ maxHeight: '80vh' }}>
+                {/* Header */}
+                <div className="p-5 pb-3 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-lg font-black text-white">⚡ {t('Power-Ups')}</h2>
+                        <p className="text-[10px] font-bold text-slate-500">{t('Spend gems on boosts')}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-slate-700 rounded-xl px-3 py-2 border-b-[2px] border-slate-900">
+                        <span className="text-sm">💎</span>
+                        <span className="text-sm font-black text-sky-300">{stats.gems}</span>
+                    </div>
+                </div>
+
+                {/* Feedback */}
+                {msg && (
+                    <div className={`mx-5 mb-2 px-4 py-2 rounded-xl text-center text-xs font-black ${msg === 'purchased' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {msg === 'purchased' ? '✅ Purchased!' : '❌ Not enough gems!'}
+                    </div>
+                )}
+
+                {/* Items */}
+                <div className="px-5 pb-6 space-y-3">
+                    {powerUps.map(item => {
+                        const count = getPowerUpCount(item.id)
+                        return (
+                            <div key={item.id} className="flex items-center gap-3 rounded-2xl p-4 bg-slate-900/60 border border-slate-700/20 border-b-[3px] border-b-slate-950">
+                                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-700/20 border-b-[2px] border-b-amber-900 flex items-center justify-center text-2xl shrink-0">
+                                    {item.icon}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-black text-white">{item.name}</p>
+                                    <p className="text-[10px] font-bold text-slate-500">{item.desc}</p>
+                                    {count > 0 && <p className="text-[9px] font-black text-teal-400 mt-0.5">x{count} owned</p>}
+                                </div>
+                                <motion.button whileTap={{ scale: 0.9 }}
+                                    onClick={() => handleBuy(item.id)}
+                                    className="px-3 py-2 rounded-xl font-black text-[10px] text-white bg-amber-500 border-b-[3px] border-amber-700 active:border-b-0 active:translate-y-[3px] transition-all cursor-pointer shrink-0">
+                                    💎 {item.price}
+                                </motion.button>
+                            </div>
+                        )
+                    })}
+                </div>
+            </motion.div>
+        </motion.div>
+    )
+}
+
+/* ═══════════════ DAILY XP GOAL RING ═══════════════ */
+function DailyGoalRing() {
+    const goal = getDailyXPGoal()
+    const pct = Math.min((goal.xpEarned / DAILY_XP_GOAL) * 100, 100)
+    const r = 36, c = 2 * Math.PI * r
+    const offset = c - (pct / 100) * c
+
+    return (
+        <div className="flex items-center gap-4">
+            <div className="relative w-20 h-20 shrink-0">
+                <svg width="80" height="80" viewBox="0 0 80 80" className="-rotate-90">
+                    <circle cx="40" cy="40" r={r} fill="none" stroke="#1e293b" strokeWidth="6" />
+                    <motion.circle cx="40" cy="40" r={r} fill="none"
+                        stroke={goal.completed ? '#f59e0b' : '#14b8a6'}
+                        strokeWidth="6" strokeLinecap="round"
+                        strokeDasharray={c} strokeDashoffset={offset}
+                        initial={{ strokeDashoffset: c }}
+                        animate={{ strokeDashoffset: offset }}
+                        transition={{ duration: 1, ease: 'easeOut' }} />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    {goal.completed
+                        ? <span className="text-lg">🎯</span>
+                        : <span className="text-sm font-black text-white">{Math.round(pct)}%</span>
+                    }
+                </div>
+            </div>
+            <div className="flex-1">
+                <p className="text-[10px] font-black text-slate-400 mb-0.5">{t('DAILY XP GOAL')}</p>
+                <p className="text-lg font-black text-white">{goal.xpEarned} <span className="text-sm text-slate-500">/ {DAILY_XP_GOAL}</span></p>
+                {goal.completed
+                    ? <p className="text-[10px] font-black text-amber-400">✅ {t('Goal hit!')} {goal.goalStreak > 1 ? `🔥 ${goal.goalStreak} ${t('day streak')}` : ''}</p>
+                    : <p className="text-[10px] font-bold text-slate-600">{DAILY_XP_GOAL - goal.xpEarned} XP {t('to go')}</p>
+                }
+                {goal.goalStreak > 0 && !goal.completed && <p className="text-[9px] font-bold text-slate-600">🎯 {t('Goal Streak')}: {goal.goalStreak} {t('days')}</p>}
+            </div>
+        </div>
+    )
+}
+
+/* ═══════════════ THEME GALLERY ═══════════════ */
+function ThemeGallery() {
+    const [, forceUpdate] = useState(0)
+    const unlocked = getUnlockedThemes()
+    const activeTheme = getActiveTheme()
+
+    const handleThemeSelect = (themeId) => {
+        if (!unlocked.includes(themeId)) return
+        setActiveTheme(themeId)
+        saveProgress()
+        forceUpdate(v => v + 1)
+        try { navigator.vibrate?.(15) } catch (e) { }
+    }
+
+    return (
+        <div className="mt-4">
+            <p className="text-[10px] font-black text-slate-400 mb-2">🎨 {t('THEMES')}</p>
+            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                {appThemes.map(theme => {
+                    const isUnlocked = unlocked.includes(theme.id)
+                    const isActive = activeTheme === theme.id
+                    return (
+                        <motion.div key={theme.id} whileTap={isUnlocked ? { scale: 0.95 } : {}}
+                            onClick={() => handleThemeSelect(theme.id)}
+                            className={`shrink-0 w-16 rounded-xl p-2 text-center border-b-[3px] transition-all
+                                ${isActive ? 'border-amber-700 bg-amber-500/15 ring-1 ring-amber-400/30'
+                                    : isUnlocked ? 'border-slate-950 bg-slate-900/60 cursor-pointer'
+                                        : 'border-slate-950 bg-slate-900/40 opacity-30'}`}>
+                            <div className="w-8 h-8 mx-auto rounded-lg mb-1 border border-slate-700/20"
+                                style={{ background: `linear-gradient(135deg, ${theme.colors.bg}, ${theme.colors.accent})` }}>
+                                {!isUnlocked && <div className="w-full h-full flex items-center justify-center text-[10px]">🔒</div>}
+                            </div>
+                            <p className="text-[7px] font-black text-slate-500 leading-tight">{theme.name}</p>
+                            {!isUnlocked && <p className="text-[6px] font-bold text-slate-700">{theme.unlockXP} XP</p>}
+                        </motion.div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+/* ═══════════════ NEXT LEVEL PERK ═══════════════ */
+function NextPerkPreview() {
+    const nextPerk = levelPerks.find(p => p.level > profile.level)
+    if (!nextPerk) return null
+    const levelsAway = nextPerk.level - profile.level
+    return (
+        <div className="mt-4 flex items-center gap-3 rounded-xl px-3 py-2.5 bg-slate-900/40 border border-dashed border-slate-700/30">
+            <span className="text-2xl grayscale opacity-50">{nextPerk.icon}</span>
+            <div className="flex-1">
+                <p className="text-[10px] font-black text-slate-400">🔮 {t('NEXT PERK')} — Level {nextPerk.level}</p>
+                <p className="text-[9px] font-bold text-slate-600">{nextPerk.perk}</p>
+            </div>
+            <span className="text-[9px] font-black text-slate-600">{levelsAway} lvl</span>
         </div>
     )
 }

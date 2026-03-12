@@ -58,6 +58,35 @@ const _tr = {
     'Daily Reward': 'Günlük Ödül', 'CLAIM': 'AL',
     'Come back every day for bigger prizes!': 'Her gün gel, daha büyük ödüller kazan!',
     'DAY': 'GÜN',
+    // Quests
+    'Quests': 'Görevler', 'Complete tasks to earn rewards': 'Görevleri tamamla, ödül kazan',
+    'Weekly Build Challenge': 'Haftalık Yapım Görevi', 'Mystery Quest': 'Gizli Görev',
+    'Weekend Hackathon': 'Hafta Sonu Maratonu', 'Daily Standup': 'Günlük Görevler',
+    'TAP TO REVEAL': 'AÇMAK İÇİN DOKUN', 'A mystery quest awaits...': 'Gizli bir görev seni bekliyor...',
+    'COLLECT': 'TOPLA',
+    // League
+    'League': 'Lig', 'Gold League': 'Altın Lig', 'Rankings': 'Sıralama',
+    'DUEL': 'DÜELLO', 'START DUEL': 'DÜELLOYA BAŞLA', 'Duel History': 'Düello Geçmişi',
+    'VICTORY!': 'ZAFER!', 'DEFEAT': 'YENİLGİ',
+    // Profile
+    'NEXT LEVEL': 'SONRAKİ SEVİYE', 'SKILL RADAR': 'BECERİ RADARI',
+    'ACHIEVEMENTS': 'BAŞARILAR', 'COSTUME SHOP': 'KOSTÜM DÜKKANI',
+    'STREAK SHIELD': 'SERİ KALKANI', 'ACTIVE': 'AKTİF', 'INACTIVE': 'PASİF',
+    'SHARE PROFILE': 'PROFİLİ PAYLAŞ', 'Copied!': 'Kopyalandı!',
+    'Freeze a Day': 'Bir Gün Dondur', 'Streak Shield Activated!': 'Seri Kalkanı Aktif!',
+    'Not enough gems!': 'Yeterli elmas yok!',
+    // More
+    'Settings & insights': 'Ayarlar ve istatistikler',
+    'Learning Summary': 'Öğrenme Özeti', 'This Week': 'Bu Hafta',
+    'Settings': 'Ayarlar', 'About': 'Hakkında',
+    'Notifications': 'Bildirimler', 'Dark Mode': 'Karanlık Mod',
+    'Haptic Feedback': 'Titreşim', 'Sound Effects': 'Ses Efektleri',
+    'Language': 'Dil', 'Learning Path': 'Öğrenme Yolu',
+    'Terms of Service': 'Kullanım Koşulları', 'Privacy Policy': 'Gizlilik Politikası',
+    'Send Feedback': 'Geri Bildirim Gönder', 'Rate Rheo': 'Rheo\'yu Değerlendir',
+    // Daily Reward
+    'Come back tomorrow for Day': 'Yarın gel, Gün',
+    'Already claimed today!': 'Bugün zaten alındı!',
     // Chapter names
     'Basics': 'Temeller', 'Flow Control': 'Akış Kontrolü', 'Loops': 'Döngüler',
     'Functions': 'Fonksiyonlar', 'Data Struct I': 'Veri Yapıları I',
@@ -86,13 +115,38 @@ const _tr = {
     'Gold Chest': 'Altın Sandık', 'Graduation 🎓': 'Mezuniyet 🎓',
     // Otter moods
     'Boss time! ⚔️': 'Boss zamanı! ⚔️', 'Loot time! 🎁': 'Ödül zamanı! 🎁',
-    'Good morning! ☀️': 'Günaydın! ☀️', 'Night owl! 🌙': 'Gece kuşu! 🌙',
-    "On fire! 🔥": 'Alevlerdesin! 🔥', "Let's go! 💪": 'Hadi! 💪',
-    'Keep it up! ⭐': 'Devam et! ⭐',
+    'On fire! 🔥': 'Alevlerdesin! 🔥', 'Miss you! 💔': 'Seni özledim! 💔',
+    'Good morning! ☀️': 'Günaydın! ☀️', 'Good morning! ☕': 'Günaydın! ☕',
+    'Late night coding! 🌙': 'Gece kodlama! 🌙', 'Night owl! 🌙': 'Gece kuşu! 🌙',
+    "Let's go! 💪": 'Hadi! 💪', 'Keep it up! ⭐': 'Devam et! ⭐',
+    "Let's code! 🚀": 'Kodlayalım! 🚀',
     // Mascot messages
-    "Let's code! 🚀": 'Kodlayalım! 🚀', "You got this! 💪": 'Yapabilirsin! 💪',
+    "You got this! 💪": 'Yapabilirsin! 💪',
     "Keep going! 🔥": 'Devam et! 🔥', "Almost there! ⭐": 'Az kaldı! ⭐',
     "Debug time! 🐛": 'Debug zamanı! 🐛',
+    // Lesson
+    'CHECK': 'KONTROL', 'CONTINUE': 'DEVAM', 'FINISH': 'BİTİR',
+    'Correct!': 'Doğru!', 'Wrong!': 'Yanlış!', 'Keep trying!': 'Devam et!',
+    'Lesson Complete!': 'Ders Tamamlandı!', 'Try Again!': 'Tekrar Dene!',
+    // Stats
+    'Stars': 'Yıldız', 'Streak': 'Seri', 'Days Active': 'Aktif Gün', 'Best Streak': 'En İyi Seri',
+    'Lessons': 'Dersler', 'Total Time': 'Toplam Süre', 'Accuracy': 'Doğruluk',
+    'Gems': 'Elmas', 'Energy': 'Enerji',
+    // Onboarding
+    'Welcome to Rheo!': 'Rheo\'ya Hoş Geldin!',
+    'Your coding journey starts here': 'Kodlama yolculuğun burada başlıyor',
+    'Learn Python through interactive lessons, trace code like a pro, and level up your skills.': 'İnteraktif derslerle Python öğren, kod izleme ustası ol ve becerilerini geliştir.',
+    'Challenge Yourself': 'Kendine Meydan Oku',
+    'Duels, Quests & Rewards': 'Düellolar, Görevler ve Ödüller',
+    'Battle other coders in 1v1 duels, complete daily quests, and earn gems to customize your otter.': '1v1 düellolarda diğer kodcularla savaş, günlük görevleri tamamla ve su samurunu özelleştirmek için elmas kazan.',
+    'Ready to Code?': 'Kodlamaya Hazır mısın?',
+    "Let's build something amazing": 'Harika bir şey inşa edelim',
+    'Track your streak, unlock achievements, and climb the leaderboard. Your adventure begins now!': 'Serini takip et, başarıları aç ve liderlik tablosunda yüksel. Maceran şimdi başlıyor!',
+    "🚀 LET'S GO!": '🚀 HAYDI!',
+    'Skip': 'Atla',
+    // MilestoneModal
+    'Chapter Complete!': 'Bölüm Tamamlandı!',
+    'CHAPTER': 'BÖLÜM',
 }
 
 export function t(key) {
@@ -165,14 +219,14 @@ const codeSnippets = {
 /* ── Nodes ── */
 export const journeyNodes = [
     // CH 1 — Basics ⭐
-    { id: 1, type: 'lesson', status: 'completed', title: 'Read & Trace', stars: 3, iconKey: 'terminal', skill: 'variables', chapter: 1 },
-    { id: 2, type: 'lesson', status: 'completed', title: 'Debug It!', stars: 2, iconKey: 'brackets', skill: 'conditionals', chapter: 1 },
-    { id: 3, type: 'video', status: 'completed', title: 'Watch: Variables', stars: 0, iconKey: 'video', skill: 'variables', chapter: 1, video: { creator: 'Furkan & Arda', duration: '2:45', thumbnail: '🎬' } },
-    { id: 4, type: 'chest', status: 'completed', title: 'Loot Crate', stars: 0, iconKey: 'chest', skill: null, chapter: 1 },
+    { id: 1, type: 'lesson', status: 'active', title: 'Read & Trace', stars: 0, iconKey: 'terminal', skill: 'variables', chapter: 1 },
+    { id: 2, type: 'lesson', status: 'locked', title: 'Debug It!', stars: 0, iconKey: 'brackets', skill: 'conditionals', chapter: 1 },
+    { id: 3, type: 'video', status: 'locked', title: 'Watch: Variables', stars: 0, iconKey: 'video', skill: 'variables', chapter: 1, video: { creator: 'Furkan & Arda', duration: '2:45', thumbnail: '🎬' } },
+    { id: 4, type: 'chest', status: 'locked', title: 'Loot Crate', stars: 0, iconKey: 'chest', skill: null, chapter: 1 },
     // CH 2 — Flow Control ⭐
-    { id: 5, type: 'lesson', status: 'active', title: 'Conditional Logic', stars: 0, iconKey: 'brackets', skill: 'conditionals', chapter: 2 },
+    { id: 5, type: 'lesson', status: 'locked', title: 'Conditional Logic', stars: 0, iconKey: 'brackets', skill: 'conditionals', chapter: 2 },
     { id: 6, type: 'lesson', status: 'locked', title: 'Boolean Mastery', stars: 0, iconKey: 'pattern', skill: 'conditionals', chapter: 2 },
-    { id: 7, type: 'daily', status: 'available', title: "Today's Challenge", stars: 0, iconKey: 'daily', skill: 'mixed', chapter: 2 },
+    { id: 7, type: 'daily', status: 'locked', title: "Today's Challenge", stars: 0, iconKey: 'daily', skill: 'mixed', chapter: 2 },
     { id: 8, type: 'video', status: 'locked', title: 'Watch: Conditionals', stars: 0, iconKey: 'video', skill: 'conditionals', chapter: 2, video: { creator: 'Furkan & Arda', duration: '3:00', thumbnail: '🎥' } },
     // CH 3 — Loops ⭐⭐
     { id: 9, type: 'lesson', status: 'locked', title: 'Loop Basics', stars: 0, iconKey: 'play', skill: 'loops', chapter: 3 },
@@ -237,13 +291,13 @@ export const chapterColors = {
 /* ── Mood system ── */
 export function getOtterMood(streak, nextNodeType) {
     const hour = new Date().getHours()
-    if (nextNodeType === 'boss') return { face: 'determined', bubble: 'Boss time! ⚔️' }
-    if (nextNodeType === 'chest') return { face: 'excited', bubble: 'Loot time! 🎁' }
-    if (streak >= 7) return { face: 'cool', bubble: 'On fire! 🔥' }
-    if (streak === 0) return { face: 'sad', bubble: 'Miss you! 💔' }
-    if (hour < 10) return { face: 'sleepy', bubble: 'Good morning! ☕' }
-    if (hour >= 22) return { face: 'sleepy', bubble: 'Late night coding! 🌙' }
-    return { face: 'happy', bubble: "Let's code! 🚀" }
+    if (nextNodeType === 'boss') return { face: 'determined', bubble: t('Boss time! ⚔️') }
+    if (nextNodeType === 'chest') return { face: 'excited', bubble: t('Loot time! 🎁') }
+    if (streak >= 7) return { face: 'cool', bubble: t('On fire! 🔥') }
+    if (streak === 0) return { face: 'sad', bubble: t('Miss you! 💔') }
+    if (hour < 10) return { face: 'sleepy', bubble: t('Good morning! ☕') }
+    if (hour >= 22) return { face: 'sleepy', bubble: t('Late night coding! 🌙') }
+    return { face: 'happy', bubble: t("Let's code! 🚀") }
 }
 
 /* ── Skill Radar ── */
@@ -259,17 +313,41 @@ export const skillRadar = {
     dp: { label: 'Dyn.Program', score: 0 },
 }
 
-/* ── Achievements ── */
+/* ── Achievements (mascot-themed) ── */
+const _savedAchievements = loadSaved('rheo_achievements', null)
 export const achievements = [
-    { id: 'first_star', icon: '⭐', title: 'First Star', desc: 'Earn your first star', unlocked: true },
-    { id: 'streak_7', icon: '🔥', title: 'Week Warrior', desc: '7-day streak', unlocked: true },
-    { id: 'perfect', icon: '💎', title: 'Perfect Score', desc: '100% on a quiz', unlocked: true },
-    { id: 'streak_30', icon: '🏆', title: 'Monthly Master', desc: '30-day streak', unlocked: false },
-    { id: 'all_stars', icon: '🌟', title: 'Completionist', desc: 'All 3 stars on a chapter', unlocked: false },
-    { id: 'boss_slayer', icon: '💀', title: 'Boss Slayer', desc: 'Defeat a boss challenge', unlocked: false },
-    { id: 'speed_demon', icon: '⚡', title: 'Speed Demon', desc: 'Complete Time Attack <30s', unlocked: false },
-    { id: 'bug_hunter', icon: '🐛', title: 'Bug Hunter', desc: 'Find 50 bugs total', unlocked: false },
+    { id: 'first_star', icon: '🦦⭐', title: 'First Star', desc: 'Earn your first star', mascot: 'proud', check: () => journeyNodes.some(n => n.stars > 0) },
+    { id: 'streak_3', icon: '🦦🔥', title: 'Hot Streak', desc: '3-day streak', mascot: 'cool', check: () => stats.streak >= 3 },
+    { id: 'streak_7', icon: '🦦🏆', title: 'Week Warrior', desc: '7-day streak', mascot: 'champion', check: () => stats.streak >= 7 },
+    { id: 'perfect', icon: '🦦💎', title: 'Perfect Score', desc: '100% on a quiz', mascot: 'sparkle', check: () => (loadSaved('rheo_perfect_score', false)) },
+    { id: 'streak_30', icon: '🦦👑', title: 'Monthly Master', desc: '30-day streak', mascot: 'king', check: () => stats.streak >= 30 },
+    { id: 'ch1_complete', icon: '🦦📗', title: 'Ch.1 Done', desc: 'Complete Chapter 1', mascot: 'happy', check: () => journeyNodes.filter(n => n.chapter === 1 && n.status === 'completed').length >= 4 },
+    { id: 'speed_demon', icon: '🦦⚡', title: 'Speed Demon', desc: 'Answer in <5 seconds', mascot: 'fast', check: () => (loadSaved('rheo_speed_demon', false)) },
+    { id: 'bug_hunter', icon: '🦦🐛', title: 'Bug Hunter', desc: 'Find 10 bugs total', mascot: 'detective', check: () => (loadSaved('rheo_bugs_found', 0)) >= 10 },
+    { id: 'gem_collector', icon: '🦦💰', title: 'Gem Hoarder', desc: 'Collect 500 gems', mascot: 'rich', check: () => stats.gems >= 500 },
+    { id: 'duel_win', icon: '🦦⚔️', title: 'Duel Victor', desc: 'Win your first duel', mascot: 'warrior', check: () => (loadSaved('rheo_duel_wins', 0)) >= 1 },
+    { id: 'lesson_10', icon: '🦦📚', title: '10 Lessons', desc: 'Complete 10 lessons', mascot: 'scholar', check: () => journeyNodes.filter(n => n.status === 'completed').length >= 10 },
+    { id: 'boss_slayer', icon: '🦦💀', title: 'Boss Slayer', desc: 'Defeat a boss', mascot: 'hero', check: () => journeyNodes.some(n => n.type === 'boss' && n.status === 'completed') },
 ]
+export function checkAchievements() {
+    const unlocked = loadSaved('rheo_achievements', [])
+    const newUnlocks = []
+    achievements.forEach(a => {
+        if (!unlocked.includes(a.id) && a.check()) {
+            unlocked.push(a.id)
+            newUnlocks.push(a)
+        }
+    })
+    if (newUnlocks.length > 0) {
+        saveTo('rheo_achievements', unlocked)
+        newUnlocks.forEach(a => window.__showAchievement?.(a.icon, a.title, a.desc))
+    }
+    return unlocked
+}
+export function isAchievementUnlocked(id) {
+    const unlocked = loadSaved('rheo_achievements', [])
+    return unlocked.includes(id)
+}
 
 /* ── League Rankings ── */
 export const league = {
@@ -292,61 +370,264 @@ export const league = {
 }
 
 /* ── Profile ── */
+const _savedProfile = loadSaved('rheo_profile', null)
 export const profile = {
-    name: 'Furkan',
-    level: 14,
-    xpCurrent: 1985,
-    xpNext: 2500,
-    totalStars: 15,
+    name: _savedProfile?.name || 'Coder',
+    level: _savedProfile?.level || 1,
+    xpCurrent: _savedProfile?.xpCurrent || 0,
+    xpNext: _savedProfile?.xpNext || 500,
+    totalStars: _savedProfile?.totalStars || 0,
     maxStars: 30,
-    daysLearning: 42,
-    longestStreak: 18,
+    daysLearning: _savedProfile?.daysLearning || 0,
+    longestStreak: _savedProfile?.longestStreak || 0,
+    lessonsCompleted: _savedProfile?.lessonsCompleted || 0,
+    totalTimeMinutes: _savedProfile?.totalTimeMinutes || 0,
+    accuracy: _savedProfile?.accuracy || 0,
+    bugsFound: _savedProfile?.bugsFound || 0,
 }
 
 /* ── Quests ── */
+const _months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const _now = new Date()
+const _daysInMonth = new Date(_now.getFullYear(), _now.getMonth() + 1, 0).getDate()
+const _daysLeftInMonth = _daysInMonth - _now.getDate()
 export const quests = {
-    monthly: { title: 'February Sprint', task: 'Earn 15 Commit Points', current: 0, total: 15, daysLeft: 5 },
-    weekend: { task: 'Trace 3 nested loops flawlessly', current: 0, total: 3, hoursLeft: 4 },
+    monthly: { title: `${_months[_now.getMonth()]} Sprint`, task: 'Earn 15 Commit Points', current: 0, total: 15, daysLeft: _daysLeftInMonth },
+    weekend: {
+        task: 'Saat 04:00 Kodu — 3 kritik hata bul',
+        scenario: 'Sunuma 1 saat kaldı. Backend yük testinde çöküyor. 3 hatayı bul!',
+        bugs: [
+            { id: 'race', name: 'Race Condition', hint: 'Asenkron Vote fonksiyonunda kilit mekanizması yok', line: 3 },
+            { id: 'n1', name: 'N+1 Query', hint: 'For döngüsü içinde SQL çağrısı', line: 7 },
+            { id: 'apikey', name: 'Hardcoded API Key', hint: 'Sunucu kodunda açık şifre', line: 11 },
+        ],
+        current: 0, total: 3, hoursLeft: Math.max(0, (7 - _now.getDay()) * 24 - _now.getHours()),
+    },
     weeklyBuild: {
-        title: 'Calculator App',
-        desc: 'Build a simple calculator using Python functions',
-        icon: '🏗️',
+        title: 'The Calculator Trap 🪤',
+        desc: 'Bug hunting case study — 3 gizli hata bul',
+        icon: '🪤',
         tasks: [
-            { id: 'wb1', step: 'Define add() and subtract()', done: true },
-            { id: 'wb2', step: 'Add multiply() and divide()', done: true },
-            { id: 'wb3', step: 'Create input loop with menu', done: false },
-            { id: 'wb4', step: 'Handle edge cases (div by 0)', done: false },
+            { id: 'wb1', step: '🔍 Read: Spaghetti kodu incele', done: false },
+            { id: 'wb2', step: '🐛 Hunt: İşlem önceliği bug\'ını bul (Stack)', done: false },
+            { id: 'wb3', step: '🐛 Hunt: Float hatasını bul (0.1+0.2)', done: false },
+            { id: 'wb4', step: '🐛 Hunt: State crash bug\'ını bul (=→+)', done: false },
+            { id: 'wb5', step: '✨ Rise: Clean Code versiyonunu incele', done: false },
         ],
         reward: { type: 'xp', amount: 500 },
-        daysLeft: 3,
+        daysLeft: Math.max(0, 7 - _now.getDay()),
     },
     mysteryQuest: {
         revealed: false,
         hidden: { task: 'Write a function with exactly 3 parameters', reward: 'gem', xp: 150 },
     },
-    daily: [
-        { id: 1, task: 'Start a commit streak', current: 0, total: 1, reward: 'chest', color: '#FB923C' },
-        { id: 2, task: 'Read 50 lines of Python', current: 32, total: 50, reward: 'disk', color: '#58CC02' },
-        { id: 3, task: 'Find 3 syntax bugs', current: 1, total: 3, reward: 'chest', color: '#38BDF8' },
-        { id: 4, task: 'Score 100% on a trace quiz', current: 0, total: 1, reward: 'gem', color: '#C084FC' },
-    ],
+    daily: [], // filled by getDailyQuests()
+}
+
+/* ── Daily Quest Pool (seed-based rotation) ── */
+const _questPool = [
+    { id: 'd1', task: 'Complete a lesson', total: 1, reward: 'chest', color: '#FB923C', event: 'complete_lesson' },
+    { id: 'd2', task: 'Read 50 lines of code', total: 50, reward: 'disk', color: '#58CC02', event: 'read_lines' },
+    { id: 'd3', task: 'Find 3 bugs', total: 3, reward: 'chest', color: '#38BDF8', event: 'find_bug' },
+    { id: 'd4', task: 'Score 100% on a quiz', total: 1, reward: 'gem', color: '#C084FC', event: 'perfect_score' },
+    { id: 'd5', task: 'Win a duel', total: 1, reward: 'chest', color: '#EF4444', event: 'win_duel' },
+    { id: 'd6', task: 'Earn 100 XP', total: 100, reward: 'gem', color: '#F59E0B', event: 'earn_xp' },
+    { id: 'd7', task: 'Complete 2 exercises', total: 2, reward: 'disk', color: '#14B8A6', event: 'complete_exercise' },
+]
+function _seedRandom(seed) { let s = seed; return () => { s = (s * 9301 + 49297) % 233280; return s / 233280 } }
+export function getDailyQuests() {
+    const dayStr = new Date().toDateString()
+    const seed = dayStr.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+    const rng = _seedRandom(seed)
+    const shuffled = [..._questPool].sort(() => rng() - 0.5)
+    return shuffled.slice(0, 4).map((q, i) => ({ ...q, id: i + 1, current: 0 }))
+}
+quests.daily = getDailyQuests()
+
+/* ── Quest Event Tracking ── */
+export function trackQuestEvent(eventName, amount = 1) {
+    try {
+        const saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
+        if (saved.date !== new Date().toDateString()) return
+        const progress = saved.progress || {}
+        quests.daily.forEach(q => {
+            if (q.event === eventName) {
+                const taskId = q.id
+                progress[taskId] = Math.min((progress[taskId] || 0) + amount, q.total)
+            }
+        })
+        saved.progress = progress
+        localStorage.setItem('rheo_daily_quests', JSON.stringify(saved))
+    } catch (e) { }
+}
+window.__trackQuest = trackQuestEvent
+
+/* ── Power-Up Shop ── */
+export const powerUps = [
+    { id: 'double_xp', icon: '⚡', name: 'Double XP', desc: '1 ders boyunca 2x XP', price: 100, type: 'consumable' },
+    { id: 'extra_heart', icon: '❤️', name: 'Extra Heart', desc: 'Ders içinde +1 can', price: 30, type: 'consumable' },
+    { id: 'hint_token', icon: '🔮', name: 'Hint Token', desc: 'İpucu gösterme hakkı', price: 25, type: 'consumable' },
+    { id: 'skip_token', icon: '🎯', name: 'Skip Token', desc: 'Zor soruyu atla', price: 75, type: 'consumable' },
+]
+export function buyPowerUp(id) {
+    const item = powerUps.find(p => p.id === id)
+    if (!item || stats.gems < item.price) return false
+    stats.gems -= item.price
+    const inv = loadSaved('rheo_powerups', {})
+    inv[id] = (inv[id] || 0) + 1
+    saveTo('rheo_powerups', inv)
+    return true
+}
+export function getPowerUpCount(id) {
+    return (loadSaved('rheo_powerups', {}))[id] || 0
+}
+
+/* ══════════════════════════════════════════
+   XP MOTIVATION SYSTEM
+   ══════════════════════════════════════════ */
+
+/* ── Daily XP Goal ── */
+export const DAILY_XP_GOAL = 100
+export function getDailyXPGoal() {
+    const saved = loadSaved('rheo_daily_goal', {})
+    const today = new Date().toDateString()
+    if (saved.date !== today) {
+        return { date: today, xpEarned: 0, completed: false, streak: saved.goalStreak || 0 }
+    }
+    return saved
+}
+export function updateDailyXPGoal(xpAmount) {
+    const goal = getDailyXPGoal()
+    goal.xpEarned = (goal.xpEarned || 0) + xpAmount
+    goal.date = new Date().toDateString()
+    if (!goal.completed && goal.xpEarned >= DAILY_XP_GOAL) {
+        goal.completed = true
+        goal.goalStreak = (goal.goalStreak || 0) + 1
+        // Bonus gems for hitting daily goal
+        const bonus = Math.min(goal.goalStreak * 5, 50)
+        stats.gems += bonus
+        window.__showAchievement?.('🎯', t('Daily Goal!'), `+${bonus} 💎 bonus`)
+    }
+    saveTo('rheo_daily_goal', goal)
+    return goal
+}
+
+/* ── XP Milestones ── */
+export const xpMilestones = [
+    { xp: 100, icon: '🌱', title: 'Sprout', reward: '25 💎', gems: 25, desc: t('İlk 100 XP!') },
+    { xp: 500, icon: '🌿', title: 'Sapling', reward: '50 💎 + Theme', gems: 50, desc: t('Yolun başı'), unlockTheme: 'ocean' },
+    { xp: 1000, icon: '🌳', title: 'Tree', reward: '100 💎 + Theme', gems: 100, desc: t('Bin kere helal!'), unlockTheme: 'sunset' },
+    { xp: 2500, icon: '🏔️', title: 'Mountain', reward: '200 💎 + Theme', gems: 200, desc: t('Zirveye doğru'), unlockTheme: 'aurora' },
+    { xp: 5000, icon: '🚀', title: 'Rocket', reward: '500 💎 + Theme', gems: 500, desc: t('Uzay maceracısı'), unlockTheme: 'neon' },
+    { xp: 10000, icon: '👑', title: 'Legend', reward: '1000 💎 + Crown', gems: 1000, desc: t('Efsane!'), unlockTheme: 'gold' },
+]
+export function checkMilestones(totalXP) {
+    const claimed = loadSaved('rheo_milestones', [])
+    const newMilestones = []
+    xpMilestones.forEach(m => {
+        if (totalXP >= m.xp && !claimed.includes(m.xp)) {
+            claimed.push(m.xp)
+            stats.gems += m.gems
+            newMilestones.push(m)
+            if (m.unlockTheme) unlockTheme(m.unlockTheme)
+            window.__showAchievement?.(m.icon, m.title, m.reward)
+        }
+    })
+    if (newMilestones.length > 0) saveTo('rheo_milestones', claimed)
+    return claimed
+}
+export function isMilestoneClaimed(xp) {
+    return (loadSaved('rheo_milestones', [])).includes(xp)
+}
+
+/* ── App Themes ── */
+export const appThemes = [
+    { id: 'default', name: 'Midnight', colors: { bg: '#0f172a', accent: '#14b8a6', card: '#1e293b' }, icon: '🌙', unlockXP: 0 },
+    { id: 'ocean', name: 'Deep Ocean', colors: { bg: '#0c1524', accent: '#0ea5e9', card: '#162234' }, icon: '🌊', unlockXP: 500 },
+    { id: 'sunset', name: 'Sunset', colors: { bg: '#1a0f1e', accent: '#f97316', card: '#2d1a2e' }, icon: '🌅', unlockXP: 1000 },
+    { id: 'aurora', name: 'Aurora', colors: { bg: '#0f1a1a', accent: '#34d399', card: '#1a2d2d' }, icon: '🌌', unlockXP: 2500 },
+    { id: 'neon', name: 'Neon City', colors: { bg: '#0d0d1a', accent: '#a855f7', card: '#1a1a2e' }, icon: '💜', unlockXP: 5000 },
+    { id: 'gold', name: 'Royal Gold', colors: { bg: '#1a1408', accent: '#f59e0b', card: '#2d250f' }, icon: '👑', unlockXP: 10000 },
+]
+export function unlockTheme(themeId) {
+    const unlocked = loadSaved('rheo_themes', ['default'])
+    if (!unlocked.includes(themeId)) {
+        unlocked.push(themeId)
+        saveTo('rheo_themes', unlocked)
+    }
+}
+export function getUnlockedThemes() { return loadSaved('rheo_themes', ['default']) }
+export function getActiveTheme() { return loadSaved('rheo_active_theme', 'default') }
+export function setActiveTheme(themeId) {
+    const unlocked = getUnlockedThemes()
+    if (unlocked.includes(themeId)) saveTo('rheo_active_theme', themeId)
+}
+
+/* ── Level Perks ── */
+export const levelPerks = [
+    { level: 2, icon: '🎨', perk: t('Costume Shop açıldı'), type: 'feature' },
+    { level: 3, icon: '⚡', perk: t('Power-Up Shop açıldı'), type: 'feature' },
+    { level: 5, icon: '🌊', perk: t('Ocean teması kazanıldı'), type: 'theme', themeId: 'ocean' },
+    { level: 7, icon: '⚔️', perk: t('Düello modu açıldı'), type: 'feature' },
+    { level: 10, icon: '🌅', perk: t('Sunset teması kazanıldı'), type: 'theme', themeId: 'sunset' },
+    { level: 15, icon: '🏆', perk: t('Haftalık turnuva erişimi'), type: 'feature' },
+    { level: 20, icon: '🌌', perk: t('Aurora teması kazanıldı'), type: 'theme', themeId: 'aurora' },
+    { level: 25, icon: '💜', perk: t('Neon City teması kazanıldı'), type: 'theme', themeId: 'neon' },
+    { level: 30, icon: '👑', perk: t('Royal Gold teması + Legend rozeti'), type: 'theme', themeId: 'gold' },
+]
+
+/* ── XP Multiplier Display ── */
+export function getXPMultiplier() {
+    const streakMult = stats.streak >= 7 ? 3 : stats.streak >= 3 ? 2 : 1
+    const hasDoubleXP = getPowerUpCount('double_xp') > 0
+    const dailyGoal = getDailyXPGoal()
+    const goalBonus = dailyGoal.goalStreak >= 5 ? 1.5 : dailyGoal.goalStreak >= 3 ? 1.25 : 1
+    return {
+        streak: streakMult,
+        doubleXP: hasDoubleXP ? 2 : 1,
+        goalBonus,
+        total: streakMult * (hasDoubleXP ? 2 : 1) * goalBonus,
+        label: streakMult > 1 || hasDoubleXP ? `${Math.round(streakMult * (hasDoubleXP ? 2 : 1) * goalBonus * 10) / 10}x` : null,
+    }
+}
+
+/* ── Total XP Calculator ── */
+export function getTotalXP() {
+    return (profile.level - 1) * 500 + profile.xpCurrent
 }
 
 const _savedStats = loadSaved(STATS_KEY, null)
 export const stats = {
-    get language() { const l = languages.find(l => l.id === _activeLang); return l || languages[0] },
-    streak: _savedStats?.streak ?? 12,
-    gems: _savedStats?.gems ?? 985,
-    energy: _savedStats?.energy ?? 25,
-    xpToday: _savedStats?.xpToday ?? 45,
-    streakShield: _savedStats?.streakShield ?? true,
+    get language() { const lang = languages.find(lg => lg.id === _activeLang); return lang || languages[0] },
+    streak: _savedStats?.streak ?? 0,
+    gems: _savedStats?.gems ?? 0,
+    energy: _savedStats?.energy ?? 5,
+    xpToday: _savedStats?.xpToday ?? 0,
+    streakShield: _savedStats?.streakShield ?? false,
 }
 
 /* ── Save/Load Progress ── */
 export function saveProgress() {
     const nodeData = journeyNodes.map(n => ({ id: n.id, status: n.status, stars: n.stars }))
     saveTo(STORAGE_KEY, nodeData)
-    saveTo(STATS_KEY, { streak: stats.streak, gems: stats.gems, energy: stats.energy, xpToday: stats.xpToday, streakShield: stats.streakShield })
+    saveTo(STATS_KEY, {
+        streak: stats.streak, gems: stats.gems, energy: stats.energy,
+        xpToday: stats.xpToday, streakShield: stats.streakShield,
+        lastSaveDate: new Date().toDateString(),
+    })
+    // Save profile
+    saveTo('rheo_profile', {
+        name: profile.name, level: profile.level,
+        xpCurrent: profile.xpCurrent, xpNext: profile.xpNext,
+        totalStars: journeyNodes.reduce((s, n) => s + (n.stars || 0), 0),
+        daysLearning: profile.daysLearning,
+        longestStreak: Math.max(profile.longestStreak, stats.streak),
+        lessonsCompleted: profile.lessonsCompleted,
+        totalTimeMinutes: profile.totalTimeMinutes,
+        accuracy: profile.accuracy,
+        bugsFound: profile.bugsFound,
+    })
+    checkAchievements()
 }
 
 export function loadProgress() {
@@ -356,7 +637,73 @@ export function loadProgress() {
         const node = journeyNodes.find(n => n.id === s.id)
         if (node) { node.status = s.status; node.stars = s.stars }
     })
+    // Track daily login
+    const lastDate = _savedStats?.lastSaveDate
+    const today = new Date().toDateString()
+    if (lastDate !== today) {
+        profile.daysLearning = (profile.daysLearning || 0) + 1
+        if (lastDate) {
+            const last = new Date(lastDate)
+            const now = new Date()
+            const diffDays = Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(last.getFullYear(), last.getMonth(), last.getDate())) / 86400000)
+            if (diffDays === 1) {
+                stats.streak = (stats.streak || 0) + 1
+            } else if (diffDays > 1 && !stats.streakShield) {
+                stats.streak = 1
+            } else if (diffDays > 1 && stats.streakShield) {
+                stats.streakShield = false // shield consumed
+            }
+        } else {
+            stats.streak = 1
+        }
+        profile.longestStreak = Math.max(profile.longestStreak || 0, stats.streak)
+        stats.xpToday = 0
+        saveProgress()
+    }
     return true
+}
+
+export function addXP(amount) {
+    // Apply multiplier
+    const mult = getXPMultiplier()
+    const finalAmount = Math.round(amount * mult.total)
+    stats.xpToday += finalAmount
+    profile.xpCurrent += finalAmount
+    trackQuestEvent('earn_xp', finalAmount)
+    // Track weekly XP
+    try {
+        const weeklyXP = JSON.parse(localStorage.getItem('rheo_weekly_xp') || '{}')
+        const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1
+        weeklyXP[todayIdx] = (weeklyXP[todayIdx] || 0) + finalAmount
+        localStorage.setItem('rheo_weekly_xp', JSON.stringify(weeklyXP))
+    } catch (e) { }
+    // Track login history for StreakCalendar
+    try {
+        const loginHistory = JSON.parse(localStorage.getItem('rheo_login_history') || '[]')
+        const today = new Date().toDateString()
+        if (!loginHistory.includes(today)) loginHistory.push(today)
+        if (loginHistory.length > 30) loginHistory.shift()
+        localStorage.setItem('rheo_login_history', JSON.stringify(loginHistory))
+    } catch (e) { }
+    window.__showXP?.(finalAmount)
+    // Daily XP Goal check
+    updateDailyXPGoal(finalAmount)
+    while (profile.xpCurrent >= profile.xpNext) {
+        profile.xpCurrent -= profile.xpNext
+        profile.level++
+        profile.xpNext = 500 + (profile.level - 1) * 100
+        window.__showLevelUp?.(profile.level)
+        stats.gems += 50
+        // Check level perks
+        const perk = levelPerks.find(p => p.level === profile.level)
+        if (perk) {
+            if (perk.themeId) unlockTheme(perk.themeId)
+            window.__showAchievement?.(perk.icon, `Level ${profile.level}!`, perk.perk)
+        }
+    }
+    // Check XP milestones
+    checkMilestones(getTotalXP())
+    saveProgress()
 }
 
 export function isOnboardingDone() { return loadSaved(ONBOARDING_KEY, false) }

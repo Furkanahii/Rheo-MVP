@@ -211,20 +211,66 @@ function WeekendChallenge({ data }) {
 
 /* ═══════════════ DAILY ═══════════════ */
 function DailyQuests({ tasks }) {
+    const [dailyState, setDailyState] = useState(() => {
+        try {
+            const saved = localStorage.getItem('rheo_daily_quests')
+            if (saved) {
+                const parsed = JSON.parse(saved)
+                // Reset if not today
+                if (parsed.date !== new Date().toDateString()) return { date: new Date().toDateString(), progress: {}, collected: {} }
+                return parsed
+            }
+        } catch (e) { }
+        return { date: new Date().toDateString(), progress: {}, collected: {} }
+    })
+
+    const updateProgress = () => {
+        // Progress is now tracked automatically via trackQuestEvent
+        // This function is kept for manual refresh
+        setDailyState(prev => {
+            try {
+                const saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
+                if (saved.date === new Date().toDateString()) {
+                    return { ...prev, progress: saved.progress || {}, collected: saved.collected || {} }
+                }
+            } catch (e) { }
+            return prev
+        })
+    }
+
+    const collectReward = (taskId) => {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) return
+        // Apply rewards
+        if (task.reward === 'chest') { stats.gems = (stats.gems || 0) + 15; window.__showXP?.(20) }
+        else if (task.reward === 'gem') { stats.gems = (stats.gems || 0) + 25 }
+        else { window.__showXP?.(30) }
+        try { navigator.vibrate?.(40) } catch (e) { }
+
+        setDailyState(prev => {
+            const next = { ...prev, collected: { ...prev.collected, [taskId]: true } }
+            try { localStorage.setItem('rheo_daily_quests', JSON.stringify(next)) } catch (e) { }
+            return next
+        })
+    }
+
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <div className="flex items-center justify-between mb-3">
                 <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">Daily Standup</h3>
-                <span className="text-[10px] font-bold text-slate-600">21 HRS</span>
+                <span className="text-[10px] font-bold text-slate-600">{Math.max(0, 24 - new Date().getHours())} HRS</span>
             </div>
             <div className="space-y-3">
-                {tasks.map((task, i) => <DailyCard key={task.id} task={task} i={i} />)}
+                {tasks.map((task, i) => <DailyCard key={task.id} task={task} i={i}
+                    progress={dailyState.progress[task.id] || 0}
+                    collected={!!dailyState.collected[task.id]}
+                    onCollect={() => collectReward(task.id)} />)}
             </div>
         </motion.div>
     )
 }
 
-function DailyCard({ task, i }) {
+function DailyCard({ task, i, progress, collected, onCollect }) {
     /* Muted, warm icon colors */
     const icons = {
         1: <svg width="20" height="20" viewBox="0 0 24 24" fill="#E8A87C"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67z" /></svg>,
@@ -239,18 +285,32 @@ function DailyCard({ task, i }) {
         gem: <svg width="24" height="24" viewBox="0 0 32 32"><path d="M16 4L6 14L16 28L26 14L16 4Z" fill="#6CACCA" /></svg>,
     }
 
-    /* Soft muted progress colors */
     const softColors = { '#FB923C': '#D4956A', '#58CC02': '#6AB87A', '#38BDF8': '#6AACCA', '#C084FC': '#A588C4' }
+    const current = Math.min(progress, task.total)
+    const isComplete = current >= task.total
 
     return (
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 + i * 0.08 }}
-            className="flex items-center gap-3.5 rounded-2xl p-4 bg-slate-800 border-2 border-slate-700/30 border-b-[5px] border-b-slate-950 active:border-b-[1px] active:translate-y-[4px] transition-all duration-75 cursor-pointer">
+            className={`flex items-center gap-3.5 rounded-2xl p-4 bg-slate-800 border-2 border-slate-700/30 border-b-[5px] border-b-slate-950 transition-all duration-75 ${collected ? 'opacity-60' : ''}`}>
             <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-slate-900/60 border-b-[2px] border-slate-950">{icons[task.id]}</div>
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-extrabold text-slate-200 leading-tight">{task.task}</p>
-                <div className="mt-2.5"><CylindricalBar current={task.current} total={task.total} color={softColors[task.color] || task.color} /></div>
+                <p className={`text-sm font-extrabold leading-tight ${collected ? 'text-slate-500 line-through' : 'text-slate-200'}`}>{task.task}</p>
+                <div className="mt-2.5"><CylindricalBar current={current} total={task.total} color={softColors[task.color] || task.color} /></div>
             </div>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-slate-900/60 border-b-[2px] border-slate-950">{rewards[task.reward]}</div>
+            {collected ? (
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-teal-500/20 border-b-[2px] border-teal-800">
+                    <span className="text-lg">✅</span>
+                </div>
+            ) : isComplete ? (
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => { e.stopPropagation(); onCollect() }}
+                    className="shrink-0 px-3 py-2 rounded-xl font-black text-[10px] text-white bg-amber-500 border-b-[3px] border-amber-700 active:border-b-0 active:translate-y-[3px] transition-all duration-75 cursor-pointer">
+                    COLLECT
+                </motion.button>
+            ) : (
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-slate-900/60 border-b-[2px] border-slate-950">{rewards[task.reward]}</div>
+            )}
         </motion.div>
     )
 }

@@ -18,6 +18,7 @@ import 'topic_dialog.dart';
 import 'profile_screen.dart';
 import 'initial_rank_screen.dart';
 import 'journey_screen.dart';
+import 'journey_webview_screen.dart';
 import '../data/app_strings.dart';
 
 /// Language-specific accent colors (text) — delegates to RheoTheme
@@ -531,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       // On web, navigate to React journey app
                       _navigateToJourneyWeb();
                     } else {
-                      _navigateTo(const JourneyScreen());
+                      _navigateTo(const JourneyWebViewScreen());
                     }
                   },
                   isSpecial: true,

@@ -10,7 +10,7 @@ import DailyReward from './components/DailyReward'
 import Onboarding from './components/Onboarding'
 import LessonScreen from './components/LessonScreen'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getExercisesForNode, getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone } from './data'
+import { getExercisesForNode, getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t } from './data'
 
 export default function App() {
     const [activeTab, setActiveTab] = useState('journey')
@@ -72,9 +72,8 @@ export default function App() {
                 if (allDone) {
                     setMilestoneChapter(node.chapter)
                 }
-                // Deactivate any other active nodes first, then activate next locked
-                journeyNodes.forEach(n => { if (n.id !== node.id && n.status === 'active') n.status = 'completed' })
-                const nextLocked = journeyNodes.find(n => n.status === 'locked')
+                // Only activate the next locked node (don't touch other active nodes like daily/available)
+                const nextLocked = journeyNodes.find(n => n.id > node.id && n.status === 'locked')
                 if (nextLocked) nextLocked.status = 'active'
             }
             // Save progress to localStorage
@@ -123,9 +122,9 @@ export default function App() {
 function MilestoneModal({ chapter, onClose }) {
     const ch = chapterColors[chapter]
     useEffect(() => {
-        const t = setTimeout(onClose, 4000)
-        return () => clearTimeout(t)
-    }, [])
+        const timer = setTimeout(onClose, 4000)
+        return () => clearTimeout(timer)
+    }, [onClose])
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[500] flex items-center justify-center"

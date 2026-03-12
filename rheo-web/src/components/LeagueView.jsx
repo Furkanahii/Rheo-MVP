@@ -7,10 +7,11 @@ import { league, duelData, duelQuestions, duelHistory, duelStats, stats } from '
    ═══════════════════════════════════════════ */
 export default function LeagueView() {
     const [duelState, setDuelState] = useState('idle')
+    const [lastScore, setLastScore] = useState({ you: 0, them: 0 })
 
     if (duelState === 'searching') return <DuelSearching onFound={() => setDuelState('playing')} />
-    if (duelState === 'playing') return <DuelScreen onFinish={() => setDuelState('result')} />
-    if (duelState === 'result') return <DuelResult onBack={() => setDuelState('idle')} />
+    if (duelState === 'playing') return <DuelScreen onFinish={(score) => { setLastScore(score || { you: 3, them: 1 }); setDuelState('result') }} />
+    if (duelState === 'result') return <DuelResult score={lastScore} onBack={() => setDuelState('idle')} />
 
     const tiers = { Gold: '🥇', Silver: '🥈', Bronze: '🥉', Diamond: '💎' }
     const winRate = Math.round((duelStats.wins / (duelStats.wins + duelStats.losses)) * 100)
@@ -213,13 +214,6 @@ function DuelScreen({ onFinish }) {
         return () => clearInterval(t)
     }, [timeLeft, selected])
 
-    // Time up = auto-skip
-    useEffect(() => {
-        if (timeLeft === 0 && selected === null) {
-            handleAnswer(-1) // wrong answer
-        }
-    }, [timeLeft])
-
     const handleAnswer = useCallback((idx) => {
         if (selected !== null) return
         setSelected(idx)
@@ -238,7 +232,7 @@ function DuelScreen({ onFinish }) {
         // Check if match is over (first to ceil(bestOf/2))
         const needed = Math.ceil(bestOf / 2)
         if (newScore.you >= needed || newScore.them >= needed || round + 1 >= bestOf) {
-            setTimeout(onFinish, 1200)
+            setTimeout(() => onFinish(newScore), 1200)
         } else {
             // Next round
             setTimeout(() => {
@@ -248,6 +242,13 @@ function DuelScreen({ onFinish }) {
             }, 1200)
         }
     }, [selected, currentQ, score, round, bestOf, timer, onFinish])
+
+    // Time up = auto-skip
+    useEffect(() => {
+        if (timeLeft === 0 && selected === null) {
+            handleAnswer(-1)
+        }
+    }, [timeLeft, selected, handleAnswer])
 
     return (
         <div className="h-full flex flex-col"
@@ -327,8 +328,16 @@ function DuelScreen({ onFinish }) {
 }
 
 /* ═══════════════ DUEL RESULT ═══════════════ */
-function DuelResult({ onBack }) {
-    const won = true
+function DuelResult({ score, onBack }) {
+    const won = score.you > score.them
+    const xpGain = won ? 25 : 5
+    const eloChange = won ? 15 : -10
+
+    useEffect(() => {
+        stats.xpToday = (stats.xpToday || 0) + xpGain
+        window.__showXP?.(xpGain)
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <div className="h-full flex flex-col items-center justify-center px-8 gap-6">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200 }}
@@ -336,17 +345,17 @@ function DuelResult({ onBack }) {
             <h2 className="text-2xl font-black text-white">{won ? 'VICTORY!' : 'DEFEAT'}</h2>
             <div className="flex items-center gap-4">
                 <div className="text-center">
-                    <p className="text-3xl font-black text-teal-400">3</p>
+                    <p className="text-3xl font-black text-teal-400">{score.you}</p>
                     <p className="text-[10px] font-bold text-slate-500">You</p>
                 </div>
                 <span className="text-slate-600 font-black">-</span>
                 <div className="text-center">
-                    <p className="text-3xl font-black text-red-400">1</p>
+                    <p className="text-3xl font-black text-red-400">{score.them}</p>
                     <p className="text-[10px] font-bold text-slate-500">{duelData.opponent.name}</p>
                 </div>
             </div>
-            <div className="rounded-2xl px-4 py-2 bg-amber-500/15 border border-amber-700 border-b-[3px] border-b-amber-800">
-                <span className="text-sm font-black text-amber-400">+25 XP • +15 ELO</span>
+            <div className={`rounded-2xl px-4 py-2 ${won ? 'bg-amber-500/15 border border-amber-700 border-b-[3px] border-b-amber-800' : 'bg-red-500/15 border border-red-700 border-b-[3px] border-b-red-800'}`}>
+                <span className={`text-sm font-black ${won ? 'text-amber-400' : 'text-red-400'}`}>+{xpGain} XP • {eloChange > 0 ? '+' : ''}{eloChange} ELO</span>
             </div>
             <button onClick={onBack}
                 className="px-8 py-3 rounded-2xl font-black text-sm text-white bg-teal-500 border-b-[5px] border-teal-700 active:border-b-[1px] active:translate-y-[4px] transition-all duration-75 cursor-pointer">

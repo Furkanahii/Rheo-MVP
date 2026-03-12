@@ -117,7 +117,7 @@ export default function JourneyPath({ nodes }) {
 function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
     // Derive popup type from openNodeId — only this node's popup is visible
     const isOpen = openNodeId === node.id
-    const popupType = isOpen ? (node.type === 'video' ? 'video' : node.type === 'playground' ? 'playground' : 'start') : null
+    const popupType = isOpen ? (node.type === 'video' ? 'video' : node.type === 'playground' ? 'playground' : node.type === 'chest' ? 'chest' : 'start') : null
 
     const setPopup = (val) => {
         if (val) setOpenNodeId(node.id)
@@ -134,13 +134,13 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
     const isPlayground = node.type === 'playground'
     const isAvailable = node.status === 'available'
 
-    let t
-    if (isDaily) t = THEMES.daily
-    else if (isVideo) t = isLocked ? THEMES.videoLock : THEMES.video
-    else if (isPlayground) t = isLocked ? THEMES.playgroundLock : THEMES.playground
-    else if (isChest) t = isLocked ? THEMES.chestLock : THEMES.chest
-    else if (isBoss) t = isLocked ? THEMES.bossLock : THEMES.boss
-    else t = THEMES[node.status] || THEMES.locked
+    let theme
+    if (isDaily) theme = THEMES.daily
+    else if (isVideo) theme = isLocked ? THEMES.videoLock : THEMES.video
+    else if (isPlayground) theme = isLocked ? THEMES.playgroundLock : THEMES.playground
+    else if (isChest) theme = isLocked ? THEMES.chestLock : THEMES.chest
+    else if (isBoss) theme = isLocked ? THEMES.bossLock : THEMES.boss
+    else theme = THEMES[node.status] || THEMES.locked
 
     const handleClick = () => {
         haptic()
@@ -160,7 +160,7 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
             {/* Pulse ring */}
             {(isActive || isAvailable) && (
                 <div className="absolute rounded-full border-[3px] border-teal-400 animate-soft-pulse pointer-events-none"
-                    style={{ width: t.size + 20, height: t.size + 20, top: -10, left: '50%', transform: 'translateX(-50%)' }} />
+                    style={{ width: theme.size + 20, height: theme.size + 20, top: -10, left: '50%', transform: 'translateX(-50%)' }} />
             )}
 
             {/* THE BUTTON */}
@@ -173,10 +173,10 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
           transition-all duration-75
         `}
                 style={{
-                    width: t.size, height: t.size,
-                    ...(!isDaily ? { backgroundColor: t.bg } : {}),
-                    borderBottom: `${t.depth}px solid ${t.border}`,
-                    '--d': `${t.depth}px`,
+                    width: theme.size, height: theme.size,
+                    ...(!isDaily ? { backgroundColor: theme.bg } : {}),
+                    borderBottom: `${theme.depth}px solid ${theme.border}`,
+                    '--d': `${theme.depth}px`,
                 }}>
                 <span className="relative z-10 flex items-center justify-center">
                     {isBoss ? ICONS.boss
@@ -198,6 +198,8 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
 
             {/* Lesson Modal */}
             {popupType === 'start' && <LessonModal node={node} onClose={() => setPopup(null)} onStart={() => { window.__openLesson?.(node.id); setPopup(null) }} />}
+            {/* Chest reward */}
+            {popupType === 'chest' && <ChestModal node={node} onClose={() => setPopup(null)} />}
             {/* Code preview (completed) */}
             {popupType === 'code' && isCompleted && <CodePreview iconKey={node.iconKey} onClose={() => setPopup(null)} />}
             {/* Video preview */}
@@ -378,6 +380,74 @@ function MoodOtter({ mood }) {
                     </div>
                 </div>
             </div>
+        </div>
+    )
+}
+
+/* ═══════════════ CHEST REWARD MODAL ═══════════════ */
+function ChestModal({ node, onClose }) {
+    const [opened, setOpened] = useState(false)
+    const [reward, setReward] = useState(null)
+
+    const CHEST_REWARDS = [
+        { emoji: '💎', label: '15 Gems', type: 'gems', amount: 15 },
+        { emoji: '💎', label: '25 Gems', type: 'gems', amount: 25 },
+        { emoji: '💎', label: '40 Gems', type: 'gems', amount: 40 },
+        { emoji: '⭐', label: '30 XP', type: 'xp', amount: 30 },
+        { emoji: '⭐', label: '50 XP', type: 'xp', amount: 50 },
+        { emoji: '⚡', label: '10 Energy', type: 'energy', amount: 10 },
+        { emoji: '⚡', label: '15 Energy', type: 'energy', amount: 15 },
+    ]
+
+    const handleOpen = () => {
+        if (opened) return
+        haptic()
+        const pick = CHEST_REWARDS[Math.floor(Math.random() * CHEST_REWARDS.length)]
+        setReward(pick)
+        setOpened(true)
+        // Apply reward
+        if (pick.type === 'gems') stats.gems = (stats.gems || 0) + pick.amount
+        else if (pick.type === 'energy') stats.energy = (stats.energy || 0) + pick.amount
+        else if (pick.type === 'xp') window.__showXP?.(pick.amount)
+        try { navigator.vibrate?.([50, 50, 100]) } catch (e) { }
+    }
+
+    const isLocked = node.status === 'locked'
+
+    return (
+        <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[200px]">
+            <div className="bg-slate-900 border-2 border-amber-600/50 border-b-[5px] border-b-amber-900 rounded-2xl overflow-hidden">
+                <div className="h-2 w-full bg-amber-500" />
+                <div className="p-4 text-center">
+                    <div className="text-4xl mb-2">{opened ? '✨' : '📦'}</div>
+                    <h3 className="text-sm font-black text-white mb-1">
+                        {isLocked ? '🔒 Locked Chest' : opened ? 'Opened!' : 'Treasure Chest'}
+                    </h3>
+                    {isLocked ? (
+                        <p className="text-[10px] font-bold text-slate-500 mb-3">Complete previous lessons to unlock</p>
+                    ) : opened && reward ? (
+                        <div className="my-3">
+                            <span className="text-3xl">{reward.emoji}</span>
+                            <p className="text-sm font-black text-amber-400 mt-2">+{reward.amount} {reward.label.split(' ')[1]}</p>
+                        </div>
+                    ) : (
+                        <p className="text-[10px] font-bold text-slate-500 mb-3">Tap to open and collect rewards!</p>
+                    )}
+                    {!isLocked && !opened && (
+                        <button onClick={handleOpen}
+                            className="w-full py-2.5 rounded-xl font-black text-sm text-white bg-amber-500 border-b-[4px] border-amber-700 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer">
+                            🎁 OPEN CHEST
+                        </button>
+                    )}
+                    {(isLocked || opened) && (
+                        <button onClick={onClose}
+                            className="w-full py-2 rounded-xl font-black text-xs text-slate-400 bg-slate-800 border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px] transition-all duration-75 cursor-pointer mt-2">
+                            CLOSE
+                        </button>
+                    )}
+                </div>
+            </div>
+            <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-r-2 border-b-2 border-amber-600/50 rotate-45" />
         </div>
     )
 }

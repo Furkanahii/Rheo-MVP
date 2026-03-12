@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { t } from '../data'
 
 /* ═══════════════════════════════════════════
    ONBOARDING — 3-page welcome slider
@@ -80,9 +81,9 @@ export default function Onboarding({ onFinish }) {
                                 <span className="text-5xl">{slide.emoji}</span>
                             </motion.div>
 
-                            <h1 className="text-3xl font-black text-white mb-2">{slide.title}</h1>
-                            <p className="text-sm font-extrabold mb-4" style={{ color: slide.color }}>{slide.subtitle}</p>
-                            <p className="text-sm font-bold text-slate-400 leading-relaxed max-w-[280px]">{slide.desc}</p>
+                            <h1 className="text-3xl font-black text-white mb-2">{t(slide.title)}</h1>
+                            <p className="text-sm font-extrabold mb-4" style={{ color: slide.color }}>{t(slide.subtitle)}</p>
+                            <p className="text-sm font-bold text-slate-400 leading-relaxed max-w-[280px]">{t(slide.desc)}</p>
                         </motion.div>
                     </AnimatePresence>
                 </div>
@@ -108,14 +109,14 @@ export default function Onboarding({ onFinish }) {
                             backgroundColor: slide.color,
                             borderBottomColor: `color-mix(in srgb, ${slide.color} 60%, black)`,
                         }}>
-                        {isLast ? "🚀 LET'S GO!" : 'CONTINUE'}
+                        {isLast ? t("🚀 LET'S GO!") : t('CONTINUE')}
                     </motion.button>
 
                     {/* Skip */}
                     {!isLast && (
                         <button onClick={onFinish}
                             className="text-xs font-bold text-slate-600 cursor-pointer">
-                            Skip
+                            {t('Skip')}
                         </button>
                     )}
                 </div>

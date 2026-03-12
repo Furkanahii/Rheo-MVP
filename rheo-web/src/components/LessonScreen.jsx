@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
-import { getActiveLanguage } from '../data'
+import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile } from '../data'
 
 /* ═══════════════════════════════════════════════════════
    LESSON SCREEN — 12 Exercise Types, Full-screen overlay
@@ -40,6 +40,14 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     const [questionTimes, setQuestionTimes] = useState([])
     const [fastestTime, setFastestTime] = useState(Infinity)
     const [soundMuted, setSoundMuted] = useState(false)
+    const [isTransitioning, setIsTransitioning] = useState(false) // ← Guard against Continue spam
+
+    // If step overflows exercises array, show result instead of crashing
+    useEffect(() => {
+        if (!exercises[step] && exercises.length > 0 && !showResult) {
+            setShowResult(true)
+        }
+    }, [step, exercises, showResult])
 
     const ex = exercises[step]
     const progress = ((step + (answered ? 1 : 0)) / exercises.length) * 100
@@ -51,9 +59,12 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     if (!ex) return null
 
     const handleCheck = () => {
+        // ← Block if already transitioning (prevents Continue spam bug)
+        if (isTransitioning) return
         if (!answered && ex.type !== 'video') return
         haptic()
         if (answered || ex.type === 'video') {
+            setIsTransitioning(true) // ← Lock
             // Show otter message briefly before advancing
             if (answered && isCorrect !== null) {
                 const msg = isCorrect
@@ -65,7 +76,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                 setOtterMsg(msg)
                 setTimeout(() => {
                     setOtterMsg(null)
-                    if (isLast) setShowResult(true)
+                    if (isLast) { setShowResult(true) }
                     else {
                         setStep(s => s + 1)
                         setAnswered(false)
@@ -75,9 +86,10 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         setSpeedBonus(false)
                         setStreakMsg(null)
                     }
+                    setIsTransitioning(false) // ← Unlock
                 }, 800)
             } else {
-                if (isLast) setShowResult(true)
+                if (isLast) { setShowResult(true) }
                 else {
                     setStep(s => s + 1)
                     setAnswered(false)
@@ -87,6 +99,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                     setSpeedBonus(false)
                     setStreakMsg(null)
                 }
+                setIsTransitioning(false) // ← Unlock
             }
         }
     }
@@ -241,11 +254,11 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         className={`px-5 py-3 flex items-center gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-red-500/10 border-t border-red-700/30'}`}>
                         <span className="text-xl">{isCorrect ? '✅' : '❌'}</span>
                         <div className="flex-1">
-                            <p className={`text-sm font-black ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>{isCorrect ? 'Correct!' : 'Wrong!'}</p>
+                            <p className={`text-sm font-black ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>{isCorrect ? t('Correct!') : t('Wrong!')}</p>
                             <p className="text-[10px] font-bold text-slate-500">
                                 {isCorrect ? (
                                     <>{speedBonus ? '⚡ Speed Bonus! +20 XP' : '+15 XP'}{streak >= 3 && ` · 🔥 ${streak} streak`}</>
-                                ) : 'Keep trying!'}
+                                ) : t('Keep trying!')}
                             </p>
                         </div>
                         {isCorrect && speedBonus && (
@@ -267,7 +280,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         ${answered || ex.type === 'video'
                             ? isCorrect === false ? 'bg-red-500 border-b-red-700' : 'bg-teal-500 border-b-teal-700'
                             : 'bg-slate-700 border-b-slate-900 opacity-50 cursor-default'}`}>
-                    {ex.type === 'video' ? 'CONTINUE' : answered ? (isLast ? 'FINISH' : 'CONTINUE') : 'CHECK'}
+                    {ex.type === 'video' ? t('CONTINUE') : answered ? (isLast ? t('FINISH') : t('CONTINUE')) : t('CHECK')}
                 </motion.button>
             </div>
         </motion.div>
@@ -861,8 +874,13 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
     useEffect(() => {
         if (passed) {
             playCelebration()
-            window.__showXP?.(50)
+            addXP(50)
+            trackQuestEvent('complete_lesson')
+            trackQuestEvent('complete_exercise', total)
+            trackQuestEvent('read_lines', total * 10)
+            profile.lessonsCompleted = (profile.lessonsCompleted || 0) + 1
             window.__showAchievement?.('📚', 'Lesson Complete', `${total} exercises finished!`)
+            saveProgress()
         }
         // Animated counters
         let frame = 0
@@ -885,7 +903,7 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
             <div className="flex flex-col items-center text-center px-6 gap-4 relative z-10">
                 <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                     className="text-6xl">{passed ? '🦦' : '😢'}</motion.div>
-                <h2 className="text-2xl font-black text-white">{passed ? 'Lesson Complete!' : 'Try Again!'}</h2>
+                <h2 className="text-2xl font-black text-white">{passed ? t('Lesson Complete!') : t('Try Again!')}</h2>
 
                 {/* Stars */}
                 {passed && (
@@ -941,15 +959,15 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                         className="w-full max-w-[280px] rounded-2xl bg-slate-800/50 border border-slate-700/30 px-4 py-3">
                         <p className="text-[8px] font-extrabold text-slate-500 tracking-wider mb-2">TIME PER QUESTION</p>
                         <div className="flex items-end gap-1 h-[40px]">
-                            {questionTimes.map((t, i) => {
+                            {questionTimes.map((time, i) => {
                                 const maxT = Math.max(...questionTimes, 15)
-                                const h = Math.max(4, (t / maxT) * 36)
+                                const h = Math.max(4, (time / maxT) * 36)
                                 return (
                                     <motion.div key={i}
                                         initial={{ height: 0 }} animate={{ height: h }}
                                         transition={{ delay: 0.9 + i * 0.05 }}
-                                        className={`flex-1 rounded-t-sm ${t < 10 ? 'bg-teal-500' : t < 20 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                        title={`${t.toFixed(1)}s`} />
+                                        className={`flex-1 rounded-t-sm ${time < 10 ? 'bg-teal-500' : time < 20 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                        title={`${time.toFixed(1)}s`} />
                                 )
                             })}
                         </div>
