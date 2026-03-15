@@ -82,118 +82,163 @@ function Dashboard({ onStart }) {
     const tot = duelStats.wins+duelStats.losses, wr = tot>0?Math.round(duelStats.wins/tot*100):0
     const [lb] = useState(()=>getDuelLeaderboard())
     const [snd, setSnd] = useState(_snd.v)
-    const tierName = tier?.name?.toLowerCase() || 'bronze'
+
+    /* ── Reward labels for BP ── */
+    const bpRewards = ['50 XP','Code Font','100 Gem','Boost','Title','250 XP','Skin','500 Gem','Emote','Border','Frame','Power','1000 XP','Badge','Crown']
 
     return <div className="h-full overflow-y-auto pb-24">
-        <div className="fixed inset-0 -z-10" style={{background:'linear-gradient(135deg,#0a0f1a,#0f172a 40%,#1a1a2e)'}}>
-            <motion.div animate={{opacity:[.03,.06,.03]}} transition={{duration:8,repeat:Infinity}} className="absolute inset-0" style={{background:`radial-gradient(ellipse at 50% 0%,${tier.color}22,transparent 60%)`}}/>
+        {/* ── BACKGROUND: Animated Digital Grid ── */}
+        <div className="fixed inset-0 -z-10" style={{background:'linear-gradient(160deg,#050a15,#0a1628 40%,#0d1117 70%,#0a0f1a)'}}>
+            <motion.div animate={{opacity:[.02,.05,.02]}} transition={{duration:8,repeat:Infinity}} className="absolute inset-0" style={{background:`radial-gradient(ellipse at 50% -10%,${tier.color}18,transparent 55%)`}}/>
+            {/* Scan lines */}
+            <div className="absolute inset-0 opacity-[0.015]" style={{backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.03) 2px,rgba(255,255,255,0.03) 4px)'}}/>
+            {/* Grid dots */}
+            <div className="absolute inset-0 opacity-[0.03]" style={{backgroundImage:'radial-gradient(rgba(255,255,255,0.15) 1px,transparent 1px)',backgroundSize:'24px 24px'}}/>
+            {/* Floating code particles */}
+            {['</>','{}','()','[]','//','fn','if','0x'].map((t,i)=>
+                <motion.span key={i} animate={{y:[0,-40,0],opacity:[0,.25,0]}} transition={{duration:6+i*1.5,repeat:Infinity,delay:i*.8}}
+                    className="absolute text-[8px] font-mono" style={{color:tier.color+'40',left:`${10+i*12}%`,top:`${20+((i*17)%60)}%`}}>{t}</motion.span>
+            )}
         </div>
-        <div className="max-w-md mx-auto px-4 space-y-3 relative" style={{paddingTop:'max(12px,env(safe-area-inset-top,12px))'}}>
-            <button onClick={()=>{_snd.v=!_snd.v;setSnd(!snd)}} className="absolute right-4 top-3 w-8 h-8 rounded-lg flex items-center justify-center text-[10px] opacity-50 hover:opacity-90 cursor-pointer z-20" style={G}>{snd?'🔊':'🔇'}</button>
 
-            {/* Header */}
+        <div className="max-w-md mx-auto px-4 space-y-3 relative" style={{paddingTop:'max(12px,env(safe-area-inset-top,12px))'}}>
+            <button onClick={()=>{_snd.v=!_snd.v;setSnd(!snd)}} className="absolute right-4 top-3 w-8 h-8 rounded-lg flex items-center justify-center text-[10px] opacity-50 hover:opacity-90 cursor-pointer z-20 backdrop-blur-md" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)'}}>{snd?'🔊':'🔇'}</button>
+
+            {/* ── HEADER with glow ── */}
             <motion.div initial={{opacity:0,y:-20}} animate={{opacity:1,y:0}} className="text-center pt-3 pb-1 flex flex-col items-center">
-                <OtterMascot size={56} tier={tier} glow={mascot.glow}/>
-                <h1 className="text-xl font-black text-white mt-1.5">{tier.name} League</h1>
+                <motion.div animate={{boxShadow:[`0 0 20px ${tier.color}15`,`0 0 40px ${tier.color}30`,`0 0 20px ${tier.color}15`]}} transition={{duration:3,repeat:Infinity}} className="rounded-full">
+                    <OtterMascot size={60} tier={tier} glow={mascot.glow}/>
+                </motion.div>
+                <h1 className="text-xl font-black text-white mt-2" style={{textShadow:`0 0 20px ${tier.color}30`}}>{tier.name} League</h1>
                 <div className="flex items-center gap-2 mt-1">
-                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black" style={{background:tier.color+'22',color:tier.color,border:`1px solid ${tier.color}44`}}><BoltIcon size={10} color={tier.color}/>{duelStats.elo} ELO</span>
-                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-white/5 text-slate-400 border border-white/10"><StarIcon size={10}/>{title.name}</span>
+                    <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black backdrop-blur-md" style={{background:`${tier.color}15`,color:tier.color,border:`1px solid ${tier.color}35`,boxShadow:`0 0 12px ${tier.color}20`}}><BoltIcon size={10} color={tier.color}/>{duelStats.elo} ELO</span>
+                    <span className="flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black bg-white/5 text-slate-400 border border-white/10 backdrop-blur-md"><StarIcon size={10}/>{title.name}</span>
                 </div>
+
+                {/* ── FLUID ELO BAR ── */}
                 {(()=>{
                     const nx=leagueTiers.find(t=>t.minElo>duelStats.elo)
                     if(!nx) return <p className="text-[8px] font-bold text-amber-400 mt-2">Max Tier!</p>
                     const pct=Math.min(((duelStats.elo-tier.minElo)/(nx.minElo-tier.minElo))*100,100)
-                    return <div className="mt-2 w-full px-4">
-                        <div className="flex justify-between items-center text-[8px] font-bold mb-1">
-                            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded" style={{background:tier.color+'22',color:tier.color}}><ShieldIcon size={10} tier={tier.name.toLowerCase()}/>{tier.name}</span>
-                            <span className="text-[7px] text-slate-500">{duelStats.elo} / {nx.minElo} ELO</span>
-                            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded" style={{background:nx.color+'22',color:nx.color}}><ShieldIcon size={10} tier={nx.name.toLowerCase()}/>{nx.name}</span>
+                    return <div className="mt-3 w-full px-2">
+                        <div className="flex justify-between items-center text-[8px] font-bold mb-1.5">
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md" style={{background:tier.color+'15',color:tier.color,border:`1px solid ${tier.color}30`}}><ShieldIcon size={10} tier={tier.name.toLowerCase()}/>{tier.name}</span>
+                            <motion.span animate={{opacity:[.5,1,.5]}} transition={{duration:2,repeat:Infinity}} className="text-[8px] text-slate-400 font-black">{duelStats.elo} / {nx.minElo} ELO</motion.span>
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md" style={{background:nx.color+'15',color:nx.color,border:`1px solid ${nx.color}30`}}><ShieldIcon size={10} tier={nx.name.toLowerCase()}/>{nx.name}</span>
                         </div>
-                        <div className="h-2 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,0.06)'}}>
-                            <motion.div initial={{width:0}} animate={{width:`${pct}%`}} transition={{duration:1.5,ease:'easeOut'}} className="h-full rounded-full" style={{background:`linear-gradient(90deg,${tier.color},${nx.color})`,boxShadow:`0 0 8px ${tier.color}60`}}/>
+                        <div className="h-3 rounded-full overflow-hidden relative" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                            <motion.div initial={{width:0}} animate={{width:`${pct}%`}} transition={{duration:1.8,ease:'easeOut'}} className="h-full rounded-full relative" style={{background:`linear-gradient(90deg,${tier.color},${nx.color})`,boxShadow:`0 0 12px ${tier.color}50`}}>
+                                {/* Shimmer effect */}
+                                <motion.div animate={{x:['-100%','200%']}} transition={{duration:2,repeat:Infinity,repeatDelay:1}} className="absolute inset-0" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)',width:'50%'}}/>
+                            </motion.div>
                         </div>
-                        <p className="text-[7px] font-bold text-slate-600 text-center mt-0.5">{nx.minElo-duelStats.elo} ELO kaldı</p>
+                        <p className="text-[7px] font-black text-slate-500 text-center mt-1">{nx.minElo-duelStats.elo} ELO kaldı</p>
                     </div>
                 })()}
             </motion.div>
 
-            {/* Mode Buttons */}
+            {/* ── GLASSMORPHISM MODE BUTTONS ── */}
             <motion.div initial={{opacity:0,scale:.95}} animate={{opacity:1,scale:1}} transition={{delay:.05}}>
-                <motion.button whileTap={{scale:.96}} onClick={()=>onStart('classic')} className="w-full py-3.5 rounded-2xl font-black text-base text-white cursor-pointer border-b-[5px] border-red-900 active:border-b-[2px] active:translate-y-[3px] transition-all flex items-center justify-center gap-2" style={{background:'linear-gradient(135deg,#dc2626,#ea580c)',boxShadow:'0 0 30px rgba(239,68,68,0.25)'}}>
+                <motion.button whileTap={{scale:.96}} onClick={()=>onStart('classic')}
+                    className="w-full py-4 rounded-2xl font-black text-base text-white cursor-pointer transition-all flex items-center justify-center gap-2 relative overflow-hidden"
+                    style={{background:'linear-gradient(135deg,#dc2626,#ea580c)',boxShadow:'0 4px 25px rgba(239,68,68,0.3), 0 0 60px rgba(239,68,68,0.1), inset 0 1px 0 rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.1)'}}>
+                    <motion.div animate={{x:['-100%','200%']}} transition={{duration:3,repeat:Infinity}} className="absolute inset-0" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)',width:'40%'}}/>
                     <SwordIcon size={22} color="white"/> MEYDAN OKU
                 </motion.button>
                 <div className="flex gap-2 mt-2">
-                    <ModBtn icon={<BoltIcon size={16} color="white"/>} label="Blitz" onClick={()=>onStart('blitz')} grad="linear-gradient(135deg,#eab308,#f59e0b)"/>
-                    <ModBtn icon={<DiceIcon size={16}/>} label="Auction" onClick={()=>onStart('auction')} grad="linear-gradient(135deg,#a855f7,#ec4899)"/>
-                    <ModBtn icon={<CalendarIcon size={16} day={new Date().getDate()}/>} label={daily.completed?'Tamam':'Günlük'} onClick={()=>onStart('daily')} grad={daily.completed?'linear-gradient(135deg,#475569,#334155)':'linear-gradient(135deg,#14b8a6,#059669)'} disabled={daily.completed}/>
+                    <GlassBtn icon={<BoltIcon size={16} color="white"/>} label="Blitz" onClick={()=>onStart('blitz')} color="#eab308"/>
+                    <GlassBtn icon={<DiceIcon size={16}/>} label="Auction" onClick={()=>onStart('auction')} color="#a855f7"/>
+                    <GlassBtn icon={<CalendarIcon size={16} day={new Date().getDate()}/>} label={daily.completed?'Tamam':'Günlük'} onClick={()=>onStart('daily')} color={daily.completed?'#475569':'#14b8a6'} disabled={daily.completed}/>
                 </div>
                 <div className="flex gap-2 mt-1.5">
-                    <ModBtn icon={<FireIcon size={16}/>} label="Survival" onClick={()=>onStart('survival')} grad="linear-gradient(135deg,#ef4444,#dc2626)"/>
-                    <ModBtn icon={<SwordIcon size={16} color="white"/>} label="Sudden Death" onClick={()=>onStart('sudden')} grad="linear-gradient(135deg,#1e1b4b,#312e81)"/>
+                    <GlassBtn icon={<FireIcon size={16}/>} label="Survival" onClick={()=>onStart('survival')} color="#ef4444"/>
+                    <GlassBtn icon={<SwordIcon size={16} color="white"/>} label="Sudden Death" onClick={()=>onStart('sudden')} color="#6366f1"/>
                 </div>
             </motion.div>
 
-            {/* Stats */}
+            {/* ── STATS ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.1}} className="grid grid-cols-4 gap-1.5">
                 {[{l:'Wins',v:duelStats.wins,c:'#34d399'},{l:'Losses',v:duelStats.losses,c:'#f87171'},{l:'Win%',v:`${wr}%`,c:'#fbbf24'},{l:'Streak',v:duelStats.winStreak,c:'#fb923c',icon:true}].map((s,i)=>
-                    <div key={i} className={`${gc} text-center`} style={G}>
-                        <div className="flex items-center justify-center gap-0.5"><p className="text-sm font-black" style={{color:s.c}}>{s.v}</p>{s.icon&&<FireIcon size={12}/>}</div>
-                        <p className="text-[7px] font-bold text-slate-600">{s.l}</p>
-                    </div>
+                    <motion.div key={i} initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:.1+i*.04}} className={`${gc} text-center backdrop-blur-md`} style={{...G,boxShadow:`0 4px 20px rgba(0,0,0,0.2), 0 0 1px ${s.c}20`}}>
+                        <div className="flex items-center justify-center gap-0.5"><p className="text-sm font-black" style={{color:s.c,textShadow:`0 0 8px ${s.c}40`}}>{s.v}</p>{s.icon&&<FireIcon size={12}/>}</div>
+                        <p className="text-[7px] font-bold text-slate-500">{s.l}</p>
+                    </motion.div>
                 )}
             </motion.div>
 
-            {/* Season + BP */}
+            {/* ── SEASON + BP ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.12}} className="grid grid-cols-2 gap-2">
-                <div className={gc} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><CalendarIcon size={10} day="S"/>SEZON</p><p className="text-xs font-black text-white mt-0.5">{season.id}</p><p className="text-[8px] font-bold text-slate-600">{season.daysLeft} gün • {season.gamesPlayed} maç</p></div>
-                <div className={gc} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><StarIcon size={10}/>BATTLE PASS</p><p className="text-xs font-black text-amber-400 mt-0.5">Tier {bp.currentTier}/{bp.tiers.length}</p><div className="h-1 rounded-full bg-white/5 mt-1"><div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300" style={{width:`${Math.min(((bp.xp-bp.prevXp)/Math.max(bp.nextTier.xpNeeded-bp.prevXp,1))*100,100)}%`}}/></div></div>
+                <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><CalendarIcon size={10} day="S"/>SEZON</p><p className="text-xs font-black text-white mt-0.5">{season.id}</p><p className="text-[8px] font-bold text-slate-600">{season.daysLeft} gün • {season.gamesPlayed} maç</p></div>
+                <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><StarIcon size={10}/>BATTLE PASS</p><p className="text-xs font-black text-amber-400 mt-0.5">Tier {bp.currentTier}/{bp.tiers.length}</p><div className="h-1.5 rounded-full mt-1" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)'}}><div className="h-full rounded-full" style={{width:`${Math.min(((bp.xp-bp.prevXp)/Math.max(bp.nextTier.xpNeeded-bp.prevXp,1))*100,100)}%`,background:'linear-gradient(90deg,#f59e0b,#fbbf24)',boxShadow:'0 0 8px rgba(251,191,36,0.3)'}}/></div></div>
             </motion.div>
 
-            {/* BP Road */}
-            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.14}} className={gc} style={G}>
-                <p className="text-[8px] font-extrabold text-slate-500 mb-2 flex items-center gap-1"><StarIcon size={10}/>BATTLE PASS YOLU</p>
-                <div className="relative overflow-x-auto pb-2">
-                    <div className="absolute top-5 left-5 right-5 h-0.5" style={{background:'linear-gradient(90deg,#fbbf24,#f59e0b 30%,rgba(255,255,255,0.06) 30%)'}}/>
-                    <div className="flex gap-0.5">{bp.tiers.map((t,i)=>{
-                        const u=bp.xp>=t.xpNeeded
-                        const isCurrent=bp.currentTier===t.tier
-                        const icons=[GemSVG,XPStar,BoltIcon,GemSVG,XPStar,CrownSVG,GemSVG,XPStar,BoltIcon,GemSVG,TrophyIcon,GemSVG,XPStar,BoltIcon,CrownSVG]
-                        const IconComp=icons[i%icons.length]
-                        return <div key={i} className="flex-shrink-0 flex flex-col items-center" style={{width:40}}>
-                            <motion.div animate={isCurrent?{scale:[1,1.12,1]}:{}} transition={{duration:1.5,repeat:Infinity}}
-                                className="w-8 h-8 rounded-lg flex items-center justify-center relative"
-                                style={u?{background:'linear-gradient(135deg,rgba(251,191,36,0.25),rgba(245,158,11,0.15))',border:'1px solid rgba(251,191,36,0.4)',boxShadow:'0 0 8px rgba(251,191,36,0.15)'}:isCurrent?{background:'rgba(20,184,166,0.15)',border:'1px solid rgba(20,184,166,0.3)',boxShadow:'0 0 8px rgba(20,184,166,0.2)'}:{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
-                                {u?<StarIcon size={14} color="#22c55e"/>:<IconComp size={14} color={isCurrent?'#14b8a6':'#475569'}/>}
-                            </motion.div>
-                            <span className={`text-[7px] font-black mt-0.5 ${u?'text-amber-400':isCurrent?'text-teal-400':'text-slate-600'}`}>{t.tier}</span>
-                        </div>
-                    })}</div>
+            {/* ── PREMIUM BP ROAD ── */}
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.14}} className={`${gc} backdrop-blur-md`} style={{...G,overflow:'hidden',position:'relative'}}>
+                <p className="text-[8px] font-extrabold text-slate-500 mb-3 flex items-center gap-1"><CrownSVG size={12} color="#fbbf24"/>BATTLE PASS YOLU</p>
+                <div className="relative overflow-x-auto pb-1" style={{scrollbarWidth:'none'}}>
+                    <div className="flex items-center" style={{minWidth:bp.tiers.length*56}}>
+                        {bp.tiers.map((t,i)=>{
+                            const u=bp.xp>=t.xpNeeded
+                            const isCurrent=bp.currentTier===t.tier
+                            const icons=[GemSVG,XPStar,BoltIcon,GemSVG,XPStar,CrownSVG,GemSVG,XPStar,BoltIcon,GemSVG,TrophyIcon,GemSVG,XPStar,BoltIcon,CrownSVG]
+                            const IconComp=icons[i%icons.length]
+                            const nodeColors = u ? {bg:`linear-gradient(135deg,rgba(251,191,36,0.2),rgba(245,158,11,0.1))`,border:`rgba(251,191,36,0.5)`,shadow:`0 0 16px rgba(251,191,36,0.25), 0 0 4px rgba(251,191,36,0.4)`,iconColor:'#fbbf24'}
+                                : isCurrent ? {bg:`linear-gradient(135deg,rgba(20,184,166,0.15),rgba(6,182,212,0.1))`,border:`rgba(20,184,166,0.5)`,shadow:`0 0 20px rgba(20,184,166,0.3), 0 0 4px rgba(20,184,166,0.5)`,iconColor:'#14b8a6'}
+                                : {bg:'rgba(255,255,255,0.03)',border:'rgba(255,255,255,0.08)',shadow:'none',iconColor:'#334155'}
+                            return <div key={i} className="flex-shrink-0 flex flex-col items-center relative" style={{width:56}}>
+                                {/* Connecting rail */}
+                                {i>0&&<div className="absolute top-5 -left-5 w-8 h-[2px]" style={{background:u?'linear-gradient(90deg,#fbbf24,#f59e0b)':isCurrent?'linear-gradient(90deg,rgba(20,184,166,0.4),rgba(20,184,166,0.2))':'rgba(255,255,255,0.04)',boxShadow:u?'0 0 6px rgba(251,191,36,0.3)':'none'}}/>}
+                                {/* Node */}
+                                <motion.div animate={isCurrent?{scale:[1,1.1,1],boxShadow:[`0 0 12px rgba(20,184,166,0.2)`,`0 0 24px rgba(20,184,166,0.4)`,`0 0 12px rgba(20,184,166,0.2)`]}:{}}
+                                    transition={{duration:2,repeat:Infinity}}
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center relative"
+                                    style={{background:nodeColors.bg,border:`1.5px solid ${nodeColors.border}`,boxShadow:nodeColors.shadow}}>
+                                    {u?<StarIcon size={16} color="#22c55e"/>:<IconComp size={16} color={nodeColors.iconColor}/>}
+                                    {isCurrent&&<motion.div animate={{scale:[1,1.6,1],opacity:[.6,0,.6]}} transition={{duration:2,repeat:Infinity}} className="absolute inset-0 rounded-xl" style={{border:'2px solid rgba(20,184,166,0.3)'}}/>}
+                                </motion.div>
+                                {/* Tier number */}
+                                <span className={`text-[7px] font-black mt-1 ${u?'text-amber-400':isCurrent?'text-teal-400':'text-slate-600'}`}>{t.tier}</span>
+                                {/* Reward label */}
+                                <span className={`text-[5px] font-bold leading-tight text-center ${u?'text-amber-500/60':isCurrent?'text-teal-500/60':'text-slate-700'}`}>{bpRewards[i]||'Bonus'}</span>
+                            </div>
+                        })}
+                    </div>
                 </div>
             </motion.div>
 
-            {/* Emotes */}
+            {/* ── EMOTES: Metallic Badge Style ── */}
             <EmoteShop/>
 
-            {/* Leaderboard */}
-            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.2}} className={gc} style={G}>
-                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><TrophyIcon size={14}/>LEADERBOARD</h3>
-                <div className="space-y-1">{lb.map((p,i)=>
-                    <motion.div key={`${p.name}-${i}`} initial={{opacity:0,x:-10}} animate={{opacity:1,x:0}} transition={{delay:.02*i}}
-                        className={`flex items-center gap-2 rounded-xl px-2.5 py-1.5 transition-all ${p.isUser?'':'hover:bg-white/[0.02]'}`}
-                        style={p.isUser?{background:`${tier.color}15`,border:`1px solid ${tier.color}30`}:{}}>
-                        <div className="w-5 flex justify-center">{i<3?<MedalIcon rank={i+1} size={18}/>:<span className="text-[10px] font-black text-slate-600">{i+1}</span>}</div>
-                        <OtterMascot size={28} bodyColor={p.isUser?undefined:(p.otterColor||'#6366f1')}/>
+            {/* ── LEADERBOARD with Glow ── */}
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.2}} className={`${gc} backdrop-blur-md`} style={G}>
+                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><TrophyIcon size={14} color="#fbbf24"/>LEADERBOARD</h3>
+                <div className="space-y-1">{lb.map((p,i)=>{
+                    const medalColors = ['#fbbf24','#C0C0C0','#CD7F32']
+                    return <motion.div key={`${p.name}-${i}`} initial={{opacity:0,x:-10}} animate={{opacity:1,x:0}} transition={{delay:.02*i}}
+                        className={`flex items-center gap-2 rounded-xl px-2.5 py-2 transition-all`}
+                        style={p.isUser?{background:`${tier.color}12`,border:`1px solid ${tier.color}30`,boxShadow:`0 0 15px ${tier.color}15, inset 0 0 8px ${tier.color}08`}
+                            :i<3?{background:`${medalColors[i]}08`,border:`1px solid ${medalColors[i]}15`}
+                            :{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.04)'}}>
+                        <div className="w-6 flex justify-center">
+                            {i<3?<motion.div animate={{boxShadow:[`0 0 4px ${medalColors[i]}30`,`0 0 10px ${medalColors[i]}50`,`0 0 4px ${medalColors[i]}30`]}} transition={{duration:2,repeat:Infinity}} className="rounded-full">
+                                <MedalIcon rank={i+1} size={20}/>
+                            </motion.div>:<span className="text-[10px] font-black text-slate-600">{i+1}</span>}
+                        </div>
+                        <div className="relative">
+                            {i<3&&<motion.div animate={{opacity:[.3,.6,.3]}} transition={{duration:2,repeat:Infinity}} className="absolute -inset-1 rounded-full" style={{background:`radial-gradient(circle,${medalColors[i]}20,transparent)`}}/>}
+                            <OtterMascot size={28} bodyColor={p.isUser?undefined:(p.otterColor||'#6366f1')}/>
+                        </div>
                         <span className={`flex-1 text-[10px] font-extrabold truncate ${p.isUser?'text-teal-300':'text-slate-300'}`}>{p.name}</span>
-                        <span className="text-[9px] font-black text-slate-500">{p.xp}</span>
+                        <span className="text-[9px] font-black" style={{color:i<3?medalColors[i]+'cc':'#475569'}}>{p.xp}</span>
                     </motion.div>
-                )}</div>
+                })}</div>
             </motion.div>
 
-            {/* History */}
+            {/* ── HISTORY ── */}
             {duelHistory.length>0&&<motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.25}}>
                 <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><ChartIcon size={12}/>SON DÜELLOLAR</h3>
                 <div className="space-y-1.5">{duelHistory.slice(0,5).map(m=>
-                    <div key={m.id} className={`flex items-center gap-2 rounded-xl px-3 py-2 ${gc}`} style={{...G,borderLeft:`3px solid ${m.result==='win'?'#34d399':'#f87171'}`}}>
+                    <div key={m.id} className={`flex items-center gap-2 rounded-xl px-3 py-2 ${gc} backdrop-blur-md`} style={{...G,borderLeft:`3px solid ${m.result==='win'?'#34d399':'#f87171'}`}}>
                         <OtterMascot size={28} bodyColor={m.opponent.otterColor}/>
                         <div className="flex-1 min-w-0"><p className="text-[10px] font-extrabold text-white truncate">{m.opponent.name}</p><span className="text-[7px] font-bold text-slate-600">{m.date}</span></div>
                         <div className="text-right"><p className={`text-[10px] font-black ${m.result==='win'?'text-emerald-400':'text-red-400'}`}>{m.score}</p><span className={`text-[7px] font-bold ${m.elo>0?'text-emerald-400/80':'text-red-400/80'}`}>{m.elo>0?'+':''}{m.elo}</span></div>
@@ -202,18 +247,19 @@ function Dashboard({ onStart }) {
             </motion.div>}
             {duelHistory.length===0&&<div className="text-center py-6"><SwordIcon size={32} color="#475569"/><p className="text-xs font-black text-slate-500 mt-2">Henüz düello yapmadın</p></div>}
 
-            {/* Achievements */}
-            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.3}} className={gc} style={G}>
+            {/* ── ACHIEVEMENTS ── */}
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.3}} className={`${gc} backdrop-blur-md`} style={G}>
                 <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><MedalIcon rank={1} size={14}/>BAŞARIMLAR ({getUnlockedAchievements().length}/{achievementDefs.length})</h3>
                 <div className="grid grid-cols-5 gap-1.5">{achievementDefs.map(a=>{
                     const unlocked=getUnlockedAchievements().find(u=>u.id===a.id)
-                    return <div key={a.id} className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 px-0.5 transition-all ${unlocked?'':'opacity-30'}`}
-                        style={unlocked?{background:`${a.color}15`,border:`1px solid ${a.color}30`}:{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.05)'}}>
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}25`,boxShadow:`0 0 8px ${a.color}20`}:{background:'rgba(255,255,255,0.05)'}}>
-                            <ShieldIcon size={12} tier={unlocked?'gold':'bronze'}/>
-                        </div>
-                        <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#475569'}}>{a.name}</span>
-                    </div>
+                    return <motion.div key={a.id} whileHover={unlocked?{scale:1.1}:{}} className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 px-0.5 transition-all ${unlocked?'':'opacity-25'}`}
+                        style={unlocked?{background:`${a.color}12`,border:`1px solid ${a.color}25`,boxShadow:`0 0 10px ${a.color}15`}:{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.04)'}}>
+                        <motion.div animate={unlocked?{boxShadow:[`0 0 4px ${a.color}20`,`0 0 8px ${a.color}40`,`0 0 4px ${a.color}20`]}:{}} transition={{duration:3,repeat:Infinity}}
+                            className="w-7 h-7 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}20`}:{background:'rgba(255,255,255,0.04)'}}>
+                            <ShieldIcon size={13} tier={unlocked?'gold':'bronze'}/>
+                        </motion.div>
+                        <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#334155'}}>{a.name}</span>
+                    </motion.div>
                 })}</div>
             </motion.div>
             <div className="pb-4"/>
@@ -221,8 +267,14 @@ function Dashboard({ onStart }) {
     </div>
 }
 
-function ModBtn({icon,label,onClick,grad,disabled}) {
-    return <motion.button whileTap={disabled?{}:{scale:.95}} onClick={disabled?undefined:onClick} className={`flex-1 py-2.5 rounded-xl font-black text-[10px] text-white border-b-[3px] border-black/30 active:border-b-[1px] active:translate-y-[2px] transition-all cursor-pointer flex flex-col items-center gap-0.5 ${disabled?'opacity-40':''}`} style={{background:grad}}>{icon}{label}</motion.button>
+/* ── Glassmorphism Button ── */
+function GlassBtn({icon,label,onClick,color,disabled}) {
+    return <motion.button whileTap={disabled?{}:{scale:.95}} onClick={disabled?undefined:onClick}
+        className={`flex-1 py-2.5 rounded-xl font-black text-[10px] text-white transition-all cursor-pointer flex flex-col items-center gap-0.5 backdrop-blur-md relative overflow-hidden ${disabled?'opacity-35':''}`}
+        style={{background:`linear-gradient(135deg,${color}25,${color}10)`,border:`1px solid ${color}35`,boxShadow:`0 4px 15px ${color}15, 0 0 1px ${color}40`}}>
+        <motion.div animate={{x:['-100%','200%']}} transition={{duration:4,repeat:Infinity,repeatDelay:2}} className="absolute inset-0" style={{background:`linear-gradient(90deg,transparent,${color}15,transparent)`,width:'30%'}}/>
+        {icon}{label}
+    </motion.button>
 }
 
 function EmoteShop() {
