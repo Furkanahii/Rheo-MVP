@@ -55,15 +55,7 @@ function CTimer({ time, max, size = 48 }) {
     </div>
 }
 
-/* ═══ ELO SPARKLINE ═══ */
-function Spark({ history }) {
-    if (history.length < 2) return null
-    const elos = history.slice(0,10).reverse().reduce((a,h) => { a.push((a[a.length-1]||1000)+(h.elo||0)); return a }, [duelStats.elo-history.slice(0,10).reduce((s,h)=>s+(h.elo||0),0)])
-    const mn=Math.min(...elos), mx=Math.max(...elos), rg=mx-mn||1, w=120, h=28
-    const pts=elos.map((e,i)=>`${(i/(elos.length-1))*w},${h-((e-mn)/rg)*(h-4)-2}`).join(' ')
-    const up=elos[elos.length-1]>elos[0]
-    return <svg width={w} height={h} className="mt-1"><polyline points={pts} fill="none" stroke={up?'#22c55e':'#ef4444'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx={w} cy={h-((elos[elos.length-1]-mn)/rg)*(h-4)-2} r="3" fill={up?'#22c55e':'#ef4444'}/></svg>
-}
+
 
 /* ════════════════ MAIN ════════════════ */
 export default function LeagueView() {
@@ -105,14 +97,20 @@ function Dashboard({ onStart }) {
                     <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black" style={{background:tier.color+'22',color:tier.color,border:`1px solid ${tier.color}44`}}><BoltIcon size={10} color={tier.color}/>{duelStats.elo} ELO</span>
                     <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-white/5 text-slate-400 border border-white/10"><StarIcon size={10}/>{title.name}</span>
                 </div>
-                <Spark history={duelHistory}/>
                 {(()=>{
                     const nx=leagueTiers.find(t=>t.minElo>duelStats.elo)
-                    if(!nx) return <p className="text-[8px] font-bold text-amber-400 mt-1">Max Tier!</p>
+                    if(!nx) return <p className="text-[8px] font-bold text-amber-400 mt-2">Max Tier!</p>
                     const pct=Math.min(((duelStats.elo-tier.minElo)/(nx.minElo-tier.minElo))*100,100)
-                    return <div className="mt-2 w-full px-8">
-                        <div className="flex justify-between text-[7px] font-bold text-slate-600 mb-0.5"><span>{tier.name}</span><span>{nx.name}</span></div>
-                        <div className="h-1.5 rounded-full overflow-hidden bg-white/5"><motion.div initial={{width:0}} animate={{width:`${pct}%`}} transition={{duration:1}} className="h-full rounded-full" style={{background:`linear-gradient(90deg,${tier.color},${nx.color})`}}/></div>
+                    return <div className="mt-2 w-full px-4">
+                        <div className="flex justify-between items-center text-[8px] font-bold mb-1">
+                            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded" style={{background:tier.color+'22',color:tier.color}}><ShieldIcon size={10} tier={tier.name.toLowerCase()}/>{tier.name}</span>
+                            <span className="text-[7px] text-slate-500">{duelStats.elo} / {nx.minElo} ELO</span>
+                            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded" style={{background:nx.color+'22',color:nx.color}}><ShieldIcon size={10} tier={nx.name.toLowerCase()}/>{nx.name}</span>
+                        </div>
+                        <div className="h-2 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,0.06)'}}>
+                            <motion.div initial={{width:0}} animate={{width:`${pct}%`}} transition={{duration:1.5,ease:'easeOut'}} className="h-full rounded-full" style={{background:`linear-gradient(90deg,${tier.color},${nx.color})`,boxShadow:`0 0 8px ${tier.color}60`}}/>
+                        </div>
+                        <p className="text-[7px] font-bold text-slate-600 text-center mt-0.5">{nx.minElo-duelStats.elo} ELO kaldı</p>
                     </div>
                 })()}
             </motion.div>
@@ -148,13 +146,23 @@ function Dashboard({ onStart }) {
             {/* BP Road */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.14}} className={gc} style={G}>
                 <p className="text-[8px] font-extrabold text-slate-500 mb-2 flex items-center gap-1"><StarIcon size={10}/>BATTLE PASS YOLU</p>
-                <div className="flex gap-1 overflow-x-auto pb-1">{bp.tiers.map((t,i)=>{
-                    const u=bp.xp>=t.xpNeeded
-                    return <div key={i} className={`flex-shrink-0 w-10 text-center rounded-lg p-1 border-b-[2px] ${u?'border-amber-700 border border-amber-600/30':'border-slate-800 border border-white/5'}`} style={u?{background:'rgba(251,191,36,0.12)'}:{background:'rgba(255,255,255,0.02)'}}>
-                        <p className="text-[7px] font-black text-slate-500">{t.tier}</p>
-                        {u?<div className="flex justify-center"><StarIcon size={12} color="#22c55e"/></div>:<div className="w-3 h-3 mx-auto rounded-full bg-slate-700 border border-slate-600"/>}
-                    </div>
-                })}</div>
+                <div className="relative overflow-x-auto pb-2">
+                    {/* Connecting line */}
+                    <div className="absolute top-6 left-5 right-5 h-0.5" style={{background:'linear-gradient(90deg,#fbbf24,#f59e0b 30%,rgba(255,255,255,0.06) 30%)'}}/>
+                    <div className="flex gap-0.5">{bp.tiers.map((t,i)=>{
+                        const u=bp.xp>=t.xpNeeded
+                        const isCurrent=bp.currentTier===t.tier
+                        const rewardIcons=['💎','⭐','🔷','💎','⭐','🔶','💎','⭐','🔷','💎','🏆','💎','⭐','🔷','👑']
+                        return <div key={i} className="flex-shrink-0 flex flex-col items-center" style={{width:42}}>
+                            <motion.div animate={isCurrent?{scale:[1,1.15,1]}:{}} transition={{duration:1.5,repeat:Infinity}}
+                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm relative border-b-[2px] transition-all ${u?'border-amber-600':'isCurrent'?'border-teal-600':'border-slate-800'}`}
+                                style={u?{background:'linear-gradient(135deg,rgba(251,191,36,0.25),rgba(245,158,11,0.15))',border:'1px solid rgba(251,191,36,0.4)',boxShadow:'0 0 10px rgba(251,191,36,0.15)'}:isCurrent?{background:'rgba(20,184,166,0.15)',border:'1px solid rgba(20,184,166,0.4)',boxShadow:'0 0 10px rgba(20,184,166,0.2)'}:{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                                {u?<StarIcon size={16} color="#22c55e"/>:<span className="opacity-60">{rewardIcons[i%rewardIcons.length]}</span>}
+                            </motion.div>
+                            <span className={`text-[7px] font-black mt-0.5 ${u?'text-amber-400':isCurrent?'text-teal-400':'text-slate-600'}`}>{t.tier}</span>
+                        </div>
+                    })}</div>
+                </div>
             </motion.div>
 
             {/* Emotes */}
@@ -201,15 +209,18 @@ function EmoteShop() {
     const [show, setShow] = useState(false)
     const [,rf] = useState(0)
     return <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.16}} className={gc} style={G}>
-        <div className="flex items-center justify-between mb-1.5"><p className="text-[8px] font-extrabold text-slate-500">EMOTES ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer">{show?'Kapat':'Shop'}</button></div>
-        <div className="flex gap-1.5 flex-wrap">{(show?allEmotes:owned).map(e=>{
+        <div className="flex items-center justify-between mb-2"><p className="text-[8px] font-extrabold text-slate-500">EMOTES ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer">{show?'Kapat':'Shop'}</button></div>
+        <div className="grid grid-cols-4 gap-1.5">{(show?allEmotes:owned).map(e=>{
             const has=owned.find(o=>o.id===e.id)
-            return <motion.div key={e.id} whileTap={!has?{scale:.85}:{}} onClick={()=>{if(show&&!has){buyEmote(e.id);S.pop();rf(v=>v+1)}}}
-                className={`h-8 rounded-lg flex items-center justify-center text-[9px] font-black px-2.5 border-b-[2px] transition-all ${has?'border-white/10 cursor-pointer':'border-slate-800 opacity-40 cursor-pointer'}`}
-                style={has?{...G,color:e.color,borderColor:e.color+'30'}:{background:'rgba(255,255,255,0.02)',color:'#64748b'}}
-                title={`${e.text} ${e.price>0?`(${e.price} gem)`:''}`}>{e.label}</motion.div>
+            return <motion.div key={e.id} whileHover={has?{scale:1.05}:{}} whileTap={!has?{scale:.9}:{}} onClick={()=>{if(show&&!has){buyEmote(e.id);S.pop();rf(v=>v+1)}}}
+                className={`rounded-xl py-2 px-1 flex flex-col items-center gap-0.5 cursor-pointer transition-all border ${has?'':'opacity-40'}`}
+                style={has?{background:`${e.color}15`,border:`1px solid ${e.color}30`,boxShadow:`0 0 12px ${e.color}10`}:{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.05)'}}>
+                <span className="text-sm font-black" style={{color:has?e.color:'#475569'}}>{e.label}</span>
+                <span className="text-[6px] font-bold" style={{color:has?e.color+'99':'#475569'}}>{e.text}</span>
+                {show&&!has&&<span className="text-[6px] font-bold text-amber-500">{e.price} 💎</span>}
+            </motion.div>
         })}</div>
-        {show&&<p className="text-[7px] font-bold text-slate-600 mt-1.5">{stats.gems||0} gem mevcut</p>}
+        {show&&<p className="text-[7px] font-bold text-slate-600 text-center mt-2">{stats.gems||0} gem mevcut</p>}
     </motion.div>
 }
 
