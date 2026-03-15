@@ -697,82 +697,113 @@ export function getStreakMultiplier() {
 }
 
 /* ══════════════════════════════════════════════
-   ARENA / DUEL SYSTEM — Clash of Coders v1
-   Fully localStorage-persisted, real ELO, per-language questions
+   ARENA / DUEL SYSTEM — Clash of Coders v2 MEGA
+   Fully localStorage-persisted, real ELO, per-language questions,
+   multiple game modes, AI personalities, battle pass, emotes, seasons
    ══════════════════════════════════════════════ */
 const DUEL_STATS_KEY = 'rheo_duel_stats'
 const DUEL_HISTORY_KEY = 'rheo_duel_history'
+const DUEL_SEASON_KEY = 'rheo_duel_season'
+const DUEL_BP_KEY = 'rheo_battle_pass'
+const DUEL_DAILY_KEY = 'rheo_daily_challenge'
+const DUEL_EMOTES_KEY = 'rheo_emotes'
 
-/* ── Duel Question Pools (per language) ── */
+/* ═══ QUESTION POOLS — 6 TYPES ═══ */
 const duelQuestionPool = {
     python: [
-        { text: 'print(len("Hello")) çıktısı nedir?', options: ['4', '5', '6', 'Error'], correct: 1 },
-        { text: 'range(3) ne üretir?', options: ['[1,2,3]', '[0,1,2]', '[0,1,2,3]', 'Error'], correct: 1 },
-        { text: 'Fonksiyon tanımlamak için hangi keyword kullanılır?', options: ['func', 'function', 'def', 'define'], correct: 2 },
-        { text: '2 ** 3 sonucu nedir?', options: ['6', '8', '9', '5'], correct: 1 },
-        { text: 'True hangi tiptedir?', options: ['str', 'int', 'bool', 'float'], correct: 2 },
-        { text: '"hello".upper() ne döner?', options: ['"Hello"', '"HELLO"', '"hello"', 'Error'], correct: 1 },
-        { text: '[1,2,3] + [4,5] sonucu nedir?', options: ['[5,7]', '[1,2,3,4,5]', 'Error', '[1,2,3,[4,5]]'], correct: 1 },
-        { text: 'type(3.14) ne döner?', options: ['int', 'float', 'double', 'number'], correct: 1 },
-        { text: '"Python"[1] ne verir?', options: ['P', 'y', 't', 'Error'], correct: 1 },
-        { text: 'bool("") ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
-        { text: 'list("abc") ne verir?', options: ['["abc"]', '["a","b","c"]', 'Error', '"abc"'], correct: 1 },
-        { text: '10 // 3 sonucu nedir?', options: ['3.33', '3', '4', '3.0'], correct: 1 },
-        { text: '"hello" * 2 ne verir?', options: ['Error', '"hellohello"', '10', '"hello2"'], correct: 1 },
-        { text: 'len({1, 2, 2, 3}) sonucu?', options: ['4', '3', '2', 'Error'], correct: 1 },
-        { text: 'not True ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
+        /* Standard MCQ */
+        { type: 'mcq', text: 'print(len("Hello")) çıktısı nedir?', options: ['4', '5', '6', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'range(3) ne üretir?', options: ['[1,2,3]', '[0,1,2]', '[0,1,2,3]', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'Fonksiyon tanımlamak için hangi keyword?', options: ['func', 'function', 'def', 'define'], correct: 2 },
+        { type: 'mcq', text: '2 ** 3 sonucu nedir?', options: ['6', '8', '9', '5'], correct: 1 },
+        { type: 'mcq', text: 'True hangi tiptedir?', options: ['str', 'int', 'bool', 'float'], correct: 2 },
+        { type: 'mcq', text: '"hello".upper() ne döner?', options: ['"Hello"', '"HELLO"', '"hello"', 'Error'], correct: 1 },
+        { type: 'mcq', text: '[1,2,3] + [4,5] sonucu?', options: ['[5,7]', '[1,2,3,4,5]', 'Error', '[1,2,3,[4,5]]'], correct: 1 },
+        { type: 'mcq', text: 'type(3.14) ne döner?', options: ['int', 'float', 'double', 'number'], correct: 1 },
+        { type: 'mcq', text: '"Python"[1] ne verir?', options: ['P', 'y', 't', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'bool("") ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
+        { type: 'mcq', text: '10 // 3 sonucu nedir?', options: ['3.33', '3', '4', '3.0'], correct: 1 },
+        { type: 'mcq', text: 'not True ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
+        /* Debug Hunt */
+        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'def greet(name)\n    print("Hello " + name)\ngreet("World")', bugLine: 1, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 0 },
+        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'nums = [1, 2, 3]\nfor i in range(4):\n    print(nums[i])', bugLine: 2, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 2 },
+        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'x = 10\nif x = 10:\n    print("ten")', bugLine: 2, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 1 },
+        /* Code Complete */
+        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'def add(a, b):\n    ___ a + b', blank: '___', options: ['print', 'return', 'yield', 'pass'], correct: 1 },
+        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'for i ___ range(5):\n    print(i)', blank: '___', options: ['=', 'in', 'of', ':'], correct: 1 },
+        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'my_list = [1, 2, 3]\nmy_list.___(4)', blank: '___', options: ['add', 'push', 'append', 'insert'], correct: 2 },
+        /* Code Trace */
+        { type: 'trace', text: '🔍 x\'in son değeri nedir?', code: 'x = 0\nfor i in range(3):\n    x += i\nprint(x)', options: ['0', '3', '6', '5'], correct: 1 },
+        { type: 'trace', text: '🔍 result\'ın değeri nedir?', code: 'result = 1\nfor i in range(1, 4):\n    result *= i\nprint(result)', options: ['3', '6', '9', '24'], correct: 1 },
+        /* Algorithm Complexity */
+        { type: 'algo', text: '⚡ Bu kodun zaman karmaşıklığı?', code: 'for i in range(n):\n    print(i)', options: ['O(1)', 'O(n)', 'O(n²)', 'O(log n)'], correct: 1 },
+        { type: 'algo', text: '⚡ Bu kodun zaman karmaşıklığı?', code: 'for i in range(n):\n    for j in range(n):\n        print(i, j)', options: ['O(n)', 'O(n²)', 'O(n³)', 'O(2^n)'], correct: 1 },
     ],
     javascript: [
-        { text: 'typeof null ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 1 },
-        { text: '"2" + 2 sonucu nedir?', options: ['4', '"22"', 'NaN', 'Error'], correct: 1 },
-        { text: '[1,2,3].length ne verir?', options: ['2', '3', '4', 'undefined'], correct: 1 },
-        { text: 'let vs var farkı nedir?', options: ['Aynıdır', 'let block-scoped', 'var block-scoped', 'let global'], correct: 1 },
-        { text: '=== operatörü ne yapar?', options: ['Atama', 'Tip + değer karşılaştırma', 'Sadece değer', 'Referans'], correct: 1 },
-        { text: 'Array.isArray([]) ne döner?', options: ['false', 'true', 'undefined', 'Error'], correct: 1 },
-        { text: 'console.log(0.1 + 0.2 === 0.3)?', options: ['true', 'false', 'Error', 'undefined'], correct: 1 },
-        { text: '"hello".charAt(0) ne verir?', options: ['"h"', '"H"', '0', 'undefined'], correct: 0 },
-        { text: 'NaN === NaN sonucu?', options: ['true', 'false', 'Error', 'NaN'], correct: 1 },
-        { text: 'typeof undefined ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 2 },
-        { text: '[...[1,2], ...[3,4]] ne verir?', options: ['[1,2,3,4]', '[[1,2],[3,4]]', 'Error', '[1,2]'], correct: 0 },
-        { text: 'parseInt("10abc") sonucu?', options: ['NaN', '10', 'Error', '"10"'], correct: 1 },
-        { text: '"5" - 3 sonucu?', options: ['"53"', '2', 'NaN', 'Error'], correct: 1 },
-        { text: 'Boolean("") ne döner?', options: ['true', 'false', 'undefined', 'Error'], correct: 1 },
-        { text: 'Object.keys({a:1,b:2}).length?', options: ['1', '2', '3', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'typeof null ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 1 },
+        { type: 'mcq', text: '"2" + 2 sonucu?', options: ['4', '"22"', 'NaN', 'Error'], correct: 1 },
+        { type: 'mcq', text: '[1,2,3].length ne verir?', options: ['2', '3', '4', 'undefined'], correct: 1 },
+        { type: 'mcq', text: '=== operatörü ne yapar?', options: ['Atama', 'Tip + değer', 'Sadece değer', 'Referans'], correct: 1 },
+        { type: 'mcq', text: 'Array.isArray([]) ne döner?', options: ['false', 'true', 'undefined', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'NaN === NaN sonucu?', options: ['true', 'false', 'Error', 'NaN'], correct: 1 },
+        { type: 'mcq', text: 'typeof undefined ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 2 },
+        { type: 'mcq', text: 'parseInt("10abc") sonucu?', options: ['NaN', '10', 'Error', '"10"'], correct: 1 },
+        { type: 'mcq', text: '"5" - 3 sonucu?', options: ['"53"', '2', 'NaN', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'Boolean("") ne döner?', options: ['true', 'false', 'undefined', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'Object.keys({a:1,b:2}).length?', options: ['1', '2', '3', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'let vs var farkı?', options: ['Aynıdır', 'let block-scoped', 'var block-scoped', 'let global'], correct: 1 },
+        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'const x = 5;\nx = 10;\nconsole.log(x);', bugLine: 2, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 1 },
+        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'let arr = [1,2,3];\narr.push(4)\nconsole.log(arr.lenght);', bugLine: 3, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 2 },
+        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'const add = (a, b) ___ a + b;', blank: '___', options: [':', '=>', '->', '='], correct: 1 },
+        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'const fruits = ["apple"];\nfruits.___(\"banana\");', blank: '___', options: ['add', 'push', 'append', 'insert'], correct: 1 },
+        { type: 'trace', text: '🔍 result değeri nedir?', code: 'let result = "";\nfor(let i = 0; i < 3; i++) {\n  result += i;\n}\nconsole.log(result);', options: ['3', '"012"', '0', '6'], correct: 1 },
+        { type: 'algo', text: '⚡ Array.includes() karmaşıklığı?', code: 'arr.includes(target)', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correct: 1 },
     ],
     java: [
-        { text: 'String s = "Hello"; s.length() ne döner?', options: ['4', '5', '6', 'Error'], correct: 1 },
-        { text: 'int[] arr = {1,2,3}; arr.length?', options: ['2', '3', '4', 'Error'], correct: 1 },
-        { text: 'Java\'da main method imzası nedir?', options: ['void main()', 'public static void main(String[] args)', 'int main()', 'def main()'], correct: 1 },
-        { text: '"Hello" == "Hello" her zaman true mu?', options: ['Evet', 'Belki (string pool)', 'Hayır', 'Compile error'], correct: 1 },
-        { text: 'int x = 10/3; x nedir?', options: ['3.33', '3', '4', 'Error'], correct: 1 },
-        { text: 'ArrayList vs Array farkı?', options: ['Aynıdır', 'ArrayList dinamik', 'Array dinamik', 'Fark yok'], correct: 1 },
-        { text: 'null instanceof Object ne döner?', options: ['true', 'false', 'Error', 'null'], correct: 1 },
-        { text: 'final keyword ne yapar?', options: ['Değişkeni sabitler', 'Silme', 'Return', 'Loop'], correct: 0 },
-        { text: 'System.out.println(1 + "2") çıktısı?', options: ['"3"', '"12"', '3', 'Error'], correct: 1 },
-        { text: 'char c = \'A\'; (int)c ne verir?', options: ['A', '65', '0', 'Error'], correct: 1 },
-        { text: 'String.valueOf(123) ne döner?', options: ['123', '"123"', 'Error', 'null'], correct: 1 },
-        { text: 'try-catch-finally sırası?', options: ['catch-try-finally', 'try-catch-finally', 'finally-try-catch', 'try-finally'], correct: 1 },
-        { text: 'Math.max(5, 10) sonucu?', options: ['5', '10', '15', 'Error'], correct: 1 },
-        { text: 'boolean b = !true; b nedir?', options: ['true', 'false', '0', 'Error'], correct: 1 },
-        { text: 'Java kaç bit int kullanır?', options: ['16', '32', '64', '8'], correct: 1 },
+        { type: 'mcq', text: 'String s = "Hello"; s.length()?', options: ['4', '5', '6', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'int[] arr = {1,2,3}; arr.length?', options: ['2', '3', '4', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'int x = 10/3; x nedir?', options: ['3.33', '3', '4', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'null instanceof Object?', options: ['true', 'false', 'Error', 'null'], correct: 1 },
+        { type: 'mcq', text: 'System.out.println(1 + "2")?', options: ['"3"', '"12"', '3', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'char c = \'A\'; (int)c?', options: ['A', '65', '0', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'Math.max(5, 10)?', options: ['5', '10', '15', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'boolean b = !true; b?', options: ['true', 'false', '0', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'Java kaç bit int kullanır?', options: ['16', '32', '64', '8'], correct: 1 },
+        { type: 'mcq', text: 'ArrayList vs Array farkı?', options: ['Aynıdır', 'ArrayList dinamik', 'Array dinamik', 'Fark yok'], correct: 1 },
+        { type: 'mcq', text: 'final keyword ne yapar?', options: ['Değişkeni sabitler', 'Silme', 'Return', 'Loop'], correct: 0 },
+        { type: 'mcq', text: 'String.valueOf(123)?', options: ['123', '"123"', 'Error', 'null'], correct: 1 },
+        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'int x = 10;\nif(x = 10) {\n  System.out.println("ten");\n}', bugLine: 2, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 1 },
+        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'public ___ void main(String[] args) {\n  System.out.println("Hi");\n}', blank: '___', options: ['final', 'static', 'private', 'void'], correct: 1 },
+        { type: 'trace', text: '🔍 sum\'ın değeri nedir?', code: 'int sum = 0;\nfor(int i = 1; i <= 3; i++)\n  sum += i;\nSystem.out.println(sum);', options: ['3', '6', '9', '0'], correct: 1 },
+        { type: 'algo', text: '⚡ Binary Search karmaşıklığı?', code: 'Arrays.binarySearch(arr, key)', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correct: 2 },
     ]
 }
 
-/* ── Random Opponent Pool ── */
+/* ═══ AI OPPONENT POOL — with PERSONALITIES ═══ */
 const opponentPool = [
-    { name: 'PyNinja', avatar: '🥷' }, { name: 'CodeMaster42', avatar: '🧑‍💻' },
-    { name: 'LoopLord', avatar: '🧙' }, { name: 'BugSquasher', avatar: '🐛' },
-    { name: 'RecursiveRex', avatar: '🦖' }, { name: 'SyntaxError_', avatar: '❌' },
-    { name: 'BitShifter', avatar: '⚡' }, { name: 'NullPointer', avatar: '💀' },
-    { name: 'AlgoQueen', avatar: '👑' }, { name: 'StackOverflow', avatar: '📚' },
-    { name: 'BinaryBoss', avatar: '🤖' }, { name: 'ByteHunter', avatar: '🎯' },
-    { name: 'LambdaWolf', avatar: '🐺' }, { name: 'HashMapHero', avatar: '🗺️' },
-    { name: 'PixelPirate', avatar: '🏴‍☠️' }, { name: 'TuringTest', avatar: '🧪' },
-    { name: 'CSSWizard', avatar: '🎨' }, { name: 'DevOpsDragon', avatar: '🐉' },
-    { name: 'GitGuru', avatar: '🔀' }, { name: 'RegexRanger', avatar: '🏹' },
+    { name: 'PyNinja', avatar: '🥷', personality: 'speed', accuracy: 0.65, speed: 0.9, taunt: 'Çok hızlıyım!' },
+    { name: 'CodeMaster42', avatar: '🧑‍💻', personality: 'balanced', accuracy: 0.75, speed: 0.6, taunt: 'Hazır ol.' },
+    { name: 'LoopLord', avatar: '🧙', personality: 'strategic', accuracy: 0.8, speed: 0.4, taunt: 'Düşün, sonra cevapla.' },
+    { name: 'BugSquasher', avatar: '🐛', personality: 'debug_expert', accuracy: 0.9, speed: 0.5, taunt: 'Debug benim işim!' },
+    { name: 'RecursiveRex', avatar: '🦖', personality: 'algo_expert', accuracy: 0.85, speed: 0.55, taunt: 'Algoritma kralı!' },
+    { name: 'SyntaxError_', avatar: '❌', personality: 'speed', accuracy: 0.5, speed: 0.95, taunt: 'Hızlannn!' },
+    { name: 'BitShifter', avatar: '⚡', personality: 'speed', accuracy: 0.6, speed: 0.85, taunt: 'Senden hızlıyım.' },
+    { name: 'NullPointer', avatar: '💀', personality: 'balanced', accuracy: 0.7, speed: 0.7, taunt: 'null.' },
+    { name: 'AlgoQueen', avatar: '👑', personality: 'strategic', accuracy: 0.9, speed: 0.35, taunt: 'Yavaş ama doğru.' },
+    { name: 'StackOverflow', avatar: '📚', personality: 'balanced', accuracy: 0.75, speed: 0.65, taunt: 'Araştırdım, biliyorum.' },
+    { name: 'BinaryBoss', avatar: '🤖', personality: 'algo_expert', accuracy: 0.82, speed: 0.6, taunt: '01010111!' },
+    { name: 'ByteHunter', avatar: '🎯', personality: 'speed', accuracy: 0.55, speed: 0.88, taunt: 'Hedef kilitlendi.' },
+    { name: 'LambdaWolf', avatar: '🐺', personality: 'balanced', accuracy: 0.72, speed: 0.68, taunt: '() => kazanmak' },
+    { name: 'HashMapHero', avatar: '🗺️', personality: 'strategic', accuracy: 0.85, speed: 0.45, taunt: 'O(1) bul.' },
+    { name: 'PixelPirate', avatar: '🏴‍☠️', personality: 'speed', accuracy: 0.58, speed: 0.92, taunt: 'Arrrgh!' },
+    { name: 'TuringTest', avatar: '🧪', personality: 'algo_expert', accuracy: 0.88, speed: 0.5, taunt: 'İnsan mısın?' },
+    { name: 'DevOpsDragon', avatar: '🐉', personality: 'balanced', accuracy: 0.78, speed: 0.62, taunt: 'Deploy incoming.' },
+    { name: 'GitGuru', avatar: '🔀', personality: 'strategic', accuracy: 0.83, speed: 0.42, taunt: 'git push --force' },
+    { name: 'RegexRanger', avatar: '🏹', personality: 'debug_expert', accuracy: 0.87, speed: 0.48, taunt: '/^master$/' },
+    { name: 'CSSWizard', avatar: '🎨', personality: 'balanced', accuracy: 0.7, speed: 0.72, taunt: 'display: win;' },
 ]
 
-/* ── League Tiers ── */
+/* ═══ LEAGUE TIERS ═══ */
 const leagueTiers = [
     { name: 'Bronze', icon: '🥉', minElo: 0, color: '#CD7F32' },
     { name: 'Silver', icon: '🥈', minElo: 1200, color: '#C0C0C0' },
@@ -781,11 +812,209 @@ const leagueTiers = [
     { name: 'Hacker', icon: '👾', minElo: 2200, color: '#FF00FF' },
 ]
 
-/* ── Load Persisted Duel Data ── */
-export const duelStats = loadSaved(DUEL_STATS_KEY, { wins: 0, losses: 0, winStreak: 0, bestStreak: 0, elo: 1000 })
+/* ═══ ARENA TITLES ═══ */
+export const arenaTitles = [
+    { name: 'Newbie Coder', icon: '🌱', minElo: 0 },
+    { name: 'Bug Hunter', icon: '🐛', minElo: 900 },
+    { name: 'Code Warrior', icon: '⚔️', minElo: 1100 },
+    { name: 'Algorithm Knight', icon: '🛡️', minElo: 1300 },
+    { name: 'Syntax Samurai', icon: '🗡️', minElo: 1600 },
+    { name: 'Data Wizard', icon: '🧙', minElo: 1900 },
+    { name: 'Legendary Hacker', icon: '👾', minElo: 2200 },
+]
+
+export function getArenaTitle(elo) {
+    const e = elo ?? duelStats.elo
+    for (let i = arenaTitles.length - 1; i >= 0; i--) {
+        if (e >= arenaTitles[i].minElo) return arenaTitles[i]
+    }
+    return arenaTitles[0]
+}
+
+/* ═══ MASCOT EVOLUTION ═══ */
+export const mascotEvolutions = [
+    { name: 'Baby Otter', emoji: '🦦', minWins: 0, glow: '' },
+    { name: 'Warrior Otter', emoji: '⚔️🦦', minWins: 10, glow: '0 0 15px rgba(52,211,153,0.4)' },
+    { name: 'Sensei Otter', emoji: '🥋🦦', minWins: 50, glow: '0 0 20px rgba(251,191,36,0.5)' },
+    { name: 'Legendary Otter', emoji: '👑🦦', minWins: 100, glow: '0 0 25px rgba(168,85,247,0.6)' },
+]
+
+export function getMascotEvolution() {
+    const w = duelStats.wins
+    for (let i = mascotEvolutions.length - 1; i >= 0; i--) {
+        if (w >= mascotEvolutions[i].minWins) return mascotEvolutions[i]
+    }
+    return mascotEvolutions[0]
+}
+
+/* ═══ EMOTE SYSTEM ═══ */
+export const allEmotes = [
+    { id: 'fire', emoji: '🔥', text: 'Yanıyorsun!', price: 0 },
+    { id: 'gg', emoji: '👏', text: 'GG!', price: 0 },
+    { id: 'shock', emoji: '😱', text: 'Zor soru!', price: 0 },
+    { id: 'brain', emoji: '🧠', text: 'Kolaydı', price: 50 },
+    { id: 'fast', emoji: '⏱️', text: 'Hızlısın!', price: 50 },
+    { id: 'sleep', emoji: '😴', text: 'Uyuyor musun?', price: 100 },
+    { id: 'crown', emoji: '👑', text: 'Kralım!', price: 150 },
+    { id: 'sip', emoji: '🍵', text: 'Çay iç.', price: 200 },
+]
+const _ownedEmotes = loadSaved(DUEL_EMOTES_KEY, ['fire', 'gg', 'shock'])
+export function getOwnedEmotes() { return allEmotes.filter(e => _ownedEmotes.includes(e.id)) }
+export function buyEmote(id) {
+    const emote = allEmotes.find(e => e.id === id)
+    if (!emote || _ownedEmotes.includes(id)) return false
+    if ((stats.gems || 0) < emote.price) return false
+    stats.gems -= emote.price
+    _ownedEmotes.push(id)
+    saveTo(DUEL_EMOTES_KEY, _ownedEmotes)
+    saveProgress()
+    return true
+}
+
+/* ═══ WIN STREAK CELEBRATIONS ═══ */
+export const streakCelebrations = [
+    { minStreak: 3, title: 'ON FIRE!', icon: '🔥', color: '#f97316' },
+    { minStreak: 5, title: 'UNSTOPPABLE!', icon: '⚡', color: '#eab308' },
+    { minStreak: 7, title: 'DOMINATING!', icon: '💥', color: '#ef4444' },
+    { minStreak: 10, title: 'LEGENDARY!', icon: '👑', color: '#a855f7' },
+]
+
+export function getStreakCelebration() {
+    for (let i = streakCelebrations.length - 1; i >= 0; i--) {
+        if (duelStats.winStreak >= streakCelebrations[i].minStreak) return streakCelebrations[i]
+    }
+    return null
+}
+
+/* ═══ SEASON SYSTEM ═══ */
+function getCurrentSeasonId() {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+const _seasonData = loadSaved(DUEL_SEASON_KEY, { id: getCurrentSeasonId(), startElo: 1000, gamesPlayed: 0, wins: 0 })
+export function getSeasonData() {
+    const currentId = getCurrentSeasonId()
+    if (_seasonData.id !== currentId) {
+        // Soft reset: new_elo = 1000 + (old_elo - 1000) * 0.5
+        const resetElo = Math.round(1000 + (duelStats.elo - 1000) * 0.5)
+        duelStats.elo = Math.max(800, resetElo)
+        saveTo(DUEL_STATS_KEY, duelStats)
+        _seasonData.id = currentId
+        _seasonData.startElo = duelStats.elo
+        _seasonData.gamesPlayed = 0
+        _seasonData.wins = 0
+        saveTo(DUEL_SEASON_KEY, _seasonData)
+    }
+    return { ..._seasonData, daysLeft: daysLeftInMonth() }
+}
+
+function daysLeftInMonth() {
+    const now = new Date()
+    const last = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    return last.getDate() - now.getDate()
+}
+
+/* ═══ BATTLE PASS ═══ */
+const battlePassTiers = [
+    { tier: 1, xpNeeded: 0, free: { type: 'gems', amount: 10 }, premium: { type: 'emote', id: 'brain' } },
+    { tier: 2, xpNeeded: 50, free: { type: 'gems', amount: 15 }, premium: { type: 'gems', amount: 30 } },
+    { tier: 3, xpNeeded: 120, free: { type: 'title', name: '🏅 Gladiator' }, premium: { type: 'gems', amount: 50 } },
+    { tier: 4, xpNeeded: 200, free: { type: 'gems', amount: 20 }, premium: { type: 'emote', id: 'fast' } },
+    { tier: 5, xpNeeded: 300, free: { type: 'gems', amount: 25 }, premium: { type: 'gems', amount: 60 } },
+    { tier: 6, xpNeeded: 420, free: { type: 'xp_boost', amount: 2 }, premium: { type: 'gems', amount: 75 } },
+    { tier: 7, xpNeeded: 550, free: { type: 'gems', amount: 30 }, premium: { type: 'emote', id: 'sleep' } },
+    { tier: 8, xpNeeded: 700, free: { type: 'title', name: '⚡ Speed Demon' }, premium: { type: 'gems', amount: 100 } },
+    { tier: 9, xpNeeded: 880, free: { type: 'gems', amount: 35 }, premium: { type: 'gems', amount: 120 } },
+    { tier: 10, xpNeeded: 1100, free: { type: 'gems', amount: 50 }, premium: { type: 'emote', id: 'crown' } },
+    { tier: 11, xpNeeded: 1350, free: { type: 'gems', amount: 40 }, premium: { type: 'gems', amount: 80 } },
+    { tier: 12, xpNeeded: 1650, free: { type: 'xp_boost', amount: 3 }, premium: { type: 'gems', amount: 100 } },
+    { tier: 13, xpNeeded: 2000, free: { type: 'gems', amount: 45 }, premium: { type: 'emote', id: 'sip' } },
+    { tier: 14, xpNeeded: 2400, free: { type: 'gems', amount: 50 }, premium: { type: 'gems', amount: 150 } },
+    { tier: 15, xpNeeded: 3000, free: { type: 'title', name: '👾 Arena Legend' }, premium: { type: 'gems', amount: 200 } },
+]
+export { battlePassTiers }
+
+const _bpData = loadSaved(DUEL_BP_KEY, { seasonId: getCurrentSeasonId(), xp: 0, tier: 0, claimed: [], premium: false })
+export function getBattlePass() {
+    if (_bpData.seasonId !== getCurrentSeasonId()) {
+        _bpData.seasonId = getCurrentSeasonId(); _bpData.xp = 0; _bpData.tier = 0; _bpData.claimed = []
+        saveTo(DUEL_BP_KEY, _bpData)
+    }
+    const currentTier = battlePassTiers.filter(t => _bpData.xp >= t.xpNeeded).length
+    const nextTier = battlePassTiers[currentTier] || battlePassTiers[battlePassTiers.length - 1]
+    const prevXp = currentTier > 0 ? battlePassTiers[currentTier - 1].xpNeeded : 0
+    return { ..._bpData, currentTier, nextTier, prevXp, tiers: battlePassTiers }
+}
+
+export function addBattlePassXP(amount) {
+    _bpData.xp += amount
+    _bpData.tier = battlePassTiers.filter(t => _bpData.xp >= t.xpNeeded).length
+    saveTo(DUEL_BP_KEY, _bpData)
+}
+
+/* ═══ DAILY ARENA CHALLENGE ═══ */
+function getDailySeed() {
+    const d = new Date()
+    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()
+}
+
+function seededShuffle(arr, seed) {
+    const a = [...arr]; let s = seed
+    for (let i = a.length - 1; i > 0; i--) {
+        s = (s * 9301 + 49297) % 233280
+        const j = Math.floor((s / 233280) * (i + 1))
+        ;[a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+}
+
+export function getDailyChallenge() {
+    const seed = getDailySeed()
+    const lang = getActiveLanguage()
+    const pool = duelQuestionPool[lang] || duelQuestionPool.python
+    const questions = seededShuffle(pool, seed).slice(0, 3)
+    const saved = loadSaved(DUEL_DAILY_KEY, {})
+    const today = String(seed)
+    return {
+        questions,
+        completed: saved[today]?.completed || false,
+        bestTime: saved[today]?.bestTime || null,
+        score: saved[today]?.score || null,
+        date: today,
+    }
+}
+
+export function saveDailyResult(score, timeMs) {
+    const saved = loadSaved(DUEL_DAILY_KEY, {})
+    const today = String(getDailySeed())
+    const prev = saved[today]
+    if (!prev || score > (prev.score || 0) || (score === prev.score && timeMs < prev.bestTime)) {
+        saved[today] = { completed: true, score, bestTime: timeMs }
+        saveTo(DUEL_DAILY_KEY, saved)
+    }
+    if (!prev?.completed) {
+        addXP(20)
+        stats.gems = (stats.gems || 0) + 5
+        saveProgress()
+        addBattlePassXP(15)
+    }
+    return saved[today]
+}
+
+/* ═══ GAME MODE CONFIGS ═══ */
+export const gameModes = {
+    classic: { name: 'Klasik Düello', icon: '⚔️', rounds: 3, timer: 20, desc: '3 soru, 20 saniye' },
+    blitz: { name: 'Speed Blitz', icon: '⚡', rounds: 5, timer: 10, desc: '5 soru, 10 sn, hız bonusu!', speedBonus: true },
+    auction: { name: 'Code Auction', icon: '🎰', rounds: 3, timer: 20, desc: 'XP\'ni bahse yatır!', betting: true },
+    daily: { name: 'Günlük Challenge', icon: '📅', rounds: 3, timer: 30, desc: 'Herkese aynı sorular' },
+}
+
+/* ═══ LOAD PERSISTED DUEL DATA ═══ */
+export const duelStats = loadSaved(DUEL_STATS_KEY, { wins: 0, losses: 0, winStreak: 0, bestStreak: 0, elo: 1000, totalDuels: 0, fastestWin: null })
 export const duelHistory = loadSaved(DUEL_HISTORY_KEY, [])
 
-/* ── Get Current League Tier ── */
+/* ═══ CORE FUNCTIONS ═══ */
 export function getLeagueTier(elo) {
     const e = elo ?? duelStats.elo
     for (let i = leagueTiers.length - 1; i >= 0; i--) {
@@ -795,23 +1024,19 @@ export function getLeagueTier(elo) {
 }
 export { leagueTiers }
 
-/* ── ELO Calculation (K-factor 32) ── */
 export function calculateElo(playerElo, opponentElo, won) {
     const K = 32
     const expected = 1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400))
-    const actual = won ? 1 : 0
-    return Math.round(K * (actual - expected))
+    return Math.round(K * ((won ? 1 : 0) - expected))
 }
 
-/* ── Get Duel Questions (language-aware, shuffled) ── */
-export function getDuelQuestions(count = 3) {
+export function getDuelQuestions(count = 3, mode = 'classic') {
     const lang = getActiveLanguage()
     const pool = duelQuestionPool[lang] || duelQuestionPool.python
     const shuffled = [...pool].sort(() => Math.random() - 0.5)
     return shuffled.slice(0, Math.min(count, pool.length))
 }
 
-/* ── Random Opponent (ELO-aware) ── */
 export function getRandomOpponent(userElo) {
     const elo = userElo ?? duelStats.elo
     const idx = Math.floor(Math.random() * opponentPool.length)
@@ -820,81 +1045,97 @@ export function getRandomOpponent(userElo) {
     return { ...base, elo: Math.max(800, elo + eloVariance) }
 }
 
-/* ── Save Duel Result ── */
-export function saveDuelResult({ won, yourScore, theirScore, opponent, totalTimeMs }) {
+/* ── AI Response Time based on personality ── */
+export function getAIResponseTime(opponent, questionType) {
+    const baseTime = 3000
+    const speedFactor = 1 - (opponent.speed || 0.5)
+    const typeBonus = (opponent.personality === 'debug_expert' && questionType === 'debug') ? 0.6
+        : (opponent.personality === 'algo_expert' && questionType === 'algo') ? 0.6 : 1
+    return Math.floor(baseTime + (Math.random() * 10000 * speedFactor * typeBonus))
+}
+
+export function getAICorrectChance(opponent, questionType) {
+    let base = opponent.accuracy || 0.7
+    if (opponent.personality === 'debug_expert' && questionType === 'debug') base += 0.15
+    if (opponent.personality === 'algo_expert' && questionType === 'algo') base += 0.15
+    return Math.min(0.95, base)
+}
+
+/* ═══ SAVE DUEL RESULT ═══ */
+export function saveDuelResult({ won, yourScore, theirScore, opponent, totalTimeMs, mode = 'classic', roundDetails = [] }) {
     const eloChange = calculateElo(duelStats.elo, opponent.elo, won)
-    const xpGain = won ? 30 + Math.abs(eloChange) : 5
+    const baseXP = won ? 30 : 5
+    const modeBonus = mode === 'blitz' ? 10 : mode === 'auction' ? 15 : 0
+    const xpGain = baseXP + Math.abs(eloChange) + modeBonus
     const gemGain = won ? 10 : 0
 
-    // Update stats
     duelStats.elo = Math.max(0, duelStats.elo + eloChange)
+    duelStats.totalDuels = (duelStats.totalDuels || 0) + 1
     if (won) {
         duelStats.wins += 1
         duelStats.winStreak += 1
         duelStats.bestStreak = Math.max(duelStats.bestStreak, duelStats.winStreak)
+        if (totalTimeMs && (!duelStats.fastestWin || totalTimeMs < duelStats.fastestWin)) {
+            duelStats.fastestWin = totalTimeMs
+        }
     } else {
         duelStats.losses += 1
         duelStats.winStreak = 0
     }
     saveTo(DUEL_STATS_KEY, duelStats)
 
-    // Add to history
+    // Season tracking
+    _seasonData.gamesPlayed += 1
+    if (won) _seasonData.wins += 1
+    saveTo(DUEL_SEASON_KEY, _seasonData)
+
+    // Battle Pass XP
+    addBattlePassXP(won ? 25 : 8)
+
     const now = new Date()
     const entry = {
-        id: Date.now(),
+        id: Date.now(), mode,
         opponent: { name: opponent.name, avatar: opponent.avatar },
         result: won ? 'win' : 'loss',
         score: `${yourScore}-${theirScore}`,
-        xp: xpGain,
-        elo: eloChange,
+        xp: xpGain, elo: eloChange,
         date: now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
-        timestamp: now.getTime(),
+        timestamp: now.getTime(), totalTimeMs,
+        roundDetails,
     }
     duelHistory.unshift(entry)
-    if (duelHistory.length > 20) duelHistory.length = 20
+    if (duelHistory.length > 30) duelHistory.length = 30
     saveTo(DUEL_HISTORY_KEY, duelHistory)
 
-    // Give XP + gems via existing system
     addXP(xpGain)
     if (gemGain > 0) { stats.gems = (stats.gems || 0) + gemGain; saveProgress() }
     trackQuestEvent('duel_complete')
 
-    return { xpGain, gemGain, eloChange, newElo: duelStats.elo, tier: getLeagueTier(duelStats.elo) }
+    const celebration = getStreakCelebration()
+    return { xpGain, gemGain, eloChange, newElo: duelStats.elo, tier: getLeagueTier(duelStats.elo), title: getArenaTitle(duelStats.elo), celebration, roundDetails }
 }
 
-/* ── Dynamic Leaderboard (simulated around user ELO) ── */
+/* ═══ DYNAMIC LEADERBOARD ═══ */
 export function getDuelLeaderboard() {
     const userElo = duelStats.elo
-    const names = opponentPool.map(o => o)
-    const shuffled = [...names].sort(() => Math.random() - 0.5).slice(0, 9)
-    const board = shuffled.map((p, i) => {
+    const shuffled = [...opponentPool].sort(() => Math.random() - 0.5).slice(0, 9)
+    const board = shuffled.map(p => {
         const variance = Math.floor(Math.random() * 400) - 150
         return { ...p, xp: Math.max(800, userElo + variance), isUser: false }
     })
-    board.push({ name: profile.name || 'You', avatar: '🦦', xp: userElo, isUser: true })
+    board.push({ name: profile.name || 'You', avatar: getMascotEvolution().emoji, xp: userElo, isUser: true })
     board.sort((a, b) => b.xp - a.xp)
     return board
 }
 
-/* ── Duel Config (exported for LeagueView) ── */
-export const duelData = {
-    get opponent() { return getRandomOpponent() },
-    timer: 20,
-    rounds: 3,
-}
-
-/* ── Legacy Compat ── */
+/* ── Duel Config / Legacy Compat ── */
+export const duelData = { get opponent() { return getRandomOpponent() }, timer: 20, rounds: 3 }
 export const duelQuestions = getDuelQuestions(3)
 export const league = {
     get current() { return getLeagueTier().name },
-    get rank() {
-        const lb = getDuelLeaderboard()
-        const idx = lb.findIndex(p => p.isUser)
-        return idx >= 0 ? idx + 1 : 5
-    },
+    get rank() { const lb = getDuelLeaderboard(); const idx = lb.findIndex(p => p.isUser); return idx >= 0 ? idx + 1 : 5 },
     get players() { return getDuelLeaderboard() },
-    promotionLine: 3,
-    relegationLine: 8,
+    promotionLine: 3, relegationLine: 8,
 }
 
 /* ── Otter Costumes ── */
