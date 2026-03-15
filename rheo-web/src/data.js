@@ -349,25 +349,7 @@ export function isAchievementUnlocked(id) {
     return unlocked.includes(id)
 }
 
-/* ── League Rankings ── */
-export const league = {
-    current: 'Gold',
-    rank: 4,
-    players: [
-        { name: 'CodeMaster42', xp: 2850, avatar: '🧑‍💻', isUser: false },
-        { name: 'PyNinja', xp: 2340, avatar: '🥷', isUser: false },
-        { name: 'BugSquasher', xp: 2100, avatar: '🐛', isUser: false },
-        { name: 'You', xp: 1985, avatar: '🦦', isUser: true },
-        { name: 'LoopLord', xp: 1820, avatar: '🔄', isUser: false },
-        { name: 'RecursiveRex', xp: 1650, avatar: '🦖', isUser: false },
-        { name: 'VarViking', xp: 1420, avatar: '⚔️', isUser: false },
-        { name: 'NullPointer', xp: 1200, avatar: '💥', isUser: false },
-        { name: 'SyntaxError', xp: 980, avatar: '❌', isUser: false },
-        { name: 'PrintHello', xp: 750, avatar: '👶', isUser: false },
-    ],
-    promotionLine: 3,   // top 3 promote
-    relegationLine: 8,  // bottom 3 relegate
-}
+/* ── League Rankings → now dynamic, see Arena section below ── */
 
 /* ── Profile ── */
 const _savedProfile = loadSaved('rheo_profile', null)
@@ -714,31 +696,206 @@ export function getStreakMultiplier() {
     return stats.streak >= 7 ? { mult: 3, label: '3x XP' } : stats.streak >= 3 ? { mult: 2, label: '2x XP' } : { mult: 1, label: null }
 }
 
-/* ── 1v1 Duel Data ── */
-export const duelQuestions = [
-    { text: 'What is the output of: print(len("Hello"))', options: ['4', '5', '6', 'Error'], correct: 1 },
-    { text: 'What does range(3) produce?', options: ['[1,2,3]', '[0,1,2]', '[0,1,2,3]', 'Error'], correct: 1 },
-    { text: 'Which keyword defines a function?', options: ['func', 'function', 'def', 'define'], correct: 2 },
-    { text: 'What is 2 ** 3 in Python?', options: ['6', '8', '9', '5'], correct: 1 },
-    { text: 'What type is True?', options: ['str', 'int', 'bool', 'float'], correct: 2 },
-    { text: 'What does "hello".upper() return?', options: ['"Hello"', '"HELLO"', '"hello"', 'Error'], correct: 1 },
-]
+/* ══════════════════════════════════════════════
+   ARENA / DUEL SYSTEM — Clash of Coders v1
+   Fully localStorage-persisted, real ELO, per-language questions
+   ══════════════════════════════════════════════ */
+const DUEL_STATS_KEY = 'rheo_duel_stats'
+const DUEL_HISTORY_KEY = 'rheo_duel_history'
 
-export const duelData = {
-    opponent: { name: 'PyNinja', avatar: '🥷', elo: 1450 },
-    timer: 15,
-    bestOf: 5,
+/* ── Duel Question Pools (per language) ── */
+const duelQuestionPool = {
+    python: [
+        { text: 'print(len("Hello")) çıktısı nedir?', options: ['4', '5', '6', 'Error'], correct: 1 },
+        { text: 'range(3) ne üretir?', options: ['[1,2,3]', '[0,1,2]', '[0,1,2,3]', 'Error'], correct: 1 },
+        { text: 'Fonksiyon tanımlamak için hangi keyword kullanılır?', options: ['func', 'function', 'def', 'define'], correct: 2 },
+        { text: '2 ** 3 sonucu nedir?', options: ['6', '8', '9', '5'], correct: 1 },
+        { text: 'True hangi tiptedir?', options: ['str', 'int', 'bool', 'float'], correct: 2 },
+        { text: '"hello".upper() ne döner?', options: ['"Hello"', '"HELLO"', '"hello"', 'Error'], correct: 1 },
+        { text: '[1,2,3] + [4,5] sonucu nedir?', options: ['[5,7]', '[1,2,3,4,5]', 'Error', '[1,2,3,[4,5]]'], correct: 1 },
+        { text: 'type(3.14) ne döner?', options: ['int', 'float', 'double', 'number'], correct: 1 },
+        { text: '"Python"[1] ne verir?', options: ['P', 'y', 't', 'Error'], correct: 1 },
+        { text: 'bool("") ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
+        { text: 'list("abc") ne verir?', options: ['["abc"]', '["a","b","c"]', 'Error', '"abc"'], correct: 1 },
+        { text: '10 // 3 sonucu nedir?', options: ['3.33', '3', '4', '3.0'], correct: 1 },
+        { text: '"hello" * 2 ne verir?', options: ['Error', '"hellohello"', '10', '"hello2"'], correct: 1 },
+        { text: 'len({1, 2, 2, 3}) sonucu?', options: ['4', '3', '2', 'Error'], correct: 1 },
+        { text: 'not True ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
+    ],
+    javascript: [
+        { text: 'typeof null ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 1 },
+        { text: '"2" + 2 sonucu nedir?', options: ['4', '"22"', 'NaN', 'Error'], correct: 1 },
+        { text: '[1,2,3].length ne verir?', options: ['2', '3', '4', 'undefined'], correct: 1 },
+        { text: 'let vs var farkı nedir?', options: ['Aynıdır', 'let block-scoped', 'var block-scoped', 'let global'], correct: 1 },
+        { text: '=== operatörü ne yapar?', options: ['Atama', 'Tip + değer karşılaştırma', 'Sadece değer', 'Referans'], correct: 1 },
+        { text: 'Array.isArray([]) ne döner?', options: ['false', 'true', 'undefined', 'Error'], correct: 1 },
+        { text: 'console.log(0.1 + 0.2 === 0.3)?', options: ['true', 'false', 'Error', 'undefined'], correct: 1 },
+        { text: '"hello".charAt(0) ne verir?', options: ['"h"', '"H"', '0', 'undefined'], correct: 0 },
+        { text: 'NaN === NaN sonucu?', options: ['true', 'false', 'Error', 'NaN'], correct: 1 },
+        { text: 'typeof undefined ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 2 },
+        { text: '[...[1,2], ...[3,4]] ne verir?', options: ['[1,2,3,4]', '[[1,2],[3,4]]', 'Error', '[1,2]'], correct: 0 },
+        { text: 'parseInt("10abc") sonucu?', options: ['NaN', '10', 'Error', '"10"'], correct: 1 },
+        { text: '"5" - 3 sonucu?', options: ['"53"', '2', 'NaN', 'Error'], correct: 1 },
+        { text: 'Boolean("") ne döner?', options: ['true', 'false', 'undefined', 'Error'], correct: 1 },
+        { text: 'Object.keys({a:1,b:2}).length?', options: ['1', '2', '3', 'Error'], correct: 1 },
+    ],
+    java: [
+        { text: 'String s = "Hello"; s.length() ne döner?', options: ['4', '5', '6', 'Error'], correct: 1 },
+        { text: 'int[] arr = {1,2,3}; arr.length?', options: ['2', '3', '4', 'Error'], correct: 1 },
+        { text: 'Java\'da main method imzası nedir?', options: ['void main()', 'public static void main(String[] args)', 'int main()', 'def main()'], correct: 1 },
+        { text: '"Hello" == "Hello" her zaman true mu?', options: ['Evet', 'Belki (string pool)', 'Hayır', 'Compile error'], correct: 1 },
+        { text: 'int x = 10/3; x nedir?', options: ['3.33', '3', '4', 'Error'], correct: 1 },
+        { text: 'ArrayList vs Array farkı?', options: ['Aynıdır', 'ArrayList dinamik', 'Array dinamik', 'Fark yok'], correct: 1 },
+        { text: 'null instanceof Object ne döner?', options: ['true', 'false', 'Error', 'null'], correct: 1 },
+        { text: 'final keyword ne yapar?', options: ['Değişkeni sabitler', 'Silme', 'Return', 'Loop'], correct: 0 },
+        { text: 'System.out.println(1 + "2") çıktısı?', options: ['"3"', '"12"', '3', 'Error'], correct: 1 },
+        { text: 'char c = \'A\'; (int)c ne verir?', options: ['A', '65', '0', 'Error'], correct: 1 },
+        { text: 'String.valueOf(123) ne döner?', options: ['123', '"123"', 'Error', 'null'], correct: 1 },
+        { text: 'try-catch-finally sırası?', options: ['catch-try-finally', 'try-catch-finally', 'finally-try-catch', 'try-finally'], correct: 1 },
+        { text: 'Math.max(5, 10) sonucu?', options: ['5', '10', '15', 'Error'], correct: 1 },
+        { text: 'boolean b = !true; b nedir?', options: ['true', 'false', '0', 'Error'], correct: 1 },
+        { text: 'Java kaç bit int kullanır?', options: ['16', '32', '64', '8'], correct: 1 },
+    ]
 }
 
-export const duelHistory = [
-    { id: 1, opponent: { name: 'CodeMaster42', avatar: '🧑‍💻' }, result: 'win', score: '3-1', xp: 25, elo: 15, date: '2h ago' },
-    { id: 2, opponent: { name: 'LoopLord', avatar: '🧙' }, result: 'win', score: '3-2', xp: 30, elo: 12, date: '5h ago' },
-    { id: 3, opponent: { name: 'BugSquasher', avatar: '🐛' }, result: 'loss', score: '1-3', xp: 5, elo: -8, date: 'Yesterday' },
-    { id: 4, opponent: { name: 'RecursiveRex', avatar: '🦖' }, result: 'win', score: '3-0', xp: 35, elo: 20, date: '2 days ago' },
-    { id: 5, opponent: { name: 'SyntaxError', avatar: '❌' }, result: 'loss', score: '2-3', xp: 10, elo: -5, date: '3 days ago' },
+/* ── Random Opponent Pool ── */
+const opponentPool = [
+    { name: 'PyNinja', avatar: '🥷' }, { name: 'CodeMaster42', avatar: '🧑‍💻' },
+    { name: 'LoopLord', avatar: '🧙' }, { name: 'BugSquasher', avatar: '🐛' },
+    { name: 'RecursiveRex', avatar: '🦖' }, { name: 'SyntaxError_', avatar: '❌' },
+    { name: 'BitShifter', avatar: '⚡' }, { name: 'NullPointer', avatar: '💀' },
+    { name: 'AlgoQueen', avatar: '👑' }, { name: 'StackOverflow', avatar: '📚' },
+    { name: 'BinaryBoss', avatar: '🤖' }, { name: 'ByteHunter', avatar: '🎯' },
+    { name: 'LambdaWolf', avatar: '🐺' }, { name: 'HashMapHero', avatar: '🗺️' },
+    { name: 'PixelPirate', avatar: '🏴‍☠️' }, { name: 'TuringTest', avatar: '🧪' },
+    { name: 'CSSWizard', avatar: '🎨' }, { name: 'DevOpsDragon', avatar: '🐉' },
+    { name: 'GitGuru', avatar: '🔀' }, { name: 'RegexRanger', avatar: '🏹' },
 ]
 
-export const duelStats = { wins: 18, losses: 7, winStreak: 2, bestStreak: 5, elo: 1520 }
+/* ── League Tiers ── */
+const leagueTiers = [
+    { name: 'Bronze', icon: '🥉', minElo: 0, color: '#CD7F32' },
+    { name: 'Silver', icon: '🥈', minElo: 1200, color: '#C0C0C0' },
+    { name: 'Gold', icon: '🥇', minElo: 1500, color: '#FFD700' },
+    { name: 'Diamond', icon: '💎', minElo: 1800, color: '#B9F2FF' },
+    { name: 'Hacker', icon: '👾', minElo: 2200, color: '#FF00FF' },
+]
+
+/* ── Load Persisted Duel Data ── */
+export const duelStats = loadSaved(DUEL_STATS_KEY, { wins: 0, losses: 0, winStreak: 0, bestStreak: 0, elo: 1000 })
+export const duelHistory = loadSaved(DUEL_HISTORY_KEY, [])
+
+/* ── Get Current League Tier ── */
+export function getLeagueTier(elo) {
+    const e = elo ?? duelStats.elo
+    for (let i = leagueTiers.length - 1; i >= 0; i--) {
+        if (e >= leagueTiers[i].minElo) return leagueTiers[i]
+    }
+    return leagueTiers[0]
+}
+export { leagueTiers }
+
+/* ── ELO Calculation (K-factor 32) ── */
+export function calculateElo(playerElo, opponentElo, won) {
+    const K = 32
+    const expected = 1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400))
+    const actual = won ? 1 : 0
+    return Math.round(K * (actual - expected))
+}
+
+/* ── Get Duel Questions (language-aware, shuffled) ── */
+export function getDuelQuestions(count = 3) {
+    const lang = getActiveLanguage()
+    const pool = duelQuestionPool[lang] || duelQuestionPool.python
+    const shuffled = [...pool].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, Math.min(count, pool.length))
+}
+
+/* ── Random Opponent (ELO-aware) ── */
+export function getRandomOpponent(userElo) {
+    const elo = userElo ?? duelStats.elo
+    const idx = Math.floor(Math.random() * opponentPool.length)
+    const base = opponentPool[idx]
+    const eloVariance = Math.floor(Math.random() * 200) - 100
+    return { ...base, elo: Math.max(800, elo + eloVariance) }
+}
+
+/* ── Save Duel Result ── */
+export function saveDuelResult({ won, yourScore, theirScore, opponent, totalTimeMs }) {
+    const eloChange = calculateElo(duelStats.elo, opponent.elo, won)
+    const xpGain = won ? 30 + Math.abs(eloChange) : 5
+    const gemGain = won ? 10 : 0
+
+    // Update stats
+    duelStats.elo = Math.max(0, duelStats.elo + eloChange)
+    if (won) {
+        duelStats.wins += 1
+        duelStats.winStreak += 1
+        duelStats.bestStreak = Math.max(duelStats.bestStreak, duelStats.winStreak)
+    } else {
+        duelStats.losses += 1
+        duelStats.winStreak = 0
+    }
+    saveTo(DUEL_STATS_KEY, duelStats)
+
+    // Add to history
+    const now = new Date()
+    const entry = {
+        id: Date.now(),
+        opponent: { name: opponent.name, avatar: opponent.avatar },
+        result: won ? 'win' : 'loss',
+        score: `${yourScore}-${theirScore}`,
+        xp: xpGain,
+        elo: eloChange,
+        date: now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+        timestamp: now.getTime(),
+    }
+    duelHistory.unshift(entry)
+    if (duelHistory.length > 20) duelHistory.length = 20
+    saveTo(DUEL_HISTORY_KEY, duelHistory)
+
+    // Give XP + gems via existing system
+    addXP(xpGain)
+    if (gemGain > 0) { stats.gems = (stats.gems || 0) + gemGain; saveProgress() }
+    trackQuestEvent('duel_complete')
+
+    return { xpGain, gemGain, eloChange, newElo: duelStats.elo, tier: getLeagueTier(duelStats.elo) }
+}
+
+/* ── Dynamic Leaderboard (simulated around user ELO) ── */
+export function getDuelLeaderboard() {
+    const userElo = duelStats.elo
+    const names = opponentPool.map(o => o)
+    const shuffled = [...names].sort(() => Math.random() - 0.5).slice(0, 9)
+    const board = shuffled.map((p, i) => {
+        const variance = Math.floor(Math.random() * 400) - 150
+        return { ...p, xp: Math.max(800, userElo + variance), isUser: false }
+    })
+    board.push({ name: profile.name || 'You', avatar: '🦦', xp: userElo, isUser: true })
+    board.sort((a, b) => b.xp - a.xp)
+    return board
+}
+
+/* ── Duel Config (exported for LeagueView) ── */
+export const duelData = {
+    get opponent() { return getRandomOpponent() },
+    timer: 20,
+    rounds: 3,
+}
+
+/* ── Legacy Compat ── */
+export const duelQuestions = getDuelQuestions(3)
+export const league = {
+    get current() { return getLeagueTier().name },
+    get rank() {
+        const lb = getDuelLeaderboard()
+        const idx = lb.findIndex(p => p.isUser)
+        return idx >= 0 ? idx + 1 : 5
+    },
+    get players() { return getDuelLeaderboard() },
+    promotionLine: 3,
+    relegationLine: 8,
+}
 
 /* ── Otter Costumes ── */
 export const otterCostumes = [

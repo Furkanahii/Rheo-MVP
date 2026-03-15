@@ -1,153 +1,186 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { league, duelData, duelQuestions, duelHistory, duelStats, stats } from '../data'
+import { duelStats, duelHistory, duelData, getDuelQuestions, getRandomOpponent, saveDuelResult, getLeagueTier, leagueTiers, getDuelLeaderboard, getActiveLanguage, t } from '../data'
 
 /* ═══════════════════════════════════════════
-   LEAGUE VIEW — ELO ranking + Duel + History
+   ARENA VIEW — Clash of Coders
+   PvP-style duel with ELO, leagues, history
    ═══════════════════════════════════════════ */
 export default function LeagueView() {
-    const [duelState, setDuelState] = useState('idle')
-    const [lastScore, setLastScore] = useState({ you: 0, them: 0 })
+    const [phase, setPhase] = useState('dashboard') // dashboard | searching | playing | result
+    const [matchData, setMatchData] = useState(null)
+    const [, forceUpdate] = useState(0)
 
-    if (duelState === 'searching') return <DuelSearching onFound={() => setDuelState('playing')} />
-    if (duelState === 'playing') return <DuelScreen onFinish={(score) => { setLastScore(score || { you: 3, them: 1 }); setDuelState('result') }} />
-    if (duelState === 'result') return <DuelResult score={lastScore} onBack={() => setDuelState('idle')} />
+    const startSearch = () => {
+        const opponent = getRandomOpponent()
+        const questions = getDuelQuestions(3)
+        setMatchData({ opponent, questions })
+        setPhase('searching')
+    }
 
-    const tiers = { Gold: '🥇', Silver: '🥈', Bronze: '🥉', Diamond: '💎' }
-    const winRate = Math.round((duelStats.wins / (duelStats.wins + duelStats.losses)) * 100)
+    const startDuel = () => setPhase('playing')
+
+    const finishDuel = (result) => {
+        setMatchData(prev => ({ ...prev, result }))
+        setPhase('result')
+    }
+
+    const backToDashboard = () => {
+        setPhase('dashboard')
+        setMatchData(null)
+        forceUpdate(v => v + 1)
+    }
+
+    if (phase === 'searching') return <MatchSearching opponent={matchData.opponent} onFound={startDuel} />
+    if (phase === 'playing') return <DuelScreen opponent={matchData.opponent} questions={matchData.questions} onFinish={finishDuel} />
+    if (phase === 'result') return <DuelResult data={matchData} onBack={backToDashboard} />
+
+    return <ArenaDashboard onStartSearch={startSearch} />
+}
+
+/* ═══════════════ ARENA DASHBOARD ═══════════════ */
+function ArenaDashboard({ onStartSearch }) {
+    const tier = getLeagueTier()
+    const totalGames = duelStats.wins + duelStats.losses
+    const winRate = totalGames > 0 ? Math.round((duelStats.wins / totalGames) * 100) : 0
+    const [leaderboard] = useState(() => getDuelLeaderboard())
 
     return (
         <div className="h-full overflow-y-auto pb-24">
             <div className="max-w-md mx-auto px-4 space-y-4"
                 style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 16px))' }}>
 
-                {/* Header */}
-                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="text-center pt-2 pb-1">
-                    <div className="text-4xl mb-1">{tiers[league.current] || '🏅'}</div>
-                    <h1 className="text-2xl font-black text-white">{league.current} League</h1>
-                    <p className="text-xs font-bold text-slate-500 mt-1">Week 8 • Top 3 promote, Bottom 3 relegate</p>
-                </motion.div>
-
-                {/* FIND DUEL */}
-                <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.05 }}
-                    onClick={() => setDuelState('searching')}
-                    className="w-full py-3.5 rounded-2xl font-black text-base text-white bg-red-500 border-b-[5px] border-red-700 active:border-b-[1px] active:translate-y-[4px] transition-all duration-75 cursor-pointer flex items-center justify-center gap-2">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                    ⚔️ FIND DUEL
-                </motion.button>
-
-                {/* Duel Stats Mini Dashboard */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-                    className="grid grid-cols-4 gap-2">
-                    <MiniStat label="Wins" value={duelStats.wins} color="text-emerald-400" />
-                    <MiniStat label="Losses" value={duelStats.losses} color="text-red-400" />
-                    <MiniStat label="Win %" value={`${winRate}%`} color="text-amber-400" />
-                    <MiniStat label="Streak" value={`${duelStats.winStreak}🔥`} color="text-orange-400" />
-                </motion.div>
-
-                {/* Rank container */}
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
-                    className="rounded-2xl p-4 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-extrabold text-slate-400 tracking-wider">YOUR RANK</span>
-                        <span className="text-lg font-black text-amber-400">#{league.rank}</span>
-                    </div>
-                    <div className="h-3.5 rounded-full overflow-hidden bg-slate-950"
-                        style={{ boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.5)' }}>
-                        <div className="h-full rounded-full bg-amber-500 relative overflow-hidden transition-all"
-                            style={{ width: `${(1 - league.rank / league.players.length) * 100}%` }}>
-                            <div className="absolute top-[1px] left-2 right-2 h-[3px] rounded-full bg-white/30" />
-                            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-black/20 rounded-full" />
+                {/* League Badge Header */}
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
+                    className="relative text-center pt-4 pb-2">
+                    <motion.div animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                        className="text-6xl mb-2 drop-shadow-2xl">{tier.icon}</motion.div>
+                    <h1 className="text-2xl font-black text-white tracking-tight">{tier.name} {t('League')}</h1>
+                    <div className="flex items-center justify-center gap-2 mt-1.5">
+                        <div className="px-3 py-0.5 rounded-full text-xs font-black"
+                            style={{ background: tier.color + '22', color: tier.color, border: `1px solid ${tier.color}44` }}>
+                            ⚡ {duelStats.elo} ELO
                         </div>
                     </div>
-                </motion.div>
-
-                {/* Leaderboard */}
-                <div className="space-y-2">
-                    {league.players.map((p, i) => {
-                        const rank = i + 1
-                        const isPromo = rank <= league.promotionLine
-                        const isReleg = rank > league.relegationLine
-                        const isUser = p.isUser
-                        const showPromoDivider = rank === league.promotionLine + 1
-                        const showRelegDivider = rank === league.relegationLine + 1
-
+                    {/* Progress to next tier */}
+                    {(() => {
+                        const nextTier = leagueTiers.find(t => t.minElo > duelStats.elo)
+                        if (!nextTier) return <p className="text-[9px] font-bold text-amber-400 mt-2">🏆 {t('Max tier reached!')}</p>
+                        const prevMin = tier.minElo
+                        const pct = Math.min(((duelStats.elo - prevMin) / (nextTier.minElo - prevMin)) * 100, 100)
                         return (
-                            <div key={p.name}>
-                                {showPromoDivider && (
-                                    <div className="flex items-center gap-3 py-2 px-2">
-                                        <div className="flex-1 border-t border-dashed border-emerald-600/40" />
-                                        <span className="text-[9px] font-extrabold text-emerald-500/60 tracking-wider">SAFE ZONE</span>
-                                        <div className="flex-1 border-t border-dashed border-emerald-600/40" />
-                                    </div>
-                                )}
-                                {showRelegDivider && (
-                                    <div className="flex items-center gap-3 py-2 px-2">
-                                        <div className="flex-1 border-t border-dashed border-red-600/40" />
-                                        <span className="text-[9px] font-extrabold text-red-400/60 tracking-wider">DANGER ZONE</span>
-                                        <div className="flex-1 border-t border-dashed border-red-600/40" />
-                                    </div>
-                                )}
-
-                                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.15 + i * 0.05 }}
-                                    className={`flex items-center gap-3 rounded-2xl px-4 py-3
-                                        ${isUser ? 'bg-teal-500/15 border-2 border-teal-600 border-b-[4px] border-b-teal-800'
-                                            : isPromo ? 'bg-emerald-500/5 border border-emerald-800/30 border-b-[3px] border-b-emerald-950/60'
-                                                : isReleg ? 'bg-red-500/5 border border-red-800/30 border-b-[3px] border-b-red-950/60'
-                                                    : 'bg-slate-800 border border-slate-700/30 border-b-[3px] border-b-slate-950'}`}>
-                                    <div className={`w-7 text-center font-black text-sm ${rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-slate-300' : rank === 3 ? 'text-amber-700' : isReleg ? 'text-red-400' : 'text-slate-500'}`}>{rank}</div>
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg border-b-[2px] ${isUser ? 'bg-teal-700 border-teal-900' : 'bg-slate-700 border-slate-800'}`}>{p.avatar}</div>
-                                    <div className="flex-1 min-w-0"><p className={`text-sm font-extrabold truncate ${isUser ? 'text-teal-300' : 'text-white'}`}>{p.name}</p></div>
-                                    <span className={`text-sm font-black ${isUser ? 'text-teal-400' : 'text-slate-400'}`}>{p.xp.toLocaleString()}</span>
-                                    {isPromo && <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-emerald-600" />}
-                                    {isReleg && <div className="w-2.5 h-2.5 rounded-full bg-red-400 border border-red-600" />}
-                                </motion.div>
+                            <div className="mt-3 px-6">
+                                <div className="flex justify-between text-[8px] font-bold text-slate-600 mb-0.5">
+                                    <span>{tier.icon} {tier.name}</span>
+                                    <span>{nextTier.icon} {nextTier.name} ({nextTier.minElo})</span>
+                                </div>
+                                <div className="h-2 rounded-full overflow-hidden bg-slate-800 border border-slate-700/30">
+                                    <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                                        transition={{ duration: 1, ease: 'easeOut' }}
+                                        className="h-full rounded-full"
+                                        style={{ background: `linear-gradient(90deg, ${tier.color}, ${nextTier.color})` }} />
+                                </div>
                             </div>
                         )
-                    })}
-                </div>
+                    })()}
+                </motion.div>
 
-                {/* Legend */}
-                <div className="flex justify-center gap-6 pt-2">
-                    <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-emerald-600" /><span className="text-[10px] font-bold text-slate-500">Promotion</span></div>
-                    <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-400 border border-red-600" /><span className="text-[10px] font-bold text-slate-500">Relegation</span></div>
-                </div>
+                {/* FIND MATCH BUTTON */}
+                <motion.button initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onStartSearch}
+                    className="w-full py-4 rounded-2xl font-black text-lg text-white cursor-pointer
+                        bg-gradient-to-r from-red-600 to-orange-500
+                        border-b-[6px] border-red-800 active:border-b-[2px] active:translate-y-[4px]
+                        transition-all duration-75 flex items-center justify-center gap-3
+                        shadow-[0_0_30px_rgba(239,68,68,0.3)]">
+                    <motion.span animate={{ rotate: [0, -15, 15, 0] }} transition={{ duration: 1.5, repeat: Infinity }}
+                        className="text-2xl">⚔️</motion.span>
+                    {t('MEYDAN OKU')}
+                </motion.button>
 
-                {/* Match History */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                    <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase mb-3">Recent Duels</h3>
-                    <div className="space-y-2">
-                        {duelHistory.map((match, i) => (
-                            <motion.div key={match.id}
-                                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.35 + i * 0.06 }}
-                                className={`flex items-center gap-3 rounded-2xl px-4 py-3 border-b-[4px] ${match.result === 'win'
-                                    ? 'bg-emerald-500/8 border border-emerald-800/20 border-b-emerald-900/40'
-                                    : 'bg-red-500/8 border border-red-800/20 border-b-red-900/40'}`}>
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base border-b-[2px] ${match.result === 'win' ? 'bg-emerald-700/30 border-emerald-900' : 'bg-red-700/30 border-red-900'}`}>
-                                    {match.opponent.avatar}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-extrabold text-white truncate">{match.opponent.name}</p>
-                                    <p className="text-[10px] font-bold text-slate-600">{match.date}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className={`text-sm font-black ${match.result === 'win' ? 'text-emerald-400' : 'text-red-400'}`}>{match.score}</p>
-                                    <div className="flex items-center gap-1.5 justify-end">
-                                        <span className="text-[9px] font-bold text-amber-400/80">+{match.xp}xp</span>
-                                        <span className={`text-[9px] font-bold ${match.elo > 0 ? 'text-emerald-400/80' : 'text-red-400/80'}`}>{match.elo > 0 ? '+' : ''}{match.elo}</span>
+                {/* Stats Grid */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+                    className="grid grid-cols-4 gap-2">
+                    <StatBox label={t('Wins')} value={duelStats.wins} color="text-emerald-400" />
+                    <StatBox label={t('Losses')} value={duelStats.losses} color="text-red-400" />
+                    <StatBox label={t('Win %')} value={`${winRate}%`} color="text-amber-400" />
+                    <StatBox label={t('Streak')} value={`${duelStats.winStreak}🔥`} color="text-orange-400" />
+                </motion.div>
+
+                {/* Mini Leaderboard — Top 10 */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                    className="rounded-2xl p-4 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950">
+                    <h3 className="text-[10px] font-extrabold text-slate-500 tracking-widest mb-3">🏆 {t('LEADERBOARD')}</h3>
+                    <div className="space-y-1.5">
+                        {leaderboard.map((p, i) => {
+                            const rank = i + 1
+                            const isUser = p.isUser
+                            return (
+                                <div key={`${p.name}-${i}`}
+                                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2 transition-all
+                                        ${isUser ? 'bg-teal-500/15 border border-teal-600/40' : 'hover:bg-slate-700/30'}`}>
+                                    <span className={`w-5 text-center text-xs font-black ${rank <= 3 ? ['text-amber-400', 'text-slate-300', 'text-amber-700'][rank - 1] : 'text-slate-600'}`}>
+                                        {rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : rank}
+                                    </span>
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm border-b-[2px] ${isUser ? 'bg-teal-700 border-teal-900' : 'bg-slate-700 border-slate-800'}`}>
+                                        {p.avatar}
                                     </div>
+                                    <span className={`flex-1 text-xs font-extrabold truncate ${isUser ? 'text-teal-300' : 'text-slate-300'}`}>{p.name}</span>
+                                    <span className="text-[10px] font-black text-slate-500">{p.xp}</span>
                                 </div>
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black border-b-[2px] ${match.result === 'win' ? 'bg-emerald-600 border-emerald-800 text-white' : 'bg-red-600 border-red-800 text-white'}`}>
-                                    {match.result === 'win' ? 'W' : 'L'}
-                                </div>
-                            </motion.div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </motion.div>
+
+                {/* Match History */}
+                {duelHistory.length > 0 && (
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                        <h3 className="text-[10px] font-extrabold text-slate-500 tracking-widest mb-3">📋 {t('RECENT DUELS')}</h3>
+                        <div className="space-y-2">
+                            {duelHistory.slice(0, 5).map((match) => (
+                                <div key={match.id}
+                                    className={`flex items-center gap-3 rounded-2xl px-4 py-3 border-b-[3px]
+                                        ${match.result === 'win'
+                                            ? 'bg-emerald-500/8 border border-emerald-800/20 border-b-emerald-900/40'
+                                            : 'bg-red-500/8 border border-red-800/20 border-b-red-900/40'}`}>
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm border-b-[2px]
+                                        ${match.result === 'win' ? 'bg-emerald-700/30 border-emerald-900' : 'bg-red-700/30 border-red-900'}`}>
+                                        {match.opponent.avatar}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-extrabold text-white truncate">{match.opponent.name}</p>
+                                        <p className="text-[9px] font-bold text-slate-600">{match.date}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className={`text-xs font-black ${match.result === 'win' ? 'text-emerald-400' : 'text-red-400'}`}>{match.score}</p>
+                                        <div className="flex items-center gap-1.5 justify-end">
+                                            <span className="text-[8px] font-bold text-amber-400/80">+{match.xp}xp</span>
+                                            <span className={`text-[8px] font-bold ${match.elo > 0 ? 'text-emerald-400/80' : 'text-red-400/80'}`}>{match.elo > 0 ? '+' : ''}{match.elo}</span>
+                                        </div>
+                                    </div>
+                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-black border-b-[2px]
+                                        ${match.result === 'win' ? 'bg-emerald-600 border-emerald-800 text-white' : 'bg-red-600 border-red-800 text-white'}`}>
+                                        {match.result === 'win' ? 'W' : 'L'}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Empty State */}
+                {duelHistory.length === 0 && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+                        className="text-center py-8">
+                        <p className="text-3xl mb-2">🎮</p>
+                        <p className="text-sm font-black text-slate-500">{t('Henüz düello yapmadın')}</p>
+                        <p className="text-xs font-bold text-slate-700">{t('İlk maçını oyna ve sıralamada yerini al!')}</p>
+                    </motion.div>
+                )}
 
                 <div className="pb-4" />
             </div>
@@ -155,64 +188,114 @@ export default function LeagueView() {
     )
 }
 
-/* ═══════ MINI STAT BOX ═══════ */
-function MiniStat({ label, value, color }) {
+/* ═══════════════ STAT BOX ═══════════════ */
+function StatBox({ label, value, color }) {
     return (
         <div className="rounded-xl p-2.5 bg-slate-800 border border-slate-700/30 border-b-[3px] border-b-slate-950 text-center">
-            <p className={`text-sm font-black ${color}`}>{value}</p>
+            <p className={`text-base font-black ${color}`}>{value}</p>
             <p className="text-[8px] font-bold text-slate-600 mt-0.5">{label}</p>
         </div>
     )
 }
 
-/* ═══════════════ DUEL SEARCHING ═══════════════ */
-function DuelSearching({ onFound }) {
+/* ═══════════════ MATCH SEARCHING — Radar Style ═══════════════ */
+function MatchSearching({ opponent, onFound }) {
+    const [found, setFound] = useState(false)
+    const [dots, setDots] = useState('')
+
     useEffect(() => {
-        const t = setTimeout(onFound, 2500)
-        return () => clearTimeout(t)
+        const dotTimer = setInterval(() => setDots(d => d.length >= 3 ? '' : d + '.'), 400)
+        const findTimer = setTimeout(() => {
+            setFound(true)
+            setTimeout(onFound, 1800)
+        }, 2500 + Math.random() * 2000)
+        return () => { clearInterval(dotTimer); clearTimeout(findTimer) }
     }, [onFound])
 
     return (
-        <div className="h-full flex flex-col items-center justify-center px-8 gap-6">
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                className="w-24 h-24 rounded-full border-4 border-slate-700 border-t-red-500" />
-            <div className="text-center">
-                <h2 className="text-xl font-black text-white mb-2">Searching…</h2>
-                <p className="text-sm font-bold text-slate-500">Finding a worthy opponent</p>
-            </div>
-            <div className="flex gap-2">
-                {[0, 1, 2].map(i => (
-                    <motion.div key={i} animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: i * 0.3 }}
-                        className="w-3 h-3 rounded-full bg-red-500" />
-                ))}
-            </div>
+        <div className="h-full flex flex-col items-center justify-center px-8 gap-6"
+            style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 16px))' }}>
+            {!found ? (
+                <>
+                    {/* Radar Animation */}
+                    <div className="relative w-48 h-48">
+                        <div className="absolute inset-0 rounded-full border-2 border-red-500/20" />
+                        <div className="absolute inset-4 rounded-full border border-red-500/15" />
+                        <div className="absolute inset-8 rounded-full border border-red-500/10" />
+                        <motion.div className="absolute inset-0"
+                            animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}>
+                            <div className="absolute top-1/2 left-1/2 w-1/2 h-0.5 origin-left"
+                                style={{ background: 'linear-gradient(90deg, rgba(239,68,68,0.8), transparent)' }} />
+                        </motion.div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }}
+                                className="w-16 h-16 rounded-full bg-slate-800 border-2 border-red-500/30 flex items-center justify-center text-3xl">
+                                🦦
+                            </motion.div>
+                        </div>
+                        {/* Floating dots on radar */}
+                        {[0, 1, 2, 3].map(i => (
+                            <motion.div key={i}
+                                animate={{ opacity: [0, 0.6, 0], scale: [0.5, 1, 0.5] }}
+                                transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
+                                className="absolute w-2 h-2 rounded-full bg-red-400"
+                                style={{
+                                    top: `${30 + Math.sin(i * 1.5) * 25}%`,
+                                    left: `${30 + Math.cos(i * 1.5) * 25}%`
+                                }} />
+                        ))}
+                    </div>
+                    <h2 className="text-xl font-black text-white">{t('Rakip Aranıyor')}{dots}</h2>
+                    <p className="text-xs font-bold text-slate-500">{t('ELO aralığı')}: {duelStats.elo - 100} - {duelStats.elo + 100}</p>
+                </>
+            ) : (
+                <>
+                    <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
+                        transition={{ type: 'spring', stiffness: 200 }}
+                        className="w-24 h-24 rounded-full bg-red-600/20 border-4 border-red-500 flex items-center justify-center text-5xl shadow-[0_0_40px_rgba(239,68,68,0.4)]">
+                        {opponent.avatar}
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                        className="text-center">
+                        <h2 className="text-xl font-black text-white">{t('Rakip Bulundu!')}</h2>
+                        <p className="text-base font-extrabold text-red-400 mt-1">{opponent.name}</p>
+                        <p className="text-xs font-bold text-slate-500 mt-0.5">⚡ {opponent.elo} ELO</p>
+                    </motion.div>
+                </>
+            )}
         </div>
     )
 }
 
-/* ═══════════════ DUEL SCREEN — multi-round ═══════════════ */
-function DuelScreen({ onFinish }) {
-    const { opponent, timer, bestOf } = duelData
+/* ═══════════════ DUEL SCREEN — 3-round PvP ═══════════════ */
+function DuelScreen({ opponent, questions, onFinish }) {
     const [round, setRound] = useState(0)
-    const [timeLeft, setTimeLeft] = useState(timer)
+    const [timeLeft, setTimeLeft] = useState(20)
     const [selected, setSelected] = useState(null)
     const [score, setScore] = useState({ you: 0, them: 0 })
     const [roundResults, setRoundResults] = useState([])
+    const [opponentAnswered, setOpponentAnswered] = useState(false)
+    const [totalTime, setTotalTime] = useState(0)
+    const startTime = useRef(Date.now())
+    const totalRounds = questions.length
 
-    // Shuffle & pick questions for this match
-    const [questions] = useState(() => {
-        const shuffled = [...duelQuestions].sort(() => Math.random() - 0.5)
-        return shuffled.slice(0, bestOf)
-    })
+    const currentQ = questions[round]
 
-    const currentQ = questions[round] || questions[0]
-
+    // Timer countdown
     useEffect(() => {
         if (timeLeft <= 0 || selected !== null) return
         const t = setInterval(() => setTimeLeft(v => v - 1), 1000)
         return () => clearInterval(t)
     }, [timeLeft, selected])
+
+    // Simulate opponent answering
+    useEffect(() => {
+        if (selected !== null) return
+        setOpponentAnswered(false)
+        const opponentDelay = 3000 + Math.random() * 10000 // 3-13 seconds
+        const timer = setTimeout(() => setOpponentAnswered(true), opponentDelay)
+        return () => clearTimeout(timer)
+    }, [round, selected])
 
     const handleAnswer = useCallback((idx) => {
         if (selected !== null) return
@@ -222,87 +305,120 @@ function DuelScreen({ onFinish }) {
 
         if (isCorrect) {
             newScore.you += 1
-        } else {
-            // opponent "answers correctly" sometimes
-            if (Math.random() > 0.3) newScore.them += 1
         }
-        setScore(newScore)
-        setRoundResults(prev => [...prev, isCorrect ? 'you' : 'them'])
+        // Opponent correct chance based on ELO diff
+        const opponentSkill = Math.min(0.8, 0.3 + (opponent.elo / 3000))
+        if (!isCorrect || Math.random() < opponentSkill * 0.7) {
+            if (Math.random() < opponentSkill) newScore.them += 1
+        }
 
-        // Check if match is over (first to ceil(bestOf/2))
-        const needed = Math.ceil(bestOf / 2)
-        if (newScore.you >= needed || newScore.them >= needed || round + 1 >= bestOf) {
-            setTimeout(() => onFinish(newScore), 1200)
+        setScore(newScore)
+        setRoundResults(prev => [...prev, isCorrect ? 'you' : (newScore.them > score.them ? 'them' : 'skip')])
+
+        if (round + 1 >= totalRounds) {
+            const elapsed = Date.now() - startTime.current
+            setTimeout(() => onFinish({
+                won: newScore.you > newScore.them || (newScore.you === newScore.them && elapsed < 30000),
+                yourScore: newScore.you,
+                theirScore: newScore.them,
+                totalTimeMs: elapsed,
+            }), 1500)
         } else {
-            // Next round
             setTimeout(() => {
                 setRound(r => r + 1)
                 setSelected(null)
-                setTimeLeft(timer)
-            }, 1200)
+                setTimeLeft(20)
+                setOpponentAnswered(false)
+            }, 1500)
         }
-    }, [selected, currentQ, score, round, bestOf, timer, onFinish])
+    }, [selected, currentQ, score, round, totalRounds, opponent, onFinish])
 
     // Time up = auto-skip
     useEffect(() => {
-        if (timeLeft === 0 && selected === null) {
-            handleAnswer(-1)
-        }
+        if (timeLeft === 0 && selected === null) handleAnswer(-1)
     }, [timeLeft, selected, handleAnswer])
+
+    const lang = getActiveLanguage()
+    const langIcon = { python: '🐍', javascript: '⚡', java: '☕' }[lang] || '🐍'
 
     return (
         <div className="h-full flex flex-col"
-            style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 16px))' }}>
+            style={{ paddingTop: 'max(8px, env(safe-area-inset-top, 8px))' }}>
+
+            {/* Language badge */}
+            <div className="flex justify-center mb-1">
+                <span className="text-[9px] font-black text-slate-600 bg-slate-800 px-3 py-0.5 rounded-full border border-slate-700/30">
+                    {langIcon} {lang.toUpperCase()} DUEL
+                </span>
+            </div>
+
             {/* VS Header */}
-            <div className="flex items-center justify-around px-4 py-4">
+            <div className="flex items-center justify-around px-4 py-3">
                 <div className="flex flex-col items-center gap-1">
-                    <div className="w-14 h-14 rounded-full bg-teal-700 border-b-[3px] border-teal-900 flex items-center justify-center text-2xl">🦦</div>
-                    <span className="text-xs font-black text-white">You</span>
+                    <div className="w-12 h-12 rounded-full bg-teal-700 border-b-[3px] border-teal-900 flex items-center justify-center text-xl">🦦</div>
+                    <span className="text-[10px] font-black text-white">{t('Sen')}</span>
                     <span className="text-lg font-black text-teal-400">{score.you}</span>
                 </div>
 
                 <div className="flex flex-col items-center gap-1">
-                    <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }}
-                        className="text-2xl font-black text-red-400">VS</motion.div>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${timeLeft <= 5 ? 'bg-red-500' : 'bg-slate-800'} border-b-[2px] ${timeLeft <= 5 ? 'border-red-700' : 'border-slate-900'}`}>
-                        <span className={`text-sm font-black ${timeLeft <= 5 ? 'text-white' : 'text-slate-300'}`}>{timeLeft}</span>
+                    <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.8, repeat: Infinity }}
+                        className="text-xl font-black text-red-400">VS</motion.div>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-b-[2px]
+                        ${timeLeft <= 5 ? 'bg-red-500 border-red-700' : 'bg-slate-800 border-slate-900'}`}>
+                        <span className={`text-sm font-black ${timeLeft <= 5 ? 'text-white animate-pulse' : 'text-slate-300'}`}>{timeLeft}</span>
                     </div>
                 </div>
 
                 <div className="flex flex-col items-center gap-1">
-                    <div className="w-14 h-14 rounded-full bg-slate-700 border-b-[3px] border-slate-800 flex items-center justify-center text-2xl">{opponent.avatar}</div>
-                    <span className="text-xs font-black text-white">{opponent.name}</span>
+                    <div className="w-12 h-12 rounded-full bg-slate-700 border-b-[3px] border-slate-800 flex items-center justify-center text-xl">
+                        {opponent.avatar}
+                    </div>
+                    <span className="text-[10px] font-black text-white">{opponent.name}</span>
                     <span className="text-lg font-black text-red-400">{score.them}</span>
                 </div>
             </div>
 
+            {/* Opponent answered indicator */}
+            <AnimatePresence>
+                {opponentAnswered && selected === null && (
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className="text-center mb-2">
+                        <span className="text-[10px] font-black text-red-400 bg-red-500/10 px-3 py-1 rounded-full border border-red-800/20">
+                            ⚡ {opponent.name} {t('cevapladı!')}
+                        </span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Round dots */}
-            <div className="flex justify-center gap-2 pb-4">
-                {Array.from({ length: bestOf }).map((_, i) => (
-                    <div key={i} className={`w-3 h-3 rounded-full border-b-[1px] ${roundResults[i] === 'you' ? 'bg-teal-400 border-teal-600'
-                        : roundResults[i] === 'them' ? 'bg-red-400 border-red-600'
-                            : i === round ? 'bg-amber-400 border-amber-600 animate-pulse'
-                                : 'bg-slate-700 border-slate-800'}`} />
+            <div className="flex justify-center gap-2 pb-3">
+                {Array.from({ length: totalRounds }).map((_, i) => (
+                    <div key={i} className={`w-3 h-3 rounded-full border-b-[1px]
+                        ${roundResults[i] === 'you' ? 'bg-teal-400 border-teal-600'
+                            : roundResults[i] === 'them' ? 'bg-red-400 border-red-600'
+                                : roundResults[i] === 'skip' ? 'bg-slate-600 border-slate-700'
+                                    : i === round ? 'bg-amber-400 border-amber-600 animate-pulse'
+                                        : 'bg-slate-700 border-slate-800'}`} />
                 ))}
             </div>
 
             {/* Round label */}
-            <div className="text-center mb-3">
-                <span className="text-[10px] font-extrabold text-slate-600 tracking-widest">ROUND {round + 1} OF {bestOf}</span>
+            <div className="text-center mb-2">
+                <span className="text-[9px] font-extrabold text-slate-600 tracking-widest">ROUND {round + 1} / {totalRounds}</span>
             </div>
 
             {/* Question */}
             <div className="flex-1 px-4 flex flex-col">
                 <AnimatePresence mode="wait">
                     <motion.div key={round} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                        className="rounded-2xl p-5 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950 mb-4">
-                        <p className="text-sm font-extrabold text-slate-500 mb-2">QUESTION</p>
-                        <p className="text-base font-black text-white leading-relaxed">{currentQ.text}</p>
+                        className="rounded-2xl p-4 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950 mb-3">
+                        <p className="text-[10px] font-extrabold text-slate-500 mb-1.5">{t('SORU')}</p>
+                        <p className="text-sm font-black text-white leading-relaxed">{currentQ.text}</p>
                     </motion.div>
                 </AnimatePresence>
 
                 {/* Options */}
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                     {currentQ.options.map((opt, i) => {
                         const isCorrect = i === currentQ.correct
                         const isChosen = i === selected
@@ -314,9 +430,12 @@ function DuelScreen({ onFinish }) {
                         return (
                             <motion.button key={`${round}-${i}`}
                                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 + i * 0.08 }}
+                                transition={{ delay: 0.05 + i * 0.06 }}
                                 onClick={() => handleAnswer(i)}
-                                className={`w-full text-left px-5 py-3.5 rounded-2xl ${bg} border-2 ${border} font-extrabold text-sm text-white cursor-pointer active:translate-y-[4px] active:border-b-0 transition-all duration-75`}>
+                                disabled={selected !== null}
+                                className={`w-full text-left px-4 py-3 rounded-2xl ${bg} border-2 ${border} font-extrabold text-sm text-white
+                                    ${selected === null ? 'cursor-pointer active:translate-y-[4px] active:border-b-0' : ''}
+                                    transition-all duration-75`}>
                                 <span className="text-slate-500 mr-2 font-black">{String.fromCharCode(65 + i)}.</span> {opt}
                             </motion.button>
                         )
@@ -328,39 +447,80 @@ function DuelScreen({ onFinish }) {
 }
 
 /* ═══════════════ DUEL RESULT ═══════════════ */
-function DuelResult({ score, onBack }) {
-    const won = score.you > score.them
-    const xpGain = won ? 25 : 5
-    const eloChange = won ? 15 : -10
+function DuelResult({ data, onBack }) {
+    const { opponent, result } = data
+    const { won, yourScore, theirScore } = result
+    const [reward, setReward] = useState(null)
 
     useEffect(() => {
-        stats.xpToday = (stats.xpToday || 0) + xpGain
-        window.__showXP?.(xpGain)
+        const r = saveDuelResult({ won, yourScore, theirScore, opponent, totalTimeMs: result.totalTimeMs })
+        setReward(r)
+        window.__showXP?.(r.xpGain)
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+    if (!reward) return null
+
     return (
-        <div className="h-full flex flex-col items-center justify-center px-8 gap-6">
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200 }}
-                className="text-6xl">{won ? '🏆' : '😢'}</motion.div>
-            <h2 className="text-2xl font-black text-white">{won ? 'VICTORY!' : 'DEFEAT'}</h2>
-            <div className="flex items-center gap-4">
+        <div className="h-full flex flex-col items-center justify-center px-8 gap-5">
+            {/* Victory/Defeat animation */}
+            <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                className="text-7xl">
+                {won ? '🏆' : '😢'}
+            </motion.div>
+
+            <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                className={`text-3xl font-black ${won ? 'text-amber-400' : 'text-red-400'}`}>
+                {won ? t('ZAFer!') : t('BOZGUN')}
+            </motion.h2>
+
+            {/* Score */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                className="flex items-center gap-6">
                 <div className="text-center">
-                    <p className="text-3xl font-black text-teal-400">{score.you}</p>
-                    <p className="text-[10px] font-bold text-slate-500">You</p>
+                    <div className="w-14 h-14 rounded-full bg-teal-700 border-b-[3px] border-teal-900 flex items-center justify-center text-2xl mx-auto mb-1">🦦</div>
+                    <p className="text-2xl font-black text-teal-400">{yourScore}</p>
+                    <p className="text-[9px] font-bold text-slate-500">{t('Sen')}</p>
                 </div>
-                <span className="text-slate-600 font-black">-</span>
+                <span className="text-2xl font-black text-slate-600">-</span>
                 <div className="text-center">
-                    <p className="text-3xl font-black text-red-400">{score.them}</p>
-                    <p className="text-[10px] font-bold text-slate-500">{duelData.opponent.name}</p>
+                    <div className="w-14 h-14 rounded-full bg-slate-700 border-b-[3px] border-slate-800 flex items-center justify-center text-2xl mx-auto mb-1">{opponent.avatar}</div>
+                    <p className="text-2xl font-black text-red-400">{theirScore}</p>
+                    <p className="text-[9px] font-bold text-slate-500">{opponent.name}</p>
                 </div>
-            </div>
-            <div className={`rounded-2xl px-4 py-2 ${won ? 'bg-amber-500/15 border border-amber-700 border-b-[3px] border-b-amber-800' : 'bg-red-500/15 border border-red-700 border-b-[3px] border-b-red-800'}`}>
-                <span className={`text-sm font-black ${won ? 'text-amber-400' : 'text-red-400'}`}>+{xpGain} XP • {eloChange > 0 ? '+' : ''}{eloChange} ELO</span>
-            </div>
-            <button onClick={onBack}
+            </motion.div>
+
+            {/* Rewards */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+                className="flex items-center gap-3">
+                <div className={`rounded-xl px-3 py-1.5 ${won ? 'bg-amber-500/15 border border-amber-700' : 'bg-red-500/15 border border-red-700'}`}>
+                    <span className={`text-xs font-black ${won ? 'text-amber-400' : 'text-red-400'}`}>+{reward.xpGain} XP</span>
+                </div>
+                {reward.gemGain > 0 && (
+                    <div className="rounded-xl px-3 py-1.5 bg-teal-500/15 border border-teal-700">
+                        <span className="text-xs font-black text-teal-400">+{reward.gemGain} 💎</span>
+                    </div>
+                )}
+                <div className={`rounded-xl px-3 py-1.5 ${reward.eloChange > 0 ? 'bg-emerald-500/15 border border-emerald-700' : 'bg-red-500/15 border border-red-700'}`}>
+                    <span className={`text-xs font-black ${reward.eloChange > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {reward.eloChange > 0 ? '+' : ''}{reward.eloChange} ELO
+                    </span>
+                </div>
+            </motion.div>
+
+            {/* New ELO + Tier */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
+                className="text-center">
+                <p className="text-xs font-bold text-slate-600">{t('Yeni ELO')}: <span className="text-white font-black">{reward.newElo}</span></p>
+                <p className="text-[10px] font-bold text-slate-600">{reward.tier.icon} {reward.tier.name} {t('League')}</p>
+            </motion.div>
+
+            {/* Back button */}
+            <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}
+                onClick={onBack}
                 className="px-8 py-3 rounded-2xl font-black text-sm text-white bg-teal-500 border-b-[5px] border-teal-700 active:border-b-[1px] active:translate-y-[4px] transition-all duration-75 cursor-pointer">
-                BACK TO LEAGUE
-            </button>
+                {t('ARENA\'YA DÖN')}
+            </motion.button>
         </div>
     )
 }
