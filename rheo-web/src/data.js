@@ -714,113 +714,130 @@ const duelQuestionPool = {
         /* Standard MCQ */
         { type: 'mcq', text: 'print(len("Hello")) çıktısı nedir?', options: ['4', '5', '6', 'Error'], correct: 1 },
         { type: 'mcq', text: 'range(3) ne üretir?', options: ['[1,2,3]', '[0,1,2]', '[0,1,2,3]', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'Fonksiyon tanımlamak için hangi keyword?', options: ['func', 'function', 'def', 'define'], correct: 2 },
-        { type: 'mcq', text: '2 ** 3 sonucu nedir?', options: ['6', '8', '9', '5'], correct: 1 },
-        { type: 'mcq', text: 'True hangi tiptedir?', options: ['str', 'int', 'bool', 'float'], correct: 2 },
-        { type: 'mcq', text: '"hello".upper() ne döner?', options: ['"Hello"', '"HELLO"', '"hello"', 'Error'], correct: 1 },
-        { type: 'mcq', text: '[1,2,3] + [4,5] sonucu?', options: ['[5,7]', '[1,2,3,4,5]', 'Error', '[1,2,3,[4,5]]'], correct: 1 },
-        { type: 'mcq', text: 'type(3.14) ne döner?', options: ['int', 'float', 'double', 'number'], correct: 1 },
-        { type: 'mcq', text: '"Python"[1] ne verir?', options: ['P', 'y', 't', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'bool("") ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
-        { type: 'mcq', text: '10 // 3 sonucu nedir?', options: ['3.33', '3', '4', '3.0'], correct: 1 },
-        { type: 'mcq', text: 'not True ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
-        /* Debug Hunt */
-        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'def greet(name)\n    print("Hello " + name)\ngreet("World")', bugLine: 1, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 0 },
-        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'nums = [1, 2, 3]\nfor i in range(4):\n    print(nums[i])', bugLine: 2, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 2 },
-        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'x = 10\nif x = 10:\n    print("ten")', bugLine: 2, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 1 },
-        /* Code Complete */
-        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'def add(a, b):\n    ___ a + b', blank: '___', options: ['print', 'return', 'yield', 'pass'], correct: 1 },
-        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'for i ___ range(5):\n    print(i)', blank: '___', options: ['=', 'in', 'of', ':'], correct: 1 },
-        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'my_list = [1, 2, 3]\nmy_list.___(4)', blank: '___', options: ['add', 'push', 'append', 'insert'], correct: 2 },
-        /* Code Trace */
-        { type: 'trace', text: '🔍 x\'in son değeri nedir?', code: 'x = 0\nfor i in range(3):\n    x += i\nprint(x)', options: ['0', '3', '6', '5'], correct: 1 },
-        { type: 'trace', text: '🔍 result\'ın değeri nedir?', code: 'result = 1\nfor i in range(1, 4):\n    result *= i\nprint(result)', options: ['3', '6', '9', '24'], correct: 1 },
-        /* Algorithm Complexity */
-        { type: 'algo', text: '⚡ Bu kodun zaman karmaşıklığı?', code: 'for i in range(n):\n    print(i)', options: ['O(1)', 'O(n)', 'O(n²)', 'O(log n)'], correct: 1 },
-        { type: 'algo', text: '⚡ Bu kodun zaman karmaşıklığı?', code: 'for i in range(n):\n    for j in range(n):\n        print(i, j)', options: ['O(n)', 'O(n²)', 'O(n³)', 'O(2^n)'], correct: 1 },
+        /* ── MCQ ── */
+        { type: 'mcq', text: 'What does bool([]) return? / bool([]) ne döner?', options: ['True', 'False', 'None', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'What is the output: print(type(1/2))? / print(type(1/2)) çıktısı?', options: ['<int>', '<float>', '<double>', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'What does "abc"[::-1] return? / "abc"[::-1] ne döner?', options: ['"abc"', '"cba"', '"bca"', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'Which is immutable? / Hangisi değiştirilemez (immutable)?', options: ['list', 'dict', 'set', 'tuple'], correct: 3 },
+        { type: 'mcq', text: 'What does {1,2,3} & {2,3,4} return? / Kesişim sonucu?', options: ['{1,2,3,4}', '{2,3}', '{1,4}', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'print(0.1 + 0.2 == 0.3) outputs? / Çıktısı nedir?', options: ['True', 'False', 'Error', '0.3'], correct: 1 },
+        { type: 'mcq', text: 'a = [1,2]; b = a; b.append(3); len(a)? / a uzunluğu?', options: ['2', '3', 'Error', '1'], correct: 1 },
+        { type: 'mcq', text: 'What does enumerate(["a","b"]) yield? / Ne üretir?', options: ['["a","b"]', '[(0,"a"),(1,"b")]', '[0,1]', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'print("hello" * 0) outputs? / Çıktısı nedir?', options: ['"hello"', '""', '0', 'Error'], correct: 1 },
+        { type: 'mcq', text: '"5" in [5, "5", 5.0] is True or False? / Sonucu?', options: ['True', 'False', 'Error', 'None'], correct: 0 },
+        /* ── Debug Hunt ── */
+        { type: 'debug', text: 'Which line has the bug? / Hata hangi satırda?', code: 'def factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n)  # should be n-1', options: ['Line 1 / Satır 1', 'Line 3 / Satır 3', 'Line 4 / Satır 4', 'No bug / Hata yok'], correct: 2 },
+        { type: 'debug', text: 'Which line has the bug? / Hata hangi satırda?', code: 'data = {"name": "Ali"}\nprint(data["age"])', options: ['Line 1 / Satır 1', 'Line 2 / Satır 2', 'Both / İkisi de', 'No bug / Hata yok'], correct: 1 },
+        { type: 'debug', text: 'Which line causes infinite loop? / Sonsuz döngü?', code: 'i = 0\nwhile i < 5:\n    print(i)\n    # missing i += 1', options: ['Line 1', 'Line 2', 'Line 3', 'Line 4 (missing)'], correct: 3 },
+        /* ── Code Complete ── */
+        { type: 'complete', text: 'Fill the blank / Boşluğu doldur:', code: 'squares = [x**2 ___ x in range(5)]', options: ['if', 'for', 'while', 'with'], correct: 1 },
+        { type: 'complete', text: 'Fill the blank / Boşluğu doldur:', code: 'with ___("file.txt", "r") as f:\n    data = f.read()', options: ['file', 'open', 'read', 'load'], correct: 1 },
+        { type: 'complete', text: 'Fill the blank / Boşluğu doldur:', code: 'try:\n    x = 1/0\n___ ZeroDivisionError:\n    print("oops")', options: ['catch', 'except', 'handle', 'error'], correct: 1 },
+        /* ── Code Trace ── */
+        { type: 'trace', text: 'What is the final value of x? / x son değeri?', code: 'x = 10\nfor i in range(3):\n    x = x // 2\nprint(x)', options: ['5', '2', '1', '0'], correct: 2 },
+        { type: 'trace', text: 'What does this print? / Çıktısı nedir?', code: 'a = [1, 2, 3]\nb = a[:]\nb.append(4)\nprint(len(a), len(b))', options: ['3 4', '4 4', '3 3', 'Error'], correct: 0 },
+        { type: 'trace', text: 'What is the output? / Çıktı nedir?', code: 'def f(x, acc=[]):\n    acc.append(x)\n    return acc\nprint(len(f(1)), len(f(2)))', options: ['1 1', '1 2', '2 2', 'Error'], correct: 1 },
+        /* ── Algorithm Complexity ── */
+        { type: 'algo', text: 'Time complexity? / Zaman karmaşıklığı?', code: 'def search(arr, target):\n    for i in arr:\n        if i == target:\n            return True\n    return False', options: ['O(1)', 'O(n)', 'O(n²)', 'O(log n)'], correct: 1 },
+        { type: 'algo', text: 'Time complexity? / Zaman karmaşıklığı?', code: 'def has_dup(arr):\n    for i in range(len(arr)):\n        for j in range(i+1, len(arr)):\n            if arr[i]==arr[j]: return True\n    return False', options: ['O(n)', 'O(n²)', 'O(n log n)', 'O(2^n)'], correct: 1 },
     ],
     javascript: [
-        { type: 'mcq', text: 'typeof null ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 1 },
-        { type: 'mcq', text: '"2" + 2 sonucu?', options: ['4', '"22"', 'NaN', 'Error'], correct: 1 },
-        { type: 'mcq', text: '[1,2,3].length ne verir?', options: ['2', '3', '4', 'undefined'], correct: 1 },
-        { type: 'mcq', text: '=== operatörü ne yapar?', options: ['Atama', 'Tip + değer', 'Sadece değer', 'Referans'], correct: 1 },
-        { type: 'mcq', text: 'Array.isArray([]) ne döner?', options: ['false', 'true', 'undefined', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'NaN === NaN sonucu?', options: ['true', 'false', 'Error', 'NaN'], correct: 1 },
-        { type: 'mcq', text: 'typeof undefined ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 2 },
-        { type: 'mcq', text: 'parseInt("10abc") sonucu?', options: ['NaN', '10', 'Error', '"10"'], correct: 1 },
-        { type: 'mcq', text: '"5" - 3 sonucu?', options: ['"53"', '2', 'NaN', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'Boolean("") ne döner?', options: ['true', 'false', 'undefined', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'Object.keys({a:1,b:2}).length?', options: ['1', '2', '3', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'let vs var farkı?', options: ['Aynıdır', 'let block-scoped', 'var block-scoped', 'let global'], correct: 1 },
-        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'const x = 5;\nx = 10;\nconsole.log(x);', bugLine: 2, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 1 },
-        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'let arr = [1,2,3];\narr.push(4)\nconsole.log(arr.lenght);', bugLine: 3, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 2 },
-        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'const add = (a, b) ___ a + b;', blank: '___', options: [':', '=>', '->', '='], correct: 1 },
-        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'const fruits = ["apple"];\nfruits.___(\"banana\");', blank: '___', options: ['add', 'push', 'append', 'insert'], correct: 1 },
-        { type: 'trace', text: '🔍 result değeri nedir?', code: 'let result = "";\nfor(let i = 0; i < 3; i++) {\n  result += i;\n}\nconsole.log(result);', options: ['3', '"012"', '0', '6'], correct: 1 },
-        { type: 'algo', text: '⚡ Array.includes() karmaşıklığı?', code: 'arr.includes(target)', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correct: 1 },
+        /* ── MCQ ── */
+        { type: 'mcq', text: 'typeof null returns? / typeof null ne döner?', options: ['"null"', '"object"', '"undefined"', 'Error'], correct: 1 },
+        { type: 'mcq', text: '[] == false is? / Sonucu nedir?', options: ['true', 'false', 'Error', 'undefined'], correct: 0 },
+        { type: 'mcq', text: 'What does "5" - 3 return? / Sonucu?', options: ['"53"', '2', 'NaN', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'NaN === NaN is? / Sonucu nedir?', options: ['true', 'false', 'Error', 'NaN'], correct: 1 },
+        { type: 'mcq', text: 'What does typeof typeof 42 return? / Sonucu?', options: ['"number"', '"string"', '"typeof"', 'Error'], correct: 1 },
+        { type: 'mcq', text: '[1,2] + [3,4] returns? / Sonucu nedir?', options: ['[1,2,3,4]', '"1,23,4"', '[4,6]', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'const vs let: key difference? / Ana fark?', options: ['Same / Aynı', 'const = block + immutable binding', 'let = global', 'const = global'], correct: 1 },
+        { type: 'mcq', text: '0 == "" is? / Sonucu?', options: ['true', 'false', 'Error', 'NaN'], correct: 0 },
+        { type: 'mcq', text: 'What does void 0 return? / void 0 ne döner?', options: ['0', 'null', 'undefined', 'NaN'], correct: 2 },
+        { type: 'mcq', text: '[..."abc"] returns? / Sonucu?', options: ['["abc"]', '["a","b","c"]', 'Error', '"abc"'], correct: 1 },
+        /* ── Debug Hunt ── */
+        { type: 'debug', text: 'Which line has the bug? / Hata hangi satırda?', code: 'const items = [1, 2, 3];\nitems = [4, 5];\nconsole.log(items);', options: ['Line 1', 'Line 2', 'Line 3', 'No bug'], correct: 1 },
+        { type: 'debug', text: 'Which line has the bug? / Hata hangi satırda?', code: 'function greet(name) {\n  console.log("Hi " + nme);\n}', options: ['Line 1', 'Line 2', 'Line 3', 'No bug'], correct: 1 },
+        { type: 'debug', text: 'Silent bug: what is wrong? / Sessiz hata nedir?', code: 'const obj = {a: 1, b: 2};\nconsole.log(obj.c);  // prints undefined', options: ['Line 1', 'Line 2 (undefined not error)', 'Both', 'No bug'], correct: 1 },
+        /* ── Code Complete ── */
+        { type: 'complete', text: 'Fill the blank / Boşluğu doldur:', code: 'const double = (x) ___ x * 2;', options: [':', '=>', '->', '='], correct: 1 },
+        { type: 'complete', text: 'Fill the blank / Boşluğu doldur:', code: 'const {name, age} = ___;', options: ['person', 'Object', 'this', 'new'], correct: 0 },
+        /* ── Code Trace ── */
+        { type: 'trace', text: 'What does this log? / Çıktısı?', code: 'let x = 1;\nsetTimeout(() => console.log(x), 0);\nx = 2;\nconsole.log(x);', options: ['1, 2', '2, 2', '2, 1', '1, 1'], correct: 1 },
+        { type: 'trace', text: 'Output? / Çıktı?', code: 'const a = [1,2,3];\nconst b = a;\nb[0] = 99;\nconsole.log(a[0]);', options: ['1', '99', 'undefined', 'Error'], correct: 1 },
+        { type: 'trace', text: 'Output? / Çıktı?', code: 'console.log(1 + "2" + 3);', options: ['6', '"123"', '"33"', 'NaN'], correct: 1 },
+        /* ── Algorithm ── */
+        { type: 'algo', text: 'arr.indexOf(x) complexity? / Karmaşıklığı?', code: 'arr.indexOf(x)', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correct: 1 },
+        { type: 'algo', text: 'Map.get(key) complexity? / Karmaşıklığı?', code: 'map.get(key)', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correct: 0 },
     ],
     java: [
-        { type: 'mcq', text: 'String s = "Hello"; s.length()?', options: ['4', '5', '6', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'int[] arr = {1,2,3}; arr.length?', options: ['2', '3', '4', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'int x = 10/3; x nedir?', options: ['3.33', '3', '4', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'null instanceof Object?', options: ['true', 'false', 'Error', 'null'], correct: 1 },
-        { type: 'mcq', text: 'System.out.println(1 + "2")?', options: ['"3"', '"12"', '3', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'char c = \'A\'; (int)c?', options: ['A', '65', '0', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'Math.max(5, 10)?', options: ['5', '10', '15', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'boolean b = !true; b?', options: ['true', 'false', '0', 'Error'], correct: 1 },
-        { type: 'mcq', text: 'Java kaç bit int kullanır?', options: ['16', '32', '64', '8'], correct: 1 },
-        { type: 'mcq', text: 'ArrayList vs Array farkı?', options: ['Aynıdır', 'ArrayList dinamik', 'Array dinamik', 'Fark yok'], correct: 1 },
-        { type: 'mcq', text: 'final keyword ne yapar?', options: ['Değişkeni sabitler', 'Silme', 'Return', 'Loop'], correct: 0 },
-        { type: 'mcq', text: 'String.valueOf(123)?', options: ['123', '"123"', 'Error', 'null'], correct: 1 },
-        { type: 'debug', text: '🐛 Bu kodda hata hangi satırda?', code: 'int x = 10;\nif(x = 10) {\n  System.out.println("ten");\n}', bugLine: 2, options: ['Satır 1', 'Satır 2', 'Satır 3', 'Hata yok'], correct: 1 },
-        { type: 'complete', text: '📝 Boşluğu doldur:', code: 'public ___ void main(String[] args) {\n  System.out.println("Hi");\n}', blank: '___', options: ['final', 'static', 'private', 'void'], correct: 1 },
-        { type: 'trace', text: '🔍 sum\'ın değeri nedir?', code: 'int sum = 0;\nfor(int i = 1; i <= 3; i++)\n  sum += i;\nSystem.out.println(sum);', options: ['3', '6', '9', '0'], correct: 1 },
-        { type: 'algo', text: '⚡ Binary Search karmaşıklığı?', code: 'Arrays.binarySearch(arr, key)', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correct: 2 },
+        /* ── MCQ ── */
+        { type: 'mcq', text: '"hello" == "hello" in Java? / Sonucu?', options: ['Always true', 'Depends (string pool)', 'Always false', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'int x = 7/2; x is? / x değeri?', options: ['3.5', '3', '4', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'null instanceof Object? / Sonucu?', options: ['true', 'false', 'NullPointerException', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'Which is not a primitive? / İlkel olmayan?', options: ['int', 'char', 'String', 'boolean'], correct: 2 },
+        { type: 'mcq', text: 'byte range in Java? / byte aralığı?', options: ['0 to 255', '-128 to 127', '0 to 127', '-256 to 255'], correct: 1 },
+        { type: 'mcq', text: 'Can interface have method body? / Gövde içerebilir mi?', options: ['Never / Asla', 'Yes, default methods / Evet', 'Only abstract', 'Error'], correct: 1 },
+        { type: 'mcq', text: 'System.out.println(10 + 20 + "30")? / Çıktısı?', options: ['"102030"', '"3030"', '60', '"1020"30"'], correct: 1 },
+        { type: 'mcq', text: 'ArrayList vs LinkedList: random access? / Rastgele erişim?', options: ['Same / Aynı', 'ArrayList O(1)', 'LinkedList O(1)', 'Both O(n)'], correct: 1 },
+        { type: 'mcq', text: 'What does "abc".charAt(3) throw? / Ne fırlatır?', options: ['null', 'StringIndexOutOfBounds', 'Returns ""', 'NullPointer'], correct: 1 },
+        { type: 'mcq', text: 'Which creates thread? / Thread oluşturan?', options: ['extends Thread', 'implements Runnable', 'Both / İkisi de', 'Neither'], correct: 2 },
+        /* ── Debug Hunt ── */
+        { type: 'debug', text: 'Which line has the bug? / Hata hangi satırda?', code: 'String s = null;\nif(s.equals("test")) {\n    System.out.println("match");\n}', options: ['Line 1', 'Line 2 (NPE)', 'Line 3', 'No bug'], correct: 1 },
+        { type: 'debug', text: 'Bug in this code? / Hata nerede?', code: 'int[] arr = new int[3];\nfor(int i=0; i<=3; i++) {\n    arr[i] = i;\n}', options: ['Line 1', 'Line 2 (i<=3 should be i<3)', 'Line 3', 'No bug'], correct: 1 },
+        /* ── Code Complete ── */
+        { type: 'complete', text: 'Fill the blank / Boşluğu doldur:', code: 'List<String> list = new __<>();\nlist.add("hello");', options: ['List', 'ArrayList', 'Array', 'Vector'], correct: 1 },
+        { type: 'complete', text: 'Fill the blank / Boşluğu doldur:', code: 'public class Dog ___ Animal {\n    // inherits from Animal\n}', options: ['implements', 'extends', 'inherits', 'super'], correct: 1 },
+        /* ── Code Trace ── */
+        { type: 'trace', text: 'Output? / Çıktı?', code: 'int a = 5;\nint b = a++;\nSystem.out.println(a + " " + b);', options: ['5 5', '6 5', '6 6', '5 6'], correct: 1 },
+        { type: 'trace', text: 'Output? / Çıktı?', code: 'String s = "Hello";\ns.concat(" World");\nSystem.out.println(s);', options: ['Hello World', 'Hello', 'Error', 'null'], correct: 1 },
+        { type: 'trace', text: 'What prints? / Ne yazdırılır?', code: 'int x = 10;\nSystem.out.println(x > 5 ? "big" : "small");', options: ['"big"', '"small"', '10', 'Error'], correct: 0 },
+        /* ── Algorithm ── */
+        { type: 'algo', text: 'HashMap.get(key) complexity? / Karmaşıklığı?', code: 'map.get(key)', options: ['O(n)', 'O(1) amortized', 'O(log n)', 'O(n²)'], correct: 1 },
+        { type: 'algo', text: 'Collections.sort() complexity? / Karmaşıklığı?', code: 'Collections.sort(list)', options: ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'], correct: 1 },
     ]
 }
 
 /* ═══ AI OPPONENT POOL — with PERSONALITIES ═══ */
 const opponentPool = [
-    { name: 'PyNinja', avatar: '🥷', personality: 'speed', accuracy: 0.65, speed: 0.9, taunt: 'Çok hızlıyım!' },
-    { name: 'CodeMaster42', avatar: '🧑‍💻', personality: 'balanced', accuracy: 0.75, speed: 0.6, taunt: 'Hazır ol.' },
-    { name: 'LoopLord', avatar: '🧙', personality: 'strategic', accuracy: 0.8, speed: 0.4, taunt: 'Düşün, sonra cevapla.' },
-    { name: 'BugSquasher', avatar: '🐛', personality: 'debug_expert', accuracy: 0.9, speed: 0.5, taunt: 'Debug benim işim!' },
-    { name: 'RecursiveRex', avatar: '🦖', personality: 'algo_expert', accuracy: 0.85, speed: 0.55, taunt: 'Algoritma kralı!' },
-    { name: 'SyntaxError_', avatar: '❌', personality: 'speed', accuracy: 0.5, speed: 0.95, taunt: 'Hızlannn!' },
-    { name: 'BitShifter', avatar: '⚡', personality: 'speed', accuracy: 0.6, speed: 0.85, taunt: 'Senden hızlıyım.' },
-    { name: 'NullPointer', avatar: '💀', personality: 'balanced', accuracy: 0.7, speed: 0.7, taunt: 'null.' },
-    { name: 'AlgoQueen', avatar: '👑', personality: 'strategic', accuracy: 0.9, speed: 0.35, taunt: 'Yavaş ama doğru.' },
-    { name: 'StackOverflow', avatar: '📚', personality: 'balanced', accuracy: 0.75, speed: 0.65, taunt: 'Araştırdım, biliyorum.' },
-    { name: 'BinaryBoss', avatar: '🤖', personality: 'algo_expert', accuracy: 0.82, speed: 0.6, taunt: '01010111!' },
-    { name: 'ByteHunter', avatar: '🎯', personality: 'speed', accuracy: 0.55, speed: 0.88, taunt: 'Hedef kilitlendi.' },
-    { name: 'LambdaWolf', avatar: '🐺', personality: 'balanced', accuracy: 0.72, speed: 0.68, taunt: '() => kazanmak' },
-    { name: 'HashMapHero', avatar: '🗺️', personality: 'strategic', accuracy: 0.85, speed: 0.45, taunt: 'O(1) bul.' },
-    { name: 'PixelPirate', avatar: '🏴‍☠️', personality: 'speed', accuracy: 0.58, speed: 0.92, taunt: 'Arrrgh!' },
-    { name: 'TuringTest', avatar: '🧪', personality: 'algo_expert', accuracy: 0.88, speed: 0.5, taunt: 'İnsan mısın?' },
-    { name: 'DevOpsDragon', avatar: '🐉', personality: 'balanced', accuracy: 0.78, speed: 0.62, taunt: 'Deploy incoming.' },
-    { name: 'GitGuru', avatar: '🔀', personality: 'strategic', accuracy: 0.83, speed: 0.42, taunt: 'git push --force' },
-    { name: 'RegexRanger', avatar: '🏹', personality: 'debug_expert', accuracy: 0.87, speed: 0.48, taunt: '/^master$/' },
-    { name: 'CSSWizard', avatar: '🎨', personality: 'balanced', accuracy: 0.7, speed: 0.72, taunt: 'display: win;' },
+    { name: 'PyNinja', otterColor: '#7c3aed', personality: 'speed', accuracy: 0.65, speed: 0.9, taunt: 'Too fast! / Çok hızlıyım!' },
+    { name: 'CodeMaster42', otterColor: '#0891b2', personality: 'balanced', accuracy: 0.75, speed: 0.6, taunt: 'Ready? / Hazır ol.' },
+    { name: 'LoopLord', otterColor: '#059669', personality: 'strategic', accuracy: 0.8, speed: 0.4, taunt: 'Think first. / Düşün.' },
+    { name: 'BugSquasher', otterColor: '#dc2626', personality: 'debug_expert', accuracy: 0.9, speed: 0.5, taunt: 'I find bugs. / Bug bulurum.' },
+    { name: 'RecursiveRex', otterColor: '#d97706', personality: 'algo_expert', accuracy: 0.85, speed: 0.55, taunt: 'O(n!) / Algo kralı!' },
+    { name: 'SyntaxError_', otterColor: '#e11d48', personality: 'speed', accuracy: 0.5, speed: 0.95, taunt: 'Speed! / Hızlan!' },
+    { name: 'BitShifter', otterColor: '#4f46e5', personality: 'speed', accuracy: 0.6, speed: 0.85, taunt: 'Faster. / Hızlıyım.' },
+    { name: 'NullPointer', otterColor: '#475569', personality: 'balanced', accuracy: 0.7, speed: 0.7, taunt: 'null.' },
+    { name: 'AlgoQueen', otterColor: '#be185d', personality: 'strategic', accuracy: 0.9, speed: 0.35, taunt: 'Slow & correct. / Doğru.' },
+    { name: 'StackOverflow', otterColor: '#ea580c', personality: 'balanced', accuracy: 0.75, speed: 0.65, taunt: 'I researched. / Araştırdım.' },
+    { name: 'BinaryBoss', otterColor: '#0d9488', personality: 'algo_expert', accuracy: 0.82, speed: 0.6, taunt: '01010111!' },
+    { name: 'ByteHunter', otterColor: '#9333ea', personality: 'speed', accuracy: 0.55, speed: 0.88, taunt: 'Target locked. / Kilitlendi.' },
+    { name: 'LambdaWolf', otterColor: '#16a34a', personality: 'balanced', accuracy: 0.72, speed: 0.68, taunt: '() => win' },
+    { name: 'HashMapHero', otterColor: '#2563eb', personality: 'strategic', accuracy: 0.85, speed: 0.45, taunt: 'O(1) lookup.' },
+    { name: 'PixelPirate', otterColor: '#db2777', personality: 'speed', accuracy: 0.58, speed: 0.92, taunt: 'Arrrgh!' },
+    { name: 'TuringTest', otterColor: '#6366f1', personality: 'algo_expert', accuracy: 0.88, speed: 0.5, taunt: 'Are you human? / İnsan mısın?' },
+    { name: 'DevOpsDragon', otterColor: '#c026d3', personality: 'balanced', accuracy: 0.78, speed: 0.62, taunt: 'Deploy incoming.' },
+    { name: 'GitGuru', otterColor: '#0ea5e9', personality: 'strategic', accuracy: 0.83, speed: 0.42, taunt: 'git push --force' },
+    { name: 'RegexRanger', otterColor: '#84cc16', personality: 'debug_expert', accuracy: 0.87, speed: 0.48, taunt: '/^master$/' },
+    { name: 'CSSWizard', otterColor: '#f59e0b', personality: 'balanced', accuracy: 0.7, speed: 0.72, taunt: 'display: win;' },
 ]
 
 /* ═══ LEAGUE TIERS ═══ */
 const leagueTiers = [
-    { name: 'Bronze', icon: '🥉', minElo: 0, color: '#CD7F32' },
-    { name: 'Silver', icon: '🥈', minElo: 1200, color: '#C0C0C0' },
-    { name: 'Gold', icon: '🥇', minElo: 1500, color: '#FFD700' },
-    { name: 'Diamond', icon: '💎', minElo: 1800, color: '#B9F2FF' },
-    { name: 'Hacker', icon: '👾', minElo: 2200, color: '#FF00FF' },
+    { name: 'Bronze', minElo: 0, color: '#CD7F32' },
+    { name: 'Silver', minElo: 1200, color: '#C0C0C0' },
+    { name: 'Gold', minElo: 1500, color: '#FFD700' },
+    { name: 'Diamond', minElo: 1800, color: '#B9F2FF' },
+    { name: 'Hacker', minElo: 2200, color: '#FF00FF' },
 ]
 
 /* ═══ ARENA TITLES ═══ */
 export const arenaTitles = [
-    { name: 'Newbie Coder', icon: '🌱', minElo: 0 },
-    { name: 'Bug Hunter', icon: '🐛', minElo: 900 },
-    { name: 'Code Warrior', icon: '⚔️', minElo: 1100 },
-    { name: 'Algorithm Knight', icon: '🛡️', minElo: 1300 },
-    { name: 'Syntax Samurai', icon: '🗡️', minElo: 1600 },
-    { name: 'Data Wizard', icon: '🧙', minElo: 1900 },
-    { name: 'Legendary Hacker', icon: '👾', minElo: 2200 },
+    { name: 'Newbie Coder', minElo: 0 },
+    { name: 'Bug Hunter', minElo: 900 },
+    { name: 'Code Warrior', minElo: 1100 },
+    { name: 'Algorithm Knight', minElo: 1300 },
+    { name: 'Syntax Samurai', minElo: 1600 },
+    { name: 'Data Wizard', minElo: 1900 },
+    { name: 'Legendary Hacker', minElo: 2200 },
 ]
 
 export function getArenaTitle(elo) {
@@ -849,16 +866,16 @@ export function getMascotEvolution() {
 
 /* ═══ EMOTE SYSTEM ═══ */
 export const allEmotes = [
-    { id: 'fire', emoji: '🔥', text: 'Yanıyorsun!', price: 0 },
-    { id: 'gg', emoji: '👏', text: 'GG!', price: 0 },
-    { id: 'shock', emoji: '😱', text: 'Zor soru!', price: 0 },
-    { id: 'brain', emoji: '🧠', text: 'Kolaydı', price: 50 },
-    { id: 'fast', emoji: '⏱️', text: 'Hızlısın!', price: 50 },
-    { id: 'sleep', emoji: '😴', text: 'Uyuyor musun?', price: 100 },
-    { id: 'crown', emoji: '👑', text: 'Kralım!', price: 150 },
-    { id: 'sip', emoji: '🍵', text: 'Çay iç.', price: 200 },
+    { id: 'gg', label: 'GG', text: 'Good game!', price: 0, color: '#22c55e' },
+    { id: 'nice', label: 'NICE', text: 'Nice one!', price: 0, color: '#06b6d4' },
+    { id: 'gl', label: 'GL', text: 'Good luck!', price: 0, color: '#8b5cf6' },
+    { id: 'ez', label: 'EZ', text: 'Too easy!', price: 50, color: '#eab308' },
+    { id: 'wp', label: 'WP', text: 'Well played!', price: 50, color: '#14b8a6' },
+    { id: 'rip', label: 'RIP', text: 'Rest in peace...', price: 100, color: '#ef4444' },
+    { id: 'goat', label: 'GOAT', text: 'Greatest!', price: 150, color: '#f59e0b' },
+    { id: 'oof', label: 'OOF', text: 'That hurts...', price: 200, color: '#ec4899' },
 ]
-const _ownedEmotes = loadSaved(DUEL_EMOTES_KEY, ['fire', 'gg', 'shock'])
+const _ownedEmotes = loadSaved(DUEL_EMOTES_KEY, ['gg', 'nice', 'gl'])
 export function getOwnedEmotes() { return allEmotes.filter(e => _ownedEmotes.includes(e.id)) }
 export function buyEmote(id) {
     const emote = allEmotes.find(e => e.id === id)

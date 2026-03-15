@@ -122,27 +122,30 @@ export function UserAvatar({ name, size = 36, color = '#14b8a6', isUser = false 
     )
 }
 
-export function OtterMascot({ size = 48, tier, glow }) {
+export function OtterMascot({ size = 48, tier, glow, bodyColor }) {
     const tierColor = tier?.color || '#14b8a6'
+    const mainColor = bodyColor || '#8B6914'
+    const darkColor = bodyColor ? shadeColor(bodyColor, -30) : '#654321'
     return (
         <svg width={size} height={size} viewBox="0 0 48 48">
             <defs>
-                <radialGradient id="ot-bg"><stop offset="0%" stopColor={tierColor} stopOpacity="0.3"/><stop offset="100%" stopColor={tierColor} stopOpacity="0.05"/></radialGradient>
-                <linearGradient id="ot-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8B6914"/><stop offset="100%" stopColor="#654321"/></linearGradient>
+                <radialGradient id={`ot-bg-${mainColor.slice(1)}`}><stop offset="0%" stopColor={tierColor} stopOpacity="0.3"/><stop offset="100%" stopColor={tierColor} stopOpacity="0.05"/></radialGradient>
+                <linearGradient id={`ot-body-${mainColor.slice(1)}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={mainColor}/><stop offset="100%" stopColor={darkColor}/></linearGradient>
             </defs>
-            {glow && <circle cx="24" cy="24" r="23" fill="url(#ot-bg)"/>}
-            <circle cx="24" cy="24" r="20" fill="url(#ot-body)" stroke={tierColor} strokeWidth="1.5" opacity="0.9"/>
-            <ellipse cx="18" cy="20" rx="3" ry="3.5" fill="#5a3e1b"/>
-            <ellipse cx="30" cy="20" rx="3" ry="3.5" fill="#5a3e1b"/>
+            {glow && <circle cx="24" cy="24" r="23" fill={`url(#ot-bg-${mainColor.slice(1)})`}/>}
+            <circle cx="24" cy="24" r="20" fill={`url(#ot-body-${mainColor.slice(1)})`} stroke={tierColor} strokeWidth="1.5" opacity="0.9"/>
+            <ellipse cx="18" cy="20" rx="3" ry="3.5" fill={darkColor}/>
+            <ellipse cx="30" cy="20" rx="3" ry="3.5" fill={darkColor}/>
             <circle cx="18" cy="19" r="1.5" fill="white"/><circle cx="30" cy="19" r="1.5" fill="white"/>
             <circle cx="18.5" cy="19.2" r="0.8" fill="#1a1a2e"/><circle cx="30.5" cy="19.2" r="0.8" fill="#1a1a2e"/>
-            <ellipse cx="24" cy="28" rx="5" ry="3" fill="#d4a574" opacity="0.6"/>
+            <ellipse cx="24" cy="28" rx="5" ry="3" fill="rgba(255,255,255,0.15)"/>
             <ellipse cx="24" cy="27" rx="2" ry="1" fill="#1a1a2e" opacity="0.5"/>
-            <circle cx="15" cy="26" r="2" fill="#d4a574" opacity="0.3"/>
-            <circle cx="33" cy="26" r="2" fill="#d4a574" opacity="0.3"/>
+            <circle cx="15" cy="26" r="2" fill="rgba(255,255,255,0.1)"/>
+            <circle cx="33" cy="26" r="2" fill="rgba(255,255,255,0.1)"/>
         </svg>
     )
 }
+function shadeColor(c,p){let r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);r=Math.max(0,Math.min(255,r+p));g=Math.max(0,Math.min(255,g+p));b=Math.max(0,Math.min(255,b+p));return`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`}
 
 export function VSBadge({ size = 40 }) {
     return (

@@ -9,7 +9,7 @@ import {
 } from '../data'
 import {
     ShieldIcon, SwordIcon, BoltIcon, TrophyIcon, FireIcon, MedalIcon,
-    UserAvatar, OtterMascot, VSBadge, DiceIcon, CalendarIcon, ChartIcon, StarIcon,
+    OtterMascot, VSBadge, DiceIcon, CalendarIcon, ChartIcon, StarIcon,
 } from './ArenaIcons'
 
 /* ═══ GLASS STYLE ═══ */
@@ -168,7 +168,7 @@ function Dashboard({ onStart }) {
                         className={`flex items-center gap-2 rounded-xl px-2.5 py-1.5 transition-all ${p.isUser?'':'hover:bg-white/[0.02]'}`}
                         style={p.isUser?{background:`${tier.color}15`,border:`1px solid ${tier.color}30`}:{}}>
                         <div className="w-5 flex justify-center">{i<3?<MedalIcon rank={i+1} size={18}/>:<span className="text-[10px] font-black text-slate-600">{i+1}</span>}</div>
-                        <UserAvatar name={p.name} size={28} isUser={p.isUser} color={tier.color}/>
+                        <OtterMascot size={28} bodyColor={p.isUser?undefined:(p.otterColor||'#6366f1')}/>
                         <span className={`flex-1 text-[10px] font-extrabold truncate ${p.isUser?'text-teal-300':'text-slate-300'}`}>{p.name}</span>
                         <span className="text-[9px] font-black text-slate-500">{p.xp}</span>
                     </motion.div>
@@ -180,7 +180,7 @@ function Dashboard({ onStart }) {
                 <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><ChartIcon size={12}/>SON DÜELLOLAR</h3>
                 <div className="space-y-1.5">{duelHistory.slice(0,5).map(m=>
                     <div key={m.id} className={`flex items-center gap-2 rounded-xl px-3 py-2 ${gc}`} style={{...G,borderLeft:`3px solid ${m.result==='win'?'#34d399':'#f87171'}`}}>
-                        <UserAvatar name={m.opponent.name} size={28}/>
+                        <OtterMascot size={28} bodyColor={m.opponent.otterColor}/>
                         <div className="flex-1 min-w-0"><p className="text-[10px] font-extrabold text-white truncate">{m.opponent.name}</p><span className="text-[7px] font-bold text-slate-600">{m.date}</span></div>
                         <div className="text-right"><p className={`text-[10px] font-black ${m.result==='win'?'text-emerald-400':'text-red-400'}`}>{m.score}</p><span className={`text-[7px] font-bold ${m.elo>0?'text-emerald-400/80':'text-red-400/80'}`}>{m.elo>0?'+':''}{m.elo}</span></div>
                     </div>
@@ -204,7 +204,10 @@ function EmoteShop() {
         <div className="flex items-center justify-between mb-1.5"><p className="text-[8px] font-extrabold text-slate-500">EMOTES ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer">{show?'Kapat':'Shop'}</button></div>
         <div className="flex gap-1.5 flex-wrap">{(show?allEmotes:owned).map(e=>{
             const has=owned.find(o=>o.id===e.id)
-            return <motion.div key={e.id} whileTap={!has?{scale:.85}:{}} onClick={()=>{if(show&&!has){buyEmote(e.id);S.pop();rf(v=>v+1)}}} className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm border-b-[2px] transition-all ${has?'border-white/10':'border-slate-800 opacity-50 cursor-pointer'}`} style={has?G:{background:'rgba(255,255,255,0.02)'}} title={`${e.text} ${e.price>0?`(${e.price} gem)`:''}`}>{e.emoji}</motion.div>
+            return <motion.div key={e.id} whileTap={!has?{scale:.85}:{}} onClick={()=>{if(show&&!has){buyEmote(e.id);S.pop();rf(v=>v+1)}}}
+                className={`h-8 rounded-lg flex items-center justify-center text-[9px] font-black px-2.5 border-b-[2px] transition-all ${has?'border-white/10 cursor-pointer':'border-slate-800 opacity-40 cursor-pointer'}`}
+                style={has?{...G,color:e.color,borderColor:e.color+'30'}:{background:'rgba(255,255,255,0.02)',color:'#64748b'}}
+                title={`${e.text} ${e.price>0?`(${e.price} gem)`:''}`}>{e.label}</motion.div>
         })}</div>
         {show&&<p className="text-[7px] font-bold text-slate-600 mt-1.5">{stats.gems||0} gem mevcut</p>}
     </motion.div>
@@ -228,7 +231,7 @@ function Searching({ opp, mode, onFound }) {
             <p className="text-[10px] font-bold text-slate-500">ELO: {duelStats.elo-100} - {duelStats.elo+100}</p>
         </>:<>
             <motion.div initial={{scale:0,rotate:-180}} animate={{scale:1,rotate:0}} transition={{type:'spring',stiffness:200}}>
-                <UserAvatar name={opp.name} size={80}/>
+                <OtterMascot size={80} bodyColor={opp.otterColor}/>
             </motion.div>
             <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:.3}} className="text-center">
                 <h2 className="text-lg font-black text-white">Rakip Bulundu!</h2>
@@ -252,7 +255,7 @@ function VsIntro({ you, opp, mode, onReady }) {
             </motion.div>
             <motion.div initial={{scale:0}} animate={{scale:[0,1.5,1]}} transition={{delay:.3,duration:.5}}><VSBadge size={48}/></motion.div>
             <motion.div initial={{x:100,opacity:0}} animate={{x:0,opacity:1}} transition={{type:'spring',stiffness:150}} className="text-center">
-                <UserAvatar name={opp.name} size={64}/>
+                <OtterMascot size={64} bodyColor={opp.otterColor}/>
                 <p className="text-xs font-black text-red-400 mt-1">{opp.name}</p>
                 <p className="text-[9px] font-bold text-slate-500 flex items-center justify-center gap-0.5"><BoltIcon size={8}/>{opp.elo}</p>
             </motion.div>
@@ -327,12 +330,13 @@ function Duel({ opponent, questions, mode, modeConfig, onFinish }) {
                     <span className="text-slate-500 mr-1.5 font-black">{String.fromCharCode(65+i)}.</span>{opt}
                 </motion.button>
             })}</div>
-            <div className="flex justify-center gap-2 pt-3 pb-2">{ownEm.slice(0,4).map(e=><motion.button key={e.id} whileTap={{scale:.85}} onClick={()=>{setSEmote(e.emoji);S.pop();setTimeout(()=>setSEmote(null),2500)}} className="w-9 h-9 rounded-xl text-sm cursor-pointer" style={G}>{e.emoji}</motion.button>)}</div>
+            <div className="flex justify-center gap-2 pt-3 pb-2">{ownEm.slice(0,4).map(e=><motion.button key={e.id} whileTap={{scale:.85}} onClick={()=>{setSEmote(e.label);S.pop();setTimeout(()=>setSEmote(null),2500)}}
+                className="h-8 rounded-lg text-[9px] font-black px-3 cursor-pointer" style={{...G,color:e.color,borderColor:e.color+'30'}}>{e.label}</motion.button>)}</div>
         </div>
     </div>
 }
 
-function FEmote({emoji,from}){return<motion.div initial={{opacity:0,y:0,x:from==='left'?-50:50,scale:.3}} animate={{opacity:[0,1,1,0],y:-60,x:0,scale:[.3,1.3,1,.8]}} transition={{duration:2}} className="text-center mb-1"><span className="text-3xl inline-block" style={{filter:'drop-shadow(0 0 8px rgba(255,255,255,0.3))'}}>{emoji}</span></motion.div>}
+function FEmote({emoji,from}){return<motion.div initial={{opacity:0,y:0,x:from==='left'?-50:50,scale:.3}} animate={{opacity:[0,1,1,0],y:-60,x:0,scale:[.3,1.3,1,.8]}} transition={{duration:2}} className="text-center mb-1"><span className="text-lg font-black inline-block px-3 py-1 rounded-full" style={{background:'rgba(255,255,255,0.1)',color:'white',filter:'drop-shadow(0 0 8px rgba(255,255,255,0.3))'}}>{emoji}</span></motion.div>}
 
 /* ════════════════ RESULT ════════════════ */
 function Result({ data, onAnalytics, onBack }) {
