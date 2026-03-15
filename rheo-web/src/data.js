@@ -445,14 +445,14 @@ export function trackQuestEvent(eventName, amount = 1) {
 window.__trackQuest = trackQuestEvent
 
 /* ── Power-Up Shop ── */
-export const powerUps = [
+export const journeyPowerUps = [
     { id: 'double_xp', icon: '⚡', name: 'Double XP', desc: '1 ders boyunca 2x XP', price: 100, type: 'consumable' },
     { id: 'extra_heart', icon: '❤️', name: 'Extra Heart', desc: 'Ders içinde +1 can', price: 30, type: 'consumable' },
     { id: 'hint_token', icon: '🔮', name: 'Hint Token', desc: 'İpucu gösterme hakkı', price: 25, type: 'consumable' },
     { id: 'skip_token', icon: '🎯', name: 'Skip Token', desc: 'Zor soruyu atla', price: 75, type: 'consumable' },
 ]
 export function buyPowerUp(id) {
-    const item = powerUps.find(p => p.id === id)
+    const item = journeyPowerUps.find(p => p.id === id)
     if (!item || stats.gems < item.price) return false
     stats.gems -= item.price
     const inv = loadSaved('rheo_powerups', {})
@@ -1021,10 +1021,42 @@ export function saveDailyResult(score, timeMs) {
 
 /* ═══ GAME MODE CONFIGS ═══ */
 export const gameModes = {
-    classic: { name: 'Klasik Düello', icon: '⚔️', rounds: 3, timer: 20, desc: '3 soru, 20 saniye' },
-    blitz: { name: 'Speed Blitz', icon: '⚡', rounds: 5, timer: 10, desc: '5 soru, 10 sn, hız bonusu!', speedBonus: true },
-    auction: { name: 'Code Auction', icon: '🎰', rounds: 3, timer: 20, desc: 'XP\'ni bahse yatır!', betting: true },
-    daily: { name: 'Günlük Challenge', icon: '📅', rounds: 3, timer: 30, desc: 'Herkese aynı sorular' },
+    classic: { name: 'Klasik Düello', rounds: 3, timer: 20, desc: '3 soru, 20 saniye' },
+    blitz: { name: 'Speed Blitz', rounds: 5, timer: 10, desc: '5 soru, 10 sn, hız bonusu!', speedBonus: true },
+    auction: { name: 'Code Auction', rounds: 3, timer: 20, desc: 'XP\'ni bahse yatır!', betting: true },
+    daily: { name: 'Günlük Challenge', rounds: 3, timer: 30, desc: 'Herkese aynı sorular' },
+    survival: { name: 'Survival', rounds: 99, timer: 15, desc: '3 can, ne kadar gidebilirsin?', lives: 3 },
+    sudden: { name: 'Sudden Death', rounds: 1, timer: 30, desc: 'Tek soru, tek şans!', suddenDeath: true },
+}
+
+/* ═══ POWER-UP SYSTEM ═══ */
+export const powerUps = [
+    { id: 'freeze', name: 'Time Freeze', desc: 'Timer stops for 5s / Zamanı 5sn durdur', uses: 1, color: '#06b6d4' },
+    { id: 'fifty', name: '50:50', desc: 'Remove 2 wrong options / 2 yanlış elenir', uses: 1, color: '#a855f7' },
+    { id: 'double', name: 'Double XP', desc: 'Score x2 this round / Puan 2 kat', uses: 1, color: '#f59e0b' },
+]
+
+/* ═══ ACHIEVEMENT BADGES ═══ */
+const ACHIEVEMENTS_KEY = 'rheo_achievements'
+export const achievementDefs = [
+    { id: 'first_blood', name: 'First Blood', desc: 'İlk düello zaferini kazan', check: () => duelStats.wins >= 1, color: '#22c55e' },
+    { id: 'streak3', name: 'Hat Trick', desc: '3 maç üst üste kazan', check: () => duelStats.bestStreak >= 3, color: '#eab308' },
+    { id: 'streak5', name: 'Unstoppable', desc: '5 maç üst üste kazan', check: () => duelStats.bestStreak >= 5, color: '#ef4444' },
+    { id: 'streak10', name: 'Legendary', desc: '10 maç üst üste kazan', check: () => duelStats.bestStreak >= 10, color: '#a855f7' },
+    { id: 'duel10', name: 'Veteran', desc: '10 düello tamamla', check: () => duelStats.totalDuels >= 10, color: '#14b8a6' },
+    { id: 'duel50', name: 'Gladiator', desc: '50 düello tamamla', check: () => duelStats.totalDuels >= 50, color: '#f97316' },
+    { id: 'silver', name: 'Silver League', desc: 'Silver lige yüksel', check: () => duelStats.elo >= 1200, color: '#C0C0C0' },
+    { id: 'gold', name: 'Gold League', desc: 'Gold lige yüksel', check: () => duelStats.elo >= 1500, color: '#FFD700' },
+    { id: 'perfect', name: 'Flawless', desc: 'Düelloyu 0 yanlışla kazan', check: () => loadSaved(ACHIEVEMENTS_KEY, []).includes('perfect'), color: '#ec4899' },
+    { id: 'speed_demon', name: 'Speed Demon', desc: 'Blitz modunda kazan', check: () => loadSaved(ACHIEVEMENTS_KEY, []).includes('speed_demon'), color: '#f59e0b' },
+]
+const _unlockedAch = loadSaved(ACHIEVEMENTS_KEY, [])
+export function getUnlockedAchievements() { return achievementDefs.filter(a => _unlockedAch.includes(a.id) || a.check()) }
+export function checkAndUnlockAchievements(extraIds = []) {
+    let newUnlocks = []
+    achievementDefs.forEach(a => { if (!_unlockedAch.includes(a.id) && (a.check() || extraIds.includes(a.id))) { _unlockedAch.push(a.id); newUnlocks.push(a) } })
+    if (newUnlocks.length > 0) saveTo(ACHIEVEMENTS_KEY, _unlockedAch)
+    return newUnlocks
 }
 
 /* ═══ LOAD PERSISTED DUEL DATA ═══ */

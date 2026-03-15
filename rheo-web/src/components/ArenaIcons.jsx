@@ -124,8 +124,8 @@ export function UserAvatar({ name, size = 36, color = '#14b8a6', isUser = false 
 
 export function OtterMascot({ size = 48, tier, glow, bodyColor }) {
     const tierColor = tier?.color || '#14b8a6'
-    const mainColor = bodyColor || '#8B6914'
-    const darkColor = bodyColor ? shadeColor(bodyColor, -30) : '#654321'
+    const mainColor = bodyColor || '#14b8a6'
+    const darkColor = bodyColor ? shadeColor(bodyColor, -30) : '#0d7d6b'
     return (
         <svg width={size} height={size} viewBox="0 0 48 48">
             <defs>
@@ -146,6 +146,27 @@ export function OtterMascot({ size = 48, tier, glow, bodyColor }) {
     )
 }
 function shadeColor(c,p){let r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);r=Math.max(0,Math.min(255,r+p));g=Math.max(0,Math.min(255,g+p));b=Math.max(0,Math.min(255,b+p));return`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`}
+
+/* ═══ BP Road Icons ═══ */
+export function GemSVG({ size = 16, color = '#06b6d4' }) {
+    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M6 3h12l4 7-10 11L2 10l4-7z" fill={color} opacity="0.8"/>
+        <path d="M2 10h20M12 21L6 3M12 21l6-18M6 3l6 7 6-7" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" fill="none"/>
+    </svg>
+}
+export function XPStar({ size = 16, color = '#fbbf24' }) {
+    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M12 2l2.5 5.5H20l-4.5 3.5 1.5 6L12 14l-5 3 1.5-6L4 7.5h5.5L12 2z" fill={color}/>
+        <path d="M12 2l2.5 5.5H20l-4.5 3.5 1.5 6L12 14l-5 3 1.5-6L4 7.5h5.5L12 2z" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" fill="none"/>
+    </svg>
+}
+export function CrownSVG({ size = 16, color = '#f59e0b' }) {
+    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M5 16L3 5l5 4 4-6 4 6 5-4-2 11H5z" fill={color} opacity="0.9"/>
+        <rect x="4" y="16" width="16" height="3" rx="1" fill={color}/>
+        <path d="M5 16L3 5l5 4 4-6 4 6 5-4-2 11H5z" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" fill="none"/>
+    </svg>
+}
 
 export function VSBadge({ size = 40 }) {
     return (

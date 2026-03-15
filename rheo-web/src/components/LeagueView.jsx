@@ -6,10 +6,12 @@ import {
     getArenaTitle, getMascotEvolution, getOwnedEmotes, allEmotes, buyEmote,
     getSeasonData, getBattlePass, getDailyChallenge,
     gameModes, getAIResponseTime, getAICorrectChance, stats,
+    powerUps, achievementDefs, getUnlockedAchievements, checkAndUnlockAchievements,
 } from '../data'
 import {
     ShieldIcon, SwordIcon, BoltIcon, TrophyIcon, FireIcon, MedalIcon,
     OtterMascot, VSBadge, DiceIcon, CalendarIcon, ChartIcon, StarIcon,
+    GemSVG, XPStar, CrownSVG,
 } from './ArenaIcons'
 
 /* ═══ GLASS STYLE ═══ */
@@ -123,7 +125,11 @@ function Dashboard({ onStart }) {
                 <div className="flex gap-2 mt-2">
                     <ModBtn icon={<BoltIcon size={16} color="white"/>} label="Blitz" onClick={()=>onStart('blitz')} grad="linear-gradient(135deg,#eab308,#f59e0b)"/>
                     <ModBtn icon={<DiceIcon size={16}/>} label="Auction" onClick={()=>onStart('auction')} grad="linear-gradient(135deg,#a855f7,#ec4899)"/>
-                    <ModBtn icon={<CalendarIcon size={16} day={new Date().getDate()}/>} label={daily.completed?'Tamamlandı':'Günlük'} onClick={()=>onStart('daily')} grad={daily.completed?'linear-gradient(135deg,#475569,#334155)':'linear-gradient(135deg,#14b8a6,#059669)'} disabled={daily.completed}/>
+                    <ModBtn icon={<CalendarIcon size={16} day={new Date().getDate()}/>} label={daily.completed?'Tamam':'Günlük'} onClick={()=>onStart('daily')} grad={daily.completed?'linear-gradient(135deg,#475569,#334155)':'linear-gradient(135deg,#14b8a6,#059669)'} disabled={daily.completed}/>
+                </div>
+                <div className="flex gap-2 mt-1.5">
+                    <ModBtn icon={<FireIcon size={16}/>} label="Survival" onClick={()=>onStart('survival')} grad="linear-gradient(135deg,#ef4444,#dc2626)"/>
+                    <ModBtn icon={<SwordIcon size={16} color="white"/>} label="Sudden Death" onClick={()=>onStart('sudden')} grad="linear-gradient(135deg,#1e1b4b,#312e81)"/>
                 </div>
             </motion.div>
 
@@ -147,17 +153,17 @@ function Dashboard({ onStart }) {
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.14}} className={gc} style={G}>
                 <p className="text-[8px] font-extrabold text-slate-500 mb-2 flex items-center gap-1"><StarIcon size={10}/>BATTLE PASS YOLU</p>
                 <div className="relative overflow-x-auto pb-2">
-                    {/* Connecting line */}
-                    <div className="absolute top-6 left-5 right-5 h-0.5" style={{background:'linear-gradient(90deg,#fbbf24,#f59e0b 30%,rgba(255,255,255,0.06) 30%)'}}/>
+                    <div className="absolute top-5 left-5 right-5 h-0.5" style={{background:'linear-gradient(90deg,#fbbf24,#f59e0b 30%,rgba(255,255,255,0.06) 30%)'}}/>
                     <div className="flex gap-0.5">{bp.tiers.map((t,i)=>{
                         const u=bp.xp>=t.xpNeeded
                         const isCurrent=bp.currentTier===t.tier
-                        const rewardIcons=['💎','⭐','🔷','💎','⭐','🔶','💎','⭐','🔷','💎','🏆','💎','⭐','🔷','👑']
-                        return <div key={i} className="flex-shrink-0 flex flex-col items-center" style={{width:42}}>
-                            <motion.div animate={isCurrent?{scale:[1,1.15,1]}:{}} transition={{duration:1.5,repeat:Infinity}}
-                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm relative border-b-[2px] transition-all ${u?'border-amber-600':'isCurrent'?'border-teal-600':'border-slate-800'}`}
-                                style={u?{background:'linear-gradient(135deg,rgba(251,191,36,0.25),rgba(245,158,11,0.15))',border:'1px solid rgba(251,191,36,0.4)',boxShadow:'0 0 10px rgba(251,191,36,0.15)'}:isCurrent?{background:'rgba(20,184,166,0.15)',border:'1px solid rgba(20,184,166,0.4)',boxShadow:'0 0 10px rgba(20,184,166,0.2)'}:{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
-                                {u?<StarIcon size={16} color="#22c55e"/>:<span className="opacity-60">{rewardIcons[i%rewardIcons.length]}</span>}
+                        const icons=[GemSVG,XPStar,BoltIcon,GemSVG,XPStar,CrownSVG,GemSVG,XPStar,BoltIcon,GemSVG,TrophyIcon,GemSVG,XPStar,BoltIcon,CrownSVG]
+                        const IconComp=icons[i%icons.length]
+                        return <div key={i} className="flex-shrink-0 flex flex-col items-center" style={{width:40}}>
+                            <motion.div animate={isCurrent?{scale:[1,1.12,1]}:{}} transition={{duration:1.5,repeat:Infinity}}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center relative"
+                                style={u?{background:'linear-gradient(135deg,rgba(251,191,36,0.25),rgba(245,158,11,0.15))',border:'1px solid rgba(251,191,36,0.4)',boxShadow:'0 0 8px rgba(251,191,36,0.15)'}:isCurrent?{background:'rgba(20,184,166,0.15)',border:'1px solid rgba(20,184,166,0.3)',boxShadow:'0 0 8px rgba(20,184,166,0.2)'}:{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                                {u?<StarIcon size={14} color="#22c55e"/>:<IconComp size={14} color={isCurrent?'#14b8a6':'#475569'}/>}
                             </motion.div>
                             <span className={`text-[7px] font-black mt-0.5 ${u?'text-amber-400':isCurrent?'text-teal-400':'text-slate-600'}`}>{t.tier}</span>
                         </div>
@@ -195,6 +201,21 @@ function Dashboard({ onStart }) {
                 )}</div>
             </motion.div>}
             {duelHistory.length===0&&<div className="text-center py-6"><SwordIcon size={32} color="#475569"/><p className="text-xs font-black text-slate-500 mt-2">Henüz düello yapmadın</p></div>}
+
+            {/* Achievements */}
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.3}} className={gc} style={G}>
+                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><MedalIcon rank={1} size={14}/>BAŞARIMLAR ({getUnlockedAchievements().length}/{achievementDefs.length})</h3>
+                <div className="grid grid-cols-5 gap-1.5">{achievementDefs.map(a=>{
+                    const unlocked=getUnlockedAchievements().find(u=>u.id===a.id)
+                    return <div key={a.id} className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 px-0.5 transition-all ${unlocked?'':'opacity-30'}`}
+                        style={unlocked?{background:`${a.color}15`,border:`1px solid ${a.color}30`}:{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.05)'}}>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}25`,boxShadow:`0 0 8px ${a.color}20`}:{background:'rgba(255,255,255,0.05)'}}>
+                            <ShieldIcon size={12} tier={unlocked?'gold':'bronze'}/>
+                        </div>
+                        <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#475569'}}>{a.name}</span>
+                    </div>
+                })}</div>
+            </motion.div>
             <div className="pb-4"/>
         </div>
     </div>
@@ -256,7 +277,13 @@ function Searching({ opp, mode, onFound }) {
 /* ════════════════ VS INTRO ════════════════ */
 function VsIntro({ you, opp, mode, onReady }) {
     const [c, setC] = useState(3)
-    useEffect(()=>{if(c<=0){S.fight();onReady();return};S.cd();const t=setTimeout(()=>setC(v=>v-1),800);return()=>clearTimeout(t)},[c,onReady])
+    const readyRef = useRef(onReady)
+    readyRef.current = onReady
+    const fired = useRef(false)
+    useEffect(()=>{
+        if(c<=0){ if(!fired.current){fired.current=true;S.fight();setTimeout(()=>readyRef.current(),300)} return }
+        S.cd(); const t=setTimeout(()=>setC(v=>v-1),800); return()=>clearTimeout(t)
+    },[c])
     return <div className="h-full flex flex-col items-center justify-center gap-6 px-8">
         <div className="flex items-center gap-6 w-full justify-center">
             <motion.div initial={{x:-100,opacity:0}} animate={{x:0,opacity:1}} transition={{type:'spring',stiffness:150}} className="text-center">
@@ -278,26 +305,39 @@ function VsIntro({ you, opp, mode, onReady }) {
 
 /* ════════════════ DUEL ════════════════ */
 function Duel({ opponent, questions, mode, modeConfig, onFinish }) {
-    const [rd, setRd] = useState(0), [tl, setTl] = useState(modeConfig.timer), [sel, setSel] = useState(null)
+    const [rd, setRd] = useState(0), [tl, setTl] = useState(modeConfig?.timer||20), [sel, setSel] = useState(null)
     const [sc, setSc] = useState({you:0,them:0}), [rr, setRr] = useState([]), [oAns, setOAns] = useState(false)
     const [sEmote, setSEmote] = useState(null), [oEmote, setOEmote] = useState(null), [rdDet, setRdDet] = useState([])
-    const [bet, setBet] = useState(10), [showBet, setShowBet] = useState(modeConfig.betting)
-    const st = useRef(Date.now()), tot = questions.length, q = questions[rd], ownEm = getOwnedEmotes()
-    const spd = (s) => !modeConfig.speedBonus?1:s>=7?3:s>=4?2:1
+    const [bet, setBet] = useState(10), [showBet, setShowBet] = useState(!!modeConfig?.betting)
+    const [lives, setLives] = useState(modeConfig?.lives || 99)
+    const st = useRef(Date.now()), tot = questions?.length||0
+    const q = questions && rd < questions.length ? questions[rd] : null
+    const ownEm = getOwnedEmotes()
+    const spd = (s) => !modeConfig?.speedBonus?1:s>=7?3:s>=4?2:1
 
-    useEffect(()=>{if(tl<=0||sel!==null||showBet)return;const t=setInterval(()=>setTl(v=>{if(v<=6&&v>1)S.tick();return v-1}),1000);return()=>clearInterval(t)},[tl,sel,showBet])
-    useEffect(()=>{if(sel!==null||showBet)return;setOAns(false);const d=getAIResponseTime(opponent,q.type||'mcq');const t=setTimeout(()=>{setOAns(true);S.sw()},d);return()=>clearTimeout(t)},[rd,sel,showBet])
-    useEffect(()=>{setOEmote(null);const d=4000+Math.random()*8000;const t=setTimeout(()=>{const em=['👊','💪','🎯','⚡'];setOEmote(em[Math.floor(Math.random()*em.length)]);S.pop();setTimeout(()=>setOEmote(null),2500)},d);return()=>clearTimeout(t)},[rd])
+    // Early bail if no question available
+    useEffect(()=>{if(!q && rd>0){onFinish({won:sc.you>sc.them,yourScore:sc.you,theirScore:sc.them,totalTimeMs:Date.now()-st.current,roundDetails:rdDet})}},[q,rd])
+
+    useEffect(()=>{if(!q||tl<=0||sel!==null||showBet)return;const t=setInterval(()=>setTl(v=>{if(v<=6&&v>1)S.tick();return v-1}),1000);return()=>clearInterval(t)},[tl,sel,showBet,q])
+    useEffect(()=>{if(!q||sel!==null||showBet)return;setOAns(false);const d=getAIResponseTime(opponent,q.type||'mcq');const t=setTimeout(()=>{setOAns(true);S.sw()},d);return()=>clearTimeout(t)},[rd,sel,showBet,q])
+    useEffect(()=>{setOEmote(null);const d=4000+Math.random()*8000;const t=setTimeout(()=>{const em=['GG','WP','EZ','GL'];setOEmote(em[Math.floor(Math.random()*em.length)]);S.pop();setTimeout(()=>setOEmote(null),2500)},d);return()=>clearTimeout(t)},[rd])
 
     const answer = useCallback((idx)=>{
-        if(sel!==null)return;setSel(idx);const ok=idx===q.correct;ok?S.ok():S.no()
-        const ns={...sc};if(ok)ns.you+=modeConfig.speedBonus?spd(tl):1;if(Math.random()<getAICorrectChance(opponent,q.type||'mcq'))ns.them+=modeConfig.speedBonus?Math.ceil(Math.random()*2):1
-        setSc(ns);setRr(p=>[...p,ok?'you':(ns.them>sc.them?'them':'skip')]);setRdDet(p=>[...p,{question:q.text,correct:ok,timeUsed:modeConfig.timer-tl,speedBonus:modeConfig.speedBonus?spd(tl):null}])
-        if(rd+1>=tot){setTimeout(()=>onFinish({won:ns.you>ns.them,yourScore:ns.you,theirScore:ns.them,totalTimeMs:Date.now()-st.current,roundDetails:[...rdDet,{question:q.text,correct:ok,timeUsed:modeConfig.timer-tl}]}),1500)}
-        else{setTimeout(()=>{setRd(r=>r+1);setSel(null);setTl(modeConfig.timer);if(modeConfig.betting)setShowBet(true)},1500)}
-    },[sel,q,sc,rd,tot,opponent,onFinish,tl,modeConfig,rdDet])
+        if(sel!==null||!q)return;setSel(idx);const ok=idx===q.correct;ok?S.ok():S.no()
+        // Survival: lose a life on wrong
+        let newLives = lives
+        if(modeConfig?.lives && !ok){ newLives = lives-1; setLives(newLives) }
+        const ns={...sc};if(ok)ns.you+=modeConfig?.speedBonus?spd(tl):1;if(Math.random()<getAICorrectChance(opponent,q.type||'mcq'))ns.them+=modeConfig?.speedBonus?Math.ceil(Math.random()*2):1
+        setSc(ns);setRr(p=>[...p,ok?'you':(ns.them>sc.them?'them':'skip')]);setRdDet(p=>[...p,{question:q.text,correct:ok,timeUsed:(modeConfig?.timer||20)-tl,speedBonus:modeConfig?.speedBonus?spd(tl):null}])
+        // Finish conditions: last round, sudden death loss, survival out of lives
+        const isEnd = rd+1>=tot || (modeConfig?.suddenDeath && !ok) || (modeConfig?.lives && newLives<=0)
+        if(isEnd){setTimeout(()=>onFinish({won:ns.you>ns.them,yourScore:ns.you,theirScore:ns.them,totalTimeMs:Date.now()-st.current,roundDetails:[...rdDet,{question:q.text,correct:ok,timeUsed:(modeConfig?.timer||20)-tl}]}),1500)}
+        else{setTimeout(()=>{setRd(r=>r+1);setSel(null);setTl(modeConfig?.timer||20);if(modeConfig?.betting)setShowBet(true)},1500)}
+    },[sel,q,sc,rd,tot,opponent,onFinish,tl,modeConfig,rdDet,lives])
 
-    useEffect(()=>{if(tl===0&&sel===null&&!showBet)answer(-1)},[tl,sel,answer,showBet])
+    useEffect(()=>{if(tl===0&&sel===null&&!showBet&&q)answer(-1)},[tl,sel,answer,showBet,q])
+
+    if(!q) return <div className="h-full flex items-center justify-center"><p className="text-white font-black">Yükleniyor...</p></div>
 
     const lang=getActiveLanguage(), li={python:'Python',javascript:'JS',java:'Java'}[lang]||'Python'
     const qColors={mcq:'#06b6d4',debug:'#ef4444',complete:'#a855f7',trace:'#22c55e',algo:'#eab308'}
@@ -318,7 +358,7 @@ function Duel({ opponent, questions, mode, modeConfig, onFinish }) {
         <div className="flex items-center justify-around px-4 py-2">
             <div className="flex flex-col items-center gap-0.5"><OtterMascot size={44} tier={getLeagueTier()}/><span className="text-[9px] font-black text-white">Sen</span><span className="text-base font-black text-teal-400">{sc.you}</span></div>
             <CTimer time={tl} max={modeConfig.timer}/>
-            <div className="flex flex-col items-center gap-0.5"><UserAvatar name={opponent.name} size={44}/><span className="text-[9px] font-black text-white">{opponent.name}</span><span className="text-base font-black text-red-400">{sc.them}</span></div>
+            <div className="flex flex-col items-center gap-0.5"><OtterMascot size={44} bodyColor={opponent.otterColor}/><span className="text-[9px] font-black text-white">{opponent.name}</span><span className="text-base font-black text-red-400">{sc.them}</span></div>
         </div>
         <AnimatePresence>
             {sEmote&&<FEmote emoji={sEmote} from="left"/>}{oEmote&&<FEmote emoji={oEmote} from="right"/>}
@@ -367,7 +407,7 @@ function Result({ data, onAnalytics, onBack }) {
         <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.5}} className="flex items-center gap-6">
             <div className="text-center"><OtterMascot size={48} tier={getLeagueTier()}/><p className="text-xl font-black text-teal-400 mt-1">{yourScore}</p></div>
             <span className="text-xl font-black text-slate-600">—</span>
-            <div className="text-center"><UserAvatar name={opponent.name} size={48}/><p className="text-xl font-black text-red-400 mt-1">{theirScore}</p></div>
+            <div className="text-center"><OtterMascot size={48} bodyColor={opponent.otterColor}/><p className="text-xl font-black text-red-400 mt-1">{theirScore}</p></div>
         </motion.div>
         <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.7}} className="flex items-center gap-2 flex-wrap justify-center">
             <Chip label={`+${reward.xpGain} XP`} color="#fbbf24"/>{reward.gemGain>0&&<Chip label={`+${reward.gemGain} Gem`} color="#14b8a6"/>}<Chip label={`${reward.eloChange>0?'+':''}${reward.eloChange} ELO`} color={reward.eloChange>0?'#34d399':'#f87171'}/>
