@@ -172,37 +172,102 @@ function Dashboard({ onStart }) {
                 <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><StarIcon size={10}/>BATTLE PASS</p><p className="text-xs font-black text-amber-400 mt-0.5">Tier {bp.currentTier}/{bp.tiers.length}</p><div className="h-1.5 rounded-full mt-1" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)'}}><div className="h-full rounded-full" style={{width:`${Math.min(((bp.xp-bp.prevXp)/Math.max(bp.nextTier.xpNeeded-bp.prevXp,1))*100,100)}%`,background:'linear-gradient(90deg,#f59e0b,#fbbf24)',boxShadow:'0 0 8px rgba(251,191,36,0.3)'}}/></div></div>
             </motion.div>
 
-            {/* ── PREMIUM BP ROAD ── */}
-            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.14}} className={`${gc} backdrop-blur-md`} style={{...G,overflow:'hidden',position:'relative'}}>
-                <p className="text-[8px] font-extrabold text-slate-500 mb-3 flex items-center gap-1"><CrownSVG size={12} color="#fbbf24"/>BATTLE PASS YOLU</p>
-                <div className="relative overflow-x-auto pb-1" style={{scrollbarWidth:'none'}}>
-                    <div className="flex items-center" style={{minWidth:bp.tiers.length*56}}>
+            {/* ── CIRCUIT BOARD BATTLE PASS ── */}
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.14}} className={`${gc} backdrop-blur-md relative overflow-hidden`}
+                style={{...G,background:'linear-gradient(180deg,rgba(0,15,10,0.6),rgba(0,20,15,0.4))',border:'1px solid rgba(34,197,94,0.12)'}}>
+                {/* PCB Background Texture */}
+                <div className="absolute inset-0 opacity-[0.03]" style={{backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(34,197,94,0.2) 8px,rgba(34,197,94,0.2) 9px),repeating-linear-gradient(90deg,transparent,transparent 8px,rgba(34,197,94,0.2) 8px,rgba(34,197,94,0.2) 9px)'}}/>
+                {/* PCB corner markers */}
+                <div className="absolute top-1 left-1 w-2 h-2 rounded-full border border-green-900/30" style={{background:'radial-gradient(circle,rgba(34,197,94,0.1),transparent)'}}/>
+                <div className="absolute top-1 right-1 w-2 h-2 rounded-full border border-green-900/30" style={{background:'radial-gradient(circle,rgba(34,197,94,0.1),transparent)'}}/>
+
+                <p className="text-[8px] font-extrabold mb-3 flex items-center gap-1.5 relative z-10" style={{color:'#4ade80',fontFamily:'monospace',letterSpacing:'0.1em'}}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#4ade80" strokeWidth="1.5"/><rect x="8" y="8" width="8" height="8" rx="1" fill="#4ade80" fillOpacity="0.3"/><line x1="12" y1="0" x2="12" y2="4" stroke="#4ade80" strokeWidth="1"/><line x1="12" y1="20" x2="12" y2="24" stroke="#4ade80" strokeWidth="1"/><line x1="0" y1="12" x2="4" y2="12" stroke="#4ade80" strokeWidth="1"/><line x1="20" y1="12" x2="24" y2="12" stroke="#4ade80" strokeWidth="1"/></svg>
+                    CIRCUIT_PASS v1.0
+                </p>
+
+                <div className="relative overflow-x-auto pb-2 relative z-10" style={{scrollbarWidth:'none'}}>
+                    <div className="flex items-start" style={{minWidth:bp.tiers.length*62,paddingTop:4}}>
                         {bp.tiers.map((t,i)=>{
                             const u=bp.xp>=t.xpNeeded
                             const isCurrent=bp.currentTier===t.tier
+                            const isMilestone=[4,9,14].includes(i)
+                            const chipW=isMilestone?48:40, chipH=isMilestone?48:40
                             const icons=[GemSVG,XPStar,BoltIcon,GemSVG,XPStar,CrownSVG,GemSVG,XPStar,BoltIcon,GemSVG,TrophyIcon,GemSVG,XPStar,BoltIcon,CrownSVG]
                             const IconComp=icons[i%icons.length]
-                            const nodeColors = u ? {bg:`linear-gradient(135deg,rgba(251,191,36,0.2),rgba(245,158,11,0.1))`,border:`rgba(251,191,36,0.5)`,shadow:`0 0 16px rgba(251,191,36,0.25), 0 0 4px rgba(251,191,36,0.4)`,iconColor:'#fbbf24'}
-                                : isCurrent ? {bg:`linear-gradient(135deg,rgba(20,184,166,0.15),rgba(6,182,212,0.1))`,border:`rgba(20,184,166,0.5)`,shadow:`0 0 20px rgba(20,184,166,0.3), 0 0 4px rgba(20,184,166,0.5)`,iconColor:'#14b8a6'}
-                                : {bg:'rgba(255,255,255,0.03)',border:'rgba(255,255,255,0.08)',shadow:'none',iconColor:'#334155'}
-                            return <div key={i} className="flex-shrink-0 flex flex-col items-center relative" style={{width:56}}>
-                                {/* Connecting rail */}
-                                {i>0&&<div className="absolute top-5 -left-5 w-8 h-[2px]" style={{background:u?'linear-gradient(90deg,#fbbf24,#f59e0b)':isCurrent?'linear-gradient(90deg,rgba(20,184,166,0.4),rgba(20,184,166,0.2))':'rgba(255,255,255,0.04)',boxShadow:u?'0 0 6px rgba(251,191,36,0.3)':'none'}}/>}
-                                {/* Node */}
-                                <motion.div animate={isCurrent?{scale:[1,1.1,1],boxShadow:[`0 0 12px rgba(20,184,166,0.2)`,`0 0 24px rgba(20,184,166,0.4)`,`0 0 12px rgba(20,184,166,0.2)`]}:{}}
+                            const traceColor=u?'#4ade80':isCurrent?'#14b8a6':'#1a2e1a'
+                            const traceShadow=u?'0 0 6px rgba(74,222,128,0.4)':'none'
+                            const chipBg=u?'linear-gradient(145deg,#0a2a1a,#0f3d24)':isCurrent?'linear-gradient(145deg,#0a1f2a,#0f2d3d)':'linear-gradient(145deg,#0a0f0a,#111811)'
+                            const chipBorder=u?'rgba(74,222,128,0.5)':isCurrent?'rgba(20,184,166,0.5)':'rgba(255,255,255,0.06)'
+                            const chipShadow=u?'0 0 12px rgba(74,222,128,0.2), inset 0 0 8px rgba(74,222,128,0.05)':isCurrent?'0 0 16px rgba(20,184,166,0.25), inset 0 0 8px rgba(20,184,166,0.05)':'none'
+                            const ledColor=u?'#4ade80':isCurrent?'#14b8a6':'#1e293b'
+
+                            return <div key={i} className="flex-shrink-0 flex flex-col items-center relative" style={{width:62}}>
+                                {/* PCB Trace (connecting line) */}
+                                {i>0&&<>
+                                    <div className="absolute" style={{top:chipH/2+4,left:-8,width:16,height:2,background:traceColor,boxShadow:traceShadow,borderRadius:1}}/>
+                                    {/* Trace via (solder point) */}
+                                    <div className="absolute" style={{top:chipH/2+2,left:-2,width:6,height:6,borderRadius:'50%',background:u?'#0a2a1a':isCurrent?'#0a1f2a':'#111811',border:`1.5px solid ${traceColor}`,boxShadow:traceShadow}}/>
+                                    {/* Electric pulse on trace */}
+                                    {u&&<motion.div animate={{x:[-16,16],opacity:[0,1,0]}} transition={{duration:1.2,repeat:Infinity,delay:i*0.15}} className="absolute" style={{top:chipH/2+3,left:-8,width:4,height:4,borderRadius:'50%',background:'#4ade80',boxShadow:'0 0 8px #4ade80',filter:'blur(1px)'}}/>}
+                                </>}
+
+                                {/* CHIP NODE */}
+                                <motion.div
+                                    animate={isCurrent?{boxShadow:[`0 0 8px rgba(20,184,166,0.15)`,`0 0 20px rgba(20,184,166,0.35)`,`0 0 8px rgba(20,184,166,0.15)`]}:{}}
                                     transition={{duration:2,repeat:Infinity}}
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center relative"
-                                    style={{background:nodeColors.bg,border:`1.5px solid ${nodeColors.border}`,boxShadow:nodeColors.shadow}}>
-                                    {u?<StarIcon size={16} color="#22c55e"/>:<IconComp size={16} color={nodeColors.iconColor}/>}
-                                    {isCurrent&&<motion.div animate={{scale:[1,1.6,1],opacity:[.6,0,.6]}} transition={{duration:2,repeat:Infinity}} className="absolute inset-0 rounded-xl" style={{border:'2px solid rgba(20,184,166,0.3)'}}/>}
+                                    className="relative flex items-center justify-center"
+                                    style={{width:chipW,height:chipH,background:chipBg,border:`1.5px solid ${chipBorder}`,boxShadow:chipShadow,borderRadius:isMilestone?8:6}}>
+
+                                    {/* Chip pins (top & bottom) */}
+                                    {[...Array(isMilestone?4:3)].map((_,pi)=>{
+                                        const pinOffset=isMilestone?8+pi*10:8+pi*10
+                                        return <React.Fragment key={pi}>
+                                            <div className="absolute" style={{top:-3,left:pinOffset,width:3,height:4,background:traceColor,borderRadius:'0 0 1px 1px',opacity:0.6}}/>
+                                            <div className="absolute" style={{bottom:-3,left:pinOffset,width:3,height:4,background:traceColor,borderRadius:'1px 1px 0 0',opacity:0.6}}/>
+                                        </React.Fragment>
+                                    })}
+                                    {/* Chip pins (left & right) */}
+                                    {[...Array(2)].map((_,pi)=>{
+                                        const pinY=isMilestone?12+pi*16:10+pi*14
+                                        return <React.Fragment key={`lr${pi}`}>
+                                            <div className="absolute" style={{left:-3,top:pinY,width:4,height:3,background:traceColor,borderRadius:'0 1px 1px 0',opacity:0.6}}/>
+                                            <div className="absolute" style={{right:-3,top:pinY,width:4,height:3,background:traceColor,borderRadius:'1px 0 0 1px',opacity:0.6}}/>
+                                        </React.Fragment>
+                                    })}
+
+                                    {/* Inner die / icon area */}
+                                    <div className="flex flex-col items-center justify-center rounded" style={{width:chipW-12,height:chipH-12,background:u?'rgba(74,222,128,0.08)':isCurrent?'rgba(20,184,166,0.08)':'rgba(255,255,255,0.02)',border:`1px solid ${u?'rgba(74,222,128,0.15)':isCurrent?'rgba(20,184,166,0.15)':'rgba(255,255,255,0.04)'}`}}>
+                                        {u?<StarIcon size={isMilestone?18:14} color="#4ade80"/>:<IconComp size={isMilestone?18:14} color={isCurrent?'#14b8a6':'#334155'}/>}
+                                    </div>
+
+                                    {/* LED status indicator */}
+                                    <motion.div
+                                        animate={isCurrent?{opacity:[.5,1,.5],boxShadow:[`0 0 2px ${ledColor}`,`0 0 6px ${ledColor}`,`0 0 2px ${ledColor}`]}:{}}
+                                        transition={{duration:1.5,repeat:Infinity}}
+                                        className="absolute" style={{top:3,right:3,width:4,height:4,borderRadius:'50%',background:ledColor,boxShadow:u?`0 0 4px ${ledColor}`:'none'}}/>
+
+                                    {/* Milestone label */}
+                                    {isMilestone&&<div className="absolute -top-1 -right-1 px-1 rounded text-[4px] font-black" style={{background:u?'#4ade80':isCurrent?'#14b8a6':'#334155',color:'#000'}}>CPU</div>}
+
+                                    {/* Current tier scanner line */}
+                                    {isCurrent&&<motion.div animate={{y:[-chipH/2,chipH/2]}} transition={{duration:2,repeat:Infinity,ease:'linear'}} className="absolute left-0 right-0" style={{height:1,background:'linear-gradient(90deg,transparent,rgba(20,184,166,0.4),transparent)'}}/>}
                                 </motion.div>
-                                {/* Tier number */}
-                                <span className={`text-[7px] font-black mt-1 ${u?'text-amber-400':isCurrent?'text-teal-400':'text-slate-600'}`}>{t.tier}</span>
-                                {/* Reward label */}
-                                <span className={`text-[5px] font-bold leading-tight text-center ${u?'text-amber-500/60':isCurrent?'text-teal-500/60':'text-slate-700'}`}>{bpRewards[i]||'Bonus'}</span>
+
+                                {/* Tier label - terminal style */}
+                                <span className={`text-[7px] font-black mt-1.5 font-mono ${u?'text-green-400':isCurrent?'text-teal-400':'text-slate-700'}`}>T{String(t.tier).padStart(2,'0')}</span>
+                                {/* Reward - command style */}
+                                <span className={`text-[5px] font-mono leading-tight text-center ${u?'text-green-500/50':isCurrent?'text-teal-500/50':'text-slate-800'}`}>{bpRewards[i]||'BONUS'}</span>
                             </div>
                         })}
                     </div>
+                </div>
+
+                {/* Bottom PCB info strip */}
+                <div className="flex items-center justify-between mt-1 relative z-10">
+                    <span className="text-[5px] font-mono text-green-900/60">REV 2026.03</span>
+                    <span className="text-[5px] font-mono" style={{color:bp.currentTier<bp.tiers.length?'#4ade8040':'#14b8a640'}}>NEXT: {bpRewards[bp.currentTier]||'MAX'}</span>
+                    <span className="text-[5px] font-mono text-green-900/60">RHEO PCB</span>
                 </div>
             </motion.div>
 
