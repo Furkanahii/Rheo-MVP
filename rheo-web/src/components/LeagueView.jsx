@@ -101,7 +101,7 @@ function Dashboard({ onStart }) {
             )}
         </div>
 
-        <div className="max-w-md mx-auto px-4 space-y-3 relative" style={{paddingTop:'max(12px,env(safe-area-inset-top,12px))'}}>
+        <div className="max-w-md mx-auto px-4 space-y-4 relative" style={{paddingTop:'max(12px,env(safe-area-inset-top,12px))'}}>
             <button onClick={()=>{_snd.v=!_snd.v;setSnd(!snd)}} className="absolute right-4 top-3 w-8 h-8 rounded-lg flex items-center justify-center text-[10px] opacity-50 hover:opacity-90 cursor-pointer z-20 backdrop-blur-md" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)'}}>{snd?'🔊':'🔇'}</button>
 
             {/* ── HEADER with glow ── */}
@@ -161,7 +161,7 @@ function Dashboard({ onStart }) {
                 {[{l:'Wins',v:duelStats.wins,c:'#34d399'},{l:'Losses',v:duelStats.losses,c:'#f87171'},{l:'Win%',v:`${wr}%`,c:'#fbbf24'},{l:'Streak',v:duelStats.winStreak,c:'#fb923c',icon:true}].map((s,i)=>
                     <motion.div key={i} initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:.1+i*.04}} className={`${gc} text-center backdrop-blur-md`} style={{...G,boxShadow:`0 4px 20px rgba(0,0,0,0.2), 0 0 1px ${s.c}20`}}>
                         <div className="flex items-center justify-center gap-0.5"><p className="text-sm font-black" style={{color:s.c,textShadow:`0 0 8px ${s.c}40`}}>{s.v}</p>{s.icon&&<FireIcon size={12}/>}</div>
-                        <p className="text-[7px] font-bold text-slate-500">{s.l}</p>
+                        <p className="text-[7px] font-bold text-slate-400">{s.l}</p>
                     </motion.div>
                 )}
             </motion.div>
@@ -174,7 +174,7 @@ function Dashboard({ onStart }) {
 
             {/* ── CIRCUIT BOARD BATTLE PASS ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.14}} className={`${gc} backdrop-blur-md relative overflow-hidden`}
-                style={{...G,background:'linear-gradient(180deg,rgba(0,15,10,0.6),rgba(0,20,15,0.4))',border:'1px solid rgba(34,197,94,0.12)'}}>
+                style={{...G,background:'linear-gradient(180deg,rgba(0,15,10,0.6),rgba(5,25,18,0.5))',border:'1px solid rgba(34,197,94,0.15)',boxShadow:'inset 0 0 30px rgba(34,197,94,0.03)'}}>
                 {/* PCB Background Texture */}
                 <div className="absolute inset-0 opacity-[0.03]" style={{backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(34,197,94,0.2) 8px,rgba(34,197,94,0.2) 9px),repeating-linear-gradient(90deg,transparent,transparent 8px,rgba(34,197,94,0.2) 8px,rgba(34,197,94,0.2) 9px)'}}/>
                 {/* PCB corner markers */}
@@ -195,12 +195,12 @@ function Dashboard({ onStart }) {
                             const chipW=isMilestone?48:40, chipH=isMilestone?48:40
                             const icons=[GemSVG,XPStar,BoltIcon,GemSVG,XPStar,CrownSVG,GemSVG,XPStar,BoltIcon,GemSVG,TrophyIcon,GemSVG,XPStar,BoltIcon,CrownSVG]
                             const IconComp=icons[i%icons.length]
-                            const traceColor=u?'#4ade80':isCurrent?'#14b8a6':'#1a2e1a'
-                            const traceShadow=u?'0 0 6px rgba(74,222,128,0.4)':'none'
-                            const chipBg=u?'linear-gradient(145deg,#0a2a1a,#0f3d24)':isCurrent?'linear-gradient(145deg,#0a1f2a,#0f2d3d)':'linear-gradient(145deg,#0a0f0a,#111811)'
-                            const chipBorder=u?'rgba(74,222,128,0.5)':isCurrent?'rgba(20,184,166,0.5)':'rgba(255,255,255,0.06)'
-                            const chipShadow=u?'0 0 12px rgba(74,222,128,0.2), inset 0 0 8px rgba(74,222,128,0.05)':isCurrent?'0 0 16px rgba(20,184,166,0.25), inset 0 0 8px rgba(20,184,166,0.05)':'none'
-                            const ledColor=u?'#4ade80':isCurrent?'#14b8a6':'#1e293b'
+                            const traceColor=u?'#4ade80':isCurrent?'#14b8a6':'rgba(148,163,184,0.2)'
+                            const traceShadow=u?'0 0 8px rgba(74,222,128,0.5)':'none'
+                            const chipBg=u?'linear-gradient(145deg,#0a2a1a,#0f3d24)':isCurrent?'linear-gradient(145deg,#0a1f2a,#0f2d3d)':'linear-gradient(145deg,rgba(15,23,42,0.8),rgba(30,41,59,0.6))'
+                            const chipBorder=u?'rgba(74,222,128,0.5)':isCurrent?'rgba(20,184,166,0.5)':'rgba(148,163,184,0.18)'
+                            const chipShadow=u?'0 0 20px rgba(74,222,128,0.25), inset 0 0 10px rgba(74,222,128,0.06)':isCurrent?'0 0 24px rgba(20,184,166,0.3), inset 0 0 10px rgba(20,184,166,0.06)':'0 0 4px rgba(0,0,0,0.2)'
+                            const ledColor=u?'#4ade80':isCurrent?'#14b8a6':'#475569'
 
                             return <div key={i} className="flex-shrink-0 flex flex-col items-center relative" style={{width:62}}>
                                 {/* PCB Trace (connecting line) */}
@@ -237,8 +237,8 @@ function Dashboard({ onStart }) {
                                     })}
 
                                     {/* Inner die / icon area */}
-                                    <div className="flex flex-col items-center justify-center rounded" style={{width:chipW-12,height:chipH-12,background:u?'rgba(74,222,128,0.08)':isCurrent?'rgba(20,184,166,0.08)':'rgba(255,255,255,0.02)',border:`1px solid ${u?'rgba(74,222,128,0.15)':isCurrent?'rgba(20,184,166,0.15)':'rgba(255,255,255,0.04)'}`}}>
-                                        {u?<StarIcon size={isMilestone?18:14} color="#4ade80"/>:<IconComp size={isMilestone?18:14} color={isCurrent?'#14b8a6':'#334155'}/>}
+                                    <div className="flex flex-col items-center justify-center rounded" style={{width:chipW-12,height:chipH-12,background:u?'rgba(74,222,128,0.08)':isCurrent?'rgba(20,184,166,0.08)':'rgba(148,163,184,0.04)',border:`1px solid ${u?'rgba(74,222,128,0.15)':isCurrent?'rgba(20,184,166,0.15)':'rgba(148,163,184,0.08)'}`}}>
+                                        {u?<StarIcon size={isMilestone?18:14} color="#4ade80"/>:<IconComp size={isMilestone?18:14} color={isCurrent?'#14b8a6':'#94a3b8'}/>}
                                     </div>
 
                                     {/* LED status indicator */}
@@ -255,19 +255,19 @@ function Dashboard({ onStart }) {
                                 </motion.div>
 
                                 {/* Tier label - terminal style */}
-                                <span className={`text-[7px] font-black mt-1.5 font-mono ${u?'text-green-400':isCurrent?'text-teal-400':'text-slate-700'}`}>T{String(t.tier).padStart(2,'0')}</span>
+                                <span className={`text-[7px] font-black mt-1.5 font-mono ${u?'text-green-400':isCurrent?'text-teal-400':'text-slate-400'}`}>T{String(t.tier).padStart(2,'0')}</span>
                                 {/* Reward - command style */}
-                                <span className={`text-[5px] font-mono leading-tight text-center ${u?'text-green-500/50':isCurrent?'text-teal-500/50':'text-slate-800'}`}>{bpRewards[i]||'BONUS'}</span>
+                                <span className={`text-[6px] font-mono leading-tight text-center ${u?'text-green-400/70':isCurrent?'text-teal-400/70':'text-slate-400'}`}>{bpRewards[i]||'BONUS'}</span>
                             </div>
                         })}
                     </div>
                 </div>
 
                 {/* Bottom PCB info strip */}
-                <div className="flex items-center justify-between mt-1 relative z-10">
-                    <span className="text-[5px] font-mono text-green-900/60">REV 2026.03</span>
-                    <span className="text-[5px] font-mono" style={{color:bp.currentTier<bp.tiers.length?'#4ade8040':'#14b8a640'}}>NEXT: {bpRewards[bp.currentTier]||'MAX'}</span>
-                    <span className="text-[5px] font-mono text-green-900/60">RHEO PCB</span>
+                <div className="flex items-center justify-between mt-2 pt-1.5 relative z-10" style={{borderTop:'1px solid rgba(34,197,94,0.08)'}}>
+                    <span className="text-[5px] font-mono text-slate-600">REV 2026.03</span>
+                    <span className="text-[6px] font-mono font-bold" style={{color:'#4ade8080'}}>NEXT: {bpRewards[bp.currentTier]||'MAX'}</span>
+                    <span className="text-[5px] font-mono text-slate-600">RHEO PCB</span>
                 </div>
             </motion.div>
 
