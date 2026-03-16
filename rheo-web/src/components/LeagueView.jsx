@@ -222,18 +222,18 @@ function Dashboard({ onStart }) {
                                     {/* Chip pins (top & bottom) */}
                                     {[...Array(isMilestone?4:3)].map((_,pi)=>{
                                         const pinOffset=isMilestone?8+pi*10:8+pi*10
-                                        return <React.Fragment key={pi}>
+                                        return <div key={pi}>
                                             <div className="absolute" style={{top:-3,left:pinOffset,width:3,height:4,background:traceColor,borderRadius:'0 0 1px 1px',opacity:0.6}}/>
                                             <div className="absolute" style={{bottom:-3,left:pinOffset,width:3,height:4,background:traceColor,borderRadius:'1px 1px 0 0',opacity:0.6}}/>
-                                        </React.Fragment>
+                                        </div>
                                     })}
                                     {/* Chip pins (left & right) */}
                                     {[...Array(2)].map((_,pi)=>{
                                         const pinY=isMilestone?12+pi*16:10+pi*14
-                                        return <React.Fragment key={`lr${pi}`}>
+                                        return <div key={`lr${pi}`}>
                                             <div className="absolute" style={{left:-3,top:pinY,width:4,height:3,background:traceColor,borderRadius:'0 1px 1px 0',opacity:0.6}}/>
                                             <div className="absolute" style={{right:-3,top:pinY,width:4,height:3,background:traceColor,borderRadius:'1px 0 0 1px',opacity:0.6}}/>
-                                        </React.Fragment>
+                                        </div>
                                     })}
 
                                     {/* Inner die / icon area */}
