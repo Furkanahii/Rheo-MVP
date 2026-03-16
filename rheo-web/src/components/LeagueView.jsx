@@ -145,14 +145,16 @@ function Dashboard({ onStart }) {
                     <motion.div animate={{x:['-100%','200%']}} transition={{duration:3,repeat:Infinity}} className="absolute inset-0" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)',width:'40%'}}/>
                     <SwordIcon size={22} color="white"/> MEYDAN OKU
                 </motion.button>
-                <div className="flex gap-2 mt-2">
-                    <GlassBtn icon={<BoltIcon size={16} color="white"/>} label="Blitz" onClick={()=>onStart('blitz')} color="#eab308"/>
-                    <GlassBtn icon={<DiceIcon size={16}/>} label="Auction" onClick={()=>onStart('auction')} color="#a855f7"/>
-                    <GlassBtn icon={<CalendarIcon size={16} day={new Date().getDate()}/>} label={daily.completed?'Tamam':'Günlük'} onClick={()=>onStart('daily')} color={daily.completed?'#475569':'#14b8a6'} disabled={daily.completed}/>
-                </div>
-                <div className="flex gap-2 mt-1.5">
-                    <GlassBtn icon={<FireIcon size={16}/>} label="Survival" onClick={()=>onStart('survival')} color="#ef4444"/>
-                    <GlassBtn icon={<SwordIcon size={16} color="white"/>} label="Sudden Death" onClick={()=>onStart('sudden')} color="#6366f1"/>
+                <div className="flex gap-2 mt-2 overflow-x-auto pb-1" style={{scrollbarWidth:'none',scrollSnapType:'x mandatory'}}>
+                    {[
+                        {icon:<BoltIcon size={16} color="white"/>,label:'Blitz',mode:'blitz',color:'#eab308'},
+                        {icon:<DiceIcon size={16}/>,label:'Auction',mode:'auction',color:'#a855f7'},
+                        {icon:<CalendarIcon size={16} day={new Date().getDate()}/>,label:daily.completed?'Tamam':'Günlük',mode:'daily',color:daily.completed?'#475569':'#14b8a6',disabled:daily.completed},
+                        {icon:<FireIcon size={16}/>,label:'Survival',mode:'survival',color:'#ef4444'},
+                        {icon:<SwordIcon size={16} color="white"/>,label:'Sudden Death',mode:'sudden',color:'#6366f1'},
+                    ].map((m,i)=><div key={i} className="flex-shrink-0" style={{scrollSnapAlign:'start',width:'calc(33.33% - 6px)'}}>
+                        <GlassBtn icon={m.icon} label={m.label} onClick={()=>onStart(m.mode)} color={m.color} disabled={m.disabled}/>
+                    </div>)}
                 </div>
             </motion.div>
 
@@ -274,14 +276,17 @@ function Dashboard({ onStart }) {
             {/* ── EMOTES: Metallic Badge Style ── */}
             <EmoteShop/>
 
-            {/* ── LEADERBOARD with Glow ── */}
+            {/* ── LEADERBOARD — Top 3 + Sticky User ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.2}} className={`${gc} backdrop-blur-md`} style={G}>
                 <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><TrophyIcon size={14} color="#fbbf24"/>LEADERBOARD</h3>
-                <div className="space-y-1">{lb.map((p,i)=>{
+                <div className="space-y-1">{(()=>{
                     const medalColors = ['#fbbf24','#C0C0C0','#CD7F32']
-                    return <motion.div key={`${p.name}-${i}`} initial={{opacity:0,x:-10}} animate={{opacity:1,x:0}} transition={{delay:.02*i}}
+                    const top3 = lb.slice(0,3)
+                    const userEntry = lb.find(p=>p.isUser)
+                    const userIdx = lb.findIndex(p=>p.isUser)
+                    const renderRow = (p,i,isSticky)=> <motion.div key={`${p.name}-${i}`} initial={{opacity:0,x:-10}} animate={{opacity:1,x:0}} transition={{delay:.02*i}}
                         className={`flex items-center gap-2 rounded-xl px-2.5 py-2 transition-all`}
-                        style={p.isUser?{background:`${tier.color}12`,border:`1px solid ${tier.color}30`,boxShadow:`0 0 15px ${tier.color}15, inset 0 0 8px ${tier.color}08`}
+                        style={isSticky?{background:`${tier.color}12`,border:`1px solid ${tier.color}30`,boxShadow:`0 0 15px ${tier.color}15, inset 0 0 8px ${tier.color}08`}
                             :i<3?{background:`${medalColors[i]}08`,border:`1px solid ${medalColors[i]}15`}
                             :{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.04)'}}>
                         <div className="w-6 flex justify-center">
@@ -293,10 +298,17 @@ function Dashboard({ onStart }) {
                             {i<3&&<motion.div animate={{opacity:[.3,.6,.3]}} transition={{duration:2,repeat:Infinity}} className="absolute -inset-1 rounded-full" style={{background:`radial-gradient(circle,${medalColors[i]}20,transparent)`}}/>}
                             <OtterMascot size={28} bodyColor={p.isUser?undefined:(p.otterColor||'#6366f1')}/>
                         </div>
-                        <span className={`flex-1 text-[10px] font-extrabold truncate ${p.isUser?'text-teal-300':'text-slate-300'}`}>{p.name}</span>
-                        <span className="text-[9px] font-black" style={{color:i<3?medalColors[i]+'cc':'#475569'}}>{p.xp}</span>
+                        <span className={`flex-1 text-[10px] font-extrabold truncate ${isSticky||p.isUser?'text-teal-300':'text-slate-300'}`}>{p.name}</span>
+                        <span className="text-[9px] font-black" style={{color:isSticky?'#14b8a6':i<3?medalColors[i]+'cc':'#475569'}}>{p.xp}</span>
                     </motion.div>
-                })}</div>
+                    return <>
+                        {top3.map((p,i)=>renderRow(p,i,false))}
+                        {userEntry && userIdx>=3 && <>
+                            <div className="flex items-center justify-center py-1"><span className="text-[8px] font-bold text-slate-600 tracking-[0.3em]">•••</span></div>
+                            {renderRow(userEntry,userIdx,true)}
+                        </>}
+                    </>
+                })()}</div>
             </motion.div>
 
             {/* ── HISTORY ── */}
@@ -347,18 +359,18 @@ function EmoteShop() {
     const [show, setShow] = useState(false)
     const [,rf] = useState(0)
     return <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.16}} className={gc} style={G}>
-        <div className="flex items-center justify-between mb-2"><p className="text-[8px] font-extrabold text-slate-500">EMOTES ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer">{show?'Kapat':'Shop'}</button></div>
-        <div className="grid grid-cols-4 gap-1.5">{(show?allEmotes:owned).map(e=>{
+        <div className="flex items-center justify-between mb-1.5"><p className="text-[8px] font-extrabold text-slate-500">EMOTES ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer">{show?'Kapat':'Shop'}</button></div>
+        <div className="flex gap-2 overflow-x-auto" style={{scrollbarWidth:'none'}}>{(show?allEmotes:owned).map(e=>{
             const has=owned.find(o=>o.id===e.id)
             return <motion.div key={e.id} whileHover={has?{scale:1.05}:{}} whileTap={!has?{scale:.9}:{}} onClick={()=>{if(show&&!has){buyEmote(e.id);S.pop();rf(v=>v+1)}}}
-                className={`rounded-xl py-2 px-1 flex flex-col items-center gap-0.5 cursor-pointer transition-all border ${has?'':'opacity-40'}`}
+                className={`flex-shrink-0 rounded-xl py-1.5 px-3 flex items-center gap-1.5 cursor-pointer transition-all border ${has?'':'opacity-40'}`}
                 style={has?{background:`${e.color}15`,border:`1px solid ${e.color}30`,boxShadow:`0 0 12px ${e.color}10`}:{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.05)'}}>
                 <span className="text-sm font-black" style={{color:has?e.color:'#475569'}}>{e.label}</span>
-                <span className="text-[6px] font-bold" style={{color:has?e.color+'99':'#475569'}}>{e.text}</span>
-                {show&&!has&&<span className="text-[6px] font-bold text-amber-500">{e.price} 💎</span>}
+                <span className="text-[7px] font-bold" style={{color:has?e.color+'99':'#475569'}}>{e.text}</span>
+                {show&&!has&&<span className="text-[6px] font-bold text-amber-500 ml-1">{e.price}💎</span>}
             </motion.div>
         })}</div>
-        {show&&<p className="text-[7px] font-bold text-slate-600 text-center mt-2">{stats.gems||0} gem mevcut</p>}
+        {show&&<p className="text-[7px] font-bold text-slate-600 text-center mt-1">{stats.gems||0} gem mevcut</p>}
     </motion.div>
 }
 
