@@ -329,13 +329,13 @@ function Dashboard({ onStart }) {
                 <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><MedalIcon rank={1} size={14}/>{t('Achievements').toUpperCase()} ({getUnlockedAchievements().length}/{achievementDefs.length})</h3>
                 <div className="grid grid-cols-5 gap-1.5">{achievementDefs.map(a=>{
                     const unlocked=getUnlockedAchievements().find(u=>u.id===a.id)
-                    return <motion.div key={a.id} whileHover={unlocked?{scale:1.1}:{}} className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 px-0.5 transition-all ${unlocked?'':'opacity-[0.45]'}`}
-                        style={unlocked?{background:`${a.color}12`,border:`1px solid ${a.color}25`,boxShadow:`0 0 10px ${a.color}15`}:{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                    return <motion.div key={a.id} whileHover={unlocked?{scale:1.1}:{}} className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 px-0.5 transition-all ${unlocked?'':'opacity-[0.55]'}`}
+                        style={unlocked?{background:`${a.color}12`,border:`1px solid ${a.color}25`,boxShadow:`0 0 10px ${a.color}15`}:{background:'rgba(148,163,184,0.06)',border:'1px solid rgba(148,163,184,0.12)'}}>
                         <motion.div animate={unlocked?{boxShadow:[`0 0 4px ${a.color}20`,`0 0 8px ${a.color}40`,`0 0 4px ${a.color}20`]}:{}} transition={{duration:3,repeat:Infinity}}
-                            className="w-7 h-7 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}20`}:{background:'rgba(255,255,255,0.06)'}}>
+                            className="w-7 h-7 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}20`}:{background:'rgba(148,163,184,0.1)'}}>
                             <ShieldIcon size={13} tier={unlocked?'gold':'bronze'}/>
                         </motion.div>
-                        <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#64748b'}}>{a.name}</span>
+                        <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#94a3b8'}}>{a.name}</span>
                     </motion.div>
                 })}</div>
             </motion.div>
@@ -347,10 +347,11 @@ function Dashboard({ onStart }) {
 /* ── Glassmorphism Button ── */
 function GlassBtn({icon,label,onClick,color,disabled}) {
     return <motion.button whileTap={disabled?{}:{scale:.95}} onClick={disabled?undefined:onClick}
-        className={`flex-1 py-2.5 rounded-xl font-black text-[10px] text-white transition-all cursor-pointer flex flex-col items-center gap-0.5 backdrop-blur-md relative overflow-hidden ${disabled?'opacity-35':''}`}
-        style={{background:`linear-gradient(135deg,${color}25,${color}10)`,border:`1px solid ${color}35`,boxShadow:`0 4px 15px ${color}15, 0 0 1px ${color}40`}}>
+        className={`flex-1 pt-3 pb-2 rounded-xl font-black text-[10px] text-white transition-all cursor-pointer flex flex-col items-center justify-center gap-1 backdrop-blur-md relative overflow-hidden ${disabled?'opacity-35':''}`}
+        style={{background:`linear-gradient(135deg,${color}25,${color}10)`,border:`1px solid ${color}35`,boxShadow:`0 4px 15px ${color}15, 0 0 1px ${color}40`,minHeight:52}}>
         <motion.div animate={{x:['-100%','200%']}} transition={{duration:4,repeat:Infinity,repeatDelay:2}} className="absolute inset-0" style={{background:`linear-gradient(90deg,transparent,${color}15,transparent)`,width:'30%'}}/>
-        {icon}{label}
+        <span className="relative z-10 flex items-center justify-center" style={{width:20,height:20}}>{icon}</span>
+        <span className="relative z-10 leading-none">{label}</span>
     </motion.button>
 }
 
@@ -359,7 +360,7 @@ function EmoteShop() {
     const [show, setShow] = useState(false)
     const [,rf] = useState(0)
     return <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.16}} className={gc} style={G}>
-        <div className="flex items-center justify-between mb-1.5"><p className="text-[8px] font-extrabold text-slate-500">{t('Emotes').toUpperCase()} ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer">{show?t('Close'):t('Shop')}</button></div>
+        <div className="flex items-center justify-between py-1 mb-1"><p className="text-[8px] font-extrabold text-slate-500 leading-none">{t('Emotes').toUpperCase()} ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer leading-none">{show?t('Close'):t('Shop')}</button></div>
         <div className="flex gap-2 overflow-x-auto" style={{scrollbarWidth:'none'}}>{(show?allEmotes:owned).map(e=>{
             const has=owned.find(o=>o.id===e.id)
             return <motion.div key={e.id} whileHover={has?{scale:1.05}:{}} whileTap={!has?{scale:.9}:{}} onClick={()=>{if(show&&!has){buyEmote(e.id);S.pop();rf(v=>v+1)}}}
