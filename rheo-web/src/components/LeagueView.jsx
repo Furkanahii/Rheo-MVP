@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     duelStats, duelHistory, getDuelQuestions, getRandomOpponent, saveDuelResult,
-    getLeagueTier, leagueTiers, getDuelLeaderboard, getActiveLanguage,
+    getLeagueTier, leagueTiers, getDuelLeaderboard, getActiveLanguage, t, getLocale,
     getArenaTitle, getMascotEvolution, getOwnedEmotes, allEmotes, buyEmote,
     getSeasonData, getBattlePass, getDailyChallenge,
     gameModes, getAIResponseTime, getAICorrectChance, stats,
@@ -141,17 +141,17 @@ function Dashboard({ onStart }) {
             <motion.div initial={{opacity:0,scale:.95}} animate={{opacity:1,scale:1}} transition={{delay:.05}}>
                 <motion.button whileTap={{scale:.96}} onClick={()=>onStart('classic')}
                     className="w-full py-4 rounded-2xl font-black text-base text-white cursor-pointer transition-all flex items-center justify-center gap-2 relative overflow-hidden"
-                    style={{background:'linear-gradient(135deg,#dc2626,#ea580c)',boxShadow:'0 4px 25px rgba(239,68,68,0.3), 0 0 60px rgba(239,68,68,0.1), inset 0 1px 0 rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.1)'}}>
+                    style={{background:'linear-gradient(135deg,#0891b2,#14b8a6)',boxShadow:'0 4px 25px rgba(20,184,166,0.3), 0 0 60px rgba(20,184,166,0.1), inset 0 1px 0 rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.1)'}}>
                     <motion.div animate={{x:['-100%','200%']}} transition={{duration:3,repeat:Infinity}} className="absolute inset-0" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)',width:'40%'}}/>
-                    <SwordIcon size={22} color="white"/> MEYDAN OKU
+                    <SwordIcon size={22} color="white"/> {t('Find Match')}
                 </motion.button>
                 <div className="flex gap-2 mt-2 overflow-x-auto pb-1" style={{scrollbarWidth:'none',scrollSnapType:'x mandatory'}}>
                     {[
-                        {icon:<BoltIcon size={16} color="white"/>,label:'Blitz',mode:'blitz',color:'#eab308'},
-                        {icon:<DiceIcon size={16}/>,label:'Auction',mode:'auction',color:'#a855f7'},
-                        {icon:<CalendarIcon size={16} day={new Date().getDate()}/>,label:daily.completed?'Tamam':'Günlük',mode:'daily',color:daily.completed?'#475569':'#14b8a6',disabled:daily.completed},
-                        {icon:<FireIcon size={16}/>,label:'Survival',mode:'survival',color:'#ef4444'},
-                        {icon:<SwordIcon size={16} color="white"/>,label:'Sudden Death',mode:'sudden',color:'#6366f1'},
+                        {icon:<BoltIcon size={16} color="white"/>,label:t('Blitz'),mode:'blitz',color:'#eab308'},
+                        {icon:<DiceIcon size={16}/>,label:t('Auction'),mode:'auction',color:'#a855f7'},
+                        {icon:<CalendarIcon size={16} day={new Date().getDate()}/>,label:daily.completed?t('Done'):t('Daily'),mode:'daily',color:daily.completed?'#475569':'#14b8a6',disabled:daily.completed},
+                        {icon:<FireIcon size={16}/>,label:t('Survival'),mode:'survival',color:'#ef4444'},
+                        {icon:<SwordIcon size={16} color="white"/>,label:t('Sudden Death'),mode:'sudden',color:'#6366f1'},
                     ].map((m,i)=><div key={i} className="flex-shrink-0" style={{scrollSnapAlign:'start',width:'calc(33.33% - 6px)'}}>
                         <GlassBtn icon={m.icon} label={m.label} onClick={()=>onStart(m.mode)} color={m.color} disabled={m.disabled}/>
                     </div>)}
@@ -160,7 +160,7 @@ function Dashboard({ onStart }) {
 
             {/* ── STATS ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.1}} className="grid grid-cols-4 gap-1.5">
-                {[{l:'Wins',v:duelStats.wins,c:'#34d399'},{l:'Losses',v:duelStats.losses,c:'#f87171'},{l:'Win%',v:`${wr}%`,c:'#fbbf24'},{l:'Streak',v:duelStats.winStreak,c:'#fb923c',icon:true}].map((s,i)=>
+                {[{l:t('Wins'),v:duelStats.wins,c:'#34d399'},{l:t('Losses'),v:duelStats.losses,c:'#f87171'},{l:t('Win Rate'),v:`${wr}%`,c:'#fbbf24'},{l:t('Streak'),v:duelStats.winStreak,c:'#fb923c',icon:true}].map((s,i)=>
                     <motion.div key={i} initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:.1+i*.04}} className={`${gc} text-center backdrop-blur-md`} style={{...G,boxShadow:`0 4px 20px rgba(0,0,0,0.2), 0 0 1px ${s.c}20`}}>
                         <div className="flex items-center justify-center gap-0.5"><p className="text-sm font-black" style={{color:s.c,textShadow:`0 0 8px ${s.c}40`}}>{s.v}</p>{s.icon&&<FireIcon size={12}/>}</div>
                         <p className="text-[7px] font-bold text-slate-400">{s.l}</p>
@@ -170,8 +170,8 @@ function Dashboard({ onStart }) {
 
             {/* ── SEASON + BP ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.12}} className="grid grid-cols-2 gap-2">
-                <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><CalendarIcon size={10} day="S"/>SEZON</p><p className="text-xs font-black text-white mt-0.5">{season.id}</p><p className="text-[8px] font-bold text-slate-600">{season.daysLeft} gün • {season.gamesPlayed} maç</p></div>
-                <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><StarIcon size={10}/>BATTLE PASS</p><p className="text-xs font-black text-amber-400 mt-0.5">Tier {bp.currentTier}/{bp.tiers.length}</p><div className="h-1.5 rounded-full mt-1" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)'}}><div className="h-full rounded-full" style={{width:`${Math.min(((bp.xp-bp.prevXp)/Math.max(bp.nextTier.xpNeeded-bp.prevXp,1))*100,100)}%`,background:'linear-gradient(90deg,#f59e0b,#fbbf24)',boxShadow:'0 0 8px rgba(251,191,36,0.3)'}}/></div></div>
+                <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><CalendarIcon size={10} day="S"/>{t('SEASON')}</p><p className="text-xs font-black text-white mt-0.5">{t('Season 1: Zero Day')}</p><p className="text-[8px] font-bold text-slate-600">{season.daysLeft} {getLocale()==='tr'?'gün':'days'} • {season.gamesPlayed} {getLocale()==='tr'?'maç':'games'}</p></div>
+                <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><StarIcon size={10}/>{t('BATTLE PASS')}</p><p className="text-xs font-black text-amber-400 mt-0.5">Tier {bp.currentTier}/{bp.tiers.length}</p><div className="h-1.5 rounded-full mt-1" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)'}}><div className="h-full rounded-full" style={{width:`${Math.min(((bp.xp-bp.prevXp)/Math.max(bp.nextTier.xpNeeded-bp.prevXp,1))*100,100)}%`,background:'linear-gradient(90deg,#f59e0b,#fbbf24)',boxShadow:'0 0 8px rgba(251,191,36,0.3)'}}/></div></div>
             </motion.div>
 
             {/* ── CIRCUIT BOARD BATTLE PASS ── */}
@@ -278,7 +278,7 @@ function Dashboard({ onStart }) {
 
             {/* ── LEADERBOARD — Top 3 + Sticky User ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.2}} className={`${gc} backdrop-blur-md`} style={G}>
-                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><TrophyIcon size={14} color="#fbbf24"/>LEADERBOARD</h3>
+                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><TrophyIcon size={14} color="#fbbf24"/>{t('Leaderboard').toUpperCase()}</h3>
                 <div className="space-y-1">{(()=>{
                     const medalColors = ['#fbbf24','#C0C0C0','#CD7F32']
                     const top3 = lb.slice(0,3)
@@ -313,7 +313,7 @@ function Dashboard({ onStart }) {
 
             {/* ── HISTORY ── */}
             {duelHistory.length>0&&<motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.25}}>
-                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><ChartIcon size={12}/>SON DÜELLOLAR</h3>
+                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><ChartIcon size={12}/>{t('Recent Duels').toUpperCase()}</h3>
                 <div className="space-y-1.5">{duelHistory.slice(0,5).map(m=>
                     <div key={m.id} className={`flex items-center gap-2 rounded-xl px-3 py-2 ${gc} backdrop-blur-md`} style={{...G,borderLeft:`3px solid ${m.result==='win'?'#34d399':'#f87171'}`}}>
                         <OtterMascot size={28} bodyColor={m.opponent.otterColor}/>
@@ -322,20 +322,20 @@ function Dashboard({ onStart }) {
                     </div>
                 )}</div>
             </motion.div>}
-            {duelHistory.length===0&&<div className="text-center py-6"><SwordIcon size={32} color="#475569"/><p className="text-xs font-black text-slate-500 mt-2">Henüz düello yapmadın</p></div>}
+            {duelHistory.length===0&&<div className="text-center py-6"><SwordIcon size={32} color="#475569"/><p className="text-xs font-black text-slate-500 mt-2">{t('No duels yet')}</p></div>}
 
             {/* ── ACHIEVEMENTS ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.3}} className={`${gc} backdrop-blur-md`} style={G}>
-                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><MedalIcon rank={1} size={14}/>BAŞARIMLAR ({getUnlockedAchievements().length}/{achievementDefs.length})</h3>
+                <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><MedalIcon rank={1} size={14}/>{t('Achievements').toUpperCase()} ({getUnlockedAchievements().length}/{achievementDefs.length})</h3>
                 <div className="grid grid-cols-5 gap-1.5">{achievementDefs.map(a=>{
                     const unlocked=getUnlockedAchievements().find(u=>u.id===a.id)
-                    return <motion.div key={a.id} whileHover={unlocked?{scale:1.1}:{}} className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 px-0.5 transition-all ${unlocked?'':'opacity-25'}`}
-                        style={unlocked?{background:`${a.color}12`,border:`1px solid ${a.color}25`,boxShadow:`0 0 10px ${a.color}15`}:{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.04)'}}>
+                    return <motion.div key={a.id} whileHover={unlocked?{scale:1.1}:{}} className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 px-0.5 transition-all ${unlocked?'':'opacity-[0.45]'}`}
+                        style={unlocked?{background:`${a.color}12`,border:`1px solid ${a.color}25`,boxShadow:`0 0 10px ${a.color}15`}:{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)'}}>
                         <motion.div animate={unlocked?{boxShadow:[`0 0 4px ${a.color}20`,`0 0 8px ${a.color}40`,`0 0 4px ${a.color}20`]}:{}} transition={{duration:3,repeat:Infinity}}
-                            className="w-7 h-7 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}20`}:{background:'rgba(255,255,255,0.04)'}}>
+                            className="w-7 h-7 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}20`}:{background:'rgba(255,255,255,0.06)'}}>
                             <ShieldIcon size={13} tier={unlocked?'gold':'bronze'}/>
                         </motion.div>
-                        <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#334155'}}>{a.name}</span>
+                        <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#64748b'}}>{a.name}</span>
                     </motion.div>
                 })}</div>
             </motion.div>
@@ -359,7 +359,7 @@ function EmoteShop() {
     const [show, setShow] = useState(false)
     const [,rf] = useState(0)
     return <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.16}} className={gc} style={G}>
-        <div className="flex items-center justify-between mb-1.5"><p className="text-[8px] font-extrabold text-slate-500">EMOTES ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer">{show?'Kapat':'Shop'}</button></div>
+        <div className="flex items-center justify-between mb-1.5"><p className="text-[8px] font-extrabold text-slate-500">{t('Emotes').toUpperCase()} ({owned.length}/{allEmotes.length})</p><button onClick={()=>setShow(!show)} className="text-[8px] font-black text-teal-400 cursor-pointer">{show?t('Close'):t('Shop')}</button></div>
         <div className="flex gap-2 overflow-x-auto" style={{scrollbarWidth:'none'}}>{(show?allEmotes:owned).map(e=>{
             const has=owned.find(o=>o.id===e.id)
             return <motion.div key={e.id} whileHover={has?{scale:1.05}:{}} whileTap={!has?{scale:.9}:{}} onClick={()=>{if(show&&!has){buyEmote(e.id);S.pop();rf(v=>v+1)}}}
@@ -370,7 +370,7 @@ function EmoteShop() {
                 {show&&!has&&<span className="text-[6px] font-bold text-amber-500 ml-1">{e.price}💎</span>}
             </motion.div>
         })}</div>
-        {show&&<p className="text-[7px] font-bold text-slate-600 text-center mt-1">{stats.gems||0} gem mevcut</p>}
+        {show&&<p className="text-[7px] font-bold text-slate-600 text-center mt-1">{stats.gems||0} {t('gems available')}</p>}
     </motion.div>
 }
 

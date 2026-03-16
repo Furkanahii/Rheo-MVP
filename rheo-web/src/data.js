@@ -147,6 +147,18 @@ const _tr = {
     // MilestoneModal
     'Chapter Complete!': 'Bölüm Tamamlandı!',
     'CHAPTER': 'BÖLÜM',
+    // League / Arena
+    'Wins': 'Galibiyet', 'Losses': 'Bozgun', 'Win Rate': 'Kazanma Oranı',
+    'Find Match': 'Meydan Oku', 'Leaderboard': 'Sıralama',
+    'Emotes': 'İfadeler', 'Shop': 'Mağaza', 'Close': 'Kapat',
+    'SEASON': 'SEZON', 'BATTLE PASS': 'SAVAŞ PASSI',
+    'Season 1: Zero Day': 'Sezon 1: Sıfırıncı Gün',
+    'Recent Duels': 'Son Düellolar', 'No duels yet': 'Henüz düello yapmadın',
+    'Achievements': 'Başarımlar',
+    'ELO remaining': 'ELO kaldı', 'Max Tier!': 'Maks Seviye!',
+    'gems available': 'elmas mevcut',
+    'Blitz': 'Blitz', 'Auction': 'Açık Artırma', 'Daily': 'Günlük',
+    'Survival': 'Hayatta Kal', 'Sudden Death': 'Ani Ölüm', 'Done': 'Tamam',
 }
 
 export function t(key) {
