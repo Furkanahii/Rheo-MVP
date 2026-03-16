@@ -440,81 +440,192 @@ function Duel({ opponent, questions, mode, modeConfig, onFinish }) {
     const [sEmote, setSEmote] = useState(null), [oEmote, setOEmote] = useState(null), [rdDet, setRdDet] = useState([])
     const [bet, setBet] = useState(10), [showBet, setShowBet] = useState(!!modeConfig?.betting)
     const [lives, setLives] = useState(modeConfig?.lives || 99)
+    const [flash, setFlash] = useState(null) // 'correct' | 'wrong' | null
+    const [decrypting, setDecrypting] = useState(true)
+    const [decText, setDecText] = useState('')
     const st = useRef(Date.now()), tot = questions?.length||0
     const q = questions && rd < questions.length ? questions[rd] : null
     const ownEm = getOwnedEmotes()
     const spd = (s) => !modeConfig?.speedBonus?1:s>=7?3:s>=4?2:1
+    const glyphs = '█▓▒░┃┆╋╬◆◇○●∆∇⟡⬡⬢◉▪▫⌬⏣'
 
-    // Early bail if no question available
+    // Decryption animation
+    useEffect(()=>{
+        if(!q) return; setDecrypting(true)
+        const target = q.text; let frame=0; const maxFrames=12
+        const iv = setInterval(()=>{
+            frame++
+            if(frame>=maxFrames){clearInterval(iv);setDecText(target);setDecrypting(false);return}
+            const ratio=frame/maxFrames
+            setDecText(target.split('').map((c,i)=>{
+                if(c===' ')return ' '
+                return Math.random()<ratio?c:glyphs[Math.floor(Math.random()*glyphs.length)]
+            }).join(''))
+        },80)
+        return ()=>clearInterval(iv)
+    },[rd,q])
+
     useEffect(()=>{if(!q && rd>0){onFinish({won:sc.you>sc.them,yourScore:sc.you,theirScore:sc.them,totalTimeMs:Date.now()-st.current,roundDetails:rdDet})}},[q,rd])
-
     useEffect(()=>{if(!q||tl<=0||sel!==null||showBet)return;const t=setInterval(()=>setTl(v=>{if(v<=6&&v>1)S.tick();return v-1}),1000);return()=>clearInterval(t)},[tl,sel,showBet,q])
-    useEffect(()=>{if(!q||sel!==null||showBet)return;setOAns(false);const d=getAIResponseTime(opponent,q.type||'mcq');const t=setTimeout(()=>{setOAns(true);S.sw()},d);return()=>clearTimeout(t)},[rd,sel,showBet,q])
+    // Bot lock-in (8-15s random delay)
+    useEffect(()=>{if(!q||sel!==null||showBet)return;setOAns(false);const d=8000+Math.random()*7000;const t=setTimeout(()=>{setOAns(true);S.sw()},d);return()=>clearTimeout(t)},[rd,sel,showBet,q])
     useEffect(()=>{setOEmote(null);const d=4000+Math.random()*8000;const t=setTimeout(()=>{const em=['GG','WP','EZ','GL'];setOEmote(em[Math.floor(Math.random()*em.length)]);S.pop();setTimeout(()=>setOEmote(null),2500)},d);return()=>clearTimeout(t)},[rd])
 
     const answer = useCallback((idx)=>{
         if(sel!==null||!q)return;setSel(idx);const ok=idx===q.correct;ok?S.ok():S.no()
-        // Survival: lose a life on wrong
+        // Flash effect
+        setFlash(ok?'correct':'wrong');setTimeout(()=>setFlash(null),800)
         let newLives = lives
         if(modeConfig?.lives && !ok){ newLives = lives-1; setLives(newLives) }
         const ns={...sc};if(ok)ns.you+=modeConfig?.speedBonus?spd(tl):1;if(Math.random()<getAICorrectChance(opponent,q.type||'mcq'))ns.them+=modeConfig?.speedBonus?Math.ceil(Math.random()*2):1
         setSc(ns);setRr(p=>[...p,ok?'you':(ns.them>sc.them?'them':'skip')]);setRdDet(p=>[...p,{question:q.text,correct:ok,timeUsed:(modeConfig?.timer||20)-tl,speedBonus:modeConfig?.speedBonus?spd(tl):null}])
-        // Finish conditions: last round, sudden death loss, survival out of lives
         const isEnd = rd+1>=tot || (modeConfig?.suddenDeath && !ok) || (modeConfig?.lives && newLives<=0)
-        if(isEnd){setTimeout(()=>onFinish({won:ns.you>ns.them,yourScore:ns.you,theirScore:ns.them,totalTimeMs:Date.now()-st.current,roundDetails:[...rdDet,{question:q.text,correct:ok,timeUsed:(modeConfig?.timer||20)-tl}]}),1500)}
+        if(isEnd){setTimeout(()=>onFinish({won:ns.you>ns.them,yourScore:ns.you,theirScore:ns.them,totalTimeMs:Date.now()-st.current,roundDetails:[...rdDet,{question:q.text,correct:ok,timeUsed:(modeConfig?.timer||20)-tl}]}),1800)}
         else{setTimeout(()=>{setRd(r=>r+1);setSel(null);setTl(modeConfig?.timer||20);if(modeConfig?.betting)setShowBet(true)},1500)}
     },[sel,q,sc,rd,tot,opponent,onFinish,tl,modeConfig,rdDet,lives])
 
     useEffect(()=>{if(tl===0&&sel===null&&!showBet&&q)answer(-1)},[tl,sel,answer,showBet,q])
 
     if(!q) return <div className="h-full flex items-center justify-center"><p className="text-white font-black">Yükleniyor...</p></div>
-
     const lang=getActiveLanguage(), li={python:'Python',javascript:'JS',java:'Java'}[lang]||'Python'
     const qColors={mcq:'#06b6d4',debug:'#ef4444',complete:'#a855f7',trace:'#22c55e',algo:'#eab308'}
+    const timePct = (tl/(modeConfig?.timer||20))*100
+    const isCrit = tl <= 5
 
     if(showBet) return <div className="h-full flex flex-col items-center justify-center gap-5 px-8">
         <DiceIcon size={48}/><h2 className="text-lg font-black text-white">XP Bahsin?</h2>
-        <p className="text-[10px] font-bold text-slate-500">Doğru = {bet*2} XP • Yanlış = -{bet} XP</p>
+        <p className="text-[10px] font-bold text-slate-500">{t('Wins')} = {bet*2} XP • {t('Losses')} = -{bet} XP</p>
         <div className="w-full max-w-xs"><input type="range" min="10" max="100" step="10" value={bet} onChange={e=>setBet(+e.target.value)} className="w-full accent-purple-500"/><div className="flex justify-between text-[9px] font-black"><span className="text-slate-500">10</span><span className="text-purple-400 text-lg">{bet} XP</span><span className="text-slate-500">100</span></div></div>
         <div className="flex gap-3"><button onClick={()=>{setBet(100);S.pop()}} className="px-4 py-2 rounded-xl font-black text-xs text-amber-400 border border-amber-700/50 cursor-pointer" style={G}>ALL-IN</button><button onClick={()=>{setShowBet(false);S.pop()}} className="px-6 py-2 rounded-xl font-black text-xs text-white bg-purple-600 border-b-[3px] border-purple-800 cursor-pointer active:border-b-[1px] active:translate-y-[2px]">BAŞLA</button></div>
     </div>
 
-    return <div className="h-full flex flex-col" style={{paddingTop:'max(6px,env(safe-area-inset-top,6px))'}}>
-        <div className="flex justify-center gap-2 mb-1">
-            <span className="text-[8px] font-black text-slate-600 px-2 py-0.5 rounded-full border border-white/10" style={G}>{li}</span>
-            {modeConfig.speedBonus&&<span className="text-[8px] font-black text-amber-400 px-2 py-0.5 rounded-full border border-amber-700/30" style={{background:'rgba(234,179,8,0.08)'}}><BoltIcon size={8} color="#eab308"/> BLITZ {sel===null&&tl>0?`${spd(tl)}x`:''}</span>}
-            {modeConfig.betting&&<span className="text-[8px] font-black text-purple-400 px-2 py-0.5 rounded-full border border-purple-700/30" style={{background:'rgba(168,85,247,0.08)'}}>{bet} XP</span>}
+    return <motion.div
+        animate={flash==='wrong'?{x:[0,-4,4,-3,3,0]}:{}}
+        transition={{duration:0.4}}
+        className="h-full flex flex-col relative overflow-hidden"
+        style={{paddingTop:'max(4px,env(safe-area-inset-top,4px))'}}>
+
+        {/* ── FULL SCREEN FLASH OVERLAY ── */}
+        <AnimatePresence>{flash&&<motion.div
+            initial={{opacity:0}} animate={{opacity:.25}} exit={{opacity:0}} transition={{duration:0.3}}
+            className="absolute inset-0 z-50 pointer-events-none"
+            style={{background:flash==='correct'?'radial-gradient(circle at bottom,#14b8a6,transparent 70%)':'radial-gradient(circle at center,#ef4444,transparent 70%)'}}/>
+        }</AnimatePresence>
+
+        {/* ── SHARED TIMEBAR (Top) ── */}
+        <div className="px-3 mb-1">
+            <div className="h-1.5 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,0.06)'}}>
+                <motion.div animate={{width:`${timePct}%`}} transition={{duration:0.8}}
+                    className="h-full rounded-full relative"
+                    style={{background:isCrit?'linear-gradient(90deg,#ef4444,#f97316)':'linear-gradient(90deg,#14b8a6,#06b6d4)',boxShadow:isCrit?'0 0 12px rgba(239,68,68,0.5)':'0 0 8px rgba(20,184,166,0.3)'}}>
+                    {isCrit&&<motion.div animate={{opacity:[0.3,1,0.3]}} transition={{duration:0.5,repeat:Infinity}} className="absolute inset-0 rounded-full" style={{background:'rgba(239,68,68,0.4)'}}/>}
+                </motion.div>
+            </div>
+            <div className="flex justify-between mt-0.5">
+                <span className="text-[7px] font-mono font-bold text-slate-600">{li}</span>
+                <motion.span animate={isCrit?{scale:[1,1.15,1],color:['#ef4444','#fbbf24','#ef4444']}:{}} transition={{duration:0.6,repeat:Infinity}}
+                    className="text-[10px] font-black font-mono" style={{color:isCrit?'#ef4444':'#94a3b8'}}>{tl}s</motion.span>
+                <span className="text-[7px] font-mono font-bold text-slate-600">R{rd+1}/{tot}</span>
+            </div>
         </div>
-        <div className="flex items-center justify-around px-4 py-2">
-            <div className="flex flex-col items-center gap-0.5"><OtterMascot size={44} tier={getLeagueTier()}/><span className="text-[9px] font-black text-white">Sen</span><span className="text-base font-black text-teal-400">{sc.you}</span></div>
-            <CTimer time={tl} max={modeConfig.timer}/>
-            <div className="flex flex-col items-center gap-0.5"><OtterMascot size={44} bodyColor={opponent.otterColor}/><span className="text-[9px] font-black text-white">{opponent.name}</span><span className="text-base font-black text-red-400">{sc.them}</span></div>
+
+        {/* ── SPLIT-SCREEN PLAYER ZONES ── */}
+        <div className="flex items-center justify-between px-3 py-1.5 relative">
+            {/* Player zone (left - teal) */}
+            <div className="flex items-center gap-2 flex-1 rounded-xl px-2 py-1.5" style={{background:'rgba(20,184,166,0.06)',border:'1px solid rgba(20,184,166,0.12)'}}>
+                <div className="relative">
+                    {flash==='correct'&&<motion.div animate={{scale:[1,1.8],opacity:[0.5,0]}} transition={{duration:0.6}} className="absolute inset-0 rounded-full" style={{background:'#14b8a6',filter:'blur(8px)'}}/>}
+                    <OtterMascot size={36} tier={getLeagueTier()}/>
+                </div>
+                <div>
+                    <p className="text-[8px] font-black text-teal-400 font-mono">{t('Wins')==='Galibiyet'?'SEN':'YOU'}</p>
+                    <p className="text-lg font-black text-teal-300 leading-none">{sc.you}</p>
+                </div>
+            </div>
+
+            {/* VS divider */}
+            <div className="flex flex-col items-center mx-2">
+                <motion.div animate={{boxShadow:['0 0 4px #fbbf2440','0 0 12px #fbbf2480','0 0 4px #fbbf2440']}} transition={{duration:2,repeat:Infinity}}
+                    className="w-8 h-8 rounded-full flex items-center justify-center" style={{background:'rgba(251,191,36,0.1)',border:'1px solid rgba(251,191,36,0.25)'}}>
+                    <span className="text-[10px] font-black text-amber-400">VS</span>
+                </motion.div>
+            </div>
+
+            {/* Enemy zone (right - red) */}
+            <div className="flex items-center gap-2 flex-1 flex-row-reverse rounded-xl px-2 py-1.5" style={{background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.12)'}}>
+                <div className="relative">
+                    {oAns&&<motion.div animate={{scale:[1,1.6],opacity:[0.6,0]}} transition={{duration:0.8,repeat:Infinity}} className="absolute inset-0 rounded-full" style={{background:'#ef4444',filter:'blur(6px)'}}/>}
+                    <OtterMascot size={36} bodyColor={opponent.otterColor}/>
+                </div>
+                <div className="text-right">
+                    <p className="text-[8px] font-black text-red-400 font-mono truncate max-w-[60px]">{opponent.name}</p>
+                    <p className="text-lg font-black text-red-300 leading-none">{sc.them}</p>
+                </div>
+            </div>
         </div>
+
+        {/* ── OPPONENT LOCKED IN notification ── */}
         <AnimatePresence>
             {sEmote&&<FEmote emoji={sEmote} from="left"/>}{oEmote&&<FEmote emoji={oEmote} from="right"/>}
-            {oAns&&sel===null&&<motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="text-center mb-1"><span className="text-[9px] font-black text-red-400 px-2.5 py-0.5 rounded-full border border-red-800/20" style={{background:'rgba(239,68,68,0.08)'}}>{opponent.name} cevapladı!</span></motion.div>}
+            {oAns&&sel===null&&<motion.div initial={{opacity:0,scale:0.8}} animate={{opacity:1,scale:1}} exit={{opacity:0}} className="flex justify-center mb-1">
+                <motion.span animate={{boxShadow:['0 0 6px rgba(239,68,68,0.2)','0 0 16px rgba(239,68,68,0.5)','0 0 6px rgba(239,68,68,0.2)']}} transition={{duration:1,repeat:Infinity}}
+                    className="text-[8px] font-black text-red-400 font-mono px-3 py-1 rounded-full tracking-wider"
+                    style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.25)'}}>
+                    ⚠ OPPONENT LOCKED IN
+                </motion.span>
+            </motion.div>}
         </AnimatePresence>
-        <div className="flex justify-center gap-1.5 pb-2">{Array.from({length:tot}).map((_,i)=><motion.div key={i} animate={i===rd?{scale:[1,1.3,1]}:{}} transition={{duration:.6,repeat:Infinity}} className={`w-2.5 h-2.5 rounded-full ${rr[i]==='you'?'bg-teal-400':rr[i]==='them'?'bg-red-400':rr[i]==='skip'?'bg-slate-600':i===rd?'bg-amber-400':'bg-slate-700'}`}/>)}</div>
-        <div className="text-center mb-1.5"><span className="text-[8px] font-extrabold text-slate-600 tracking-widest">ROUND {rd+1}/{tot}</span></div>
-        <div className="flex-1 px-4 flex flex-col overflow-y-auto">
-            <AnimatePresence mode="wait"><motion.div key={rd} initial={{opacity:0,x:30}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-30}} className={`${gc} mb-2.5`} style={{...G,borderLeft:`3px solid ${qColors[q.type||'mcq']}`}}>
-                <p className="text-[9px] font-extrabold mb-1" style={{color:qColors[q.type||'mcq']}}>{{mcq:'SORU',debug:'HATA BUL',complete:'BOŞLUK DOLDUR',trace:'KOD TAKİBİ',algo:'KARMAŞIKLIK'}[q.type||'mcq']}</p>
-                <p className="text-sm font-black text-white leading-relaxed">{q.text}</p>
-                {q.code&&<pre className="mt-2 p-2.5 rounded-xl text-[11px] font-mono text-emerald-300 overflow-x-auto whitespace-pre-wrap" style={{background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.05)'}}>{q.code.replace(/\\n/g,'\n')}</pre>}
+
+        {/* ── WRONG ANSWER alert ── */}
+        <AnimatePresence>
+            {flash==='wrong'&&<motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="flex justify-center mb-1">
+                <span className="text-[8px] font-black text-red-500 font-mono px-3 py-1 rounded-full tracking-wider"
+                    style={{background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)'}}>
+                    ✖ SYSTEM COMPROMISED
+                </span>
+            </motion.div>}
+            {flash==='correct'&&<motion.div initial={{opacity:0,y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="flex justify-center mb-1">
+                <span className="text-[8px] font-black text-teal-400 font-mono px-3 py-1 rounded-full tracking-wider"
+                    style={{background:'rgba(20,184,166,0.15)',border:'1px solid rgba(20,184,166,0.3)'}}>
+                    ✓ ACCESS GRANTED
+                </span>
+            </motion.div>}
+        </AnimatePresence>
+
+        {/* ── ROUND INDICATOR DOTS ── */}
+        <div className="flex justify-center gap-1 pb-1.5">{Array.from({length:tot}).map((_,i)=><motion.div key={i} animate={i===rd?{scale:[1,1.3,1]}:{}} transition={{duration:.6,repeat:Infinity}} className={`w-2 h-2 rounded-sm ${rr[i]==='you'?'bg-teal-400':rr[i]==='them'?'bg-red-400':rr[i]==='skip'?'bg-slate-600':i===rd?'bg-amber-400':'bg-slate-800'}`} style={{border:i===rd?'1px solid rgba(251,191,36,0.4)':'1px solid transparent'}}/>)}</div>
+
+        {/* ── BADGES (mode info) ── */}
+        <div className="flex justify-center gap-2 mb-1">
+            {modeConfig.speedBonus&&<span className="text-[7px] font-black text-amber-400 font-mono px-2 py-0.5 rounded-full" style={{background:'rgba(234,179,8,0.08)',border:'1px solid rgba(234,179,8,0.2)'}}><BoltIcon size={7} color="#eab308"/> BLITZ {sel===null&&tl>0?`${spd(tl)}x`:''}</span>}
+            {modeConfig.betting&&<span className="text-[7px] font-black text-purple-400 font-mono px-2 py-0.5 rounded-full" style={{background:'rgba(168,85,247,0.08)',border:'1px solid rgba(168,85,247,0.2)'}}>{bet} XP</span>}
+            {modeConfig.lives&&<span className="text-[7px] font-black text-red-400 font-mono px-2 py-0.5 rounded-full" style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)'}}>♥ {lives}</span>}
+        </div>
+
+        {/* ── QUESTION AREA ── */}
+        <div className="flex-1 px-3 flex flex-col overflow-y-auto">
+            <AnimatePresence mode="wait"><motion.div key={rd} initial={{opacity:0,x:30}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-30}} className={`${gc} mb-2`} style={{...G,borderLeft:`3px solid ${qColors[q.type||'mcq']}`}}>
+                <p className="text-[8px] font-extrabold font-mono tracking-widest mb-1" style={{color:qColors[q.type||'mcq']}}>{{mcq:'// QUESTION',debug:'// DEBUG',complete:'// COMPLETE',trace:'// TRACE',algo:'// COMPLEXITY'}[q.type||'mcq']}</p>
+                <p className={`text-sm font-black leading-relaxed ${decrypting?'text-emerald-300':'text-white'}`} style={decrypting?{fontFamily:'monospace',letterSpacing:'0.05em'}:undefined}>{decText||q.text}</p>
+                {q.code&&<pre className="mt-2 p-2 rounded-lg text-[10px] font-mono text-emerald-300 overflow-x-auto whitespace-pre-wrap" style={{background:'rgba(0,0,0,0.35)',border:'1px solid rgba(34,197,94,0.1)'}}>{q.code.replace(/\\n/g,'\n')}</pre>}
             </motion.div></AnimatePresence>
-            <div className="space-y-2">{q.options.map((opt,i)=>{
-                const ok=i===q.correct,ch=i===sel;let st={...G}
-                if(sel!==null&&ok) st={background:'rgba(34,197,94,0.2)',border:'1px solid rgba(34,197,94,0.4)',boxShadow:'0 0 15px rgba(34,197,94,0.15)'}
-                else if(ch&&!ok) st={background:'rgba(239,68,68,0.2)',border:'1px solid rgba(239,68,68,0.4)',boxShadow:'0 0 15px rgba(239,68,68,0.15)'}
+
+            {/* ── ANSWER OPTIONS ── */}
+            <div className="space-y-1.5">{q.options.map((opt,i)=>{
+                const ok=i===q.correct,ch=i===sel;let stl={...G}
+                if(sel!==null&&ok) stl={background:'rgba(20,184,166,0.15)',border:'1px solid rgba(20,184,166,0.35)',boxShadow:'0 0 12px rgba(20,184,166,0.15)'}
+                else if(ch&&!ok) stl={background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.35)',boxShadow:'0 0 12px rgba(239,68,68,0.15)'}
                 return <motion.button key={`${rd}-${i}`} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{delay:.04+i*.05}} onClick={()=>answer(i)} disabled={sel!==null}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl font-extrabold text-xs text-white transition-all ${sel===null?'cursor-pointer active:scale-[0.98]':''}`} style={st}>
-                    <span className="text-slate-500 mr-1.5 font-black">{String.fromCharCode(65+i)}.</span>{opt}
+                    className={`w-full text-left px-3 py-2.5 rounded-xl font-extrabold text-[11px] text-white transition-all ${sel===null?'cursor-pointer active:scale-[0.98]':''}`} style={stl}>
+                    <span className="text-slate-500 mr-1.5 font-black font-mono text-[10px]">{String.fromCharCode(65+i)}.</span>{opt}
                 </motion.button>
             })}</div>
-            <div className="flex justify-center gap-2 pt-3 pb-2">{ownEm.slice(0,4).map(e=><motion.button key={e.id} whileTap={{scale:.85}} onClick={()=>{setSEmote(e.label);S.pop();setTimeout(()=>setSEmote(null),2500)}}
-                className="h-8 rounded-lg text-[9px] font-black px-3 cursor-pointer" style={{...G,color:e.color,borderColor:e.color+'30'}}>{e.label}</motion.button>)}</div>
+
+            {/* ── EMOTE BAR ── */}
+            <div className="flex justify-center gap-1.5 pt-2 pb-1">{ownEm.slice(0,4).map(e=><motion.button key={e.id} whileTap={{scale:.85}} onClick={()=>{setSEmote(e.label);S.pop();setTimeout(()=>setSEmote(null),2500)}}
+                className="h-7 rounded-lg text-[8px] font-black px-2.5 cursor-pointer font-mono" style={{...G,color:e.color,borderColor:e.color+'30'}}>{e.label}</motion.button>)}</div>
         </div>
-    </div>
+    </motion.div>
 }
 
 function FEmote({emoji,from}){return<motion.div initial={{opacity:0,y:0,x:from==='left'?-50:50,scale:.3}} animate={{opacity:[0,1,1,0],y:-60,x:0,scale:[.3,1.3,1,.8]}} transition={{duration:2}} className="text-center mb-1"><span className="text-lg font-black inline-block px-3 py-1 rounded-full" style={{background:'rgba(255,255,255,0.1)',color:'white',filter:'drop-shadow(0 0 8px rgba(255,255,255,0.3))'}}>{emoji}</span></motion.div>}
