@@ -97,6 +97,9 @@ const _tr = {
     'Look at the highlighted line carefully': 'Vurgulanan satıra dikkatle bak',
     'Run the code mentally line by line': 'Kodu zihinsel olarak satır satır çalıştır',
     'Think about what each option does differently': 'Her seçeneğin ne farkı olduğunu düşün',
+    'COMPLETE': 'TAMAMLA',
+    'Quest Reward!': 'Görev Ödülü!',
+    'Complete 15 lessons this month': 'Bu ay 15 ders tamamla',
     // Stats
     'Stars': 'Yıldız', 'Streak': 'Seri', 'Days Active': 'Aktif Gün', 'Best Streak': 'En İyi Seri',
     'Lessons': 'Dersler', 'Total Time': 'Toplam Süre', 'Accuracy': 'Doğruluk',

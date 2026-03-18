@@ -409,7 +409,13 @@ function TraceVariable({ ex, selected, setSelected, answered, onAnswer }) {
    TYPE 2: BUG HUNT
    ═══════════════════════════════════════════ */
 function BugHunt({ ex, selected, setSelected, answered, onAnswer }) {
-    const handleTap = (idx) => { if (answered) return; setSelected(idx); onAnswer(idx === ex.correctLine) }
+    const handleTap = (idx) => {
+        if (answered) return
+        setSelected(idx)
+        const correct = idx === ex.correctLine
+        if (correct) trackQuestEvent('find_bug')
+        onAnswer(correct)
+    }
     return (
         <div>
             <p className="text-sm font-black text-white mb-1">{ex.prompt}</p>
@@ -939,8 +945,7 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
         if (passed) {
             playCelebration()
             addXP(totalXP || 50)
-            trackQuestEvent('complete_lesson')
-            trackQuestEvent('complete_exercise', total)
+            // Note: complete_lesson, complete_exercise, perfect_score tracked in App.jsx onLessonClose
             trackQuestEvent('read_lines', total * 10)
             profile.lessonsCompleted = (profile.lessonsCompleted || 0) + 1
             showAchievement('📚', t('Lesson Complete'), `${total} exercises finished!`)

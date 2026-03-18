@@ -251,8 +251,26 @@ const _months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
 const _now = new Date()
 const _daysInMonth = new Date(_now.getFullYear(), _now.getMonth() + 1, 0).getDate()
 const _daysLeftInMonth = _daysInMonth - _now.getDate()
+/* ── Load persisted quest state ── */
+function _loadQuestState() {
+    try {
+        return JSON.parse(localStorage.getItem('rheo_quest_state') || '{}')
+    } catch { return {} }
+}
+function _saveQuestState(state) {
+    try { localStorage.setItem('rheo_quest_state', JSON.stringify(state)) } catch (e) { }
+}
+const _questState = _loadQuestState()
+
 export const quests = {
-    monthly: { title: `${_months[_now.getMonth()]} Sprint`, task: 'Earn 15 Commit Points', current: 0, total: 15, daysLeft: _daysLeftInMonth },
+    monthly: {
+        title: `${_months[_now.getMonth()]} Sprint`,
+        task: 'Complete 15 lessons this month',
+        current: _questState.monthlyCurrent || 0,
+        total: 15,
+        daysLeft: _daysLeftInMonth,
+        month: _now.getMonth(),
+    },
     weekend: {
         task: '04:00 AM Code — Find 3 critical bugs',
         scenario: '1 hour to the presentation. Backend crashes on load test. Find 3 bugs!',
@@ -261,27 +279,75 @@ export const quests = {
             { id: 'n1', name: 'N+1 Query', hint: 'SQL call inside for loop', line: 7 },
             { id: 'apikey', name: 'Hardcoded API Key', hint: 'Exposed password in server code', line: 11 },
         ],
-        current: 0, total: 3, hoursLeft: Math.max(0, (7 - _now.getDay()) * 24 - _now.getHours()),
+        current: _questState.weekendCurrent || 0,
+        total: 3,
+        hoursLeft: Math.max(0, (7 - _now.getDay()) * 24 - _now.getHours()),
     },
     weeklyBuild: {
         title: 'The Calculator Trap 🪤',
         desc: 'Bug hunting case study — find 3 hidden bugs',
         icon: '🪤',
         tasks: [
-            { id: 'wb1', step: '🔍 Read: Review spaghetti code', done: false },
-            { id: 'wb2', step: '🐛 Hunt: Find operator precedence bug (Stack)', done: false },
-            { id: 'wb3', step: '🐛 Hunt: Find float error (0.1+0.2)', done: false },
-            { id: 'wb4', step: '🐛 Hunt: Find state crash bug (=→+)', done: false },
-            { id: 'wb5', step: '✨ Rise: Review Clean Code version', done: false },
+            { id: 'wb1', step: '🔍 Read: Review spaghetti code', done: !!(_questState.weeklyDone || {}).wb1 },
+            { id: 'wb2', step: '🐛 Hunt: Find operator precedence bug (Stack)', done: !!(_questState.weeklyDone || {}).wb2 },
+            { id: 'wb3', step: '🐛 Hunt: Find float error (0.1+0.2)', done: !!(_questState.weeklyDone || {}).wb3 },
+            { id: 'wb4', step: '🐛 Hunt: Find state crash bug (=→+)', done: !!(_questState.weeklyDone || {}).wb4 },
+            { id: 'wb5', step: '✨ Rise: Review Clean Code version', done: !!(_questState.weeklyDone || {}).wb5 },
         ],
         reward: { type: 'xp', amount: 500 },
         daysLeft: Math.max(0, 7 - _now.getDay()),
+        weekNum: Math.ceil(((_now.getTime() - new Date(_now.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))),
     },
     mysteryQuest: {
-        revealed: false,
+        revealed: _questState.mysteryRevealed === new Date().toDateString(),
+        completed: !!_questState.mysteryCompleted,
         hidden: { task: 'Write a function with exactly 3 parameters', reward: 'gem', xp: 150 },
     },
     daily: [], // filled by getDailyQuests()
+}
+
+/* ── Quest Progress Helpers ── */
+export function updateQuestProgress(type, key, value) {
+    const state = _loadQuestState()
+    if (type === 'monthly') {
+        state.monthlyCurrent = Math.min((state.monthlyCurrent || 0) + value, quests.monthly.total)
+        state.monthlyMonth = _now.getMonth()
+        quests.monthly.current = state.monthlyCurrent
+    } else if (type === 'weekend') {
+        state.weekendCurrent = Math.min((state.weekendCurrent || 0) + value, quests.weekend.total)
+        quests.weekend.current = state.weekendCurrent
+    } else if (type === 'weeklyBuild') {
+        if (!state.weeklyDone) state.weeklyDone = {}
+        state.weeklyDone[key] = true
+        const task = quests.weeklyBuild.tasks.find(t => t.id === key)
+        if (task) task.done = true
+    } else if (type === 'mystery') {
+        state.mysteryRevealed = new Date().toDateString()
+        state.mysteryCompleted = !!value
+        quests.mysteryQuest.revealed = true
+        quests.mysteryQuest.completed = !!value
+    }
+    _saveQuestState(state)
+}
+
+// Auto-reset monthly if new month
+if (_questState.monthlyMonth !== undefined && _questState.monthlyMonth !== _now.getMonth()) {
+    const state = _loadQuestState()
+    state.monthlyCurrent = 0
+    state.monthlyMonth = _now.getMonth()
+    _saveQuestState(state)
+    quests.monthly.current = 0
+}
+// Auto-reset weekly if new week
+const _currentWeek = Math.ceil(((_now.getTime() - new Date(_now.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)))
+if (_questState.weeklyWeek !== undefined && _questState.weeklyWeek !== _currentWeek) {
+    const state = _loadQuestState()
+    state.weeklyDone = {}
+    state.weekendCurrent = 0
+    state.weeklyWeek = _currentWeek
+    _saveQuestState(state)
+    quests.weeklyBuild.tasks.forEach(t => t.done = false)
+    quests.weekend.current = 0
 }
 
 /* ── Daily Quest Pool (seed-based rotation) ── */
@@ -307,8 +373,13 @@ quests.daily = getDailyQuests()
 /* ── Quest Event Tracking ── */
 export function trackQuestEvent(eventName, amount = 1) {
     try {
-        const saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
-        if (saved.date !== new Date().toDateString()) return
+        let saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
+        const today = new Date().toDateString()
+        // Auto-init if no date or different day
+        if (saved.date !== today) {
+            saved = { date: today, progress: {}, collected: {} }
+            localStorage.setItem('rheo_daily_quests', JSON.stringify(saved))
+        }
         const progress = saved.progress || {}
         quests.daily.forEach(q => {
             if (q.event === eventName) {
@@ -318,6 +389,15 @@ export function trackQuestEvent(eventName, amount = 1) {
         })
         saved.progress = progress
         localStorage.setItem('rheo_daily_quests', JSON.stringify(saved))
+
+        // Also update monthly progress for lesson completions
+        if (eventName === 'complete_lesson') {
+            updateQuestProgress('monthly', null, amount)
+        }
+        // Weekend hackathon progress for bug exercises
+        if (eventName === 'find_bug') {
+            updateQuestProgress('weekend', null, amount)
+        }
     } catch (e) { }
 }
 window.__trackQuest = trackQuestEvent
@@ -1176,6 +1256,7 @@ export function saveDuelResult({ won, yourScore, theirScore, opponent, totalTime
     addXP(xpGain)
     if (gemGain > 0) { stats.gems = (stats.gems || 0) + gemGain; saveProgress() }
     trackQuestEvent('duel_complete')
+    if (won) trackQuestEvent('win_duel')
 
     const celebration = getStreakCelebration()
     return { xpGain, gemGain, eloChange, newElo: duelStats.elo, tier: getLeagueTier(duelStats.elo), title: getArenaTitle(duelStats.elo), celebration, roundDetails }

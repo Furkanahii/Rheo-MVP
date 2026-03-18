@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { quests, stats, mascotMessages, getStreakMultiplier, t } from '../data'
-import { showXP } from './XPToast'
+import { quests, stats, mascotMessages, getStreakMultiplier, t, updateQuestProgress, saveProgress } from '../data'
+import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════
    QUESTS VIEW — soft, matte, Duolingo-inspired
@@ -78,7 +78,22 @@ function MonthlyQuest({ data }) {
 
 /* ═══════════════ WEEKLY BUILD ═══════════════ */
 function WeeklyBuildChallenge({ data }) {
-    const doneTasks = data.tasks.filter(t => t.done).length
+    const [tasks, setTasks] = useState(data.tasks)
+    const doneTasks = tasks.filter(t => t.done).length
+
+    const toggleTask = (taskId) => {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task || task.done) return
+        updateQuestProgress('weeklyBuild', taskId, true)
+        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, done: true } : t))
+        showXP(50)
+        try { navigator.vibrate?.(20) } catch (e) { }
+        // Check if all done
+        const newDone = tasks.filter(t => t.done).length + 1
+        if (newDone === tasks.length) {
+            showAchievement('🏗️', 'Weekly Build Complete!', `+${data.reward.amount} XP`)
+        }
+    }
 
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
@@ -104,8 +119,12 @@ function WeeklyBuildChallenge({ data }) {
                 </div>
 
                 <div className="p-3.5 space-y-2">
-                    {data.tasks.map((task, i) => (
-                        <div key={task.id} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${task.done ? 'bg-slate-700/30' : 'bg-slate-900/40'} border border-slate-700/20`}>
+                    {tasks.map((task, i) => (
+                        <motion.button key={task.id} whileTap={{ scale: 0.97 }}
+                            onClick={() => toggleTask(task.id)}
+                            disabled={task.done}
+                            className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all cursor-pointer
+                                ${task.done ? 'bg-slate-700/30' : 'bg-slate-900/40 hover:bg-slate-800/60 active:scale-[0.98]'} border border-slate-700/20`}>
                             <div className={`w-5.5 h-5.5 rounded-full flex items-center justify-center border-b-[2px] ${task.done ? 'bg-teal-600/80 border-teal-800' : 'bg-slate-700 border-slate-800'}`}>
                                 {task.done ? (
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
@@ -113,17 +132,17 @@ function WeeklyBuildChallenge({ data }) {
                                     <span className="text-[7px] font-black text-slate-400">{i + 1}</span>
                                 )}
                             </div>
-                            <span className={`text-xs font-bold ${task.done ? 'text-slate-500 line-through' : 'text-slate-300'}`}>{t(task.step)}</span>
-                        </div>
+                            <span className={`text-xs font-bold text-left ${task.done ? 'text-slate-500 line-through' : 'text-slate-300'}`}>{t(task.step)}</span>
+                        </motion.button>
                     ))}
                 </div>
 
                 <div className="px-3.5 pb-3.5">
                     <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] font-extrabold text-slate-600">{doneTasks}/{data.tasks.length} Steps</span>
+                        <span className="text-[10px] font-extrabold text-slate-600">{doneTasks}/{tasks.length} Steps</span>
                         <span className="text-[10px] font-black text-amber-300/80">🏆 {data.reward.amount} XP</span>
                     </div>
-                    <CylindricalBar current={doneTasks} total={data.tasks.length} color="#5B9BD5" />
+                    <CylindricalBar current={doneTasks} total={tasks.length} color="#5B9BD5" />
                 </div>
             </div>
         </motion.div>
@@ -133,6 +152,23 @@ function WeeklyBuildChallenge({ data }) {
 /* ═══════════════ MYSTERY QUEST ═══════════════ */
 function MysteryQuest({ data }) {
     const [revealed, setRevealed] = useState(data.revealed)
+    const [completed, setCompleted] = useState(data.completed)
+
+    const handleReveal = () => {
+        setRevealed(true)
+        updateQuestProgress('mystery', null, false)
+        try { navigator.vibrate?.(30) } catch (e) { }
+    }
+
+    const handleComplete = () => {
+        setCompleted(true)
+        updateQuestProgress('mystery', null, true)
+        stats.gems = (stats.gems || 0) + 15
+        showXP(data.hidden.xp)
+        showAchievement('✨', 'Mystery Quest Complete!', `+${data.hidden.xp} XP`)
+        saveProgress()
+        try { navigator.vibrate?.(40) } catch (e) { }
+    }
 
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
@@ -144,7 +180,7 @@ function MysteryQuest({ data }) {
             <AnimatePresence mode="wait">
                 {!revealed ? (
                     <motion.button key="hidden" exit={{ scale: 0.8, opacity: 0 }}
-                        onClick={() => { setRevealed(true); try { navigator.vibrate?.(30) } catch (e) { } }}
+                        onClick={handleReveal}
                         className="w-full rounded-2xl p-6 bg-slate-800 border-2 border-slate-700/30 border-b-[5px] border-b-slate-950 cursor-pointer active:translate-y-[4px] active:border-b-0 transition-all duration-75 text-center">
                         <div className="text-3xl mb-2 opacity-80">🎁</div>
                         <p className="text-sm font-black text-slate-300">{t('TAP TO REVEAL')}</p>
@@ -156,8 +192,8 @@ function MysteryQuest({ data }) {
                         className="rounded-2xl overflow-hidden bg-slate-800 border-2 border-slate-700/30 border-b-[5px] border-b-slate-950">
                         <div className="h-1.5 w-full bg-gradient-to-r from-amber-400/50 to-orange-400/50" />
                         <div className="p-5 text-center">
-                            <div className="text-2xl mb-2 opacity-80">✨</div>
-                            <p className="text-sm font-black text-white mb-1">{t(data.hidden.task)}</p>
+                            <div className="text-2xl mb-2 opacity-80">{completed ? '✅' : '✨'}</div>
+                            <p className={`text-sm font-black mb-1 ${completed ? 'text-slate-500 line-through' : 'text-white'}`}>{t(data.hidden.task)}</p>
                             <div className="flex items-center justify-center gap-3 mt-3">
                                 <div className="flex items-center gap-1 bg-slate-700/50 rounded-full px-3 py-1 border border-slate-600/30">
                                     <span className="text-[10px] font-black text-amber-300/80">+{data.hidden.xp} XP</span>
@@ -166,6 +202,12 @@ function MysteryQuest({ data }) {
                                     <span className="text-[10px] font-black text-sky-300/80">💎 {data.hidden.reward}</span>
                                 </div>
                             </div>
+                            {!completed && (
+                                <motion.button whileTap={{ scale: 0.95 }} onClick={handleComplete}
+                                    className="mt-4 px-6 py-2.5 rounded-xl font-black text-xs text-white bg-amber-500 border-b-[3px] border-amber-700 active:border-b-0 active:translate-y-[3px] transition-all duration-75 cursor-pointer">
+                                    {t('COMPLETE')} ✨
+                                </motion.button>
+                            )}
                         </div>
                     </motion.div>
                 )}
@@ -233,6 +275,8 @@ function DailyQuests({ tasks }) {
         if (task.reward === 'chest') { stats.gems = (stats.gems || 0) + 15; showXP(20) }
         else if (task.reward === 'gem') { stats.gems = (stats.gems || 0) + 25 }
         else { showXP(30) }
+        saveProgress() // Persist gems
+        showAchievement('🎁', t('Quest Reward!'), task.reward === 'gem' ? '+25 💎' : '+20 XP')
         try { navigator.vibrate?.(40) } catch (e) { }
 
         setDailyState(prev => {
