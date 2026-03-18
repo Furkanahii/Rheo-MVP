@@ -178,18 +178,31 @@ export function getOtterMood(streak, nextNodeType) {
     return { face: 'happy', bubble: t("Let's code! 🚀") }
 }
 
-/* ── Skill Radar ── */
-export const skillRadar = {
-    variables: { label: 'Variables', score: 85 },
-    conditionals: { label: 'Conditionals', score: 70 },
-    loops: { label: 'Loops', score: 45 },
-    functions: { label: 'Functions', score: 25 },
-    data_structures: { label: 'Data Struct.', score: 10 },
-    algorithms: { label: 'Algorithms', score: 0 },
-    complexity: { label: 'Complexity', score: 0 },
-    graphs: { label: 'Graphs', score: 0 },
-    dp: { label: 'Dyn.Program', score: 0 },
+/* ── Skill Radar (dynamic from lesson performance) ── */
+function _calcSkillRadar() {
+    const skillMap = {
+        variables: { label: 'Variables', chapters: [1] },
+        conditionals: { label: 'Conditionals', chapters: [2] },
+        loops: { label: 'Loops', chapters: [3] },
+        functions: { label: 'Functions', chapters: [4] },
+        data_structures: { label: 'Data Struct.', chapters: [5, 7] },
+        algorithms: { label: 'Algorithms', chapters: [6, 8] },
+        complexity: { label: 'Complexity', chapters: [9] },
+        graphs: { label: 'Graphs', chapters: [9] },
+        dp: { label: 'Dyn.Program', chapters: [10] },
+    }
+    const result = {}
+    Object.entries(skillMap).forEach(([key, val]) => {
+        const chapterNodes = journeyNodes.filter(n => val.chapters.includes(n.chapter) && n.type === 'lesson')
+        const completed = chapterNodes.filter(n => n.status === 'completed')
+        const totalStars = completed.reduce((sum, n) => sum + (n.stars || 0), 0)
+        const maxStars = chapterNodes.length * 3
+        const score = maxStars > 0 ? Math.round((totalStars / maxStars) * 100) : 0
+        result[key] = { label: val.label, score }
+    })
+    return result
 }
+export const skillRadar = _calcSkillRadar()
 
 /* ── Achievements (mascot-themed) ── */
 const _savedAchievements = loadSaved('rheo_achievements', null)
@@ -416,10 +429,19 @@ export function buyPowerUp(id) {
     const inv = loadSaved('rheo_powerups', {})
     inv[id] = (inv[id] || 0) + 1
     saveTo('rheo_powerups', inv)
+    saveProgress()
     return true
 }
 export function getPowerUpCount(id) {
     return (loadSaved('rheo_powerups', {}))[id] || 0
+}
+export function consumePowerUp(id) {
+    const inv = loadSaved('rheo_powerups', {})
+    if (!inv[id] || inv[id] <= 0) return false
+    inv[id] -= 1
+    if (inv[id] === 0) delete inv[id]
+    saveTo('rheo_powerups', inv)
+    return true
 }
 
 /* ══════════════════════════════════════════
@@ -1287,16 +1309,63 @@ export const league = {
 }
 
 /* ── Otter Costumes ── */
-export const otterCostumes = [
+/* ── Otter Costumes (with persistence) ── */
+function _loadCostumeState() {
+    try { return JSON.parse(localStorage.getItem('rheo_costumes') || 'null') } catch { return null }
+}
+function _saveCostumeState(costumes) {
+    try {
+        const data = costumes.map(c => ({ id: c.id, owned: c.owned, equipped: c.equipped }))
+        localStorage.setItem('rheo_costumes', JSON.stringify(data))
+    } catch (e) { }
+}
+const _defaultCostumes = [
     { id: 'none', name: 'Default', price: 0, owned: true, equipped: true, emoji: '🦦', slot: null },
-    { id: 'tophat', name: 'Top Hat', price: 200, owned: true, equipped: false, emoji: '🎩', slot: 'hat' },
+    { id: 'tophat', name: 'Top Hat', price: 200, owned: false, equipped: false, emoji: '🎩', slot: 'hat' },
     { id: 'crown', name: 'Royal Crown', price: 500, owned: false, equipped: false, emoji: '👑', slot: 'hat' },
-    { id: 'sunglasses', name: 'Cool Shades', price: 150, owned: true, equipped: false, emoji: '🕶️', slot: 'face' },
+    { id: 'sunglasses', name: 'Cool Shades', price: 150, owned: false, equipped: false, emoji: '🕶️', slot: 'face' },
     { id: 'monocle', name: 'Monocle', price: 300, owned: false, equipped: false, emoji: '🧐', slot: 'face' },
     { id: 'cape', name: 'Hero Cape', price: 400, owned: false, equipped: false, emoji: '🦸', slot: 'body' },
     { id: 'scarf', name: 'Winter Scarf', price: 250, owned: false, equipped: false, emoji: '🧣', slot: 'body' },
-    { id: 'party', name: 'Party Hat', price: 100, owned: true, equipped: false, emoji: '🥳', slot: 'hat' },
+    { id: 'party', name: 'Party Hat', price: 100, owned: false, equipped: false, emoji: '🥳', slot: 'hat' },
 ]
+function _mergeWithSaved() {
+    const saved = _loadCostumeState()
+    if (!saved) return [..._defaultCostumes]
+    return _defaultCostumes.map(def => {
+        const s = saved.find(c => c.id === def.id)
+        if (s) return { ...def, owned: s.owned, equipped: s.equipped }
+        return { ...def }
+    })
+}
+export const otterCostumes = _mergeWithSaved()
+export function buyCostume(id) {
+    const item = otterCostumes.find(c => c.id === id)
+    if (!item || item.owned || stats.gems < item.price) return false
+    stats.gems -= item.price
+    item.owned = true
+    _saveCostumeState(otterCostumes)
+    saveProgress()
+    return true
+}
+export function equipCostume(id) {
+    const target = otterCostumes.find(c => c.id === id)
+    if (!target || !target.owned) return false
+    // Unequip others in same slot
+    otterCostumes.forEach(c => {
+        if (c.slot === target.slot && c.id !== id) c.equipped = false
+    })
+    target.equipped = !target.equipped
+    _saveCostumeState(otterCostumes)
+    return true
+}
+
+/* ── Settings helpers ── */
+export function getSettingValue(key) {
+    try { return JSON.parse(localStorage.getItem(`rheo_setting_${key}`) || 'null') } catch { return null }
+}
+export function isHapticEnabled() { return getSettingValue('haptic') !== false }
+export function isSoundEnabled() { return getSettingValue('sound') === true }
 
 /* ══════════════════════════════════════════════════
    PER-NODE, PER-LANGUAGE EXERCISES

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import HologramCard from './HologramCard'
-import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, DAILY_XP_GOAL, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress } from '../data'
-import { showXP } from './XPToast'
+import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, DAILY_XP_GOAL, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP } from '../data'
+import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════
    PROFILE VIEW — polished, 3D, Costume Shop
@@ -31,29 +31,18 @@ export default function ProfileView() {
     const equipped = costumes.filter(c => c.equipped && c.slot !== null)
 
     const handleEquip = (id) => {
-        setCostumes(prev => {
-            const target = prev.find(c => c.id === id)
-            if (!target || !target.owned) return prev
-            return prev.map(c => {
-                if (c.slot === target.slot && c.id !== id) return { ...c, equipped: false }
-                if (c.id === id) return { ...c, equipped: !c.equipped }
-                return c
-            })
-        })
+        equipCostume(id)
+        setCostumes([...otterCostumes]) // refresh from source
     }
 
     const handleBuy = (id) => {
-        const item = costumes.find(c => c.id === id)
-        if (!item || item.owned) return
-        if (stats.gems < item.price) {
+        const ok = buyCostume(id)
+        if (!ok) {
             setFreezeMsg('not_enough')
             setTimeout(() => setFreezeMsg(null), 2000)
             return
         }
-        stats.gems -= item.price
-        setCostumes(prev => prev.map(c =>
-            c.id === id ? { ...c, owned: true } : c
-        ))
+        setCostumes([...otterCostumes]) // refresh from source
         try { navigator.vibrate?.(40) } catch (e) { }
     }
 
@@ -587,7 +576,7 @@ function ShareCard({ equipped }) {
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
         // Grant 10 XP for sharing
-        showXP(10)
+        addXP(10)
     }
 
     return (

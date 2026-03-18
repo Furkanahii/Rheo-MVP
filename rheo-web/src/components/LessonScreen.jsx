@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
-import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer } from '../data'
+import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, consumePowerUp, getPowerUpCount, isHapticEnabled } from '../data'
 import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════════════════
@@ -10,7 +10,7 @@ import { showXP, showAchievement } from './XPToast'
           pair, refactor, errordecode, terminal, algostep, realworld
    ═══════════════════════════════════════════════════════ */
 
-const haptic = () => navigator?.vibrate?.(10)
+const haptic = () => { if (isHapticEnabled()) navigator?.vibrate?.(10) }
 
 /* ── Motivational messages (i18n keys — translated at render via t()) ── */
 const OTTER_MSGS = {
@@ -27,7 +27,13 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     const [answered, setAnswered] = useState(false)
     const [isCorrect, setIsCorrect] = useState(null)
     const [selected, setSelected] = useState(null)
-    const [hearts, setHearts] = useState(5)
+    // Power-up: Extra Heart gives +1 heart at start
+    const [hearts, setHearts] = useState(() => {
+        const hasExtraHeart = getPowerUpCount('extra_heart') > 0
+        if (hasExtraHeart) { consumePowerUp('extra_heart'); return 6 }
+        return 5
+    })
+    const [usedExtraHeart] = useState(() => getPowerUpCount('extra_heart') >= 0 && hearts === 6)
     const [showResult, setShowResult] = useState(false)
     const [correctCount, setCorrectCount] = useState(0)
     // ── Creative enhancements state ──
@@ -256,12 +262,36 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             <AnimatePresence>
                 {answered && !isCorrect && !hintUsed && !showHint && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                        className="flex justify-center py-1">
-                        <button onClick={() => { setShowHint(true); setHintUsed(true) }}
+                        className="flex justify-center gap-2 py-1">
+                        <button onClick={() => {
+                            const hasToken = getPowerUpCount('hint_token') > 0
+                            if (hasToken) consumePowerUp('hint_token')
+                            setShowHint(true); setHintUsed(true)
+                        }}
                             className="flex items-center gap-1.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full px-4 py-1.5 cursor-pointer hover:bg-indigo-500/30 transition">
                             <span className="text-sm">💡</span>
                             <span className="text-[11px] font-bold text-indigo-300">{t('Show Hint')}</span>
+                            {getPowerUpCount('hint_token') > 0 && <span className="text-[8px] font-black text-amber-400 bg-amber-500/20 rounded-full px-1.5">🔮 TOKEN</span>}
                         </button>
+                        {/* Skip Token button */}
+                        {getPowerUpCount('skip_token') > 0 && !isLast && (
+                            <button onClick={() => {
+                                consumePowerUp('skip_token')
+                                haptic()
+                                setIsTransitioning(true)
+                                setTimeout(() => {
+                                    setStep(s => s + 1)
+                                    setAnswered(false); setIsCorrect(null); setSelected(null)
+                                    setShowParticles(null); setSpeedBonus(false); setStreakMsg(null)
+                                    setHintUsed(false); setShowHint(false)
+                                    setIsTransitioning(false)
+                                }, 300)
+                            }}
+                                className="flex items-center gap-1.5 bg-amber-500/20 border border-amber-500/30 rounded-full px-4 py-1.5 cursor-pointer hover:bg-amber-500/30 transition">
+                                <span className="text-sm">🎯</span>
+                                <span className="text-[11px] font-bold text-amber-300">{t('Skip')}</span>
+                            </button>
+                        )}
                     </motion.div>
                 )}
                 {showHint && (

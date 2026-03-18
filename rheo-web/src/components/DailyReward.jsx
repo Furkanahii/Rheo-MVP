@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { stats } from '../data'
+import { stats, saveProgress } from '../data'
 import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════
@@ -101,6 +101,7 @@ export default function DailyReward({ onClose }) {
         }
         setState(newState)
         saveDailyState(newState)
+        saveProgress() // Persist gems/energy
 
         setTimeout(onClose, 1800)
     }
