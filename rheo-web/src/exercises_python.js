@@ -8,7 +8,7 @@ export const pyExercises = {
             { type: 'pair', prompt: 'Match concepts', pairs: [{ id: 1, left: 'Variable', right: 'Stores a value' }, { id: 2, left: 'String', right: 'Text data' }, { id: 3, left: 'Integer', right: 'Whole number' }, { id: 4, left: 'Boolean', right: 'True or False' }] },
             { type: 'output', prompt: 'What does this print?', code: [{ text: 'x = 7' }, { text: 'y = 2' }, { text: 'print(x // y, x % y)' }], terminalOutput: '3 1', options: ['3.5 1', '3 1', '3.5 0', '3 0'], correct: 1 },
             { type: 'fillgap', prompt: 'Complete: swap two variables without a temp', codeParts: [{ text: 'a = 5\nb = 10\n', type: 'fixed' }, { text: 'a, b = b, a', type: 'gap', id: 'g1' }], bank: ['a, b = b, a', 'a = b; b = a', 'swap(a, b)', 'a == b'], correctFill: { g1: 'a, b = b, a' } },
-            { type: 'scramble', prompt: 'Build code to calculate BMI', pieces: [{ id: 'a', text: 'weight = 70' }, { id: 'b', text: 'height = 1.75' }, { id: 'c', text: 'bmi = weight' }, { id: 'd', text: 'print(round(bmi, 1))' }], distractors: [{ id: 'e', text: 'bmi = weight * height' }], correctOrder: ['a', 'b', 'c', 'd'] },
+            { type: 'scramble', prompt: 'Build code to calculate BMI', pieces: [{ id: 'a', text: 'weight = 70' }, { id: 'b', text: 'height = 1.75' }, { id: 'c', text: 'bmi = weight / (height ** 2)' }, { id: 'd', text: 'print(round(bmi, 1))' }], distractors: [{ id: 'e', text: 'bmi = weight * height' }], correctOrder: ['a', 'b', 'c', 'd'] },
         ],
         2: [
             { type: 'bug', prompt: 'Find the syntax error', code: [{ text: 'def greet(name):', hasError: false }, { text: '    msg = "Hello " + name', hasError: false }, { text: '    print(msg', hasError: true }, { text: '    return msg', hasError: false }], correctLine: 2 },
@@ -16,7 +16,7 @@ export const pyExercises = {
             { type: 'refactor', prompt: 'Which is the cleanest?', originalCode: 'x = 10\nif x > 5:\n    r = "big"\nelse:\n    r = "small"\nprint(r)', options: [{ code: 'x = 10\nr = "big" if x > 5 else "small"\nprint(r)', label: 'Ternary expression' }, { code: 'x = 10\nresult = ""\nif x > 5: result = "big"\nif x <= 5: result = "small"', label: 'Two ifs' }, { code: 'print("big") if 10 > 5 else print("small")', label: 'Print in ternary' }], correct: 0 },
             { type: 'bug', prompt: 'Why does this crash?', code: [{ text: 'age = input("Age: ")', hasError: false }, { text: 'if age > 18:', hasError: true }, { text: '    print("Adult")', hasError: false }], correctLine: 1 },
             { type: 'output', prompt: 'What does this print?', code: [{ text: 'x = "5"' }, { text: 'y = 3' }, { text: 'print(x * y)' }], terminalOutput: '555', options: ['15', '555', '53', 'Error'], correct: 1 },
-            { type: 'trace', prompt: 'What is the type of result?', code: [{ text: 'a = 10' }, { text: 'b = 3' }, { text: 'result = a' }, { text: 'print(type(result))', highlight: true }], options: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "3.33"], correct: 1 },
+            { type: 'trace', prompt: 'What is the type of result?', code: [{ text: 'a = 10' }, { text: 'b = 3' }, { text: 'result = a / b' }, { text: 'print(type(result))', highlight: true }], options: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "3.33"], correct: 1 },
         ],
         3: [
             { type: 'video', title: 'Variables & Data Types', description: 'Variables store data. Python is dynamically typed — no type declarations needed. int, float, str, bool are the basics.', duration: '2:45', thumbnail: '🎬' },
