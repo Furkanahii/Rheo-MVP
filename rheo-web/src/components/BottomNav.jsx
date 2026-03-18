@@ -1,11 +1,27 @@
 import { motion } from 'framer-motion'
-import { t } from '../data'
+import { t, stats, quests } from '../data'
+
+// Compute dynamic badge values
+function getBadges() {
+    const incompleteDailyQuests = quests.daily?.filter(q => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
+            const progress = saved.progress || {}
+            return (progress[q.id] || 0) < q.total
+        } catch { return true }
+    }).length || 0
+    return {
+        quests: incompleteDailyQuests > 0 ? incompleteDailyQuests : null,
+        league: stats.streak > 0 ? '🔥' : null,
+        profile: null,
+    }
+}
 
 const TABS = [
     { id: 'journey', label: 'Journey', icon: PathIcon },
-    { id: 'quests', label: 'Quests', icon: CheckIcon, badge: 3 },
-    { id: 'league', label: 'League', icon: ShieldIcon, badge: '!' },
-    { id: 'profile', label: 'Profile', icon: UserIcon, badge: 1 },
+    { id: 'quests', label: 'Quests', icon: CheckIcon, badgeKey: 'quests' },
+    { id: 'league', label: 'League', icon: ShieldIcon, badgeKey: 'league' },
+    { id: 'profile', label: 'Profile', icon: UserIcon, badgeKey: 'profile' },
     { id: 'more', label: 'More', icon: DotsIcon },
 ]
 
@@ -20,6 +36,8 @@ export default function BottomNav({ activeTab, onTabChange }) {
                 {TABS.map(tab => {
                     const isActive = tab.id === activeTab
                     const Icon = tab.icon
+                    const badges = getBadges()
+                    const badge = tab.badgeKey ? badges[tab.badgeKey] : null
 
                     return (
                         <button
@@ -43,12 +61,12 @@ export default function BottomNav({ activeTab, onTabChange }) {
                             {/* Icon with badge */}
                             <div className="relative">
                                 <Icon active={isActive} />
-                                {tab.badge && !isActive && (
+                                {badge && !isActive && (
                                     <motion.div
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
                                         className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] rounded-full bg-red-500 border-2 border-[#0B1120] flex items-center justify-center px-0.5">
-                                        <span className="text-[8px] font-black text-white leading-none">{tab.badge}</span>
+                                        <span className="text-[8px] font-black text-white leading-none">{badge}</span>
                                     </motion.div>
                                 )}
                             </div>

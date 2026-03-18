@@ -1,6 +1,8 @@
 /* ═══ Arena SVG Icon Library ═══
    Replaces all emojis with premium gradient SVG icons */
 
+const BASE = import.meta.env.BASE_URL || '/'
+
 export function ShieldIcon({ color = '#14b8a6', size = 24, tier }) {
     const colors = { bronze: ['#cd7f32','#a0522d'], silver: ['#c0c0c0','#808080'], gold: ['#ffd700','#daa520'], diamond: ['#b9f2ff','#4fc3f7'], hacker: ['#00ff41','#008f11'] }
     const [c1, c2] = colors[tier] || [color, color + '88']
@@ -126,6 +128,7 @@ export function OtterMascot({ size = 48, tier, glow, bodyColor }) {
     const tierColor = tier?.color || '#14b8a6'
     const mainColor = bodyColor || '#14b8a6'
     const darkColor = bodyColor ? shadeColor(bodyColor, -30) : '#0d7d6b'
+    const bellyColor = bodyColor ? shadeColor(bodyColor, 40) : '#5eead4'
     return (
         <svg width={size} height={size} viewBox="0 0 48 48">
             <defs>
@@ -133,19 +136,34 @@ export function OtterMascot({ size = 48, tier, glow, bodyColor }) {
                 <linearGradient id={`ot-body-${mainColor.slice(1)}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={mainColor}/><stop offset="100%" stopColor={darkColor}/></linearGradient>
             </defs>
             {glow && <circle cx="24" cy="24" r="23" fill={`url(#ot-bg-${mainColor.slice(1)})`}/>}
+            {/* Body */}
             <circle cx="24" cy="24" r="20" fill={`url(#ot-body-${mainColor.slice(1)})`} stroke={tierColor} strokeWidth="1.5" opacity="0.9"/>
+            {/* Belly */}
+            <ellipse cx="24" cy="28" rx="10" ry="8" fill={bellyColor} opacity="0.3"/>
+            {/* Ears */}
+            <circle cx="13" cy="10" r="4" fill={darkColor}/><circle cx="35" cy="10" r="4" fill={darkColor}/>
+            <circle cx="13" cy="10" r="2.5" fill={bellyColor} opacity="0.4"/><circle cx="35" cy="10" r="2.5" fill={bellyColor} opacity="0.4"/>
+            {/* Eyes */}
             <ellipse cx="18" cy="20" rx="3" ry="3.5" fill={darkColor}/>
             <ellipse cx="30" cy="20" rx="3" ry="3.5" fill={darkColor}/>
-            <circle cx="18" cy="19" r="1.5" fill="white"/><circle cx="30" cy="19" r="1.5" fill="white"/>
-            <circle cx="18.5" cy="19.2" r="0.8" fill="#1a1a2e"/><circle cx="30.5" cy="19.2" r="0.8" fill="#1a1a2e"/>
-            <ellipse cx="24" cy="28" rx="5" ry="3" fill="rgba(255,255,255,0.15)"/>
-            <ellipse cx="24" cy="27" rx="2" ry="1" fill="#1a1a2e" opacity="0.5"/>
-            <circle cx="15" cy="26" r="2" fill="rgba(255,255,255,0.1)"/>
-            <circle cx="33" cy="26" r="2" fill="rgba(255,255,255,0.1)"/>
+            <circle cx="19" cy="19" r="1.3" fill="white"/><circle cx="31" cy="19" r="1.3" fill="white"/>
+            {/* Nose */}
+            <ellipse cx="24" cy="24" rx="2.5" ry="1.5" fill={darkColor} opacity="0.7"/>
+            {/* Whiskers */}
+            <line x1="10" y1="23" x2="16" y2="24" stroke="white" strokeWidth="0.5" opacity="0.3"/>
+            <line x1="10" y1="25" x2="16" y2="25" stroke="white" strokeWidth="0.5" opacity="0.3"/>
+            <line x1="38" y1="23" x2="32" y2="24" stroke="white" strokeWidth="0.5" opacity="0.3"/>
+            <line x1="38" y1="25" x2="32" y2="25" stroke="white" strokeWidth="0.5" opacity="0.3"/>
+            {/* Mouth */}
+            <path d="M20 27 Q24 30 28 27" fill="none" stroke={darkColor} strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+            {/* Cheeks */}
+            <circle cx="14" cy="26" r="2.5" fill="#FFB7B2" opacity="0.12"/>
+            <circle cx="34" cy="26" r="2.5" fill="#FFB7B2" opacity="0.12"/>
         </svg>
     )
 }
 function shadeColor(c,p){let r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);r=Math.max(0,Math.min(255,r+p));g=Math.max(0,Math.min(255,g+p));b=Math.max(0,Math.min(255,b+p));return`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`}
+
 
 /* ═══ BP Road Icons ═══ */
 export function GemSVG({ size = 16, color = '#06b6d4' }) {

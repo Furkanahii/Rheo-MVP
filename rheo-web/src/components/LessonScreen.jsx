@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
-import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile } from '../data'
+import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer } from '../data'
+import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════════════════
    LESSON SCREEN — 12 Exercise Types, Full-screen overlay
@@ -11,13 +12,13 @@ import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile } f
 
 const haptic = () => navigator?.vibrate?.(10)
 
-/* ── Motivational messages ── */
+/* ── Motivational messages (i18n keys — translated at render via t()) ── */
 const OTTER_MSGS = {
-    correct: ['Harika! 🎉', 'Süpersin! ⭐', 'Mükemmel! 💎', 'Tam isabet! 🎯', 'Otter seninle gurur duyuyor! 🦦'],
-    wrong: ['Olsun, devam et! 💪', 'Bir dahakine! 🌟', 'Vazgeçme! 🔥', 'Öğrenmek böyle olur! 📚'],
-    streak3: ['🔥 On Fire!', '🔥 Durdurulamıyorsun!', '🔥 Harika gidiyorsun!'],
-    streak5: ['⚡ UNSTOPPABLE!', '⚡ İnanılmaz!'],
-    streak7: ['💎 LEGENDARY!', '💎 Efsane!'],
+    correct: ['Amazing! 🎉', 'Superb! ⭐', 'Perfect! 💎', 'Bullseye! 🎯', 'Otter is proud of you! 🦦'],
+    wrong: ['No worries, keep going! 💪', 'Next time! 🌟', "Don't give up! 🔥", 'This is how you learn! 📚'],
+    streak3: ['🔥 On Fire!', '🔥 Unstoppable!', '🔥 Killing it!'],
+    streak5: ['⚡ UNSTOPPABLE!', '⚡ Incredible!'],
+    streak7: ['💎 LEGENDARY!', '💎 Epic!'],
 }
 const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)]
 
@@ -41,6 +42,10 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     const [fastestTime, setFastestTime] = useState(Infinity)
     const [soundMuted, setSoundMuted] = useState(false)
     const [isTransitioning, setIsTransitioning] = useState(false) // ← Guard against Continue spam
+    const [wrongQuestions, setWrongQuestions] = useState([]) // ← Track wrong answers for Review Mistakes
+    const [xpEarned, setXpEarned] = useState({ base: 0, speed: 0, streak: 0 }) // ← XP breakdown
+    const [hintUsed, setHintUsed] = useState(false) // ← Hint system
+    const [showHint, setShowHint] = useState(false)
 
     // If step overflows exercises array, show result instead of crashing
     useEffect(() => {
@@ -85,6 +90,8 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         setShowParticles(null)
                         setSpeedBonus(false)
                         setStreakMsg(null)
+                        setHintUsed(false)
+                        setShowHint(false)
                     }
                     setIsTransitioning(false) // ← Unlock
                 }, 800)
@@ -98,6 +105,8 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                     setShowParticles(null)
                     setSpeedBonus(false)
                     setStreakMsg(null)
+                    setHintUsed(false)
+                    setShowHint(false)
                 }
                 setIsTransitioning(false) // ← Unlock
             }
@@ -124,24 +133,32 @@ export default function LessonScreen({ onClose, exercises = [] }) {
 
             // Speed bonus
             let xp = 15
+            let speedAdd = 0
+            let streakAdd = 0
             if (elapsed < 10) {
                 setSpeedBonus(true)
                 playSpeedBonus()
+                speedAdd = 5
                 xp += 5
             }
 
             // Streak bonuses
-            if (newStreak === 3) { setStreakMsg('🔥 On Fire!'); playStreak(); xp += 5 }
-            else if (newStreak === 5) { setStreakMsg('⚡ UNSTOPPABLE!'); playStreak(); xp += 10 }
-            else if (newStreak === 7) { setStreakMsg('💎 LEGENDARY!'); playStreak(); xp += 25 }
+            if (newStreak === 3) { setStreakMsg('🔥 On Fire!'); playStreak(); streakAdd = 5; xp += 5 }
+            else if (newStreak === 5) { setStreakMsg('⚡ UNSTOPPABLE!'); playStreak(); streakAdd = 10; xp += 10 }
+            else if (newStreak === 7) { setStreakMsg('💎 LEGENDARY!'); playStreak(); streakAdd = 25; xp += 25 }
             else setStreakMsg(null)
 
-            window.__showXP?.(xp)
+            setXpEarned(prev => ({ base: prev.base + 15, speed: prev.speed + speedAdd, streak: prev.streak + streakAdd }))
+            showXP(xp)
         } else {
             playWrong()
             setShowParticles('wrong')
             setStreak(0)
             setStreakMsg(null)
+            // Track wrong question for Review Mistakes
+            setWrongQuestions(prev => [...prev, { prompt: ex.prompt || ex.question || ex.text || '', correct: ex.options?.[ex.correct] || ex.correctLine?.toString() || '—', type: ex.type }])
+            // Spaced repetition: track for future review
+            trackWrongAnswer(ex._nodeId || 0, step, ex.type)
             const newHearts = Math.max(0, hearts - 1)
             setHearts(newHearts)
             if (newHearts === 0) {
@@ -152,7 +169,8 @@ export default function LessonScreen({ onClose, exercises = [] }) {
 
     if (showResult) {
         return <LessonComplete hearts={hearts} total={exercises.length} correct={correctCount}
-            bestStreak={bestStreak} fastestTime={fastestTime} questionTimes={questionTimes} onClose={onClose} />
+            bestStreak={bestStreak} fastestTime={fastestTime} questionTimes={questionTimes}
+            wrongQuestions={wrongQuestions} xpBreakdown={xpEarned} onClose={onClose} />
     }
 
     return (
@@ -170,7 +188,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         className="fixed inset-0 z-[400] flex items-center justify-center pointer-events-none">
                         <div className="flex flex-col items-center gap-3">
                             <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6 }} className="text-5xl">🦦</motion.div>
-                            <motion.p initial={{ y: 20 }} animate={{ y: 0 }} className="text-2xl font-black text-white text-center px-8">{otterMsg}</motion.p>
+                            <motion.p initial={{ y: 20 }} animate={{ y: 0 }} className="text-2xl font-black text-white text-center px-8">{t(otterMsg)}</motion.p>
                         </div>
                     </motion.div>
                 )}
@@ -217,7 +235,41 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                 {streakMsg && (
                     <motion.div initial={{ opacity: 0, scale: 0.5, y: -20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0 }}
                         className="text-center py-1">
-                        <span className="text-lg font-black text-amber-400 animate-pulse">{streakMsg}</span>
+                        <span className="text-lg font-black text-amber-400 animate-pulse">{t(streakMsg)}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ═══ COMBO COUNTER ═══ */}
+            {streak >= 2 && (
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center justify-center gap-2 py-1">
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-full px-3 py-1">
+                        <span className="text-sm">{'🔥'.repeat(Math.min(streak, 3))}</span>
+                        <span className="text-xs font-black text-amber-400">{streak}x COMBO</span>
+                        {streak >= 3 && <span className="text-[10px] font-bold text-amber-300/70">+{streak >= 7 ? 25 : streak >= 5 ? 10 : 5} XP</span>}
+                    </div>
+                </motion.div>
+            )}
+
+            {/* ═══ HINT BUTTON (after wrong answer) ═══ */}
+            <AnimatePresence>
+                {answered && !isCorrect && !hintUsed && !showHint && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className="flex justify-center py-1">
+                        <button onClick={() => { setShowHint(true); setHintUsed(true) }}
+                            className="flex items-center gap-1.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full px-4 py-1.5 cursor-pointer hover:bg-indigo-500/30 transition">
+                            <span className="text-sm">💡</span>
+                            <span className="text-[11px] font-bold text-indigo-300">{t('Show Hint')}</span>
+                        </button>
+                    </motion.div>
+                )}
+                {showHint && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className="mx-4 py-2 px-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+                        <p className="text-[11px] font-bold text-indigo-300 text-center">
+                            💡 {ex?.hint || (ex?.type === 'trace' ? 'Trace each line step by step' : ex?.type === 'bug' ? 'Look at the highlighted line carefully' : ex?.type === 'output' ? 'Run the code mentally line by line' : 'Think about what each option does differently')}
+                        </p>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -302,17 +354,22 @@ function IDEBlock({ children, filename }) {
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
                 <span className="text-[8px] font-bold text-slate-600 ml-2">{display}</span>
             </div>
-            <div className="p-4 font-mono text-sm space-y-0.5">{children}</div>
+            <div className="p-4 font-mono text-sm space-y-0.5 overflow-x-auto">{children}</div>
         </div>
     )
 }
 
 function MCQGrid({ options, selected, onSelect, answered, correct }) {
+    // Auto-detect if options are too long for 2-column layout
+    const hasLongOptions = options.some(o => {
+        const text = typeof o === 'string' ? o : o?.label || String(o)
+        return text.length > 28
+    })
     return (
-        <div className="grid grid-cols-2 gap-3">
+        <div className={hasLongOptions ? 'space-y-2' : 'grid grid-cols-2 gap-3'}>
             {options.map((opt, i) => (
                 <motion.button key={i} whileTap={{ scale: 0.95 }} onClick={() => onSelect(i)} disabled={answered}
-                    className={`py-3.5 rounded-xl font-black text-sm border-b-[4px] transition-all cursor-pointer
+                    className={`py-3.5 px-3 rounded-xl font-black text-sm border-b-[4px] transition-all cursor-pointer text-left break-words
                         ${answered && i === correct ? 'bg-emerald-500/20 border-emerald-800 text-emerald-400 border border-emerald-600/40'
                             : answered && i === selected ? 'bg-red-500/20 border-red-800 text-red-400 border border-red-600/40'
                                 : selected === i ? 'bg-teal-500/20 border-teal-800 text-teal-400 border border-teal-600/40'
@@ -513,12 +570,13 @@ function FillTheGap({ ex, answered, onAnswer }) {
             <p className="text-sm font-black text-white mb-1">{ex.prompt}</p>
             <p className="text-[10px] font-bold text-slate-500 mb-4">📝 Tap words to fill the blanks</p>
             <IDEBlock>
+                <div className="flex flex-wrap items-center gap-y-1">
                 {ex.codeParts.map((part, i) => {
                     if (part.type === 'fixed') return <span key={i}><CodeColored text={part.text} /></span>
                     const filled = fills[part.id]
                     return (
                         <motion.button key={i} whileTap={{ scale: 0.95 }} onClick={() => resetGap(part.id)}
-                            className={`inline-block min-w-[80px] px-3 py-1.5 rounded-lg border-b-[3px] mx-1 cursor-pointer transition-all
+                            className={`inline-block min-w-[60px] max-w-[120px] px-2 py-1.5 rounded-lg border-b-[3px] mx-1 cursor-pointer transition-all text-xs truncate
                                 ${filled ? answered && filled === ex.correctFill[part.id]
                                     ? 'bg-emerald-500/20 border-emerald-800 text-emerald-400 border border-emerald-700/30'
                                     : answered ? 'bg-red-500/20 border-red-800 text-red-400 border border-red-700/30'
@@ -528,6 +586,7 @@ function FillTheGap({ ex, answered, onAnswer }) {
                         </motion.button>
                     )
                 })}
+                </div>
             </IDEBlock>
             <p className="text-[9px] font-extrabold text-slate-500 tracking-wider mb-2 mt-5">WORD BANK</p>
             <div className="flex flex-wrap gap-2">
@@ -573,10 +632,10 @@ function PairMatch({ ex, answered, onAnswer }) {
             <p className="text-sm font-black text-white mb-1">{ex.prompt}</p>
             <p className="text-[10px] font-bold text-slate-500 mb-5">🔗 Tap a concept, then its match</p>
             <div className="flex gap-3">
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-2 min-w-0">
                     {shuffledLeft.map(p => (
                         <motion.button key={p.id} whileTap={{ scale: 0.95 }} onClick={() => handleLeftClick(p.id)}
-                            className={`w-full py-3.5 px-3 rounded-xl font-bold text-xs border-b-[4px] transition-all cursor-pointer text-center
+                            className={`w-full py-3.5 px-3 rounded-xl font-bold text-xs border-b-[4px] transition-all cursor-pointer text-center truncate
                                 ${matched.includes(p.id) ? 'bg-emerald-500/15 border-emerald-900 text-emerald-400 border border-emerald-700/30'
                                     : selectedLeft === p.id ? 'bg-teal-500/20 border-teal-800 text-teal-300 border border-teal-600/40 scale-105'
                                         : 'bg-slate-800 border-slate-950 text-white border border-slate-700/30'}`}>
@@ -584,11 +643,11 @@ function PairMatch({ ex, answered, onAnswer }) {
                         </motion.button>
                     ))}
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-2 min-w-0">
                     {shuffledRight.map(p => (
                         <motion.button key={p.id} whileTap={{ scale: 0.95 }} onClick={() => handleRightClick(p.id)}
                             animate={wrong === p.id ? { x: [0, -4, 4, -4, 0] } : {}}
-                            className={`w-full py-3.5 px-3 rounded-xl font-bold text-xs border-b-[4px] transition-all cursor-pointer text-center
+                            className={`w-full py-3.5 px-3 rounded-xl font-bold text-xs border-b-[4px] transition-all cursor-pointer text-center truncate
                                 ${matched.includes(p.id) ? 'bg-emerald-500/15 border-emerald-900 text-emerald-400 border border-emerald-700/30'
                                     : wrong === p.id ? 'bg-red-500/15 border-red-900 text-red-400 border border-red-700/30'
                                         : 'bg-slate-800 border-slate-950 text-slate-300 border border-slate-700/30'}`}>
@@ -634,7 +693,7 @@ function CodeRefactor({ ex, selected, setSelected, answered, onAnswer }) {
                                 : answered && i === selected ? 'border border-red-600/40 border-b-red-800 bg-red-500/5'
                                     : selected === i ? 'border border-teal-600/40 border-b-teal-800 bg-teal-500/5'
                                         : 'border border-slate-700/30 border-b-slate-950 bg-slate-800 active:translate-y-[4px] active:border-b-0'}`}>
-                        <div className="px-4 py-2 font-mono text-[11px] text-slate-300 whitespace-pre-wrap">{opt.code}</div>
+                        <div className="px-4 py-2 font-mono text-[11px] text-slate-300 whitespace-pre-wrap break-all overflow-hidden">{opt.code}</div>
                         <div className="px-4 py-2 border-t border-slate-700/20">
                             <span className="text-[10px] font-bold text-slate-500">{opt.label}</span>
                             {answered && i === ex.correct && <span className="ml-2 text-xs">✨ Best!</span>}
@@ -658,14 +717,14 @@ function ErrorDecoder({ ex, selected, setSelected, answered, onAnswer }) {
                 <p className="text-sm font-black text-white">{ex.prompt}</p>
             </div>
             {/* Error traceback */}
-            <div className="rounded-2xl bg-red-950/30 border border-red-800/30 border-b-[4px] border-b-red-950 p-4 mb-5 font-mono">
+            <div className="rounded-2xl bg-red-950/30 border border-red-800/30 border-b-[4px] border-b-red-950 p-4 mb-5 font-mono overflow-x-auto">
                 <div className="flex items-center gap-2 mb-3">
                     <span className="text-[8px] font-extrabold text-red-500 tracking-wider">⚠ ERROR OUTPUT</span>
                 </div>
                 {ex.errorText.split('\n').map((line, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                        <span className="text-red-400/60 text-[10px]">│</span>
-                        <span className={`text-xs ${line.includes('Error') || line.includes('Exception') ? 'text-red-400 font-bold' : 'text-red-300/70'}`}>{line}</span>
+                    <div key={i} className="flex items-start gap-2 min-w-0">
+                        <span className="text-red-400/60 text-[10px] shrink-0">│</span>
+                        <span className={`text-xs break-all ${line.includes('Error') || line.includes('Exception') ? 'text-red-400 font-bold' : 'text-red-300/70'}`}>{line}</span>
                     </div>
                 ))}
             </div>
@@ -787,6 +846,9 @@ function TerminalSim({ ex, answered, onAnswer }) {
    ═══════════════════════════════════════════ */
 function AlgorithmStepper({ ex, selected, setSelected, answered, onAnswer }) {
     const handleSelect = (idx) => { if (answered) return; setSelected(idx); onAnswer(idx === ex.correct) }
+    const arrLen = ex.array?.length || 0
+    // Responsive sizing: shrink boxes when array is large
+    const boxSize = arrLen > 8 ? 'w-8 h-8 text-[10px]' : arrLen > 5 ? 'w-10 h-10 text-xs' : 'w-12 h-12 text-sm'
     return (
         <div>
             <div className="flex items-center gap-2 mb-4">
@@ -794,14 +856,14 @@ function AlgorithmStepper({ ex, selected, setSelected, answered, onAnswer }) {
                 <p className="text-sm font-black text-white">{ex.prompt}</p>
             </div>
             {/* Array visualization */}
-            <div className="rounded-2xl bg-slate-950 border border-slate-700/50 border-b-[4px] border-b-slate-950 p-5 mb-4">
-                <div className="flex justify-center gap-2 mb-4">
+            <div className="rounded-2xl bg-slate-950 border border-slate-700/50 border-b-[4px] border-b-slate-950 p-5 mb-4 overflow-hidden">
+                <div className="flex flex-wrap justify-center gap-1.5 mb-4">
                     {ex.array.map((val, i) => (
                         <motion.div key={i}
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            className={`w-12 h-12 rounded-xl border-b-[3px] flex items-center justify-center font-black text-sm
+                            transition={{ delay: i * 0.05 }}
+                            className={`${boxSize} rounded-xl border-b-[3px] flex items-center justify-center font-black shrink-0
                                 ${i <= 1 ? 'bg-amber-500/20 border-amber-800 text-amber-400 border border-amber-600/30'
                                     : 'bg-slate-800 border-slate-950 text-white border border-slate-700/30'}`}>
                             {val}
@@ -812,7 +874,7 @@ function AlgorithmStepper({ ex, selected, setSelected, answered, onAnswer }) {
                 <div className="flex items-center gap-2 justify-center mb-3">
                     <span className="text-[9px] font-extrabold text-teal-400 tracking-wider">STEP {ex.step}</span>
                 </div>
-                <p className="text-xs font-bold text-slate-400 text-center leading-relaxed">{ex.description}</p>
+                <p className="text-xs font-bold text-slate-400 text-center leading-relaxed break-words">{ex.description}</p>
             </div>
 
             {/* Question */}
@@ -836,7 +898,7 @@ function RealWorldConnect({ ex, selected, setSelected, answered, onAnswer }) {
             {/* Scenario card */}
             <div className="rounded-2xl bg-gradient-to-br from-purple-900/20 to-teal-900/20 border border-purple-700/20 border-b-[4px] border-b-purple-950 p-5 mb-5">
                 <p className="text-[9px] font-extrabold text-purple-400/70 tracking-wider mb-2">REAL WORLD SCENARIO</p>
-                <p className="text-sm font-bold text-white leading-relaxed">{ex.scenario}</p>
+                <p className="text-sm font-bold text-white leading-relaxed break-words">{ex.scenario}</p>
             </div>
             {/* Code options */}
             <p className="text-[9px] font-extrabold text-slate-500 tracking-wider mb-3">WHICH CODE SOLVES THIS?</p>
@@ -848,7 +910,7 @@ function RealWorldConnect({ ex, selected, setSelected, answered, onAnswer }) {
                                 : answered && i === selected ? 'border border-red-600/40 border-b-red-800 bg-red-500/5'
                                     : selected === i ? 'border border-teal-600/40 border-b-teal-800 bg-teal-500/5'
                                         : 'border border-slate-700/30 border-b-slate-950 bg-slate-800 active:translate-y-[4px] active:border-b-0'}`}>
-                        <div className="px-4 py-2 font-mono text-[11px] text-slate-300 whitespace-pre-wrap">{opt.code}</div>
+                        <div className="px-4 py-2 font-mono text-[11px] text-slate-300 whitespace-pre-wrap break-all overflow-hidden">{opt.code}</div>
                         <div className="px-4 py-2 border-t border-slate-700/20">
                             <span className="text-[10px] font-bold text-slate-500">{opt.label}</span>
                             {answered && i === ex.correct && <span className="ml-2 text-xs">✅</span>}
@@ -863,23 +925,25 @@ function RealWorldConnect({ ex, selected, setSelected, answered, onAnswer }) {
 /* ═══════════════════════════════════════════
    LESSON COMPLETE
    ═══════════════════════════════════════════ */
-function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = Infinity, questionTimes = [], onClose }) {
+function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = Infinity, questionTimes = [], wrongQuestions = [], xpBreakdown = { base: 0, speed: 0, streak: 0 }, onClose }) {
     const pct = Math.round(((correct || 0) / total) * 100)
     const passed = hearts > 0
     const stars = hearts >= 4 ? 3 : hearts >= 2 ? 2 : hearts > 0 ? 1 : 0
     const [animPct, setAnimPct] = useState(0)
     const [animXP, setAnimXP] = useState(0)
-    const targetXP = passed ? 50 : 0
+    const [showReview, setShowReview] = useState(false)
+    const totalXP = passed ? (xpBreakdown.base + xpBreakdown.speed + xpBreakdown.streak) : 0
+    const targetXP = totalXP || (passed ? 50 : 0)
 
     useEffect(() => {
         if (passed) {
             playCelebration()
-            addXP(50)
+            addXP(totalXP || 50)
             trackQuestEvent('complete_lesson')
             trackQuestEvent('complete_exercise', total)
             trackQuestEvent('read_lines', total * 10)
             profile.lessonsCompleted = (profile.lessonsCompleted || 0) + 1
-            window.__showAchievement?.('📚', 'Lesson Complete', `${total} exercises finished!`)
+            showAchievement('📚', t('Lesson Complete'), `${total} exercises finished!`)
             saveProgress()
         }
         // Animated counters
@@ -893,6 +957,59 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
         }, 25)
         return () => clearInterval(interval)
     }, [])
+
+    // Review Mistakes panel
+    if (showReview) {
+        return (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="fixed inset-0 z-[300] flex flex-col" style={{ background: '#0F172A' }}>
+                {/* Header */}
+                <div className="shrink-0 px-5 py-4 flex items-center gap-3 border-b border-slate-800"
+                    style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 16px))' }}>
+                    <button onClick={() => setShowReview(false)} className="text-slate-400 hover:text-white transition cursor-pointer p-1">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <h2 className="text-lg font-black text-white">{t('Review Mistakes')}</h2>
+                    <span className="ml-auto text-xs font-bold text-red-400">❌ {wrongQuestions.length} {t('wrong')}</span>
+                </div>
+                {/* Wrong Questions List */}
+                <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+                    {wrongQuestions.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-3">
+                            <span className="text-5xl">🎉</span>
+                            <p className="text-lg font-black text-white">{t('No mistakes!')}</p>
+                            <p className="text-sm text-slate-400">{t('Perfect performance!')}</p>
+                        </div>
+                    ) : wrongQuestions.map((wq, i) => (
+                        <motion.div key={i}
+                            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="rounded-2xl bg-slate-800/70 border border-red-900/20 border-b-[3px] border-b-slate-950 p-4">
+                            <div className="flex items-start gap-2 mb-2">
+                                <span className="text-xs font-black text-red-400 bg-red-500/10 px-2 py-0.5 rounded-lg">{i + 1}</span>
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">{wq.type}</span>
+                            </div>
+                            <p className="text-sm font-bold text-slate-300 mb-2">{t(wq.prompt)}</p>
+                            <div className="flex items-center gap-2 pl-2 border-l-2 border-emerald-500/40">
+                                <span className="text-xs">✅</span>
+                                <p className="text-xs font-bold text-emerald-400">{typeof wq.correct === 'object' ? JSON.stringify(wq.correct) : String(wq.correct)}</p>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+                {/* Back Button */}
+                <div className="shrink-0 px-5 py-4 border-t border-slate-800"
+                    style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}>
+                    <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowReview(false)}
+                        className="w-full py-4 rounded-2xl font-black text-base text-white bg-slate-700 border-b-[6px] border-slate-900 active:translate-y-[6px] active:border-b-0 transition-all duration-75 cursor-pointer">
+                        {t('CONTINUE')}
+                    </motion.button>
+                </div>
+            </motion.div>
+        )
+    }
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -919,19 +1036,49 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                     </div>
                 )}
 
+                {/* ═══ XP BREAKDOWN ═══ */}
+                {passed && (xpBreakdown.base > 0 || totalXP > 0) && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                        className="w-full max-w-[280px] rounded-2xl bg-slate-800/60 border border-slate-700/30 px-4 py-3">
+                        <p className="text-[8px] font-extrabold text-slate-500 tracking-wider mb-2">XP BREAKDOWN</p>
+                        <div className="space-y-1.5">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[11px] font-bold text-slate-400">📝 {t('Base')} ({correct}×15)</span>
+                                <span className="text-[11px] font-black text-teal-400">+{xpBreakdown.base}</span>
+                            </div>
+                            {xpBreakdown.speed > 0 && (
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[11px] font-bold text-slate-400">⚡ {t('Speed Bonus')}</span>
+                                    <span className="text-[11px] font-black text-amber-400">+{xpBreakdown.speed}</span>
+                                </div>
+                            )}
+                            {xpBreakdown.streak > 0 && (
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[11px] font-bold text-slate-400">🔥 {t('Streak Bonus')}</span>
+                                    <span className="text-[11px] font-black text-orange-400">+{xpBreakdown.streak}</span>
+                                </div>
+                            )}
+                            <div className="border-t border-slate-700/50 pt-1.5 flex justify-between items-center">
+                                <span className="text-xs font-black text-white">TOTAL</span>
+                                <span className="text-base font-black text-teal-400">+{animXP} XP</span>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
                 {/* Main stats row */}
                 <div className="flex gap-3">
                     <div className="rounded-2xl bg-slate-800 border-b-[4px] border-slate-950 px-4 py-3 text-center min-w-[70px]">
-                        <p className="text-[9px] font-bold text-slate-500">XP</p>
-                        <p className="text-lg font-black text-teal-400">+{animXP}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-800 border-b-[4px] border-slate-950 px-4 py-3 text-center min-w-[70px]">
-                        <p className="text-[9px] font-bold text-slate-500">Accuracy</p>
+                        <p className="text-[9px] font-bold text-slate-500">{t('Accuracy')}</p>
                         <p className="text-lg font-black text-amber-400">{animPct}%</p>
                     </div>
                     <div className="rounded-2xl bg-slate-800 border-b-[4px] border-slate-950 px-4 py-3 text-center min-w-[70px]">
-                        <p className="text-[9px] font-bold text-slate-500">Hearts</p>
+                        <p className="text-[9px] font-bold text-slate-500">{t('Hearts')}</p>
                         <p className="text-lg font-black text-pink-400">{hearts}/5</p>
+                    </div>
+                    <div className="rounded-2xl bg-slate-800 border-b-[4px] border-slate-950 px-4 py-3 text-center min-w-[70px]">
+                        <p className="text-[9px] font-bold text-slate-500">{t('Correct')}</p>
+                        <p className="text-lg font-black text-teal-400">{correct}/{total}</p>
                     </div>
                 </div>
 
@@ -940,14 +1087,14 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                     {bestStreak >= 3 && (
                         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5 }}
                             className="rounded-2xl bg-orange-500/10 border border-orange-700/20 border-b-[3px] border-b-orange-900 px-4 py-2 text-center">
-                            <p className="text-[9px] font-bold text-slate-500">Best Streak</p>
+                            <p className="text-[9px] font-bold text-slate-500">{t('Best Streak')}</p>
                             <p className="text-base font-black text-orange-400">🔥 {bestStreak}</p>
                         </motion.div>
                     )}
                     {fastestTime < Infinity && fastestTime < 10 && (
                         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.6 }}
                             className="rounded-2xl bg-amber-500/10 border border-amber-700/20 border-b-[3px] border-b-amber-900 px-4 py-2 text-center">
-                            <p className="text-[9px] font-bold text-slate-500">Fastest</p>
+                            <p className="text-[9px] font-bold text-slate-500">{t('Fastest')}</p>
                             <p className="text-base font-black text-amber-400">⚡ {fastestTime.toFixed(1)}s</p>
                         </motion.div>
                     )}
@@ -974,14 +1121,23 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                     </motion.div>
                 )}
 
+                {/* ═══ REVIEW MISTAKES BUTTON ═══ */}
+                {wrongQuestions.length > 0 && (
+                    <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}
+                        whileTap={{ scale: 0.95 }} onClick={() => setShowReview(true)}
+                        className="w-full max-w-[280px] py-3 rounded-2xl font-black text-sm text-red-300 bg-red-500/10 border border-red-700/20 border-b-[4px] border-b-red-900/30 active:translate-y-[4px] active:border-b-0 transition-all duration-75 cursor-pointer flex items-center justify-center gap-2">
+                        <span>🔍</span> {t('Review Mistakes')} ({wrongQuestions.length})
+                    </motion.button>
+                )}
+
                 <motion.button whileTap={{ scale: 0.95 }} onClick={() => onClose({
                     completed: passed,
                     stars,
                     correct: correct || 0,
                     total
                 })}
-                    className="w-full max-w-[280px] py-4 rounded-2xl font-black text-base text-white bg-teal-500 border-b-[6px] border-teal-700 active:translate-y-[6px] active:border-b-0 transition-all duration-75 cursor-pointer mt-4">
-                    CONTINUE
+                    className="w-full max-w-[280px] py-4 rounded-2xl font-black text-base text-white bg-teal-500 border-b-[6px] border-teal-700 active:translate-y-[6px] active:border-b-0 transition-all duration-75 cursor-pointer mt-2">
+                    {t('CONTINUE')}
                 </motion.button>
             </div>
         </motion.div>

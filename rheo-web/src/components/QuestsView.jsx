@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { quests, stats, mascotMessages, getStreakMultiplier } from '../data'
+import { quests, stats, mascotMessages, getStreakMultiplier, t } from '../data'
+import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════
    QUESTS VIEW — soft, matte, Duolingo-inspired
@@ -27,8 +28,8 @@ function QuestsHeader() {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
             className="flex items-center justify-between pt-1 pb-1">
             <div>
-                <h1 className="text-2xl font-black text-white">Quests</h1>
-                <p className="text-xs font-bold text-slate-500 mt-0.5">Complete tasks to earn rewards</p>
+                <h1 className="text-2xl font-black text-white">{t('Quests')}</h1>
+                <p className="text-xs font-bold text-slate-500 mt-0.5">{t('Complete tasks to earn rewards')}</p>
             </div>
             <div className="flex items-center gap-2">
                 {getStreakMultiplier().label && (
@@ -54,10 +55,10 @@ function MonthlyQuest({ data }) {
                 {/* Soft warm accent strip */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-rose-400/70 to-amber-400/70" />
 
-                <div className="absolute -top-[2px] right-[16px] z-10"><FullOtterMascot /></div>
+                <div className="absolute -top-[2px] right-[16px] z-[4]" style={{maxHeight:'70px',overflow:'hidden'}}><FullOtterMascot /></div>
                 <div className="p-5 pt-4 relative z-[5]">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-black text-white">{data.title}</h2>
+                        <h2 className="text-xl font-black text-white">{t(data.title)}</h2>
                         <div className="flex items-center gap-1.5 bg-slate-700/60 rounded-full px-3 py-1.5 border-b-[2px] border-slate-800">
                             <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -66,7 +67,7 @@ function MonthlyQuest({ data }) {
                         </div>
                     </div>
                     <div className="rounded-xl p-4 bg-slate-900/60 border border-slate-700/30">
-                        <p className="text-white font-extrabold text-sm mb-3">{data.task}</p>
+                        <p className="text-white font-extrabold text-sm mb-3">{t(data.task)}</p>
                         <CylindricalBar current={data.current} total={data.total} color="#F9A826" />
                     </div>
                 </div>
@@ -82,7 +83,7 @@ function WeeklyBuildChallenge({ data }) {
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">Weekly Build Challenge</h3>
+                <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">{t('Weekly Build Challenge')}</h3>
                 <span className="text-[10px] font-bold text-slate-600">🏗️ {data.daysLeft}d left</span>
             </div>
 
@@ -96,8 +97,8 @@ function WeeklyBuildChallenge({ data }) {
                             {data.icon}
                         </div>
                         <div className="flex-1">
-                            <h3 className="text-sm font-black text-white">{data.title}</h3>
-                            <p className="text-[10px] font-bold text-slate-500">{data.desc}</p>
+                            <h3 className="text-sm font-black text-white">{t(data.title)}</h3>
+                            <p className="text-[10px] font-bold text-slate-500">{t(data.desc)}</p>
                         </div>
                     </div>
                 </div>
@@ -109,10 +110,10 @@ function WeeklyBuildChallenge({ data }) {
                                 {task.done ? (
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
                                 ) : (
-                                    <span className="text-[7px] font-black text-slate-500">{i + 1}</span>
+                                    <span className="text-[7px] font-black text-slate-400">{i + 1}</span>
                                 )}
                             </div>
-                            <span className={`text-xs font-bold ${task.done ? 'text-slate-500 line-through' : 'text-slate-300'}`}>{task.step}</span>
+                            <span className={`text-xs font-bold ${task.done ? 'text-slate-500 line-through' : 'text-slate-300'}`}>{t(task.step)}</span>
                         </div>
                     ))}
                 </div>
@@ -136,7 +137,7 @@ function MysteryQuest({ data }) {
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">Mystery Quest</h3>
+                <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">{t('Mystery Quest')}</h3>
                 <span className="text-[10px] font-bold text-slate-600">🎰 1/day</span>
             </div>
 
@@ -146,8 +147,8 @@ function MysteryQuest({ data }) {
                         onClick={() => { setRevealed(true); try { navigator.vibrate?.(30) } catch (e) { } }}
                         className="w-full rounded-2xl p-6 bg-slate-800 border-2 border-slate-700/30 border-b-[5px] border-b-slate-950 cursor-pointer active:translate-y-[4px] active:border-b-0 transition-all duration-75 text-center">
                         <div className="text-3xl mb-2 opacity-80">🎁</div>
-                        <p className="text-sm font-black text-slate-300">TAP TO REVEAL</p>
-                        <p className="text-[10px] font-bold text-slate-600 mt-1">A mystery quest awaits...</p>
+                        <p className="text-sm font-black text-slate-300">{t('TAP TO REVEAL')}</p>
+                        <p className="text-[10px] font-bold text-slate-600 mt-1">{t('A mystery quest awaits...')}</p>
                     </motion.button>
                 ) : (
                     <motion.div key="revealed" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
@@ -156,7 +157,7 @@ function MysteryQuest({ data }) {
                         <div className="h-1.5 w-full bg-gradient-to-r from-amber-400/50 to-orange-400/50" />
                         <div className="p-5 text-center">
                             <div className="text-2xl mb-2 opacity-80">✨</div>
-                            <p className="text-sm font-black text-white mb-1">{data.hidden.task}</p>
+                            <p className="text-sm font-black text-white mb-1">{t(data.hidden.task)}</p>
                             <div className="flex items-center justify-center gap-3 mt-3">
                                 <div className="flex items-center gap-1 bg-slate-700/50 rounded-full px-3 py-1 border border-slate-600/30">
                                     <span className="text-[10px] font-black text-amber-300/80">+{data.hidden.xp} XP</span>
@@ -178,30 +179,27 @@ function WeekendChallenge({ data }) {
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">Weekend Hackathon</h3>
+                <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">{t('Weekend Hackathon')}</h3>
                 <span className="text-[10px] font-bold text-slate-600">⏱ {data.hoursLeft} HRS</span>
             </div>
             <div className="rounded-2xl overflow-hidden bg-slate-800 border-2 border-slate-700/30 border-b-[6px] border-b-slate-950">
                 <div className="h-32 relative bg-slate-900/60 overflow-hidden">
-                    {/* Subtle binary rain — toned down */}
+                    {/* Subtle binary rain */}
                     {[...Array(14)].map((_, i) => (
                         <div key={i} className="absolute text-slate-700/40 font-mono" style={{
                             fontSize: '7px', left: `${i * 7 + 2}%`, top: `${(i * 19) % 85}%`,
                         }}>{['01', '10', '11', '00', '1', '0', '101', '010'][i % 8]}</div>
                     ))}
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-20 h-28 rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-800 border border-slate-700/40 border-b-[4px] border-b-slate-900">
-                            {[0, 1, 2, 3].map(j => (
-                                <div key={j} className="w-12 h-2.5 bg-slate-700/40 rounded-sm flex items-center px-1.5 gap-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-teal-500/60 animate-pulse" style={{ animationDelay: `${j * 0.3}s` }} />
-                                    <div className="flex-1 h-[1px] bg-slate-700/30" />
-                                </div>
-                            ))}
+                        <div className="w-20 h-20 rounded-2xl flex flex-col items-center justify-center gap-1 bg-slate-800/90 border border-slate-600/30 backdrop-blur-sm" style={{boxShadow:'0 0 30px rgba(94,234,212,0.1)'}}>
+                            <span className="text-2xl">💻</span>
+                            <span className="text-[7px] font-black text-teal-400 tracking-wider">HACK</span>
+                            <div className="flex gap-0.5">{[0,1,2].map(j=><div key={j} className="w-1 h-1 rounded-full bg-teal-500/60 animate-pulse" style={{animationDelay:`${j*0.3}s`}}/>)}</div>
                         </div>
                     </div>
                 </div>
                 <div className="px-5 py-4">
-                    <p className="text-white font-extrabold text-sm mb-3">{data.task}</p>
+                    <p className="text-white font-extrabold text-sm mb-3">{t(data.task)}</p>
                     <CylindricalBar current={data.current} total={data.total} color="#5EEAD4" />
                 </div>
             </div>
@@ -211,40 +209,30 @@ function WeekendChallenge({ data }) {
 
 /* ═══════════════ DAILY ═══════════════ */
 function DailyQuests({ tasks }) {
-    const [dailyState, setDailyState] = useState(() => {
+    const loadState = () => {
         try {
-            const saved = localStorage.getItem('rheo_daily_quests')
-            if (saved) {
-                const parsed = JSON.parse(saved)
-                // Reset if not today
-                if (parsed.date !== new Date().toDateString()) return { date: new Date().toDateString(), progress: {}, collected: {} }
-                return parsed
+            const saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
+            if (saved.date === new Date().toDateString()) {
+                return { date: saved.date, progress: saved.progress || {}, collected: saved.collected || {} }
             }
         } catch (e) { }
         return { date: new Date().toDateString(), progress: {}, collected: {} }
-    })
-
-    const updateProgress = () => {
-        // Progress is now tracked automatically via trackQuestEvent
-        // This function is kept for manual refresh
-        setDailyState(prev => {
-            try {
-                const saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
-                if (saved.date === new Date().toDateString()) {
-                    return { ...prev, progress: saved.progress || {}, collected: saved.collected || {} }
-                }
-            } catch (e) { }
-            return prev
-        })
     }
+    const [dailyState, setDailyState] = useState(loadState)
+
+    // Auto-refresh quest progress every 5 seconds
+    useEffect(() => {
+        const interval = setInterval(() => setDailyState(loadState), 5000)
+        return () => clearInterval(interval)
+    }, [])
 
     const collectReward = (taskId) => {
         const task = tasks.find(t => t.id === taskId)
         if (!task) return
         // Apply rewards
-        if (task.reward === 'chest') { stats.gems = (stats.gems || 0) + 15; window.__showXP?.(20) }
+        if (task.reward === 'chest') { stats.gems = (stats.gems || 0) + 15; showXP(20) }
         else if (task.reward === 'gem') { stats.gems = (stats.gems || 0) + 25 }
-        else { window.__showXP?.(30) }
+        else { showXP(30) }
         try { navigator.vibrate?.(40) } catch (e) { }
 
         setDailyState(prev => {
@@ -257,7 +245,7 @@ function DailyQuests({ tasks }) {
     return (
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <div className="flex items-center justify-between mb-3">
-                <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">Daily Standup</h3>
+                <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">{t('Daily Standup')}</h3>
                 <span className="text-[10px] font-bold text-slate-600">{Math.max(0, 24 - new Date().getHours())} HRS</span>
             </div>
             <div className="space-y-3">
@@ -294,7 +282,7 @@ function DailyCard({ task, i, progress, collected, onCollect }) {
             className={`flex items-center gap-3.5 rounded-2xl p-4 bg-slate-800 border-2 border-slate-700/30 border-b-[5px] border-b-slate-950 transition-all duration-75 ${collected ? 'opacity-60' : ''}`}>
             <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-slate-900/60 border-b-[2px] border-slate-950">{icons[task.id]}</div>
             <div className="flex-1 min-w-0">
-                <p className={`text-sm font-extrabold leading-tight ${collected ? 'text-slate-500 line-through' : 'text-slate-200'}`}>{task.task}</p>
+                <p className={`text-sm font-extrabold leading-tight ${collected ? 'text-slate-500 line-through' : 'text-slate-200'}`}>{t(task.task)}</p>
                 <div className="mt-2.5"><CylindricalBar current={current} total={task.total} color={softColors[task.color] || task.color} /></div>
             </div>
             {collected ? (
@@ -306,7 +294,7 @@ function DailyCard({ task, i, progress, collected, onCollect }) {
                     whileTap={{ scale: 0.9 }}
                     onClick={(e) => { e.stopPropagation(); onCollect() }}
                     className="shrink-0 px-3 py-2 rounded-xl font-black text-[10px] text-white bg-amber-500 border-b-[3px] border-amber-700 active:border-b-0 active:translate-y-[3px] transition-all duration-75 cursor-pointer">
-                    COLLECT
+                    {t('COLLECT')}
                 </motion.button>
             ) : (
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-slate-900/60 border-b-[2px] border-slate-950">{rewards[task.reward]}</div>

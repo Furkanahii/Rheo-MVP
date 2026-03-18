@@ -1,16 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import JourneyView from './components/JourneyView'
-import QuestsView from './components/QuestsView'
-import LeagueView from './components/LeagueView'
-import ProfileView from './components/ProfileView'
-import MoreView from './components/MoreView'
+const QuestsView = lazy(() => import('./components/QuestsView'))
+const LeagueView = lazy(() => import('./components/LeagueView'))
+const ProfileView = lazy(() => import('./components/ProfileView'))
+const MoreView = lazy(() => import('./components/MoreView'))
 import BottomNav from './components/BottomNav'
 import XPToastProvider from './components/XPToast'
+import { AppProvider } from './components/AppContext'
 import DailyReward from './components/DailyReward'
 import Onboarding from './components/Onboarding'
 import LessonScreen from './components/LessonScreen'
+import { SplashScreen } from './components/LivingOtter'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getExercisesForNode, getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t } from './data'
+import { getExercisesForNode, getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded } from './data'
+
+// Lazy loading fallback
+const LazyFallback = () => <div className="h-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" /></div>
 
 export default function App() {
     const [activeTab, setActiveTab] = useState('journey')
@@ -19,6 +24,11 @@ export default function App() {
     const [lessonNodeId, setLessonNodeId] = useState(null)
     const [milestoneChapter, setMilestoneChapter] = useState(null)
     const [, forceUpdate] = useState(0)
+
+    // Check for seasonal leaderboard reset on mount
+    useEffect(() => { resetSeasonIfNeeded() }, [])
+    const [showSplash, setShowSplash] = useState(true)
+    const handleSplashDone = useCallback(() => setShowSplash(false), [])
 
     // Load saved progress on mount + check daily reward
     useEffect(() => {
@@ -36,19 +46,18 @@ export default function App() {
     }, [])
 
     useEffect(() => {
-        // Global lesson opener — called from JourneyPath with nodeId
+        // Global lesson opener — for backward compat with data.js calls
         window.__openLesson = (nodeId) => setLessonNodeId(nodeId || 1)
-        // Global language change re-render trigger
         window.__refreshApp = () => forceUpdate(n => n + 1)
         return () => { window.__openLesson = null; window.__refreshApp = null }
     }, [])
 
     const views = {
         journey: <JourneyView />,
-        quests: <QuestsView />,
-        league: <LeagueView />,
-        profile: <ProfileView />,
-        more: <MoreView />,
+        quests: <Suspense fallback={<LazyFallback />}><QuestsView /></Suspense>,
+        league: <Suspense fallback={<LazyFallback />}><LeagueView /></Suspense>,
+        profile: <Suspense fallback={<LazyFallback />}><ProfileView /></Suspense>,
+        more: <Suspense fallback={<LazyFallback />}><MoreView /></Suspense>,
     }
 
     const handleOnboardingDone = () => {
@@ -59,6 +68,17 @@ export default function App() {
 
     // Get exercises for the active node + language
     const exercises = lessonNodeId ? getExercisesForNode(lessonNodeId, getActiveLanguage()) : []
+
+    // Energy gate — consume energy when lesson screen opens
+    useEffect(() => {
+        if (lessonNodeId && exercises.length > 0) {
+            if (!useEnergy()) {
+                // Not enough energy — close lesson
+                setLessonNodeId(null)
+                forceUpdate(n => n + 1)
+            }
+        }
+    }, [lessonNodeId])
 
     const handleLessonClose = (result) => {
         if (result?.completed && lessonNodeId) {
@@ -78,12 +98,18 @@ export default function App() {
             }
             // Save progress to localStorage
             saveProgress()
+            // Track quest events for real progress
+            trackQuestEvent('complete_lesson')
+            trackQuestEvent('complete_exercise', result.stars || 1)
+            if (result.perfect) trackQuestEvent('perfect_score')
         }
         setLessonNodeId(null)
         forceUpdate(n => n + 1)
     }
 
     return (
+        <>
+        <AppProvider>
         <XPToastProvider>
             <div className="flex justify-center h-full" style={{ background: '#080E1A' }}>
                 <div className="w-full max-w-[430px] h-full flex flex-col relative"
@@ -99,8 +125,9 @@ export default function App() {
                 {showOnboarding && <Onboarding onFinish={handleOnboardingDone} />}
             </AnimatePresence>
 
+            {/* Daily Reward — ONLY on journey tab to fix z-index overlap */}
             <AnimatePresence>
-                {showDaily && <DailyReward onClose={() => setShowDaily(false)} />}
+                {showDaily && activeTab === 'journey' && <DailyReward onClose={() => setShowDaily(false)} />}
             </AnimatePresence>
 
             {/* Lesson Screen */}
@@ -113,6 +140,13 @@ export default function App() {
                 {milestoneChapter && <MilestoneModal chapter={milestoneChapter} onClose={() => setMilestoneChapter(null)} />}
             </AnimatePresence>
         </XPToastProvider>
+        </AppProvider>
+
+        {/* Splash Screen — Code Rain + Otter */}
+        <AnimatePresence>
+            {showSplash && <SplashScreen onFinish={handleSplashDone} duration={2500} />}
+        </AnimatePresence>
+        </>
     )
 }
 
@@ -135,12 +169,12 @@ function MilestoneModal({ chapter, onClose }) {
                     transition={{ duration: 1.5, repeat: Infinity }} className="text-7xl">🎉</motion.div>
                 <motion.h1 initial={{ scale: 0 }} animate={{ scale: 1 }}
                     transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                    className="text-3xl font-black text-white">Chapter Complete!</motion.h1>
+                    className="text-3xl font-black text-white">{t('Chapter Complete!')}</motion.h1>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                     className="px-6 py-3 rounded-2xl border-b-[4px]"
                     style={{ backgroundColor: ch?.accent || '#14B8A6', borderBottomColor: (ch?.accent || '#14B8A6') + '80' }}>
-                    <p className="text-xs font-extrabold text-white/60 tracking-wider">CHAPTER {chapter}</p>
-                    <p className="text-lg font-black text-white">{ch?.name || 'Chapter'}</p>
+                    <p className="text-xs font-extrabold text-white/60 tracking-wider">{t('CHAPTER')} {chapter}</p>
+                    <p className="text-lg font-black text-white">{t(ch?.name) || t('Chapter')}</p>
                 </motion.div>
                 {/* Stars */}
                 <div className="flex gap-3">
@@ -154,7 +188,7 @@ function MilestoneModal({ chapter, onClose }) {
                     ))}
                 </div>
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-                    className="text-sm font-bold text-slate-400">🦦 Otter seninle gurur duyuyor!</motion.p>
+                    className="text-sm font-bold text-slate-400">🦦 {t('Otter is proud of you!')}</motion.p>
             </div>
         </motion.div>
     )

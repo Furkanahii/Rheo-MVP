@@ -1,50 +1,79 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { t } from '../data'
+import LivingOtter, { CodeRain } from './LivingOtter'
 
-/* ═══════════════════════════════════════════
-   ONBOARDING — 3-page welcome slider
-   ═══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════
+   INTERACTIVE ONBOARDING — "First Blood" Bug Hunt
+   ══════════════════════════════════════════════ */
 
-const SLIDES = [
-    {
-        emoji: '🦦',
-        title: 'Welcome to Rheo!',
-        subtitle: 'Your coding journey starts here',
-        desc: 'Learn Python through interactive lessons, trace code like a pro, and level up your skills.',
-        color: '#14B8A6',
-        accent: 'teal',
-    },
-    {
-        emoji: '⚔️',
-        title: 'Challenge Yourself',
-        subtitle: 'Duels, Quests & Rewards',
-        desc: 'Battle other coders in 1v1 duels, complete daily quests, and earn gems to customize your otter.',
-        color: '#EF4444',
-        accent: 'red',
-    },
-    {
-        emoji: '🚀',
-        title: 'Ready to Code?',
-        subtitle: "Let's build something amazing",
-        desc: 'Track your streak, unlock achievements, and climb the leaderboard. Your adventure begins now!',
-        color: '#F59E0B',
-        accent: 'amber',
-    },
+// The buggy code — line 2 (index 1) has the bug (missing closing paren)
+const BUG_CODE = [
+    { text: 'def greet(name):', hasBug: false },
+    { text: '    print("Hello " + name', hasBug: true, fixed: '    print("Hello " + name)' },
+    { text: '    return True', hasBug: false },
 ]
 
-export default function Onboarding({ onFinish }) {
-    const [page, setPage] = useState(0)
-    const slide = SLIDES[page]
-    const isLast = page === SLIDES.length - 1
+const NEON_PARTICLES = ['⚡', '💥', '✦', '🔥', '💎', '⭐']
 
-    const next = () => {
-        if (isLast) {
-            onFinish()
-        } else {
-            setPage(p => p + 1)
+export default function Onboarding({ onFinish }) {
+    const [phase, setPhase] = useState('intro') // intro → hunt → explosion → welcome → done
+    const [foundBug, setFoundBug] = useState(false)
+    const [selectedLine, setSelectedLine] = useState(null)
+    const [wrongShake, setWrongShake] = useState(null)
+    const [particles, setParticles] = useState([])
+    const [otterMood, setOtterMood] = useState('idle')
+
+    // Auto-advance from intro
+    useEffect(() => {
+        if (phase === 'intro') {
+            const timer = setTimeout(() => setPhase('hunt'), 2000)
+            return () => clearTimeout(timer)
         }
-    }
+    }, [phase])
+
+    const handleLineClick = useCallback((index) => {
+        if (foundBug || phase !== 'hunt') return
+
+        const line = BUG_CODE[index]
+        setSelectedLine(index)
+
+        if (line.hasBug) {
+            // CORRECT — Bug found!
+            setFoundBug(true)
+            setOtterMood('celebrate')
+            try { navigator.vibrate?.(100) } catch (e) { }
+
+            // Generate explosion particles
+            const newParticles = Array.from({ length: 20 }, (_, i) => ({
+                id: i,
+                emoji: NEON_PARTICLES[Math.floor(Math.random() * NEON_PARTICLES.length)],
+                x: (Math.random() - 0.5) * 300,
+                y: (Math.random() - 0.5) * 300,
+                delay: Math.random() * 0.3,
+                scale: 0.5 + Math.random() * 1.5,
+            }))
+            setParticles(newParticles)
+
+            setTimeout(() => setPhase('explosion'), 400)
+            setTimeout(() => setPhase('welcome'), 1800)
+        } else {
+            // WRONG — shake it
+            setWrongShake(index)
+            setOtterMood('thinking')
+            try { navigator.vibrate?.(30) } catch (e) { }
+            setTimeout(() => {
+                setWrongShake(null)
+                setSelectedLine(null)
+                setOtterMood('idle')
+            }, 600)
+        }
+    }, [foundBug, phase])
+
+    const handleFinish = useCallback(() => {
+        setPhase('done')
+        onFinish()
+    }, [onFinish])
 
     return (
         <motion.div
@@ -52,74 +81,206 @@ export default function Onboarding({ onFinish }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[250] flex items-center justify-center"
-            style={{ background: '#0F172A' }}>
+            style={{ background: '#080E1A' }}>
+
+            {/* Code Rain Background */}
+            <CodeRain color="#06b6d4" speed={0.6} density={20} opacity={0.08} />
+
+            {/* Explosion Particles */}
+            <AnimatePresence>
+                {particles.map(p => (
+                    <motion.div key={p.id}
+                        initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
+                        animate={{ opacity: 0, scale: p.scale, x: p.x, y: p.y }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.2, delay: p.delay, ease: 'easeOut' }}
+                        className="fixed z-[260] pointer-events-none"
+                        style={{ left: '50%', top: '50%', fontSize: 20 + Math.random() * 16 }}>
+                        {p.emoji}
+                    </motion.div>
+                ))}
+            </AnimatePresence>
 
             <div className="w-full max-w-[430px] h-full flex flex-col relative overflow-hidden">
-                {/* Background glow */}
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full opacity-10 blur-3xl"
-                    style={{ backgroundColor: slide.color }} />
 
-                {/* Slide content */}
-                <div className="flex-1 flex flex-col items-center justify-center px-8">
-                    <AnimatePresence mode="wait">
-                        <motion.div key={page}
-                            initial={{ opacity: 0, x: 60 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -60 }}
-                            transition={{ duration: 0.3 }}
-                            className="flex flex-col items-center text-center">
-
-                            {/* Mascot/Icon */}
+                {/* ═══ PHASE: INTRO ═══ */}
+                <AnimatePresence mode="wait">
+                    {phase === 'intro' && (
+                        <motion.div key="intro"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="flex-1 flex flex-col items-center justify-center px-8 relative z-10">
+                            <LivingOtter mood="idle" size={100} showSparkles />
                             <motion.div
-                                animate={{ y: [0, -8, 0] }}
-                                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                                className="w-28 h-28 rounded-full flex items-center justify-center mb-8 border-b-[6px]"
-                                style={{
-                                    backgroundColor: `${slide.color}20`,
-                                    borderColor: `${slide.color}40`,
-                                }}>
-                                <span className="text-5xl">{slide.emoji}</span>
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="mt-6 text-center">
+                                <h1 className="text-2xl font-black text-white mb-2">🔍 {t('Bug Detected!')}</h1>
+                                <p className="text-sm font-bold text-slate-400">{t('Bu kodda bir hata var. Onu bulabilir misin?')}</p>
                             </motion.div>
 
-                            <h1 className="text-3xl font-black text-white mb-2">{t(slide.title)}</h1>
-                            <p className="text-sm font-extrabold mb-4" style={{ color: slide.color }}>{t(slide.subtitle)}</p>
-                            <p className="text-sm font-bold text-slate-400 leading-relaxed max-w-[280px]">{t(slide.desc)}</p>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: [0, 1, 0] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                                className="mt-8 text-xs font-bold text-cyan-500">
+                                ● ● ●
+                            </motion.div>
                         </motion.div>
-                    </AnimatePresence>
-                </div>
-
-                {/* Bottom: dots + button */}
-                <div className="px-8 pb-12 flex flex-col items-center gap-6">
-                    {/* Page dots */}
-                    <div className="flex gap-2">
-                        {SLIDES.map((_, i) => (
-                            <motion.div key={i}
-                                animate={{ width: i === page ? 24 : 8 }}
-                                className="h-2 rounded-full"
-                                style={{ backgroundColor: i === page ? slide.color : '#334155' }} />
-                        ))}
-                    </div>
-
-                    {/* Action button */}
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={next}
-                        className="w-full py-4 rounded-2xl font-black text-base text-white border-b-[5px] active:border-b-[1px] active:translate-y-[4px] transition-all duration-75 cursor-pointer"
-                        style={{
-                            backgroundColor: slide.color,
-                            borderBottomColor: `color-mix(in srgb, ${slide.color} 60%, black)`,
-                        }}>
-                        {isLast ? t("🚀 LET'S GO!") : t('CONTINUE')}
-                    </motion.button>
-
-                    {/* Skip */}
-                    {!isLast && (
-                        <button onClick={onFinish}
-                            className="text-xs font-bold text-slate-600 cursor-pointer">
-                            {t('Skip')}
-                        </button>
                     )}
-                </div>
+
+                    {/* ═══ PHASE: HUNT ═══ */}
+                    {phase === 'hunt' && (
+                        <motion.div key="hunt"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
+
+                            {/* Otter Helper */}
+                            <motion.div className="mb-4" animate={{ y: [0, -5, 0] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
+                                <LivingOtter mood={otterMood} size={70} />
+                            </motion.div>
+
+                            <p className="text-xs font-black text-cyan-400 tracking-wider mb-4">
+                                🎯 {t('HATALI SATIRI BUL VE TIKLA')}
+                            </p>
+
+                            {/* Code Block */}
+                            <div className="w-full max-w-[340px] rounded-2xl bg-slate-900/90 border border-slate-700/40 overflow-hidden backdrop-blur-sm"
+                                style={{ boxShadow: '0 0 30px rgba(6,182,212,0.1)' }}>
+                                {/* Title bar */}
+                                <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 border-b border-slate-700/30">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+                                    <span className="text-[9px] font-bold text-slate-500 ml-2">main.py</span>
+                                </div>
+
+                                {/* Code Lines */}
+                                <div className="px-3 py-3 space-y-0">
+                                    {BUG_CODE.map((line, i) => (
+                                        <motion.div key={i}
+                                            onClick={() => handleLineClick(i)}
+                                            animate={wrongShake === i ? { x: [0, -8, 8, -6, 6, -3, 3, 0] } : {}}
+                                            transition={wrongShake === i ? { duration: 0.5 } : {}}
+                                            className={`px-3 py-2 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-2 group
+                                                ${foundBug && line.hasBug
+                                                    ? 'bg-emerald-500/15 border border-emerald-500/30'
+                                                    : selectedLine === i && !line.hasBug
+                                                        ? 'bg-red-500/10 border border-red-500/20'
+                                                        : 'hover:bg-slate-800/50 border border-transparent'
+                                                }`}>
+                                            {/* Line number */}
+                                            <span className="text-[10px] font-mono font-bold text-slate-600 w-4 text-right select-none">{i + 1}</span>
+                                            {/* Code text */}
+                                            <code className={`text-xs font-mono font-bold flex-1 ${foundBug && line.hasBug ? 'text-emerald-400' : 'text-slate-300'
+                                                }`}>
+                                                {foundBug && line.hasBug ? line.fixed : line.text}
+                                            </code>
+                                            {/* Bug indicator */}
+                                            {foundBug && line.hasBug && (
+                                                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                                                    className="text-emerald-400 text-xs">✅</motion.span>
+                                            )}
+                                        </motion.div>
+                                    ))}
+                                </div>
+
+                                {/* Error hint */}
+                                {!foundBug && (
+                                    <div className="px-4 py-2 border-t border-slate-700/20">
+                                        <p className="text-[9px] font-bold text-red-400/70 font-mono">
+                                            SyntaxError: unexpected EOF while parsing
+                                        </p>
+                                    </div>
+                                )}
+                                {foundBug && (
+                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                                        className="px-4 py-2 border-t border-emerald-700/20 bg-emerald-500/5">
+                                        <p className="text-[9px] font-bold text-emerald-400 font-mono">
+                                            ✓ Fixed! Missing closing parenthesis added.
+                                        </p>
+                                    </motion.div>
+                                )}
+                            </div>
+
+                            {/* Skip button */}
+                            {!foundBug && (
+                                <button onClick={handleFinish}
+                                    className="mt-6 text-[10px] font-bold text-slate-600 cursor-pointer hover:text-slate-400 transition">
+                                    {t('Skip')} →
+                                </button>
+                            )}
+                        </motion.div>
+                    )}
+
+                    {/* ═══ PHASE: EXPLOSION + WELCOME ═══ */}
+                    {(phase === 'explosion' || phase === 'welcome') && (
+                        <motion.div key="welcome"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex-1 flex flex-col items-center justify-center px-8 relative z-10">
+
+                            {/* Neon burst background */}
+                            <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: [0, 2, 1.6], opacity: [0, 0.3, 0] }}
+                                transition={{ duration: 1.5 }}
+                                className="absolute w-[300px] h-[300px] rounded-full"
+                                style={{ background: 'radial-gradient(circle, #06b6d4 0%, transparent 70%)' }} />
+
+                            <motion.div
+                                initial={{ scale: 0, rotate: -30 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}>
+                                <LivingOtter mood="celebrate" size={120} showSparkles />
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                                className="text-center mt-4">
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+                                    className="inline-block px-3 py-1 rounded-lg bg-red-500/15 border border-red-500/30 mb-3">
+                                    <span className="text-[10px] font-black text-red-400 tracking-wider">🩸 FIRST BLOOD</span>
+                                </motion.div>
+                                <h1 className="text-2xl font-black mb-2" style={{
+                                    background: 'linear-gradient(135deg, #06b6d4, #14b8a6, #22c55e)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                }}>
+                                    {t('Welcome to Rheo, Hacker!')}
+                                </h1>
+                                <p className="text-sm font-bold text-slate-400 mt-1">
+                                    {t('You started your journey by finding your first bug!')}
+                                </p>
+                                <p className="text-xs font-bold text-teal-500 mt-2">+50 XP 🎉</p>
+                            </motion.div>
+
+                            {phase === 'welcome' && (
+                                <motion.button
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.8 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleFinish}
+                                    className="mt-8 w-full max-w-[280px] py-4 rounded-2xl font-black text-base text-white
+                                        border-b-[6px] border-teal-700 active:translate-y-[6px] active:border-b-0
+                                        transition-all duration-75 cursor-pointer"
+                                    style={{ background: 'linear-gradient(135deg, #06b6d4, #14b8a6)' }}>
+                                    🚀 {t("LET'S BEGIN!")}
+                                </motion.button>
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </motion.div>
     )

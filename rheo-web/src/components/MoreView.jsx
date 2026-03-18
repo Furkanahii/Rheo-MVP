@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { profile, stats, setLocale, getLocale, setActiveLanguage, getActiveLanguage, t, languages, saveProgress } from '../data'
 
@@ -16,6 +16,15 @@ export default function MoreView() {
 
     const handleFeedback = () => {
         if (!feedbackText.trim()) return
+        // Send via mailto + save to localStorage as backup
+        const subject = encodeURIComponent('Rheo App Feedback')
+        const body = encodeURIComponent(feedbackText)
+        window.open(`mailto:feedback@rheoapp.com?subject=${subject}&body=${body}`, '_blank')
+        try { 
+            const prev = JSON.parse(localStorage.getItem('rheo_feedback') || '[]')
+            prev.push({ text: feedbackText, date: new Date().toISOString() })
+            localStorage.setItem('rheo_feedback', JSON.stringify(prev))
+        } catch(e) {}
         setFeedbackSent(true)
         setFeedbackText('')
         setTimeout(() => { setFeedbackSent(false); setFeedbackOpen(false) }, 1500)
@@ -77,10 +86,10 @@ export default function MoreView() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
                     <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase mb-3">{t('Settings')}</h3>
                     <div className="space-y-2">
-                        <SettingRow icon="🔔" label={t('Notifications')} type="toggle" defaultOn={true} />
-                        <SettingRow icon="🌙" label={t('Dark Mode')} type="toggle" defaultOn={true} />
-                        <SettingRow icon="📳" label={t('Haptic Feedback')} type="toggle" defaultOn={true} />
-                        <SettingRow icon="🔊" label={t('Sound Effects')} type="toggle" defaultOn={false} />
+                        <SettingRow icon="🔔" label={t('Notifications')} type="toggle" defaultOn={true} persistKey="notifications" />
+                        <SettingRow icon="🌙" label={t('Dark Mode')} type="toggle" defaultOn={true} persistKey="dark_mode" />
+                        <SettingRow icon="📳" label={t('Haptic Feedback')} type="toggle" defaultOn={true} persistKey="haptic" />
+                        <SettingRow icon="🔊" label={t('Sound Effects')} type="toggle" defaultOn={false} persistKey="sound" />
                         <SettingRow icon="🌍" label={t('Language')} type="value" value={localeNames[currentLocale] || 'English'}
                             onTap={() => setLangModal(true)} />
                         <SettingRow icon="🐍" label={t('Learning Path')} type="value" value={langNames[currentLang] || 'Python'}
@@ -104,7 +113,7 @@ export default function MoreView() {
                             onTap={() => window.open('https://play.google.com/store/apps/details?id=com.rheo.rheo_app', '_blank')} />
                     </div>
                     <div className="text-center py-4">
-                        <p className="text-[10px] font-bold text-slate-600">Rheo v2.1 • Made with 🦦 by Furkan & Arda</p>
+                        <p className="text-[10px] font-bold text-slate-600">Rheo v2.1</p>
                     </div>
                 </motion.div>
 
@@ -225,42 +234,62 @@ function WeeklyChart() {
     const values = days.map((_, i) => savedWeekly[i] || 0)
     const max = Math.max(...values, 1)
 
+    const allEmpty = values.every(v => v === 0)
+
     return (
-        <div className="flex items-end justify-between gap-2 h-24">
-            {days.map((day, i) => {
-                const height = (values[i] / max) * 100
-                const isToday = i === todayIdx
-                return (
-                    <div key={day} className="flex-1 flex flex-col items-center gap-1.5">
-                        <motion.div
-                            initial={{ height: 0 }} animate={{ height: `${Math.max(height, 4)}%` }}
-                            transition={{ delay: 0.2 + i * 0.05, duration: 0.5 }}
-                            className={`w-full rounded-lg ${isToday ? 'bg-teal-500' : values[i] > 0 ? 'bg-slate-600' : 'bg-slate-800'}`}
-                            style={{ minHeight: 4 }}>
-                            {isToday && (
-                                <div className="w-full h-[3px] rounded-t-lg bg-white/20 mt-[1px]" />
-                            )}
-                        </motion.div>
-                        <span className={`text-[8px] font-extrabold ${isToday ? 'text-teal-400' : 'text-slate-600'}`}>{day}</span>
-                    </div>
-                )
-            })}
+        <div className="relative">
+            <div className="flex items-end justify-between gap-2 h-24">
+                {days.map((day, i) => {
+                    const height = (values[i] / max) * 100
+                    const isToday = i === todayIdx
+                    return (
+                        <div key={day} className="flex-1 flex flex-col items-center gap-1.5">
+                            <motion.div
+                                initial={{ height: 0 }} animate={{ height: `${Math.max(height, 4)}%` }}
+                                transition={{ delay: 0.2 + i * 0.05, duration: 0.5 }}
+                                className={`w-full rounded-lg ${isToday ? 'bg-teal-500' : values[i] > 0 ? 'bg-slate-600' : 'bg-slate-800'}`}
+                                style={{ minHeight: 4 }}>
+                                {isToday && (
+                                    <div className="w-full h-[3px] rounded-t-lg bg-white/20 mt-[1px]" />
+                                )}
+                            </motion.div>
+                            <span className={`text-[8px] font-extrabold ${isToday ? 'text-teal-400' : 'text-slate-600'}`}>{day}</span>
+                        </div>
+                    )
+                })}
+            </div>
+            {allEmpty && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <p className="text-[10px] font-bold text-slate-400 text-center px-4">{t('No activity yet — complete your first lesson!')}</p>
+                </div>
+            )}
         </div>
     )
 }
 
-function SettingRow({ icon, label, type, value, defaultOn, onTap }) {
-    const [on, setOn] = useState(defaultOn ?? false)
+function SettingRow({ icon, label, type, value, defaultOn, onTap, persistKey }) {
+    // Persist toggle state to localStorage with key
+    const storageKey = persistKey ? `rheo_setting_${persistKey}` : null
+    const [on, setOn] = useState(() => {
+        if (storageKey) {
+            try { const saved = localStorage.getItem(storageKey); if (saved !== null) return saved === 'true' } catch(e) {}
+        }
+        return defaultOn ?? false
+    })
 
-    const handleClick = () => {
+    const handleClick = useCallback(() => {
         if (type === 'toggle') {
-            setOn(!on)
+            setOn(prev => {
+                const next = !prev
+                if (storageKey) try { localStorage.setItem(storageKey, String(next)) } catch(e) {}
+                return next
+            })
             try { navigator.vibrate?.(15) } catch (e) { }
         } else if (onTap) {
             try { navigator.vibrate?.(15) } catch (e) { }
             onTap()
         }
-    }
+    }, [type, onTap, storageKey])
 
     return (
         <div className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-slate-800 border border-slate-700/30 border-b-[3px] border-b-slate-950 ${onTap ? 'cursor-pointer active:scale-[0.98] transition-transform' : ''}`}

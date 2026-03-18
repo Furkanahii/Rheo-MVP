@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage } from '../data'
+import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage, t } from '../data'
+import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════════════════
    JourneyPath v9 — Mega Feature Pack
@@ -53,6 +54,27 @@ export default function JourneyPath({ nodes }) {
     const totalH = nodes.length * SPACING + TIP_OFFSET + 120
     return (
         <div className="relative w-full px-2 pt-0 pb-24 z-10" style={{ minHeight: totalH }}>
+            {/* ── JOURNEY DEPTH BACKGROUND ── */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                {/* Nebula gradient blobs */}
+                <div className="absolute w-[300px] h-[300px] rounded-full opacity-[0.04]" style={{top:'10%',left:'-10%',background:'radial-gradient(circle,#06b6d4,transparent 70%)',filter:'blur(60px)'}}/>
+                <div className="absolute w-[250px] h-[250px] rounded-full opacity-[0.03]" style={{top:'40%',right:'-5%',background:'radial-gradient(circle,#a855f7,transparent 70%)',filter:'blur(50px)'}}/>
+                <div className="absolute w-[200px] h-[200px] rounded-full opacity-[0.04]" style={{bottom:'20%',left:'5%',background:'radial-gradient(circle,#14b8a6,transparent 70%)',filter:'blur(40px)'}}/>
+                {/* Floating particles */}
+                {[...Array(18)].map((_,i)=><div key={i} className="absolute rounded-full animate-pulse" style={{
+                    width: 1.5 + (i%3), height: 1.5 + (i%3),
+                    background: ['#14b8a6','#06b6d4','#a855f7','#fbbf24'][i%4],
+                    opacity: 0.15 + (i%5)*0.05,
+                    left: `${(i*17+5)%95}%`, top: `${(i*13+7)%90}%`,
+                    animationDuration: `${2+i%4}s`, animationDelay: `${i*0.3}s`,
+                    filter: 'blur(0.5px)',
+                }}/>)}
+                {/* Subtle dot grid */}
+                <svg className="absolute inset-0 w-full h-full" style={{opacity:0.02}}>
+                    <defs><pattern id="journeyDots" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="0.8" fill="#94a3b8"/></pattern></defs>
+                    <rect width="100%" height="100%" fill="url(#journeyDots)"/>
+                </svg>
+            </div>
             {/* Global backdrop to close any open popup */}
             {openNodeId != null && <div className="fixed inset-0 z-20" onClick={() => setOpenNodeId(null)} />}
             {/* path content below — close outer div is at bottom */}
@@ -224,7 +246,7 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
             )}
 
             <span className={`mt-0.5 text-[10px] font-extrabold tracking-wide ${isLocked ? 'text-slate-600' : (isActive || isAvailable) ? 'text-teal-300' : isDaily ? 'text-amber-400' : 'text-slate-400'
-                }`}>{node.title}</span>
+                }`}>{t(node.title)}</span>
         </div>
     )
 }
@@ -408,7 +430,7 @@ function ChestModal({ node, onClose }) {
         // Apply reward
         if (pick.type === 'gems') stats.gems = (stats.gems || 0) + pick.amount
         else if (pick.type === 'energy') stats.energy = (stats.energy || 0) + pick.amount
-        else if (pick.type === 'xp') window.__showXP?.(pick.amount)
+        else if (pick.type === 'xp') showXP(pick.amount)
         try { navigator.vibrate?.([50, 50, 100]) } catch (e) { }
     }
 
@@ -465,7 +487,7 @@ function LessonModal({ node, onClose, onStart }) {
                 {/* Accent header */}
                 <div className="h-2 w-full" style={{ backgroundColor: chapter.accent }} />
                 <div className="p-4 text-center">
-                    <h3 className="text-sm font-black text-white mb-1">{node.title}</h3>
+                    <h3 className="text-sm font-black text-white mb-1">{t(node.title)}</h3>
                     <p className="text-[9px] font-bold text-slate-500 mb-3">{chapter.name} • {qCount} questions</p>
 
                     {/* Difficulty */}
@@ -548,7 +570,7 @@ function VideoPreviewModal({ node, onClose }) {
                 </div>
 
                 <div className="p-4 text-center">
-                    <h3 className="text-sm font-black text-white mb-1">{node.title}</h3>
+                    <h3 className="text-sm font-black text-white mb-1">{t(node.title)}</h3>
                     <p className="text-[10px] font-bold text-purple-400 mb-1">by {vid.creator || 'Rheo Team'}</p>
                     <p className="text-[9px] font-bold text-slate-500 mb-3">{chapter.name} • {vid.duration}</p>
 
@@ -566,7 +588,10 @@ function VideoPreviewModal({ node, onClose }) {
 /* ═══════════════ PLAYGROUND MODAL ═══════════════ */
 function PlaygroundModal({ node, onClose }) {
     const pg = node.playground || {}
-    const [code, setCode] = useState(pg.starterCode || '')
+    const lang = getActiveLanguage()
+    const starterRaw = pg.starterCode
+    const starter = typeof starterRaw === 'object' ? (starterRaw[lang] || starterRaw.python || '') : (starterRaw || '')
+    const [code, setCode] = useState(starter)
     const [output, setOutput] = useState(null)
     const [ran, setRan] = useState(false)
 
@@ -587,7 +612,7 @@ function PlaygroundModal({ node, onClose }) {
 
                 <div className="p-3">
                     <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-xs font-black text-white">{node.title}</h3>
+                        <h3 className="text-xs font-black text-white">{t(node.title)}</h3>
                         <button onClick={onClose} className="text-slate-500 hover:text-white text-xs cursor-pointer font-bold">✕</button>
                     </div>
 

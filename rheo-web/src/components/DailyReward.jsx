@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { stats } from '../data'
+import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════
    DAILY REWARD — Real 7-day calendar with localStorage persistence
@@ -75,7 +76,7 @@ export default function DailyReward({ onClose }) {
         } else if (reward.type === 'energy') {
             stats.energy = (stats.energy || 0) + reward.amount
         } else if (reward.type === 'xp') {
-            window.__showXP?.(reward.amount)
+            showXP(reward.amount)
         } else if (reward.type === 'mystery') {
             // Random mystery reward
             const options = [
@@ -86,7 +87,7 @@ export default function DailyReward({ onClose }) {
             const pick = options[Math.floor(Math.random() * options.length)]
             if (pick.type === 'gems') stats.gems = (stats.gems || 0) + pick.amount
             else if (pick.type === 'energy') stats.energy = (stats.energy || 0) + pick.amount
-            else if (pick.type === 'xp') window.__showXP?.(pick.amount)
+            else if (pick.type === 'xp') showXP(pick.amount)
             rewardMsg = pick.label
             setMysteryReward(pick.label)
         }

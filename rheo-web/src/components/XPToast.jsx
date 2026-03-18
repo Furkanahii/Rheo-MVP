@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { t } from '../data'
 
 /* ═══════════════════════════════════════════
    XP TOAST + ACHIEVEMENT — floating notifications
@@ -115,7 +116,7 @@ function AchievementToast({ icon, title, desc, onDone }) {
                     <span className="text-xl">{icon}</span>
                 </motion.div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-extrabold text-amber-400/70 tracking-widest uppercase">Achievement Unlocked</p>
+                    <p className="text-[9px] font-extrabold text-amber-400/70 tracking-widest uppercase">{t('Achievement Unlocked')}</p>
                     <p className="text-sm font-black text-white truncate">{title}</p>
                     <p className="text-[10px] font-bold text-slate-500 truncate">{desc}</p>
                 </div>
@@ -162,8 +163,8 @@ function LevelUpCelebration({ level, onDone }) {
                     </div>
                 </motion.div>
                 <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }}>
-                    <h2 className="text-2xl font-black text-white text-center">LEVEL UP!</h2>
-                    <p className="text-sm font-bold text-amber-300 text-center mt-1">You reached Level {level}</p>
+                    <h2 className="text-2xl font-black text-white text-center">{t('LEVEL UP!')}</h2>
+                    <p className="text-sm font-bold text-amber-300 text-center mt-1">{t('You reached Level')} {level}</p>
                 </motion.div>
                 <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }}
                     className="flex gap-3">
@@ -175,7 +176,7 @@ function LevelUpCelebration({ level, onDone }) {
                     </div>
                 </motion.div>
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
-                    className="text-[10px] font-bold text-slate-500 mt-2">Tap anywhere to continue</motion.p>
+                    className="text-[10px] font-bold text-slate-500 mt-2">{t('Tap anywhere to continue')}</motion.p>
             </motion.div>
         </motion.div>
     )

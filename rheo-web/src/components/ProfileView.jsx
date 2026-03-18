@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import HologramCard from './HologramCard'
 import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, DAILY_XP_GOAL, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress } from '../data'
+import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════
    PROFILE VIEW — polished, 3D, Costume Shop
@@ -20,6 +22,7 @@ export default function ProfileView() {
         }
         stats.gems -= 50
         stats.streakShield = true
+        saveProgress()
         setFreezeMsg('activated')
         try { navigator.vibrate?.(40) } catch (e) { }
         setTimeout(() => setFreezeMsg(null), 2000)
@@ -198,27 +201,20 @@ export default function ProfileView() {
                     <ShareCard equipped={equipped} />
                 </motion.div>
 
-                {/* Achievements — mascot-themed with real unlock */}
+                {/* Achievements — Hologram Cards with 3D tilt */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
                     <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-3">{t('ACHIEVEMENTS')}</h3>
                     <div className="grid grid-cols-3 gap-3">
                         {achievements.map((a, i) => {
                             const unlocked = isAchievementUnlocked(a.id)
                             return (
-                                <motion.div key={a.id}
-                                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.3 + i * 0.05 }}
-                                    className={`rounded-2xl p-3 flex flex-col items-center text-center border-b-[4px] relative overflow-hidden ${unlocked
-                                        ? 'bg-slate-800 border-slate-950 border border-amber-600/30'
-                                        : 'bg-slate-900/60 border-slate-950 opacity-40'
-                                        }`}>
-                                    {unlocked && <div className="absolute top-0 right-0 w-4 h-4 bg-amber-500 rounded-bl-lg flex items-center justify-center">
-                                        <span className="text-[6px]">✓</span>
-                                    </div>}
-                                    <div className={`text-2xl mb-1 ${unlocked ? '' : 'grayscale'}`}>{a.icon}</div>
-                                    <span className="text-[8px] font-extrabold text-slate-400 leading-tight">{a.title}</span>
-                                    <span className="text-[7px] font-bold text-slate-600 leading-tight mt-0.5">{a.desc}</span>
-                                </motion.div>
+                                <HologramCard key={a.id} unlocked={unlocked} color={unlocked ? '#f59e0b' : '#475569'}>
+                                    <div className="p-3 flex flex-col items-center text-center">
+                                        <div className={`text-2xl mb-1 ${unlocked ? '' : 'grayscale'}`}>{a.icon}</div>
+                                        <span className="text-[8px] font-extrabold text-slate-400 leading-tight">{a.title}</span>
+                                        <span className="text-[7px] font-bold text-slate-600 leading-tight mt-0.5">{a.desc}</span>
+                                    </div>
+                                </HologramCard>
                             )
                         })}
                     </div>
@@ -591,7 +587,7 @@ function ShareCard({ equipped }) {
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
         // Grant 10 XP for sharing
-        window.__showXP?.(10)
+        showXP(10)
     }
 
     return (

@@ -2,12 +2,15 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     duelStats, duelHistory, getDuelQuestions, getRandomOpponent, saveDuelResult,
-    getLeagueTier, leagueTiers, getDuelLeaderboard, getActiveLanguage, t, getLocale,
+    getLeagueTier, leagueTiers, getDuelLeaderboard, getActiveLanguage, setActiveLanguage,
+    getLangElo, languages, t, getLocale,
     getArenaTitle, getMascotEvolution, getOwnedEmotes, allEmotes, buyEmote,
     getSeasonData, getBattlePass, getDailyChallenge,
     gameModes, getAIResponseTime, getAICorrectChance, stats,
     powerUps, achievementDefs, getUnlockedAchievements, checkAndUnlockAchievements,
 } from '../data'
+import HologramCard from './HologramCard'
+import { showXP } from './XPToast'
 import {
     ShieldIcon, SwordIcon, BoltIcon, TrophyIcon, FireIcon, MedalIcon,
     OtterMascot, VSBadge, DiceIcon, CalendarIcon, ChartIcon, StarIcon,
@@ -64,15 +67,27 @@ export default function LeagueView() {
     const [phase, setPhase] = useState('dashboard')
     const [md, setMd] = useState(null)
     const [, fu] = useState(0)
-    const start = (mode='classic') => { S.pop(); const mc=gameModes[mode]; const opp=getRandomOpponent(); const qs=mode==='daily'?getDailyChallenge().questions:getDuelQuestions(mc.rounds); setMd({opponent:opp,questions:qs,mode,modeConfig:mc}); setPhase('searching') }
+    const [pendingMode, setPendingMode] = useState('classic')
+    const startLangSelect = (mode='classic') => { S.pop(); setPendingMode(mode); setPhase('langSelect') }
+    const start = (mode='classic', forceLang=null) => {
+        const lang = forceLang || getActiveLanguage()
+        if (forceLang) setActiveLanguage(forceLang)
+        const mc = gameModes[mode]
+        const opp = getRandomOpponent()
+        opp._duelLang = lang
+        const qs = mode === 'daily' ? getDailyChallenge().questions : getDuelQuestions(mc.rounds, mode, lang)
+        setMd({ opponent: opp, questions: qs, mode, modeConfig: mc, lang })
+        setPhase('searching')
+    }
     const back = () => { setPhase('dashboard'); setMd(null); fu(v=>v+1) }
 
+    if (phase==='langSelect') return <LangSelect mode={pendingMode} onSelect={(lang) => start(pendingMode, lang)} onBack={back}/>
     if (phase==='searching') return <Searching opp={md.opponent} mode={md.mode} onFound={()=>setPhase('vs')}/>
     if (phase==='vs') return <VsIntro you={getMascotEvolution()} opp={md.opponent} mode={md.mode} onReady={()=>setPhase('playing')}/>
     if (phase==='playing') return <Duel {...md} onFinish={r=>{setMd(p=>({...p,result:r}));setPhase('result')}}/>
     if (phase==='result') return <Result data={md} onAnalytics={()=>setPhase('analytics')} onBack={back}/>
     if (phase==='analytics') return <Analytics data={md} onBack={back}/>
-    return <Dashboard onStart={start}/>
+    return <Dashboard onStart={startLangSelect}/>
 }
 
 /* ════════════════ DASHBOARD ════════════════ */
@@ -152,7 +167,7 @@ function Dashboard({ onStart }) {
                         {icon:<CalendarIcon size={16} day={new Date().getDate()}/>,label:daily.completed?t('Done'):t('Daily'),mode:'daily',color:daily.completed?'#475569':'#14b8a6',disabled:daily.completed},
                         {icon:<FireIcon size={16}/>,label:t('Survival'),mode:'survival',color:'#ef4444'},
                         {icon:<SwordIcon size={16} color="white"/>,label:t('Sudden Death'),mode:'sudden',color:'#6366f1'},
-                    ].map((m,i)=><div key={i} className="flex-shrink-0" style={{scrollSnapAlign:'start',width:'calc(33.33% - 6px)'}}>
+                    ].map((m,i)=><div key={i} className="flex-shrink-0" style={{scrollSnapAlign:'start',width:'calc(20% - 5px)',minWidth:60}}>
                         <GlassBtn icon={m.icon} label={m.label} onClick={()=>onStart(m.mode)} color={m.color} disabled={m.disabled}/>
                     </div>)}
                 </div>
@@ -170,7 +185,7 @@ function Dashboard({ onStart }) {
 
             {/* ── SEASON + BP ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.12}} className="grid grid-cols-2 gap-2">
-                <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><CalendarIcon size={10} day="S"/>{t('SEASON')}</p><p className="text-xs font-black text-white mt-0.5">{t('Season 1: Zero Day')}</p><p className="text-[8px] font-bold text-slate-600">{season.daysLeft} {getLocale()==='tr'?'gün':'days'} • {season.gamesPlayed} {getLocale()==='tr'?'maç':'games'}</p></div>
+                <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><CalendarIcon size={10} day="S"/>{t('SEASON')}</p><p className="text-xs font-black text-white mt-0.5">{t('Season 1: Zero Day')}</p><p className="text-[8px] font-bold text-slate-600">{season.daysLeft} {t('days')} • {season.gamesPlayed} {t('games')}</p></div>
                 <div className={`${gc} backdrop-blur-md`} style={G}><p className="text-[8px] font-extrabold text-slate-500 flex items-center gap-1"><StarIcon size={10}/>{t('BATTLE PASS')}</p><p className="text-xs font-black text-amber-400 mt-0.5">Tier {bp.currentTier}/{bp.tiers.length}</p><div className="h-1.5 rounded-full mt-1" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)'}}><div className="h-full rounded-full" style={{width:`${Math.min(((bp.xp-bp.prevXp)/Math.max(bp.nextTier.xpNeeded-bp.prevXp,1))*100,100)}%`,background:'linear-gradient(90deg,#f59e0b,#fbbf24)',boxShadow:'0 0 8px rgba(251,191,36,0.3)'}}/></div></div>
             </motion.div>
 
@@ -322,21 +337,26 @@ function Dashboard({ onStart }) {
                     </div>
                 )}</div>
             </motion.div>}
-            {duelHistory.length===0&&<div className="text-center py-6"><SwordIcon size={32} color="#475569"/><p className="text-xs font-black text-slate-500 mt-2">{t('No duels yet')}</p></div>}
+            {duelHistory.length===0&&<motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="text-center py-8 flex flex-col items-center gap-3">
+                <motion.div animate={{rotate:[0,10,-10,0],y:[0,-4,0]}} transition={{duration:3,repeat:Infinity}} className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{background:'rgba(20,184,166,0.1)',border:'1px solid rgba(20,184,166,0.2)'}}><SwordIcon size={28} color="#14b8a6"/></motion.div>
+                <div><p className="text-sm font-black text-slate-300">{t('Ready for your first duel?')}</p><p className="text-[10px] font-bold text-slate-500 mt-0.5">{t('Challenge AI opponents and climb the ranks!')}</p></div>
+                <motion.button whileTap={{scale:.95}} onClick={()=>onStart('classic')} className="px-5 py-2 rounded-xl font-black text-xs text-white cursor-pointer" style={{background:'linear-gradient(135deg,#14b8a6,#06b6d4)',boxShadow:'0 4px 15px rgba(20,184,166,0.3)'}}>⚔️ {t('Start First Duel!')}</motion.button>
+            </motion.div>}
 
-            {/* ── ACHIEVEMENTS ── */}
+            {/* ── ACHIEVEMENTS (Hologram Cards) ── */}
             <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.3}} className={`${gc} backdrop-blur-md`} style={G}>
                 <h3 className="text-[9px] font-extrabold text-slate-500 tracking-widest mb-2 flex items-center gap-1"><MedalIcon rank={1} size={14}/>{t('Achievements').toUpperCase()} ({getUnlockedAchievements().length}/{achievementDefs.length})</h3>
                 <div className="grid grid-cols-5 gap-1.5">{achievementDefs.map(a=>{
                     const unlocked=getUnlockedAchievements().find(u=>u.id===a.id)
-                    return <motion.div key={a.id} whileHover={unlocked?{scale:1.1}:{}} className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 px-0.5 transition-all ${unlocked?'':'opacity-[0.55]'}`}
-                        style={unlocked?{background:`${a.color}12`,border:`1px solid ${a.color}25`,boxShadow:`0 0 10px ${a.color}15`}:{background:'rgba(148,163,184,0.06)',border:'1px solid rgba(148,163,184,0.12)'}}>
-                        <motion.div animate={unlocked?{boxShadow:[`0 0 4px ${a.color}20`,`0 0 8px ${a.color}40`,`0 0 4px ${a.color}20`]}:{}} transition={{duration:3,repeat:Infinity}}
-                            className="w-7 h-7 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}20`}:{background:'rgba(148,163,184,0.1)'}}>
-                            <ShieldIcon size={13} tier={unlocked?'gold':'bronze'}/>
-                        </motion.div>
-                        <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#94a3b8'}}>{a.name}</span>
-                    </motion.div>
+                    return <HologramCard key={a.id} unlocked={!!unlocked} color={unlocked?a.color:'#64748b'}>
+                        <div className="flex flex-col items-center gap-0.5 py-1.5 px-0.5">
+                            <motion.div animate={unlocked?{boxShadow:[`0 0 4px ${a.color}20`,`0 0 8px ${a.color}40`,`0 0 4px ${a.color}20`]}:{}} transition={{duration:3,repeat:Infinity}}
+                                className="w-7 h-7 rounded-full flex items-center justify-center" style={unlocked?{background:`${a.color}20`}:{background:'rgba(148,163,184,0.1)'}}>
+                                <ShieldIcon size={13} tier={unlocked?'gold':'bronze'}/>
+                            </motion.div>
+                            <span className="text-[5px] font-black text-center leading-tight" style={{color:unlocked?a.color:'#94a3b8'}}>{a.name}</span>
+                        </div>
+                    </HologramCard>
                 })}</div>
             </motion.div>
             <div className="pb-4"/>
@@ -347,8 +367,8 @@ function Dashboard({ onStart }) {
 /* ── Glassmorphism Button ── */
 function GlassBtn({icon,label,onClick,color,disabled}) {
     return <motion.button whileTap={disabled?{}:{scale:.95}} onClick={disabled?undefined:onClick}
-        className={`flex-1 pt-3 pb-2 rounded-xl font-black text-[10px] text-white transition-all cursor-pointer flex flex-col items-center justify-center gap-1 backdrop-blur-md relative overflow-hidden ${disabled?'opacity-35':''}`}
-        style={{background:`linear-gradient(135deg,${color}25,${color}10)`,border:`1px solid ${color}35`,boxShadow:`0 4px 15px ${color}15, 0 0 1px ${color}40`,minHeight:52}}>
+        className={`w-full pt-3 pb-2 rounded-xl font-black text-[9px] text-white transition-all cursor-pointer flex flex-col items-center justify-center gap-1 backdrop-blur-md relative overflow-hidden ${disabled?'opacity-35':''}`}
+        style={{background:`linear-gradient(135deg,${color}25,${color}10)`,border:`1px solid ${color}35`,boxShadow:`0 4px 15px ${color}15, 0 0 1px ${color}40`,height:56}}>
         <motion.div animate={{x:['-100%','200%']}} transition={{duration:4,repeat:Infinity,repeatDelay:2}} className="absolute inset-0" style={{background:`linear-gradient(90deg,transparent,${color}15,transparent)`,width:'30%'}}/>
         <span className="relative z-10 flex items-center justify-center" style={{width:20,height:20}}>{icon}</span>
         <span className="relative z-10 leading-none">{label}</span>
@@ -375,6 +395,60 @@ function EmoteShop() {
     </motion.div>
 }
 
+/* ════════════════ LANGUAGE SELECTOR ════════════════ */
+function LangSelect({ mode, onSelect, onBack }) {
+    const langCards = languages.map(l => {
+        const elo = getLangElo(l.id)
+        const tier = getLeagueTier(elo)
+        return { ...l, elo, tier }
+    })
+    return (
+        <motion.div initial={{opacity:0}} animate={{opacity:1}} className="min-h-screen p-4 flex flex-col" style={{background:'linear-gradient(135deg,#0f172a 0%,#1e293b 100%)'}}>
+            <div className="flex items-center gap-3 mb-6">
+                <motion.button whileTap={{scale:.9}} onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:text-white" style={{background:'rgba(255,255,255,0.08)'}}>←</motion.button>
+                <h2 className="text-white font-black text-lg flex-1">⚔️ {t('Choose Language')}</h2>
+            </div>
+            <p className="text-white/50 text-xs text-center mb-5">{t('Each language has its own ELO rating')}</p>
+            <div className="flex flex-col gap-4 flex-1 justify-center max-w-sm mx-auto w-full">
+                {langCards.map((l, i) => (
+                    <motion.button
+                        key={l.id}
+                        initial={{opacity:0, y:20}}
+                        animate={{opacity:1, y:0}}
+                        transition={{delay: i * 0.1}}
+                        whileHover={{scale:1.03}}
+                        whileTap={{scale:0.97}}
+                        onClick={() => { S.fight(); onSelect(l.id) }}
+                        className="rounded-2xl p-4 text-left cursor-pointer relative overflow-hidden"
+                        style={{
+                            ...G,
+                            borderColor: l.tier.color + '40',
+                            borderWidth: 2,
+                        }}
+                    >
+                        {/* Tier glow */}
+                        <div className="absolute inset-0 opacity-10" style={{background:`radial-gradient(circle at 80% 50%, ${l.tier.color}, transparent 70%)`}}/>
+                        <div className="relative flex items-center gap-4">
+                            <span className="text-4xl">{l.icon}</span>
+                            <div className="flex-1">
+                                <div className="text-white font-bold text-base">{l.name}</div>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{background: l.tier.color + '30', color: l.tier.color}}>
+                                        {l.tier.emoji} {l.tier.name}
+                                    </span>
+                                    <span className="text-white/40 text-xs">ELO {l.elo}</span>
+                                </div>
+                            </div>
+                            <div className="text-white/30 text-2xl">→</div>
+                        </div>
+                    </motion.button>
+                ))}
+            </div>
+            <p className="text-white/30 text-[10px] text-center mt-4">{t('Your rank is calculated separately for each language')}</p>
+        </motion.div>
+    )
+}
+
 /* ════════════════ SEARCHING ════════════════ */
 function Searching({ opp, mode, onFound }) {
     const [found, setFound] = useState(false)
@@ -389,7 +463,7 @@ function Searching({ opp, mode, onFound }) {
                 <motion.div className="absolute inset-0" animate={{rotate:360}} transition={{duration:2,repeat:Infinity,ease:'linear'}}><div className="absolute top-1/2 left-1/2 w-1/2 h-0.5 origin-left" style={{background:'linear-gradient(90deg,rgba(239,68,68,0.8),transparent)'}}/></motion.div>
                 <div className="absolute inset-0 flex items-center justify-center"><motion.div animate={{scale:[1,1.15,1]}} transition={{duration:1,repeat:Infinity}}><OtterMascot size={48} tier={getLeagueTier()}/></motion.div></div>
             </div>
-            <h2 className="text-lg font-black text-white">Rakip Aranıyor{dots}</h2>
+            <h2 className="text-lg font-black text-white">{t('Searching Opponent')}{dots}</h2>
             <p className="text-[10px] font-bold text-slate-500">ELO: {duelStats.elo-100} - {duelStats.elo+100}</p>
         </>:<>
             <motion.div initial={{scale:0,rotate:-180}} animate={{scale:1,rotate:0}} transition={{type:'spring',stiffness:200}}>
@@ -486,24 +560,30 @@ function Duel({ opponent, questions, mode, modeConfig, onFinish }) {
 
     useEffect(()=>{if(tl===0&&sel===null&&!showBet&&q)answer(-1)},[tl,sel,answer,showBet,q])
 
-    if(!q) return <div className="h-full flex items-center justify-center"><p className="text-white font-black">Yükleniyor...</p></div>
+    if(!q) return <div className="h-full flex items-center justify-center"><p className="text-white font-black">{t('Loading...')}</p></div>
     const lang=getActiveLanguage(), li={python:'Python',javascript:'JS',java:'Java'}[lang]||'Python'
     const qColors={mcq:'#06b6d4',debug:'#ef4444',complete:'#a855f7',trace:'#22c55e',algo:'#eab308'}
     const timePct = (tl/(modeConfig?.timer||20))*100
     const isCrit = tl <= 5
 
     if(showBet) return <div className="h-full flex flex-col items-center justify-center gap-5 px-8">
-        <DiceIcon size={48}/><h2 className="text-lg font-black text-white">XP Bahsin?</h2>
+        <DiceIcon size={48}/><h2 className="text-lg font-black text-white">{t('Your XP Bet?')}</h2>
         <p className="text-[10px] font-bold text-slate-500">{t('Wins')} = {bet*2} XP • {t('Losses')} = -{bet} XP</p>
         <div className="w-full max-w-xs"><input type="range" min="10" max="100" step="10" value={bet} onChange={e=>setBet(+e.target.value)} className="w-full accent-purple-500"/><div className="flex justify-between text-[9px] font-black"><span className="text-slate-500">10</span><span className="text-purple-400 text-lg">{bet} XP</span><span className="text-slate-500">100</span></div></div>
-        <div className="flex gap-3"><button onClick={()=>{setBet(100);S.pop()}} className="px-4 py-2 rounded-xl font-black text-xs text-amber-400 border border-amber-700/50 cursor-pointer" style={G}>ALL-IN</button><button onClick={()=>{setShowBet(false);S.pop()}} className="px-6 py-2 rounded-xl font-black text-xs text-white bg-purple-600 border-b-[3px] border-purple-800 cursor-pointer active:border-b-[1px] active:translate-y-[2px]">BAŞLA</button></div>
+        <div className="flex gap-3"><button onClick={()=>{setBet(100);S.pop()}} className="px-4 py-2 rounded-xl font-black text-xs text-amber-400 border border-amber-700/50 cursor-pointer" style={G}>ALL-IN</button><button onClick={()=>{setShowBet(false);S.pop()}} className="px-6 py-2 rounded-xl font-black text-xs text-white bg-purple-600 border-b-[3px] border-purple-800 cursor-pointer active:border-b-[1px] active:translate-y-[2px]">{t('START')}</button></div>
     </div>
 
     return <motion.div
         animate={flash==='wrong'?{x:[0,-4,4,-3,3,0]}:{}}
         transition={{duration:0.4}}
         className="h-full flex flex-col relative overflow-hidden"
-        style={{paddingTop:'max(4px,env(safe-area-inset-top,4px))'}}>
+        style={{paddingTop:'max(4px,env(safe-area-inset-top,4px))',background:'radial-gradient(ellipse at 50% 0%,rgba(6,182,212,0.06),transparent 60%)'}}>
+
+        {/* ── CYBER GRID BACKGROUND ── */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{opacity:0.04}}>
+            <defs><pattern id="cyberGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#14b8a6" strokeWidth="0.5"/></pattern></defs>
+            <rect width="100%" height="100%" fill="url(#cyberGrid)"/>
+        </svg>
 
         {/* ── FULL SCREEN FLASH OVERLAY ── */}
         <AnimatePresence>{flash&&<motion.div
@@ -513,53 +593,53 @@ function Duel({ opponent, questions, mode, modeConfig, onFinish }) {
         }</AnimatePresence>
 
         {/* ── SHARED TIMEBAR (Top) ── */}
-        <div className="px-3 mb-1">
-            <div className="h-1.5 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,0.06)'}}>
+        <div className="px-3 mb-0.5">
+            <div className="h-1 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,0.06)'}}>
                 <motion.div animate={{width:`${timePct}%`}} transition={{duration:0.8}}
                     className="h-full rounded-full relative"
                     style={{background:isCrit?'linear-gradient(90deg,#ef4444,#f97316)':'linear-gradient(90deg,#14b8a6,#06b6d4)',boxShadow:isCrit?'0 0 12px rgba(239,68,68,0.5)':'0 0 8px rgba(20,184,166,0.3)'}}>
                     {isCrit&&<motion.div animate={{opacity:[0.3,1,0.3]}} transition={{duration:0.5,repeat:Infinity}} className="absolute inset-0 rounded-full" style={{background:'rgba(239,68,68,0.4)'}}/>}
                 </motion.div>
             </div>
-            <div className="flex justify-between mt-0.5">
+            <div className="flex justify-between">
                 <span className="text-[7px] font-mono font-bold text-slate-600">{li}</span>
                 <motion.span animate={isCrit?{scale:[1,1.15,1],color:['#ef4444','#fbbf24','#ef4444']}:{}} transition={{duration:0.6,repeat:Infinity}}
-                    className="text-[10px] font-black font-mono" style={{color:isCrit?'#ef4444':'#94a3b8'}}>{tl}s</motion.span>
+                    className="text-[9px] font-black font-mono" style={{color:isCrit?'#ef4444':'#94a3b8'}}>{tl}s</motion.span>
                 <span className="text-[7px] font-mono font-bold text-slate-600">R{rd+1}/{tot}</span>
             </div>
         </div>
 
         {/* ── SPLIT-SCREEN PLAYER ZONES ── */}
-        <div className="flex items-center justify-between px-3 py-1.5 relative">
+        <div className="flex items-center justify-between px-3 py-0.5 relative">
             {/* Player zone (left - teal) */}
-            <div className="flex items-center gap-2 flex-1 rounded-xl px-2 py-1.5" style={{background:'rgba(20,184,166,0.06)',border:'1px solid rgba(20,184,166,0.12)'}}>
+            <div className="flex items-center gap-1.5 flex-1 rounded-lg px-2 py-1" style={{background:'rgba(20,184,166,0.06)',border:'1px solid rgba(20,184,166,0.12)'}}>
                 <div className="relative">
                     {flash==='correct'&&<motion.div animate={{scale:[1,1.8],opacity:[0.5,0]}} transition={{duration:0.6}} className="absolute inset-0 rounded-full" style={{background:'#14b8a6',filter:'blur(8px)'}}/>}
-                    <OtterMascot size={36} tier={getLeagueTier()}/>
+                    <OtterMascot size={28} tier={getLeagueTier()}/>
                 </div>
                 <div>
-                    <p className="text-[8px] font-black text-teal-400 font-mono">{t('Wins')==='Galibiyet'?'SEN':'YOU'}</p>
-                    <p className="text-lg font-black text-teal-300 leading-none">{sc.you}</p>
+                    <p className="text-[7px] font-black text-teal-400 font-mono">{t('Wins')==='Galibiyet'?'SEN':'YOU'}</p>
+                    <p className="text-base font-black text-teal-300 leading-none">{sc.you}</p>
                 </div>
             </div>
 
             {/* VS divider */}
-            <div className="flex flex-col items-center mx-2">
+            <div className="flex flex-col items-center mx-1.5">
                 <motion.div animate={{boxShadow:['0 0 4px #fbbf2440','0 0 12px #fbbf2480','0 0 4px #fbbf2440']}} transition={{duration:2,repeat:Infinity}}
-                    className="w-8 h-8 rounded-full flex items-center justify-center" style={{background:'rgba(251,191,36,0.1)',border:'1px solid rgba(251,191,36,0.25)'}}>
-                    <span className="text-[10px] font-black text-amber-400">VS</span>
+                    className="w-6 h-6 rounded-full flex items-center justify-center" style={{background:'rgba(251,191,36,0.1)',border:'1px solid rgba(251,191,36,0.25)'}}>
+                    <span className="text-[8px] font-black text-amber-400">VS</span>
                 </motion.div>
             </div>
 
             {/* Enemy zone (right - red) */}
-            <div className="flex items-center gap-2 flex-1 flex-row-reverse rounded-xl px-2 py-1.5" style={{background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.12)'}}>
+            <div className="flex items-center gap-1.5 flex-1 flex-row-reverse rounded-lg px-2 py-1" style={{background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.12)'}}>
                 <div className="relative">
                     {oAns&&<motion.div animate={{scale:[1,1.6],opacity:[0.6,0]}} transition={{duration:0.8,repeat:Infinity}} className="absolute inset-0 rounded-full" style={{background:'#ef4444',filter:'blur(6px)'}}/>}
-                    <OtterMascot size={36} bodyColor={opponent.otterColor}/>
+                    <OtterMascot size={28} bodyColor={opponent.otterColor}/>
                 </div>
                 <div className="text-right">
-                    <p className="text-[8px] font-black text-red-400 font-mono truncate max-w-[60px]">{opponent.name}</p>
-                    <p className="text-lg font-black text-red-300 leading-none">{sc.them}</p>
+                    <p className="text-[7px] font-black text-red-400 font-mono truncate max-w-[60px]">{opponent.name}</p>
+                    <p className="text-base font-black text-red-300 leading-none">{sc.them}</p>
                 </div>
             </div>
         </div>
@@ -593,37 +673,39 @@ function Duel({ opponent, questions, mode, modeConfig, onFinish }) {
         </AnimatePresence>
 
         {/* ── ROUND INDICATOR DOTS ── */}
-        <div className="flex justify-center gap-1 pb-1.5">{Array.from({length:tot}).map((_,i)=><motion.div key={i} animate={i===rd?{scale:[1,1.3,1]}:{}} transition={{duration:.6,repeat:Infinity}} className={`w-2 h-2 rounded-sm ${rr[i]==='you'?'bg-teal-400':rr[i]==='them'?'bg-red-400':rr[i]==='skip'?'bg-slate-600':i===rd?'bg-amber-400':'bg-slate-800'}`} style={{border:i===rd?'1px solid rgba(251,191,36,0.4)':'1px solid transparent'}}/>)}</div>
+        <div className="flex justify-center gap-1 pb-0.5">{Array.from({length:tot}).map((_,i)=><motion.div key={i} animate={i===rd?{scale:[1,1.3,1]}:{}} transition={{duration:.6,repeat:Infinity}} className={`w-1.5 h-1.5 rounded-sm ${rr[i]==='you'?'bg-teal-400':rr[i]==='them'?'bg-red-400':rr[i]==='skip'?'bg-slate-600':i===rd?'bg-amber-400':'bg-slate-800'}`} style={{border:i===rd?'1px solid rgba(251,191,36,0.4)':'1px solid transparent'}}/>)}</div>
 
         {/* ── BADGES (mode info) ── */}
-        <div className="flex justify-center gap-2 mb-1">
-            {modeConfig.speedBonus&&<span className="text-[7px] font-black text-amber-400 font-mono px-2 py-0.5 rounded-full" style={{background:'rgba(234,179,8,0.08)',border:'1px solid rgba(234,179,8,0.2)'}}><BoltIcon size={7} color="#eab308"/> BLITZ {sel===null&&tl>0?`${spd(tl)}x`:''}</span>}
-            {modeConfig.betting&&<span className="text-[7px] font-black text-purple-400 font-mono px-2 py-0.5 rounded-full" style={{background:'rgba(168,85,247,0.08)',border:'1px solid rgba(168,85,247,0.2)'}}>{bet} XP</span>}
-            {modeConfig.lives&&<span className="text-[7px] font-black text-red-400 font-mono px-2 py-0.5 rounded-full" style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)'}}>♥ {lives}</span>}
+        <div className="flex justify-center gap-1.5 mb-0.5">
+            {modeConfig.speedBonus&&<span className="text-[6px] font-black text-amber-400 font-mono px-1.5 py-0.5 rounded-full" style={{background:'rgba(234,179,8,0.08)',border:'1px solid rgba(234,179,8,0.2)'}}><BoltIcon size={6} color="#eab308"/> BLITZ {sel===null&&tl>0?`${spd(tl)}x`:''}</span>}
+            {modeConfig.betting&&<span className="text-[6px] font-black text-purple-400 font-mono px-1.5 py-0.5 rounded-full" style={{background:'rgba(168,85,247,0.08)',border:'1px solid rgba(168,85,247,0.2)'}}>{bet} XP</span>}
+            {modeConfig.lives&&<span className="text-[6px] font-black text-red-400 font-mono px-1.5 py-0.5 rounded-full" style={{background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)'}}>♥ {lives}</span>}
         </div>
 
         {/* ── QUESTION AREA ── */}
-        <div className="flex-1 px-3 flex flex-col overflow-y-auto">
+        <div className="flex-1 px-3 flex flex-col justify-start overflow-y-auto pt-1" style={{paddingBottom:12}}>
             <AnimatePresence mode="wait"><motion.div key={rd} initial={{opacity:0,x:30}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-30}} className={`${gc} mb-2`} style={{...G,borderLeft:`3px solid ${qColors[q.type||'mcq']}`}}>
                 <p className="text-[8px] font-extrabold font-mono tracking-widest mb-1" style={{color:qColors[q.type||'mcq']}}>{{mcq:'// QUESTION',debug:'// DEBUG',complete:'// COMPLETE',trace:'// TRACE',algo:'// COMPLEXITY'}[q.type||'mcq']}</p>
                 <p className={`text-sm font-black leading-relaxed ${decrypting?'text-emerald-300':'text-white'}`} style={decrypting?{fontFamily:'monospace',letterSpacing:'0.05em'}:undefined}>{decText||q.text}</p>
                 {q.code&&<pre className="mt-2 p-2 rounded-lg text-[10px] font-mono text-emerald-300 overflow-x-auto whitespace-pre-wrap" style={{background:'rgba(0,0,0,0.35)',border:'1px solid rgba(34,197,94,0.1)'}}>{q.code.replace(/\\n/g,'\n')}</pre>}
             </motion.div></AnimatePresence>
 
-            {/* ── ANSWER OPTIONS ── */}
-            <div className="space-y-1.5">{q.options.map((opt,i)=>{
+            {/* ── ANSWER OPTIONS (stretched to fill void) ── */}
+            <div className="flex-1 flex flex-col gap-1.5 justify-end pb-1">{q.options.map((opt,i)=>{
                 const ok=i===q.correct,ch=i===sel;let stl={...G}
                 if(sel!==null&&ok) stl={background:'rgba(20,184,166,0.15)',border:'1px solid rgba(20,184,166,0.35)',boxShadow:'0 0 12px rgba(20,184,166,0.15)'}
                 else if(ch&&!ok) stl={background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.35)',boxShadow:'0 0 12px rgba(239,68,68,0.15)'}
                 return <motion.button key={`${rd}-${i}`} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{delay:.04+i*.05}} onClick={()=>answer(i)} disabled={sel!==null}
-                    className={`w-full text-left px-3 py-2.5 rounded-xl font-extrabold text-[11px] text-white transition-all ${sel===null?'cursor-pointer active:scale-[0.98]':''}`} style={stl}>
-                    <span className="text-slate-500 mr-1.5 font-black font-mono text-[10px]">{String.fromCharCode(65+i)}.</span>{opt}
+                    className={`w-full text-left px-4 py-3.5 rounded-xl font-extrabold text-[12px] text-white transition-all flex items-center min-h-[48px] ${sel===null?'cursor-pointer active:scale-[0.98]':''}`} style={stl}>
+                    <span className="text-slate-500 mr-2 font-black font-mono text-[11px] shrink-0">{String.fromCharCode(65+i)}.</span><span className="flex-1">{opt}</span>
                 </motion.button>
             })}</div>
+        </div>
 
-            {/* ── EMOTE BAR ── */}
-            <div className="flex justify-center gap-1.5 pt-2 pb-1">{ownEm.slice(0,4).map(e=><motion.button key={e.id} whileTap={{scale:.85}} onClick={()=>{setSEmote(e.label);S.pop();setTimeout(()=>setSEmote(null),2500)}}
-                className="h-7 rounded-lg text-[8px] font-black px-2.5 cursor-pointer font-mono" style={{...G,color:e.color,borderColor:e.color+'30'}}>{e.label}</motion.button>)}</div>
+        {/* ── EMOTE BAR (sticky bottom) ── */}
+        <div className="shrink-0 px-3 py-2 flex justify-center gap-1.5 border-t border-white/5" style={{background:'rgba(15,23,42,0.95)',backdropFilter:'blur(12px)'}}>
+            {ownEm.slice(0,4).map(e=><motion.button key={e.id} whileTap={{scale:.85}} onClick={()=>{setSEmote(e.label);S.pop();setTimeout(()=>setSEmote(null),2500)}}
+                className="h-7 rounded-lg text-[8px] font-black px-2.5 cursor-pointer font-mono" style={{...G,color:e.color,borderColor:e.color+'30'}}>{e.label}</motion.button>)}
         </div>
     </motion.div>
 }
@@ -634,29 +716,40 @@ function FEmote({emoji,from}){return<motion.div initial={{opacity:0,y:0,x:from==
 function Result({ data, onAnalytics, onBack }) {
     const { opponent, result, mode } = data, { won, yourScore, theirScore } = result
     const [reward, setReward] = useState(null), [confetti, setConfetti] = useState(false)
-    useEffect(()=>{const r=saveDuelResult({won,yourScore,theirScore,opponent,totalTimeMs:result.totalTimeMs,mode,roundDetails:result.roundDetails||[]});setReward(r);won?S.win():S.lose();if(won){setConfetti(true);setTimeout(()=>setConfetti(false),4000)};window.__showXP?.(r.xpGain)},[])
+    useEffect(()=>{const r=saveDuelResult({won,yourScore,theirScore,opponent,totalTimeMs:result.totalTimeMs,mode,roundDetails:result.roundDetails||[]});setReward(r);won?S.win():S.lose();if(won){setConfetti(true);setTimeout(()=>setConfetti(false),4000)};showXP(r.xpGain)},[])
     if(!reward) return null
     const cel=reward.celebration
 
-    return <div className="h-full flex flex-col items-center justify-center px-8 gap-4">
+    return <div className="h-full flex flex-col items-center justify-center px-8 gap-4 relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute inset-0 pointer-events-none" style={{background:won?'radial-gradient(circle at 50% 40%,rgba(251,191,36,0.12),transparent 65%)':'radial-gradient(circle at 50% 40%,rgba(239,68,68,0.08),transparent 65%)'}}/>
         {confetti&&<Confetti/>}
         {cel&&<motion.div initial={{scale:0}} animate={{scale:[0,1.3,1]}} transition={{type:'spring'}}><span className="text-lg font-black px-4 py-1 rounded-full inline-block" style={{color:cel.color,background:cel.color+'22',border:`2px solid ${cel.color}44`,boxShadow:`0 0 20px ${cel.color}30`}}>{cel.title}</span></motion.div>}
-        <motion.div initial={{scale:0,rotate:-180}} animate={{scale:1,rotate:0}} transition={{type:'spring',stiffness:200}} style={{filter:won?'drop-shadow(0 0 20px rgba(251,191,36,0.4))':undefined}}>
-            {won?<TrophyIcon size={64}/>:<ShieldIcon size={64} tier="bronze"/>}
+        {/* Trophy with massive glow */}
+        <motion.div initial={{scale:0,rotate:-180}} animate={{scale:1,rotate:0}} transition={{type:'spring',stiffness:200}} className="relative">
+            {won&&<motion.div animate={{scale:[1,1.3,1],opacity:[0.4,0.7,0.4]}} transition={{duration:2,repeat:Infinity}} className="absolute inset-[-20px] rounded-full" style={{background:'radial-gradient(circle,rgba(251,191,36,0.35),transparent 70%)',filter:'blur(12px)'}}/>}
+            {!won&&<motion.div animate={{opacity:[0.2,0.4,0.2]}} transition={{duration:2,repeat:Infinity}} className="absolute inset-[-16px] rounded-full" style={{background:'radial-gradient(circle,rgba(239,68,68,0.25),transparent 70%)',filter:'blur(10px)'}}/>}
+            {won?<TrophyIcon size={72}/>:<ShieldIcon size={72} tier="bronze"/>}
         </motion.div>
-        <motion.h2 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:.3}} className={`text-2xl font-black ${won?'text-amber-400':'text-red-400'}`} style={{textShadow:won?'0 0 30px rgba(251,191,36,0.3)':undefined}}>{won?'ZAFER!':'BOZGUN'}</motion.h2>
-        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.5}} className="flex items-center gap-6">
-            <div className="text-center"><OtterMascot size={48} tier={getLeagueTier()}/><p className="text-xl font-black text-teal-400 mt-1">{yourScore}</p></div>
-            <span className="text-xl font-black text-slate-600">—</span>
-            <div className="text-center"><OtterMascot size={48} bodyColor={opponent.otterColor}/><p className="text-xl font-black text-red-400 mt-1">{theirScore}</p></div>
+        <motion.h2 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:.3}} className={`text-3xl font-black ${won?'text-amber-400':'text-red-400'}`} style={{textShadow:won?'0 0 40px rgba(251,191,36,0.4)':'0 0 20px rgba(239,68,68,0.3)',letterSpacing:'0.05em'}}>{won?t('VICTORY!'):t('DEFEAT')}</motion.h2>
+        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.5}} className="flex items-center gap-8">
+            <div className="text-center relative">
+                {won&&<motion.div animate={{scale:[1,1.2,1],opacity:[0.3,0.6,0.3]}} transition={{duration:1.5,repeat:Infinity}} className="absolute inset-[-8px] rounded-full" style={{background:'radial-gradient(circle,rgba(20,184,166,0.3),transparent)',filter:'blur(8px)'}}/>}
+                <OtterMascot size={56} tier={getLeagueTier()}/><p className="text-2xl font-black text-teal-400 mt-1">{yourScore}</p>
+            </div>
+            <motion.span animate={{scale:[1,1.1,1]}} transition={{duration:1,repeat:Infinity}} className="text-2xl font-black text-slate-600">—</motion.span>
+            <div className="text-center relative">
+                {!won&&<motion.div animate={{scale:[1,1.2,1],opacity:[0.3,0.6,0.3]}} transition={{duration:1.5,repeat:Infinity}} className="absolute inset-[-8px] rounded-full" style={{background:'radial-gradient(circle,rgba(239,68,68,0.3),transparent)',filter:'blur(8px)'}}/>}
+                <OtterMascot size={56} bodyColor={opponent.otterColor}/><p className="text-2xl font-black text-red-400 mt-1">{theirScore}</p>
+            </div>
         </motion.div>
         <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.7}} className="flex items-center gap-2 flex-wrap justify-center">
             <Chip label={`+${reward.xpGain} XP`} color="#fbbf24"/>{reward.gemGain>0&&<Chip label={`+${reward.gemGain} Gem`} color="#14b8a6"/>}<Chip label={`${reward.eloChange>0?'+':''}${reward.eloChange} ELO`} color={reward.eloChange>0?'#34d399':'#f87171'}/>
         </motion.div>
         <motion.p initial={{opacity:0}} animate={{opacity:1}} transition={{delay:.9}} className="text-[10px] font-bold text-slate-600">ELO: <span className="text-white font-black">{reward.newElo}</span> • {reward.tier.name} • {reward.title.name}</motion.p>
-        <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:1}} className="flex gap-3">
-            <button onClick={onAnalytics} className="px-5 py-2.5 rounded-xl font-black text-xs text-slate-300 cursor-pointer flex items-center gap-1" style={G}><ChartIcon size={12}/>Analiz</button>
-            <button onClick={onBack} className="px-5 py-2.5 rounded-xl font-black text-xs text-white bg-teal-500 border-b-[4px] border-teal-700 active:border-b-[1px] active:translate-y-[3px] transition-all cursor-pointer">ARENA'YA DÖN</button>
+        <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:1}} className="flex gap-3 w-full max-w-[320px]">
+            <button onClick={onAnalytics} className="flex-1 py-3 rounded-xl font-black text-xs text-slate-300 cursor-pointer flex items-center justify-center gap-1.5 border border-slate-700/50 active:scale-[0.97] transition-all" style={{background:'rgba(15,23,42,0.6)',backdropFilter:'blur(8px)'}}><ChartIcon size={12}/>{t('Analysis')}</button>
+            <button onClick={onBack} className="flex-1 py-3 rounded-xl font-black text-xs text-white bg-teal-500 border-b-[4px] border-teal-700 active:border-b-[1px] active:translate-y-[3px] transition-all cursor-pointer">{t('BACK TO ARENA')}</button>
         </motion.div>
     </div>
 }
@@ -667,12 +760,12 @@ function Analytics({ data, onBack }) {
     const det=data.result.roundDetails||[]
     return <div className="h-full overflow-y-auto pb-24" style={{paddingTop:'max(16px,env(safe-area-inset-top,16px))'}}>
         <div className="max-w-md mx-auto px-4 space-y-4">
-            <div className="text-center flex flex-col items-center"><ChartIcon size={20}/><h2 className="text-lg font-black text-white mt-1">Maç Analizi</h2><p className="text-[10px] font-bold text-slate-500">{det.filter(d=>d.correct).length}/{det.length} doğru • {Math.round((data.result.totalTimeMs||0)/1000)}s</p></div>
+            <div className="text-center flex flex-col items-center"><ChartIcon size={20}/><h2 className="text-lg font-black text-white mt-1">{t('Match Analysis')}</h2><p className="text-[10px] font-bold text-slate-500">{det.filter(d=>d.correct).length}/{det.length} {t('correct')} • {Math.round((data.result.totalTimeMs||0)/1000)}s</p></div>
             {det.map((d,i)=><motion.div key={i} initial={{opacity:0,x:-20}} animate={{opacity:1,x:0}} transition={{delay:i*.1}} className={gc} style={{...G,borderLeft:`3px solid ${d.correct?'#34d399':'#f87171'}`}}>
-                <div className="flex items-center gap-2 mb-1"><span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${d.correct?'bg-emerald-600 text-white':'bg-red-600 text-white'}`}>{i+1}</span><span className={`text-[10px] font-black ${d.correct?'text-emerald-400':'text-red-400'}`}>{d.correct?'Doğru':'Yanlış'}</span><span className="text-[9px] font-bold text-slate-600 ml-auto">{d.timeUsed}s</span>{d.speedBonus&&d.speedBonus>1&&<span className="text-[8px] font-black text-amber-400">{d.speedBonus}x</span>}</div>
+                <div className="flex items-center gap-2 mb-1"><span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${d.correct?'bg-emerald-600 text-white':'bg-red-600 text-white'}`}>{i+1}</span><span className={`text-[10px] font-black ${d.correct?'text-emerald-400':'text-red-400'}`}>{d.correct?t('Correct'):t('Wrong')}</span><span className="text-[9px] font-bold text-slate-600 ml-auto">{d.timeUsed}s</span>{d.speedBonus&&d.speedBonus>1&&<span className="text-[8px] font-black text-amber-400">{d.speedBonus}x</span>}</div>
                 <p className="text-[10px] font-bold text-slate-400 truncate">{d.question}</p>
             </motion.div>)}
-            <button onClick={onBack} className="w-full py-3 rounded-xl font-black text-sm text-white bg-teal-500 border-b-[4px] border-teal-700 active:border-b-[1px] active:translate-y-[3px] transition-all cursor-pointer">ARENA'YA DÖN</button>
+            <button onClick={onBack} className="w-full py-3 rounded-xl font-black text-sm text-white bg-teal-500 border-b-[4px] border-teal-700 active:border-b-[1px] active:translate-y-[3px] transition-all cursor-pointer">{t('BACK TO ARENA')}</button>
         </div>
     </div>
 }
