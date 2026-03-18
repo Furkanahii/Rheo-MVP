@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { stats, saveProgress } from '../data'
+import { stats, saveProgress, addXP, isHapticEnabled } from '../data'
 import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════
@@ -65,7 +65,7 @@ export default function DailyReward({ onClose }) {
     const handleClaim = () => {
         if (!canClaim) return
         setJustClaimed(true)
-        try { navigator.vibrate?.(40) } catch (e) { }
+        try { if (isHapticEnabled()) navigator.vibrate?.(40) } catch (e) { }
 
         const reward = REWARD_DEFS[currentDay - 1]
         let rewardMsg = reward.label
@@ -76,7 +76,7 @@ export default function DailyReward({ onClose }) {
         } else if (reward.type === 'energy') {
             stats.energy = (stats.energy || 0) + reward.amount
         } else if (reward.type === 'xp') {
-            showXP(reward.amount)
+            addXP(reward.amount)
         } else if (reward.type === 'mystery') {
             // Random mystery reward
             const options = [
@@ -87,7 +87,7 @@ export default function DailyReward({ onClose }) {
             const pick = options[Math.floor(Math.random() * options.length)]
             if (pick.type === 'gems') stats.gems = (stats.gems || 0) + pick.amount
             else if (pick.type === 'energy') stats.energy = (stats.energy || 0) + pick.amount
-            else if (pick.type === 'xp') showXP(pick.amount)
+            else if (pick.type === 'xp') addXP(pick.amount)
             rewardMsg = pick.label
             setMysteryReward(pick.label)
         }
@@ -102,6 +102,7 @@ export default function DailyReward({ onClose }) {
         setState(newState)
         saveDailyState(newState)
         saveProgress() // Persist gems/energy
+        try { localStorage.setItem('rheo_last_daily', getTodayStr()) } catch (e) { }
 
         setTimeout(onClose, 1800)
     }

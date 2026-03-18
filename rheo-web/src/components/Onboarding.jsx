@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { t } from '../data'
+import { t, isHapticEnabled } from '../data'
 import LivingOtter, { CodeRain } from './LivingOtter'
 
 /* ══════════════════════════════════════════════
@@ -42,7 +42,7 @@ export default function Onboarding({ onFinish }) {
             // CORRECT — Bug found!
             setFoundBug(true)
             setOtterMood('celebrate')
-            try { navigator.vibrate?.(100) } catch (e) { }
+            try { if (isHapticEnabled()) navigator.vibrate?.(100) } catch (e) { }
 
             // Generate explosion particles
             const newParticles = Array.from({ length: 20 }, (_, i) => ({
@@ -61,7 +61,7 @@ export default function Onboarding({ onFinish }) {
             // WRONG — shake it
             setWrongShake(index)
             setOtterMood('thinking')
-            try { navigator.vibrate?.(30) } catch (e) { }
+            try { if (isHapticEnabled()) navigator.vibrate?.(30) } catch (e) { }
             setTimeout(() => {
                 setWrongShake(null)
                 setSelectedLine(null)

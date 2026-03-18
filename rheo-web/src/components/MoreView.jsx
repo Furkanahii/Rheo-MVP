@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { profile, stats, setLocale, getLocale, setActiveLanguage, getActiveLanguage, t, languages, saveProgress } from '../data'
+import { profile, stats, setLocale, getLocale, setActiveLanguage, getActiveLanguage, t, languages, saveProgress, isHapticEnabled } from '../data'
 
 /* ═══════════════════════════════════════════
    MORE VIEW — Settings, Stats, About
@@ -113,7 +113,7 @@ export default function MoreView() {
                             onTap={() => window.open('https://play.google.com/store/apps/details?id=com.rheo.rheo_app', '_blank')} />
                     </div>
                     <div className="text-center py-4">
-                        <p className="text-[10px] font-bold text-slate-600">Rheo v2.1</p>
+                        <p className="text-[10px] font-bold text-slate-600">Rheo v3.0</p>
                     </div>
                 </motion.div>
 
@@ -284,9 +284,9 @@ function SettingRow({ icon, label, type, value, defaultOn, onTap, persistKey }) 
                 if (storageKey) try { localStorage.setItem(storageKey, String(next)) } catch(e) {}
                 return next
             })
-            try { navigator.vibrate?.(15) } catch (e) { }
+            try { if (isHapticEnabled()) navigator.vibrate?.(15) } catch (e) { }
         } else if (onTap) {
-            try { navigator.vibrate?.(15) } catch (e) { }
+            try { if (isHapticEnabled()) navigator.vibrate?.(15) } catch (e) { }
             onTap()
         }
     }, [type, onTap, storageKey])

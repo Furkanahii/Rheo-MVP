@@ -23,7 +23,7 @@ const gc = 'rounded-2xl p-3'
 
 /* ═══ SOUND ═══ */
 const AC = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext)
-let _ac = null; const _snd = { v: true }
+let _ac = null; const _snd = { v: (() => { try { return localStorage.getItem('rheo_setting_sound') !== 'false' } catch { return true } })() }
 function ctx() { if (!_ac && AC) _ac = new AC(); return _ac }
 function tone(f, d, t = 'sine', v = 0.12) {
     if (!_snd.v) return; try { const c = ctx(); if (!c) return; const o = c.createOscillator(); const g = c.createGain(); o.type = t; o.frequency.setValueAtTime(f, c.currentTime); g.gain.setValueAtTime(v, c.currentTime); g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + d); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + d) } catch(e) {}

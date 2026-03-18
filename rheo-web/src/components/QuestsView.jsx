@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { quests, stats, mascotMessages, getStreakMultiplier, t, updateQuestProgress, saveProgress } from '../data'
+import { quests, stats, mascotMessages, getStreakMultiplier, t, updateQuestProgress, saveProgress, isHapticEnabled, addXP } from '../data'
 import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════
@@ -86,8 +86,8 @@ function WeeklyBuildChallenge({ data }) {
         if (!task || task.done) return
         updateQuestProgress('weeklyBuild', taskId, true)
         setTasks(prev => prev.map(t => t.id === taskId ? { ...t, done: true } : t))
-        showXP(50)
-        try { navigator.vibrate?.(20) } catch (e) { }
+        addXP(50)
+        try { if (isHapticEnabled()) navigator.vibrate?.(20) } catch (e) { }
         // Check if all done
         const newDone = tasks.filter(t => t.done).length + 1
         if (newDone === tasks.length) {
@@ -157,17 +157,17 @@ function MysteryQuest({ data }) {
     const handleReveal = () => {
         setRevealed(true)
         updateQuestProgress('mystery', null, false)
-        try { navigator.vibrate?.(30) } catch (e) { }
+        try { if (isHapticEnabled()) navigator.vibrate?.(30) } catch (e) { }
     }
 
     const handleComplete = () => {
         setCompleted(true)
         updateQuestProgress('mystery', null, true)
         stats.gems = (stats.gems || 0) + 15
-        showXP(data.hidden.xp)
+        addXP(data.hidden.xp)
         showAchievement('✨', 'Mystery Quest Complete!', `+${data.hidden.xp} XP`)
         saveProgress()
-        try { navigator.vibrate?.(40) } catch (e) { }
+        try { if (isHapticEnabled()) navigator.vibrate?.(40) } catch (e) { }
     }
 
     return (
@@ -272,12 +272,12 @@ function DailyQuests({ tasks }) {
         const task = tasks.find(t => t.id === taskId)
         if (!task) return
         // Apply rewards
-        if (task.reward === 'chest') { stats.gems = (stats.gems || 0) + 15; showXP(20) }
+        if (task.reward === 'chest') { stats.gems = (stats.gems || 0) + 15; addXP(20) }
         else if (task.reward === 'gem') { stats.gems = (stats.gems || 0) + 25 }
-        else { showXP(30) }
+        else { addXP(30) }
         saveProgress() // Persist gems
         showAchievement('🎁', t('Quest Reward!'), task.reward === 'gem' ? '+25 💎' : '+20 XP')
-        try { navigator.vibrate?.(40) } catch (e) { }
+        try { if (isHapticEnabled()) navigator.vibrate?.(40) } catch (e) { }
 
         setDailyState(prev => {
             const next = { ...prev, collected: { ...prev.collected, [taskId]: true } }

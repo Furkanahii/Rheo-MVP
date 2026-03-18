@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import HologramCard from './HologramCard'
-import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, DAILY_XP_GOAL, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP } from '../data'
+import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, DAILY_XP_GOAL, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled } from '../data'
 import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════
@@ -24,7 +24,7 @@ export default function ProfileView() {
         stats.streakShield = true
         saveProgress()
         setFreezeMsg('activated')
-        try { navigator.vibrate?.(40) } catch (e) { }
+        try { if (isHapticEnabled()) navigator.vibrate?.(40) } catch (e) { }
         setTimeout(() => setFreezeMsg(null), 2000)
     }
 
@@ -43,7 +43,7 @@ export default function ProfileView() {
             return
         }
         setCostumes([...otterCostumes]) // refresh from source
-        try { navigator.vibrate?.(40) } catch (e) { }
+        try { if (isHapticEnabled()) navigator.vibrate?.(40) } catch (e) { }
     }
 
     return (
@@ -638,7 +638,7 @@ function PowerUpShop({ onClose }) {
         const ok = buyPowerUp(id)
         if (ok) {
             setMsg('purchased')
-            try { navigator.vibrate?.(40) } catch (e) { }
+            try { if (isHapticEnabled()) navigator.vibrate?.(40) } catch (e) { }
         } else {
             setMsg('not_enough')
         }
@@ -754,7 +754,7 @@ function ThemeGallery() {
         setActiveTheme(themeId)
         saveProgress()
         forceUpdate(v => v + 1)
-        try { navigator.vibrate?.(15) } catch (e) { }
+        try { if (isHapticEnabled()) navigator.vibrate?.(15) } catch (e) { }
     }
 
     return (

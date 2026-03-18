@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage, t } from '../data'
+import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage, t, isHapticEnabled, addXP, saveProgress } from '../data'
 import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════════════════
@@ -9,7 +9,7 @@ import { showXP } from './XPToast'
    ═══════════════════════════════════════════════════════ */
 
 /* Haptic helper */
-const haptic = () => { try { navigator.vibrate?.(15) } catch (e) { } }
+const haptic = () => { try { if (isHapticEnabled()) navigator.vibrate?.(15) } catch (e) { } }
 
 /* ── SVG Icons ── */
 const ICONS = {
@@ -428,10 +428,10 @@ function ChestModal({ node, onClose }) {
         setReward(pick)
         setOpened(true)
         // Apply reward
-        if (pick.type === 'gems') stats.gems = (stats.gems || 0) + pick.amount
-        else if (pick.type === 'energy') stats.energy = (stats.energy || 0) + pick.amount
-        else if (pick.type === 'xp') showXP(pick.amount)
-        try { navigator.vibrate?.([50, 50, 100]) } catch (e) { }
+        if (pick.type === 'gems') { stats.gems = (stats.gems || 0) + pick.amount; saveProgress() }
+        else if (pick.type === 'energy') { stats.energy = (stats.energy || 0) + pick.amount; saveProgress() }
+        else if (pick.type === 'xp') addXP(pick.amount)
+        try { if (isHapticEnabled()) navigator.vibrate?.([50, 50, 100]) } catch (e) { }
     }
 
     const isLocked = node.status === 'locked'

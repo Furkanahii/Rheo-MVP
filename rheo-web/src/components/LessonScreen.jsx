@@ -33,7 +33,6 @@ export default function LessonScreen({ onClose, exercises = [] }) {
         if (hasExtraHeart) { consumePowerUp('extra_heart'); return 6 }
         return 5
     })
-    const [usedExtraHeart] = useState(() => getPowerUpCount('extra_heart') >= 0 && hearts === 6)
     const [showResult, setShowResult] = useState(false)
     const [correctCount, setCorrectCount] = useState(0)
     // ── Creative enhancements state ──

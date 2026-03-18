@@ -6,13 +6,20 @@
 let audioCtx = null
 let muted = false
 
+// Sync with settings on load
+try { muted = localStorage.getItem('rheo_setting_sound') === 'false' } catch (e) { }
+
 function getCtx() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
     if (audioCtx.state === 'suspended') audioCtx.resume()
     return audioCtx
 }
 
-export function toggleMute() { muted = !muted; return muted }
+export function toggleMute() {
+    muted = !muted
+    try { localStorage.setItem('rheo_setting_sound', muted ? 'false' : 'true') } catch (e) { }
+    return muted
+}
 export function isMuted() { return muted }
 
 function play(fn) {
