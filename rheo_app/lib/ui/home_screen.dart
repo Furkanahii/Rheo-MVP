@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:url_launcher/url_launcher.dart';
+
+
 import 'package:shimmer/shimmer.dart';
 import '../logic/storage_service.dart';
 import '../logic/sound_service.dart';
@@ -8,16 +8,14 @@ import '../logic/language_service.dart';
 import '../logic/elo_calculator.dart';
 import 'theme.dart';
 import 'animations.dart';
-import 'widgets/mascot_widget.dart';
+
 import 'quiz_screen.dart';
 import 'bug_hunt_screen.dart';
 import 'time_attack_screen.dart';
 import 'settings_screen.dart';
-import 'leaderboard_screen.dart';
 import 'topic_dialog.dart';
 import 'profile_screen.dart';
 import 'initial_rank_screen.dart';
-import 'journey_screen.dart';
 import 'journey_webview_screen.dart';
 import '../data/app_strings.dart';
 
@@ -36,8 +34,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
-  String? _fixedGreeting;
-  String? _fixedSubtitle;
 
   @override
   void initState() {
@@ -46,12 +42,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initServices() async {
-    await storageService.init();
-    await soundService.init();
-    // Fix the greeting once on init — won't change until page is re-entered
-    _fixedGreeting = MascotHelper.getGreeting();
-    _fixedSubtitle = MascotHelper.getRankComment(storageService.progress.elo);
-    setState(() => _isLoading = false);
+    try {
+      await storageService.init();
+    } catch (e) {
+      debugPrint('⚠️ storageService.init failed: $e');
+    }
+    try {
+      await soundService.init();
+    } catch (e) {
+      debugPrint('⚠️ soundService.init failed: $e');
+    }
+    if (mounted) setState(() => _isLoading = false);
 
     // Check if first-time user needs to pick initial rank
     if (!storageService.progress.hasSelectedInitialRank && mounted) {
@@ -72,12 +73,6 @@ class _HomeScreenState extends State<HomeScreen> {
     HapticService.lightTap();
     Navigator.push(context, PageTransitions.slideRight(screen))
         .then((_) => setState(() {}));
-  }
-
-  void _navigateToJourneyWeb() {
-    HapticService.lightTap();
-    // Navigate to React journey app served at /journey/
-    launchUrl(Uri.parse('/journey/'), mode: LaunchMode.platformDefault);
   }
 
   void _onLanguageChanged(ProgrammingLanguage lang) async {
@@ -199,7 +194,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final cardBg = _langCardBg(selectedLang);
     final rankColor = Color(EloCalculator.getRankColor(progress.elo));
     final rankTitle = EloCalculator.getRankTitle(progress.elo);
-    final rankEmoji = EloCalculator.getRankEmoji(progress.elo);
 
     return Scaffold(
       backgroundColor: RheoTheme.scaffoldBg(),
@@ -528,12 +522,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: S.tr('Öğrenme Yolculuğu', 'Learning Journey'),
                   subtitle: S.tr('Adım adım kod öğren', 'Learn code step by step'),
                   onTap: () {
-                    if (kIsWeb) {
-                      // On web, navigate to React journey app
-                      _navigateToJourneyWeb();
-                    } else {
-                      _navigateTo(const JourneyWebViewScreen());
-                    }
+                    _navigateTo(const JourneyWebViewScreen());
                   },
                   isSpecial: true,
                 ),
@@ -663,35 +652,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStatItem({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            color: color,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            color: color.withAlpha(120),
-            fontSize: 10,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 // === Hover/Press button with elevation animation ===
@@ -813,76 +773,7 @@ class _HoverButtonState extends State<_HoverButton> {
   }
 }
 
-// === Light themed mascot card ===
-class _LightMascotCard extends StatelessWidget {
-  final String greeting;
-  final String subtitle;
-  final Color accentColor;
-  final Color cardBg;
 
-  const _LightMascotCard({
-    required this.greeting,
-    required this.subtitle,
-    required this.accentColor,
-    required this.cardBg,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: RheoTheme.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: accentColor.withAlpha(15),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Image.asset(
-            getMascotAsset(MascotMood.greeting),
-            width: 56,
-            height: 56,
-            errorBuilder: (_, __, ___) => Icon(
-              Icons.emoji_emotions,
-              size: 56,
-              color: accentColor.withAlpha(80),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  greeting,
-                  style: TextStyle(
-                    color: RheoTheme.textColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: RheoTheme.textColor.withAlpha(140),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _LoadingShimmer extends StatelessWidget {
   const _LoadingShimmer();

@@ -268,7 +268,7 @@ const _daysLeftInMonth = _daysInMonth - _now.getDate()
 function _loadQuestState() {
     try {
         return JSON.parse(localStorage.getItem('rheo_quest_state') || '{}')
-    } catch { return {} }
+    } catch(e) { return {} }
 }
 function _saveQuestState(state) {
     try { localStorage.setItem('rheo_quest_state', JSON.stringify(state)) } catch (e) { }
@@ -622,7 +622,7 @@ export function trackWrongAnswer(nodeId, exerciseIndex, exerciseType) {
 export function getWeakExercises() {
     try {
         return JSON.parse(localStorage.getItem(WEAK_KEY) || '[]')
-    } catch { return [] }
+    } catch(e) { return [] }
 }
 export function clearWeakExercise(nodeId, exerciseIndex) {
     try {
@@ -1311,7 +1311,7 @@ export const league = {
 /* ── Otter Costumes ── */
 /* ── Otter Costumes (with persistence) ── */
 function _loadCostumeState() {
-    try { return JSON.parse(localStorage.getItem('rheo_costumes') || 'null') } catch { return null }
+    try { return JSON.parse(localStorage.getItem('rheo_costumes') || 'null') } catch(e) { return null }
 }
 function _saveCostumeState(costumes) {
     try {
@@ -1362,7 +1362,7 @@ export function equipCostume(id) {
 
 /* ── Settings helpers ── */
 export function getSettingValue(key) {
-    try { return JSON.parse(localStorage.getItem(`rheo_setting_${key}`) || 'null') } catch { return null }
+    try { return JSON.parse(localStorage.getItem(`rheo_setting_${key}`) || 'null') } catch(e) { return null }
 }
 export function isHapticEnabled() { return getSettingValue('haptic') !== false }
 export function isSoundEnabled() { return getSettingValue('sound') === true }

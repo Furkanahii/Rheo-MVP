@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 6.0.0+6
+version: 1.0.0+3
 
 environment:
   sdk: ^3.10.8
@@ -59,8 +59,6 @@ dependencies:
   shimmer: ^3.0.0
   share_plus: ^12.0.1
   flutter_native_splash: ^2.4.7
-  flutter_local_notifications: ^20.0.0
-  timezone: ^0.10.1
   firebase_core: ^4.4.0
   firebase_analytics: ^12.1.1
   firebase_crashlytics: ^5.0.7
@@ -107,7 +105,17 @@ flutter:
     - assets/rheo_logo.png
     - assets/rheo_mascot_icon.png
     - assets/journey-web/
+    - assets/journey-web/index.html
+    - assets/journey-web/mascot_greeting.png
+    - assets/journey-web/mascot_happy.png
     - assets/journey-web/assets/
+    - assets/journey-web/assets/index-BCJCpQLs.js
+    - assets/journey-web/assets/index-BXRjnnp6.css
+    - assets/journey-web/assets/HologramCard-oFVIqWVa.js
+    - assets/journey-web/assets/LeagueView-B7MCfvh9.js
+    - assets/journey-web/assets/MoreView-NHsebTHe.js
+    - assets/journey-web/assets/ProfileView-C0Xa7vJC.js
+    - assets/journey-web/assets/QuestsView-Bqqyfc-M.js
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

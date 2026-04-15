@@ -8,7 +8,7 @@ function getBadges() {
             const saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
             const progress = saved.progress || {}
             return (progress[q.id] || 0) < q.total
-        } catch { return true }
+        } catch(e) { return true }
     }).length || 0
     return {
         quests: incompleteDailyQuests > 0 ? incompleteDailyQuests : null,

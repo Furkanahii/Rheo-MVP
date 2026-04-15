@@ -226,7 +226,7 @@ function WeeklyChart() {
     const savedWeekly = (() => {
         try {
             return JSON.parse(localStorage.getItem('rheo_weekly_xp') || '{}')
-        } catch { return {} }
+        } catch(e) { return {} }
     })()
     const today = new Date().getDay()
     const todayIdx = today === 0 ? 6 : today - 1

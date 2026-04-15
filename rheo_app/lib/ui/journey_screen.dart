@@ -4,7 +4,7 @@ import '../data/journey_progress.dart';
 import '../logic/language_service.dart';
 import '../logic/storage_service.dart';
 import '../data/app_strings.dart';
-import 'theme.dart';
+
 import 'widgets/journey_node_widget.dart';
 import 'widgets/journey_path_painter.dart';
 import 'widgets/journey_bottom_nav.dart';
@@ -29,7 +29,7 @@ class _JourneyScreenState extends State<JourneyScreen> with TickerProviderStateM
   // ── Colors ──
   static const _spaceBg = Color(0xFF0A0E1A);
   static const _greenBright = Color(0xFF58CC02);
-  static const _greenMid = Color(0xFF46A302);
+
   static const _greenDark = Color(0xFF2D6A00);
   static const _gold = Color(0xFFFFC800);
   static const _blue = Color(0xFF1CB0F6);

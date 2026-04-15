@@ -1741,18 +1741,6 @@ class _BugHuntScreenState extends State<BugHuntScreen> with SingleTickerProvider
     );
   }
 
-  Color _getLineColor(int lineIndex) {
-    if (_selectedLine == null) return Colors.transparent;
-    
-    if (lineIndex == currentQuestion.bugLineIndex) {
-      return RheoColors.success.withAlpha(60);
-    }
-    if (lineIndex == _selectedLine && !_isCorrect!) {
-      return RheoColors.error.withAlpha(60);
-    }
-    return Colors.transparent;
-  }
-
   /// Difficulty badge color & label
   Widget _difficultyBadge(int difficulty) {
     final color = difficulty == 1

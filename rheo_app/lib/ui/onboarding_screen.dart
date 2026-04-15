@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'home_screen.dart';
+import 'journey_webview_screen.dart';
 import 'theme.dart';
 import 'animations.dart';
 import 'widgets/mascot_widget.dart';
@@ -238,7 +238,7 @@ class OnboardingScreen extends StatelessWidget {
     await markAsSeen();
     if (context.mounted) {
       Navigator.of(context).pushReplacement(
-        PageTransitions.fadeSlideUp(const HomeScreen()),
+        PageTransitions.fadeSlideUp(const JourneyWebViewScreen()),
       );
     }
   }

@@ -119,19 +119,19 @@ class GameController {
     final elo = storageService.progress.elo;
     
     // ELO-based difficulty ratios
-    double easyRatio, mediumRatio, hardRatio;
+    double easyRatio, hardRatio;
     if (elo < 1100) {
       // Çaylak: mostly easy
-      easyRatio = 0.6; mediumRatio = 0.3; hardRatio = 0.1;
+      easyRatio = 0.6; hardRatio = 0.1;
     } else if (elo < 1300) {
       // Acemi/Orta: balanced
-      easyRatio = 0.3; mediumRatio = 0.4; hardRatio = 0.3;
+      easyRatio = 0.3; hardRatio = 0.3;
     } else if (elo < 1500) {
       // İleri: harder
-      easyRatio = 0.2; mediumRatio = 0.3; hardRatio = 0.5;
+      easyRatio = 0.2; hardRatio = 0.5;
     } else {
       // Usta/Efsane: mostly hard
-      easyRatio = 0.1; mediumRatio = 0.3; hardRatio = 0.6;
+      easyRatio = 0.1; hardRatio = 0.6;
     }
     
     final easyCount = (count * easyRatio).ceil().clamp(1, _easyPool.length);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../data/journey_progress.dart';
+
 import '../logic/storage_service.dart';
-import '../data/app_strings.dart';
+
 
 /// Premium Quest screen with cosmic theme
 class QuestScreen extends StatelessWidget {
