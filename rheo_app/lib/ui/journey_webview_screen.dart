@@ -11,8 +11,10 @@ import 'package:webview_flutter/webview_flutter.dart';
 /// http://localhost so that all relative resource references (JS, CSS, images)
 /// work without file:// permissions issues.
 ///
-/// Asset discovery uses Flutter's official AssetManifest API which supports
-/// both legacy AssetManifest.json and modern AssetManifest.bin formats.
+/// Asset discovery uses a triple-fallback strategy:
+///   1. Flutter's official AssetManifest API (works with both .json and .bin)
+///   2. Hardcoded file list (must match pubspec.yaml declarations)
+///   3. Direct rootBundle.load probing for each known file
 class JourneyWebViewScreen extends StatefulWidget {
   const JourneyWebViewScreen({super.key});
   @override
@@ -25,6 +27,22 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
   bool _loading = true;
   String? _error;
 
+  /// The complete list of files that MUST be present in the bundle.
+  /// This list must be kept in sync with pubspec.yaml asset declarations
+  /// AND the Vite build output (file hashes change on each build).
+  static const List<String> _knownFiles = [
+    'assets/journey-web/index.html',
+    'assets/journey-web/mascot_greeting.png',
+    'assets/journey-web/mascot_happy.png',
+    'assets/journey-web/assets/index-BCJCpQLs.js',
+    'assets/journey-web/assets/index-BXRjnnp6.css',
+    'assets/journey-web/assets/HologramCard-oFVIqWVa.js',
+    'assets/journey-web/assets/LeagueView-B7MCfvh9.js',
+    'assets/journey-web/assets/MoreView-NHsebTHe.js',
+    'assets/journey-web/assets/ProfileView-C0Xa7vJC.js',
+    'assets/journey-web/assets/QuestsView-Bqqyfc-M.js',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -34,9 +52,10 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
       () => _initWebView(),
       (error, stack) {
         debugPrint('⚠️ JourneyWebView zone error: $error');
+        debugPrint('Stack: $stack');
         if (mounted) {
           setState(() {
-            _error = 'Yükleme başarısız. Lütfen tekrar deneyin.';
+            _error = 'Bağlantı hatası oluştu. Lütfen tekrar deneyin.';
             _loading = false;
           });
         }
@@ -59,6 +78,7 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
       final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       _server = server;
       final port = server.port;
+      debugPrint('🌐 Local server started on port $port');
 
       server.listen((HttpRequest request) async {
         try {
@@ -93,11 +113,14 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
               if (mounted) setState(() => _loading = false);
             },
             onWebResourceError: (error) {
+              debugPrint('🔴 WebView error: ${error.description} '
+                  '(isMainFrame: ${error.isForMainFrame})');
               // Only set error for main frame failures, not sub-resource issues
               if (error.isForMainFrame ?? true) {
                 if (mounted) {
                   setState(() {
-                    _error = error.description;
+                    _error =
+                        'Sayfa yüklenemedi. Lütfen tekrar deneyin.';
                     _loading = false;
                   });
                 }
@@ -110,10 +133,13 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
       if (mounted) {
         setState(() => _controller = controller);
       }
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('❌ _initWebView failed: $e');
+      debugPrint('Stack: $stack');
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          // Show user-friendly message, log the real error
+          _error = 'İçerik yüklenemedi. Lütfen tekrar deneyin.';
           _loading = false;
         });
       }
@@ -122,32 +148,20 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
 
   /// Copy all files under assets/journey-web/ to a temp directory.
   ///
-  /// Uses Flutter's official AssetManifest API (supports both .json and .bin)
-  /// with a hardcoded fallback list for belt-and-suspenders reliability.
+  /// Uses a triple-fallback strategy for maximum reliability:
+  ///   1. Flutter's official AssetManifest API
+  ///   2. Hardcoded file list with verification
+  ///   3. Direct rootBundle.load probing
   Future<Directory> _copyAssets() async {
-    // getTemporaryDirectory() can fail on iOS 26.x beta simulators due to
-    // an objective_c FFI issue in path_provider_foundation. Fall back to
-    // getApplicationSupportDirectory() which uses a different code path.
-    Directory dir;
-    try {
-      dir = await getTemporaryDirectory();
-    } catch (e) {
-      debugPrint('⚠️ getTemporaryDirectory failed ($e), trying fallback...');
-      try {
-        dir = await getApplicationSupportDirectory();
-      } catch (e2) {
-        // Last resort: use a fixed path in the app's sandbox
-        debugPrint('⚠️ getApplicationSupportDirectory also failed ($e2)');
-        dir = Directory('/tmp');
-      }
-    }
+    // Get a writable directory — multiple fallbacks for iOS compatibility
+    final dir = await _getWritableDirectory();
     final webDir = Directory('${dir.path}/journey-web');
     if (await webDir.exists()) await webDir.delete(recursive: true);
     await webDir.create(recursive: true);
 
     const prefix = 'assets/journey-web/';
 
-    // Discover all journey-web assets
+    // Discover all journey-web assets using triple-fallback
     List<String> journeyAssets = await _discoverAssets(prefix);
 
     debugPrint('📦 Journey assets to copy: ${journeyAssets.length}');
@@ -159,7 +173,7 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
     if (journeyAssets.length < 3) {
       throw Exception(
         'Asset discovery found only ${journeyAssets.length} assets. '
-        'Expected at least index.html + JS + CSS. Bundle may be corrupt.',
+        'Expected at least index.html + JS + CSS.',
       );
     }
 
@@ -180,34 +194,87 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
         }
       }
 
-      // Copy the file using binary load (not loadString) to avoid encoding issues
+      // Copy the file using binary load to avoid encoding issues
       try {
         final data = await rootBundle.load(assetKey);
-        await File(destPath).writeAsBytes(
-          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
-        );
+        final bytes =
+            data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+        await File(destPath).writeAsBytes(bytes);
+        debugPrint('  ✅ $relativePath (${bytes.length} bytes)');
         copied++;
       } catch (e) {
         failed++;
-        debugPrint('⚠️ Could not copy asset $assetKey: $e');
+        debugPrint('  ⚠️ FAILED to copy $assetKey: $e');
       }
     }
 
-    debugPrint('✅ Copied $copied assets, $failed failed');
+    debugPrint('📊 Copy result: $copied OK, $failed failed');
 
-    // Verify critical files exist
+    // Verify critical files exist on disk
     final indexFile = File('${webDir.path}/index.html');
     if (!await indexFile.exists()) {
       throw Exception(
-        'index.html not found after copying $copied assets. '
-        'Discovery found: ${journeyAssets.join(", ")}',
+        'CRITICAL: index.html not found after copying $copied assets!',
       );
     }
 
-    // List all files in the output directory for debugging
+    // Verify at least one JS file exists
+    final assetsDir = Directory('${webDir.path}/assets');
+    if (await assetsDir.exists()) {
+      final jsFiles = await assetsDir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.js'))
+          .length;
+      debugPrint('📄 JS files in output: $jsFiles');
+      if (jsFiles == 0) {
+        throw Exception(
+          'CRITICAL: No JS files found in output assets/ directory!',
+        );
+      }
+    } else {
+      throw Exception(
+        'CRITICAL: assets/ subdirectory not created!',
+      );
+    }
+
+    // Debug: list all files in the output directory
     await _debugListDir(webDir, '');
 
     return webDir;
+  }
+
+  /// Get a writable directory with multiple fallbacks.
+  Future<Directory> _getWritableDirectory() async {
+    // Try getTemporaryDirectory first (fastest, auto-cleaned)
+    try {
+      final dir = await getTemporaryDirectory();
+      debugPrint('📁 Using temp directory: ${dir.path}');
+      return dir;
+    } catch (e) {
+      debugPrint('⚠️ getTemporaryDirectory failed: $e');
+    }
+
+    // Fallback to application support directory
+    try {
+      final dir = await getApplicationSupportDirectory();
+      debugPrint('📁 Using app support directory: ${dir.path}');
+      return dir;
+    } catch (e) {
+      debugPrint('⚠️ getApplicationSupportDirectory failed: $e');
+    }
+
+    // Fallback to application documents directory
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      debugPrint('📁 Using documents directory: ${dir.path}');
+      return dir;
+    } catch (e) {
+      debugPrint('⚠️ getApplicationDocumentsDirectory failed: $e');
+    }
+
+    // Last resort: /tmp (always available on iOS/macOS)
+    debugPrint('📁 Using /tmp as last resort');
+    return Directory('/tmp');
   }
 
   /// Recursively list all files in a directory for debug logging.
@@ -223,17 +290,21 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
     }
   }
 
-  /// Discover assets using Flutter's official AssetManifest API.
+  /// Discover assets using triple-fallback strategy.
   ///
-  /// This works with ALL Flutter versions:
-  /// - Flutter < 3.7: reads AssetManifest.json internally
-  /// - Flutter >= 3.7: reads AssetManifest.bin internally
+  /// Strategy 1: Flutter's official AssetManifest API
+  ///   - Works with both AssetManifest.json (Flutter <3.7) and
+  ///     AssetManifest.bin (Flutter ≥3.7)
+  ///   - This is the recommended approach
   ///
-  /// Falls back to a hardcoded list if the API fails.
+  /// Strategy 2: Direct rootBundle.load probing
+  ///   - If the AssetManifest API fails entirely, try to load
+  ///     each known file directly from the bundle
+  ///   - This bypasses the manifest entirely
   Future<List<String>> _discoverAssets(String prefix) async {
     // ── Strategy 1: Official Flutter AssetManifest API ──
-    // This is the ONLY reliable way in Flutter 3.7+ (which uses AssetManifest.bin)
     try {
+      debugPrint('🔎 Strategy 1: AssetManifest API...');
       final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
       final allAssets = manifest.listAssets();
       final journeyAssets = allAssets
@@ -241,54 +312,46 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
           .toList();
 
       if (journeyAssets.isNotEmpty) {
-        debugPrint('✅ AssetManifest API: ${journeyAssets.length} journey assets');
+        debugPrint(
+            '✅ Strategy 1 SUCCESS: ${journeyAssets.length} journey assets');
         return journeyAssets;
       }
-      debugPrint('⚠️ AssetManifest API returned 0 journey assets');
+      debugPrint('⚠️ Strategy 1: API returned 0 journey assets');
     } catch (e) {
-      debugPrint('⚠️ AssetManifest API failed: $e');
+      debugPrint('⚠️ Strategy 1 FAILED: $e');
     }
 
-    // ── Strategy 2: Hardcoded fallback list ──
-    // If the official API fails for any reason, use a known-good file list.
-    // This MUST be updated whenever the Vite build produces new hash filenames.
-    debugPrint('🔄 Falling back to hardcoded asset list...');
+    // ── Strategy 2: Direct rootBundle.load probing ──
+    // Skip the manifest entirely and directly probe each known file.
+    // This is the most resilient approach — it works even if the
+    // manifest file is corrupt or unreadable.
+    debugPrint('🔎 Strategy 2: Direct bundle probing...');
 
-    final hardcodedAssets = <String>[
-      '${prefix}index.html',
-      '${prefix}mascot_greeting.png',
-      '${prefix}mascot_happy.png',
-      '${prefix}assets/index-BCJCpQLs.js',
-      '${prefix}assets/index-BXRjnnp6.css',
-      '${prefix}assets/HologramCard-oFVIqWVa.js',
-      '${prefix}assets/LeagueView-B7MCfvh9.js',
-      '${prefix}assets/MoreView-NHsebTHe.js',
-      '${prefix}assets/ProfileView-C0Xa7vJC.js',
-      '${prefix}assets/QuestsView-Bqqyfc-M.js',
-    ];
-
-    // Verify each hardcoded asset exists in the bundle
     final verified = <String>[];
-    for (final asset in hardcodedAssets) {
+    for (final assetKey in _knownFiles) {
       try {
-        await rootBundle.load(asset);
-        verified.add(asset);
+        // Try to load the asset — if it exists, load() succeeds
+        await rootBundle.load(assetKey);
+        verified.add(assetKey);
+        debugPrint('  ✅ Found: $assetKey');
       } catch (e) {
-        debugPrint('⚠️ Hardcoded asset not in bundle: $asset');
+        debugPrint('  ❌ Missing: $assetKey ($e)');
       }
     }
 
-    debugPrint('✅ Hardcoded fallback: ${verified.length}/${hardcodedAssets.length} verified');
+    debugPrint(
+        '📊 Strategy 2: ${verified.length}/${_knownFiles.length} files found');
 
-    if (verified.isEmpty) {
-      throw Exception(
-        'No journey-web assets found in bundle. '
-        'Neither AssetManifest API nor hardcoded fallback found any files. '
-        'Check pubspec.yaml asset declarations.',
-      );
+    if (verified.isNotEmpty) {
+      return verified;
     }
 
-    return verified;
+    // All strategies exhausted
+    throw Exception(
+      'FATAL: No journey-web assets found in app bundle. '
+      'All ${_knownFiles.length} known files are missing. '
+      'The app may need to be reinstalled.',
+    );
   }
 
   /// Return MIME type for common web file extensions.
@@ -343,7 +406,7 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
                       const Icon(Icons.error_outline,
                           color: Colors.red, size: 48),
                       const SizedBox(height: 16),
-                      Text('Yükleme hatası: $_error',
+                      Text(_error!,
                           style: const TextStyle(
                               color: Colors.red, fontSize: 14),
                           textAlign: TextAlign.center),

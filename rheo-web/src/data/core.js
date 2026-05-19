@@ -275,46 +275,120 @@ function _saveQuestState(state) {
 }
 const _questState = _loadQuestState()
 
+/* ── Monthly challenge pool — rotates by month ── */
+const _monthlyChallenges = [
+    { task: 'Complete 15 lessons this month', total: 15, event: 'complete_lesson' },
+    { task: 'Earn 2000 XP this month', total: 2000, event: 'earn_xp' },
+    { task: 'Win 10 duels this month', total: 10, event: 'win_duel' },
+    { task: 'Find 20 bugs this month', total: 20, event: 'find_bug' },
+    { task: 'Complete 30 exercises this month', total: 30, event: 'complete_exercise' },
+    { task: 'Score 100% five times this month', total: 5, event: 'perfect_score' },
+    { task: 'Complete 20 lessons this month', total: 20, event: 'complete_lesson' },
+    { task: 'Earn 3000 XP this month', total: 3000, event: 'earn_xp' },
+    { task: 'Win 15 duels this month', total: 15, event: 'win_duel' },
+    { task: 'Find 30 bugs this month', total: 30, event: 'find_bug' },
+    { task: 'Complete 40 exercises this month', total: 40, event: 'complete_exercise' },
+    { task: 'Score 100% eight times this month', total: 8, event: 'perfect_score' },
+]
+const _monthlyChallenge = _monthlyChallenges[_now.getMonth() % _monthlyChallenges.length]
+
+/* ── Weekly case study pool — rotates by week number ── */
+const _weeklyCaseStudies = [
+    {
+        title: 'The Calculator Trap 🪤', desc: 'Bug hunting case study — find 3 hidden bugs', icon: '🪤',
+        tasks: [
+            { id: 'wb1', step: '🔍 Read: Review spaghetti code' },
+            { id: 'wb2', step: '🐛 Hunt: Find operator precedence bug (Stack)' },
+            { id: 'wb3', step: '🐛 Hunt: Find float error (0.1+0.2)' },
+            { id: 'wb4', step: '🐛 Hunt: Find state crash bug (=→+)' },
+            { id: 'wb5', step: '✨ Rise: Review Clean Code version' },
+        ],
+    },
+    {
+        title: 'API Meltdown 🔥', desc: 'REST API under attack — fix security holes', icon: '🔥',
+        tasks: [
+            { id: 'wb1', step: '🔍 Read: Inspect endpoint handlers' },
+            { id: 'wb2', step: '🛡️ Fix: SQL injection vulnerability' },
+            { id: 'wb3', step: '🛡️ Fix: Missing auth middleware' },
+            { id: 'wb4', step: '🛡️ Fix: Rate limiter bypass' },
+            { id: 'wb5', step: '✨ Rise: Write secure version' },
+        ],
+    },
+    {
+        title: 'Memory Leak Hunt 🕳️', desc: 'Performance debugging — find the memory hogs', icon: '🕳️',
+        tasks: [
+            { id: 'wb1', step: '🔍 Read: Profile the application' },
+            { id: 'wb2', step: '🐛 Hunt: Find unclosed event listener' },
+            { id: 'wb3', step: '🐛 Hunt: Find infinite array growth' },
+            { id: 'wb4', step: '🐛 Hunt: Find circular reference' },
+            { id: 'wb5', step: '✨ Rise: Apply garbage collection patterns' },
+        ],
+    },
+    {
+        title: 'Recursion Rescue 🔄', desc: 'Stack overflow crisis — optimize recursive calls', icon: '🔄',
+        tasks: [
+            { id: 'wb1', step: '🔍 Read: Trace the call stack' },
+            { id: 'wb2', step: '⚡ Fix: Add memoization to fibonacci' },
+            { id: 'wb3', step: '⚡ Fix: Convert to tail recursion' },
+            { id: 'wb4', step: '⚡ Fix: Replace with iterative solution' },
+            { id: 'wb5', step: '✨ Rise: Compare time complexities' },
+        ],
+    },
+]
+const _currentWeekNum = Math.ceil(((_now.getTime() - new Date(_now.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)))
+const _weeklyCase = _weeklyCaseStudies[_currentWeekNum % _weeklyCaseStudies.length]
+
+/* ── Mystery quest pool — rotates daily ── */
+const _mysteryPool = [
+    { task: 'Complete a lesson without any mistakes', reward: '15 💎', xp: 150, event: 'perfect_score' },
+    { task: 'Win 2 duels in a row', reward: '20 💎', xp: 200, event: 'win_duel' },
+    { task: 'Earn 200 XP today', reward: '15 💎', xp: 100, event: 'earn_xp' },
+    { task: 'Find 3 bugs in lessons', reward: '10 💎', xp: 120, event: 'find_bug' },
+    { task: 'Complete 3 exercises', reward: '15 💎', xp: 150, event: 'complete_exercise' },
+    { task: 'Complete 2 lessons today', reward: '20 💎', xp: 180, event: 'complete_lesson' },
+    { task: 'Win a Blitz duel', reward: '25 💎', xp: 200, event: 'win_duel' },
+    { task: 'Reach 300 XP today', reward: '20 💎', xp: 150, event: 'earn_xp' },
+    { task: 'Complete a boss level', reward: '30 💎', xp: 250, event: 'complete_lesson' },
+    { task: 'Find 5 bugs total', reward: '15 💎', xp: 130, event: 'find_bug' },
+    { task: 'Complete 4 exercises', reward: '20 💎', xp: 160, event: 'complete_exercise' },
+    { task: 'Win 3 duels today', reward: '25 💎', xp: 200, event: 'win_duel' },
+    { task: 'Earn 500 XP today', reward: '30 💎', xp: 250, event: 'earn_xp' },
+    { task: 'Complete a daily quest streak', reward: '20 💎', xp: 180, event: 'complete_exercise' },
+]
+const _daySeed = _now.toDateString().split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+const _todayMystery = _mysteryPool[_daySeed % _mysteryPool.length]
+
 export const quests = {
     monthly: {
         title: `${_months[_now.getMonth()]} Sprint`,
-        task: 'Complete 15 lessons this month',
+        task: _monthlyChallenge.task,
         current: _questState.monthlyCurrent || 0,
-        total: 15,
+        total: _monthlyChallenge.total,
         daysLeft: _daysLeftInMonth,
         month: _now.getMonth(),
+        event: _monthlyChallenge.event,
     },
     weekend: {
-        task: '04:00 AM Code — Find 3 critical bugs',
-        scenario: '1 hour to the presentation. Backend crashes on load test. Find 3 bugs!',
-        bugs: [
-            { id: 'race', name: 'Race Condition', hint: 'No lock mechanism in async Vote function', line: 3 },
-            { id: 'n1', name: 'N+1 Query', hint: 'SQL call inside for loop', line: 7 },
-            { id: 'apikey', name: 'Hardcoded API Key', hint: 'Exposed password in server code', line: 11 },
-        ],
+        task: 'Complete 5 lessons & win 2 duels this weekend',
         current: _questState.weekendCurrent || 0,
-        total: 3,
+        total: 7,
         hoursLeft: Math.max(0, (7 - _now.getDay()) * 24 - _now.getHours()),
     },
     weeklyBuild: {
-        title: 'The Calculator Trap 🪤',
-        desc: 'Bug hunting case study — find 3 hidden bugs',
-        icon: '🪤',
-        tasks: [
-            { id: 'wb1', step: '🔍 Read: Review spaghetti code', done: !!(_questState.weeklyDone || {}).wb1 },
-            { id: 'wb2', step: '🐛 Hunt: Find operator precedence bug (Stack)', done: !!(_questState.weeklyDone || {}).wb2 },
-            { id: 'wb3', step: '🐛 Hunt: Find float error (0.1+0.2)', done: !!(_questState.weeklyDone || {}).wb3 },
-            { id: 'wb4', step: '🐛 Hunt: Find state crash bug (=→+)', done: !!(_questState.weeklyDone || {}).wb4 },
-            { id: 'wb5', step: '✨ Rise: Review Clean Code version', done: !!(_questState.weeklyDone || {}).wb5 },
-        ],
+        title: _weeklyCase.title,
+        desc: _weeklyCase.desc,
+        icon: _weeklyCase.icon,
+        tasks: _weeklyCase.tasks.map(t => ({
+            ...t, done: !!(_questState.weeklyDone || {})[t.id]
+        })),
         reward: { type: 'xp', amount: 500 },
         daysLeft: Math.max(0, 7 - _now.getDay()),
-        weekNum: Math.ceil(((_now.getTime() - new Date(_now.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))),
+        weekNum: _currentWeekNum,
     },
     mysteryQuest: {
         revealed: _questState.mysteryRevealed === new Date().toDateString(),
-        completed: !!_questState.mysteryCompleted,
-        hidden: { task: 'Write a function with exactly 3 parameters', reward: 'gem', xp: 150 },
+        completed: _questState.mysteryCompleted === new Date().toDateString(),
+        hidden: { task: _todayMystery.task, reward: _todayMystery.reward, xp: _todayMystery.xp, event: _todayMystery.event },
     },
     daily: [], // filled by getDailyQuests()
 }
@@ -336,7 +410,7 @@ export function updateQuestProgress(type, key, value) {
         if (task) task.done = true
     } else if (type === 'mystery') {
         state.mysteryRevealed = new Date().toDateString()
-        state.mysteryCompleted = !!value
+        if (value) state.mysteryCompleted = new Date().toDateString()
         quests.mysteryQuest.revealed = true
         quests.mysteryQuest.completed = !!value
     }
@@ -352,12 +426,11 @@ if (_questState.monthlyMonth !== undefined && _questState.monthlyMonth !== _now.
     quests.monthly.current = 0
 }
 // Auto-reset weekly if new week
-const _currentWeek = Math.ceil(((_now.getTime() - new Date(_now.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)))
-if (_questState.weeklyWeek !== undefined && _questState.weeklyWeek !== _currentWeek) {
+if (_questState.weeklyWeek !== undefined && _questState.weeklyWeek !== _currentWeekNum) {
     const state = _loadQuestState()
     state.weeklyDone = {}
     state.weekendCurrent = 0
-    state.weeklyWeek = _currentWeek
+    state.weeklyWeek = _currentWeekNum
     _saveQuestState(state)
     quests.weeklyBuild.tasks.forEach(t => t.done = false)
     quests.weekend.current = 0
@@ -379,7 +452,18 @@ export function getDailyQuests() {
     const seed = dayStr.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
     const rng = _seedRandom(seed)
     const shuffled = [..._questPool].sort(() => rng() - 0.5)
-    return shuffled.slice(0, 4).map((q, i) => ({ ...q, id: i + 1, current: 0 }))
+    
+    // Load persisted progress
+    let saved = {}
+    try {
+        const stored = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
+        if (stored.date === dayStr && stored.progress) saved = stored.progress
+    } catch (e) { }
+
+    return shuffled.slice(0, 4).map((q, i) => {
+        const id = i + 1
+        return { ...q, id, current: saved[id] || 0 }
+    })
 }
 quests.daily = getDailyQuests()
 
@@ -403,19 +487,35 @@ export function trackQuestEvent(eventName, amount = 1) {
         saved.progress = progress
         localStorage.setItem('rheo_daily_quests', JSON.stringify(saved))
 
-        // Also update monthly progress for lesson completions
-        if (eventName === 'complete_lesson') {
+        // Monthly quest — dynamic event matching
+        if (quests.monthly.event && eventName === quests.monthly.event) {
             updateQuestProgress('monthly', null, amount)
         }
-        // Weekend hackathon progress for bug exercises
-        if (eventName === 'find_bug') {
+        // Weekend quest — counts lessons and duel wins
+        if (eventName === 'complete_lesson' || eventName === 'win_duel') {
             updateQuestProgress('weekend', null, amount)
+        }
+        // Mystery quest — auto-track if revealed and matching event
+        if (quests.mysteryQuest.revealed && !quests.mysteryQuest.completed && quests.mysteryQuest.hidden.event === eventName) {
+            // Track mystery progress in localStorage
+            const mState = _loadQuestState()
+            const mProgress = (mState.mysteryProgress || 0) + amount
+            mState.mysteryProgress = mProgress
+            mState.mysteryProgressDate = today
+            _saveQuestState(mState)
         }
     } catch (e) { }
 }
 window.__trackQuest = trackQuestEvent
 
-/* ── Power-Up Shop ── */
+/* ── Mystery Quest Progress Helper ── */
+export function getMysteryProgress() {
+    const state = _loadQuestState()
+    const today = new Date().toDateString()
+    if (state.mysteryProgressDate !== today) return 0
+    return state.mysteryProgress || 0
+}
+
 export const journeyPowerUps = [
     { id: 'double_xp', icon: '⚡', name: 'Double XP', desc: '2x XP for 1 lesson', price: 100, type: 'consumable' },
     { id: 'extra_heart', icon: '❤️', name: 'Extra Heart', desc: '+1 heart in lesson', price: 30, type: 'consumable' },
@@ -449,20 +549,32 @@ export function consumePowerUp(id) {
    ══════════════════════════════════════════ */
 
 /* ── Daily XP Goal ── */
-export const DAILY_XP_GOAL = 100
+export function getUserDailyXPGoal() {
+    try {
+        const saved = localStorage.getItem('rheo_target_xp')
+        if (saved) return parseInt(saved)
+    } catch(e) {}
+    return 100 // default 100
+}
+
+export function setDailyXPGoal(amount) {
+    try { localStorage.setItem('rheo_target_xp', amount.toString()) } catch(e) {}
+}
+
 export function getDailyXPGoal() {
     const saved = loadSaved('rheo_daily_goal', {})
     const today = new Date().toDateString()
+    const targetXp = getUserDailyXPGoal()
     if (saved.date !== today) {
-        return { date: today, xpEarned: 0, completed: false, streak: saved.goalStreak || 0 }
+        return { date: today, xpEarned: 0, completed: false, streak: saved.goalStreak || 0, targetXp }
     }
-    return saved
+    return { ...saved, targetXp }
 }
 export function updateDailyXPGoal(xpAmount) {
     const goal = getDailyXPGoal()
     goal.xpEarned = (goal.xpEarned || 0) + xpAmount
     goal.date = new Date().toDateString()
-    if (!goal.completed && goal.xpEarned >= DAILY_XP_GOAL) {
+    if (!goal.completed && goal.xpEarned >= goal.targetXp) {
         goal.completed = true
         goal.goalStreak = (goal.goalStreak || 0) + 1
         // Bonus gems for hitting daily goal
@@ -946,14 +1058,24 @@ export function getMascotEvolution() {
 
 /* ═══ EMOTE SYSTEM ═══ */
 export const allEmotes = [
-    { id: 'gg', label: 'GG', text: 'Good game!', price: 0, color: '#22c55e' },
-    { id: 'nice', label: 'NICE', text: 'Nice one!', price: 0, color: '#06b6d4' },
-    { id: 'gl', label: 'GL', text: 'Good luck!', price: 0, color: '#8b5cf6' },
-    { id: 'ez', label: 'EZ', text: 'Too easy!', price: 50, color: '#eab308' },
-    { id: 'wp', label: 'WP', text: 'Well played!', price: 50, color: '#14b8a6' },
-    { id: 'rip', label: 'RIP', text: 'Rest in peace...', price: 100, color: '#ef4444' },
-    { id: 'goat', label: 'GOAT', text: 'Greatest!', price: 150, color: '#f59e0b' },
-    { id: 'oof', label: 'OOF', text: 'That hurts...', price: 200, color: '#ec4899' },
+    // Free starter emotes
+    { id: 'gg', label: 'GG', text: 'Good game!', price: 0, color: '#22c55e', tier: 'free' },
+    { id: 'nice', label: 'NICE', text: 'Nice one!', price: 0, color: '#06b6d4', tier: 'free' },
+    { id: 'gl', label: 'GL', text: 'Good luck!', price: 0, color: '#8b5cf6', tier: 'free' },
+    // Common emotes (50-100 gems)
+    { id: 'ez', label: 'EZ', text: 'Too easy!', price: 50, color: '#eab308', tier: 'common' },
+    { id: 'wp', label: 'WP', text: 'Well played!', price: 50, color: '#14b8a6', tier: 'common' },
+    { id: 'lol', label: 'LOL', text: 'Hahaha!', price: 75, color: '#fb923c', tier: 'common' },
+    { id: 'rip', label: 'RIP', text: 'Rest in peace...', price: 100, color: '#ef4444', tier: 'common' },
+    { id: 'bruh', label: 'BRUH', text: 'Seriously?!', price: 100, color: '#64748b', tier: 'common' },
+    // Rare emotes (150-250 gems)
+    { id: 'goat', label: 'GOAT', text: 'Greatest!', price: 150, color: '#f59e0b', tier: 'rare' },
+    { id: 'oof', label: 'OOF', text: 'That hurts...', price: 200, color: '#ec4899', tier: 'rare' },
+    { id: 'clutch', label: 'CLUTCH', text: 'Last second!', price: 200, color: '#a855f7', tier: 'rare' },
+    { id: 'nerd', label: 'NERD', text: 'Big brain!', price: 250, color: '#818CF8', tier: 'rare' },
+    // Legendary emotes (300+ gems)
+    { id: 'rage', label: 'RAGE', text: 'Table flip!', price: 300, color: '#dc2626', tier: 'legendary' },
+    { id: 'crown', label: 'KING', text: 'Bow down!', price: 500, color: '#FFD700', tier: 'legendary' },
 ]
 const _ownedEmotes = loadSaved(DUEL_EMOTES_KEY, ['gg', 'nice', 'gl'])
 export function getOwnedEmotes() { return allEmotes.filter(e => _ownedEmotes.includes(e.id)) }
@@ -1120,16 +1242,30 @@ export const powerUps = [
 /* ═══ ACHIEVEMENT BADGES ═══ */
 const ACHIEVEMENTS_KEY = 'rheo_achievements'
 export const achievementDefs = [
-    { id: 'first_blood', name: 'First Blood', desc: 'Win your first duel', check: () => duelStats.wins >= 1, color: '#22c55e' },
-    { id: 'streak3', name: 'Hat Trick', desc: 'Win 3 matches in a row', check: () => duelStats.bestStreak >= 3, color: '#eab308' },
-    { id: 'streak5', name: 'Unstoppable', desc: 'Win 5 matches in a row', check: () => duelStats.bestStreak >= 5, color: '#ef4444' },
-    { id: 'streak10', name: 'Legendary', desc: 'Win 10 matches in a row', check: () => duelStats.bestStreak >= 10, color: '#a855f7' },
-    { id: 'duel10', name: 'Veteran', desc: 'Complete 10 duels', check: () => duelStats.totalDuels >= 10, color: '#14b8a6' },
-    { id: 'duel50', name: 'Gladiator', desc: 'Complete 50 duels', check: () => duelStats.totalDuels >= 50, color: '#f97316' },
-    { id: 'silver', name: 'Silver League', desc: 'Reach Silver League', check: () => duelStats.elo >= 1200, color: '#C0C0C0' },
-    { id: 'gold', name: 'Gold League', desc: 'Reach Gold League', check: () => duelStats.elo >= 1500, color: '#FFD700' },
-    { id: 'perfect', name: 'Flawless', desc: 'Win a duel with 0 mistakes', check: () => loadSaved(ACHIEVEMENTS_KEY, []).includes('perfect'), color: '#ec4899' },
-    { id: 'speed_demon', name: 'Speed Demon', desc: 'Win in Blitz mode', check: () => loadSaved(ACHIEVEMENTS_KEY, []).includes('speed_demon'), color: '#f59e0b'},
+    // Duel milestones
+    { id: 'first_blood', name: 'First Blood', desc: 'Win your first duel', check: () => duelStats.wins >= 1, color: '#22c55e', icon: '⚔️' },
+    { id: 'streak3', name: 'Hat Trick', desc: 'Win 3 in a row', check: () => duelStats.bestStreak >= 3, color: '#eab308', icon: '🎩' },
+    { id: 'streak5', name: 'Unstoppable', desc: 'Win 5 in a row', check: () => duelStats.bestStreak >= 5, color: '#ef4444', icon: '🔥' },
+    { id: 'streak10', name: 'Legendary', desc: 'Win 10 in a row', check: () => duelStats.bestStreak >= 10, color: '#a855f7', icon: '👑' },
+    { id: 'duel10', name: 'Veteran', desc: 'Complete 10 duels', check: () => duelStats.totalDuels >= 10, color: '#14b8a6', icon: '🎖️' },
+    { id: 'duel50', name: 'Gladiator', desc: 'Complete 50 duels', check: () => duelStats.totalDuels >= 50, color: '#f97316', icon: '🏛️' },
+    // League milestones
+    { id: 'silver', name: 'Silver League', desc: 'Reach 1200 ELO', check: () => duelStats.elo >= 1200, color: '#C0C0C0', icon: '🥈' },
+    { id: 'gold', name: 'Gold League', desc: 'Reach 1500 ELO', check: () => duelStats.elo >= 1500, color: '#FFD700', icon: '🥇' },
+    { id: 'diamond', name: 'Diamond League', desc: 'Reach 1800 ELO', check: () => duelStats.elo >= 1800, color: '#b9f2ff', icon: '💎' },
+    // Performance
+    { id: 'perfect', name: 'Flawless', desc: 'Win with 0 mistakes', check: () => loadSaved(ACHIEVEMENTS_KEY, []).includes('perfect'), color: '#ec4899', icon: '✨' },
+    { id: 'speed_demon', name: 'Speed Demon', desc: 'Win in Blitz mode', check: () => loadSaved(ACHIEVEMENTS_KEY, []).includes('speed_demon'), color: '#f59e0b', icon: '⚡' },
+    // Journey milestones (cross-feature)
+    { id: 'ch1_done', name: 'Chapter 1', desc: 'Complete Chapter 1', check: () => journeyNodes.filter(n => n.chapter === 1 && n.status === 'completed').length >= 3, color: '#58CC02', icon: '📗' },
+    { id: 'ch3_done', name: 'Loop Master', desc: 'Complete Chapter 3', check: () => journeyNodes.filter(n => n.chapter === 3 && n.status === 'completed').length >= 3, color: '#1CB0F6', icon: '🔄' },
+    { id: 'lesson20', name: 'Scholar', desc: 'Complete 20 lessons', check: () => journeyNodes.filter(n => n.status === 'completed').length >= 20, color: '#818CF8', icon: '📚' },
+    // Economy
+    { id: 'gems500', name: 'Gem Hoarder', desc: 'Own 500+ gems', check: () => (stats.gems || 0) >= 500, color: '#06b6d4', icon: '💰' },
+    { id: 'bp5', name: 'Pass Tier 5', desc: 'Reach BP Tier 5', check: () => { const bp = loadSaved(DUEL_BP_KEY, {}); return (bp.xp || 0) >= 300 }, color: '#4ade80', icon: '🏆' },
+    // Streak
+    { id: 'streak7d', name: 'Week Warrior', desc: '7-day login streak', check: () => (stats.streak || 0) >= 7, color: '#fb923c', icon: '📅' },
+    { id: 'streak30d', name: 'Monthly Master', desc: '30-day login streak', check: () => (stats.streak || 0) >= 30, color: '#f472b6', icon: '🗓️' },
 ]
 const _unlockedAch = loadSaved(ACHIEVEMENTS_KEY, [])
 export function getUnlockedAchievements() { return achievementDefs.filter(a => _unlockedAch.includes(a.id) || a.check()) }
@@ -1288,14 +1424,31 @@ export function saveDuelResult({ won, yourScore, theirScore, opponent, totalTime
 export function getDuelLeaderboard(lang) {
     const l = lang || getActiveLanguage()
     const userElo = getLangElo(l)
+    const CACHE_KEY = `rheo_leaderboard_${l}`
+    const { seasonNum } = getSeasonInfo()
+    
+    try {
+        const saved = JSON.parse(localStorage.getItem(CACHE_KEY))
+        if (saved && saved.season === seasonNum) {
+            const board = saved.board.map(p => ({ ...p, xp: p.baseXp }))
+            board.push({ name: profile.name || 'You', avatar: getMascotEvolution().emoji, xp: userElo, isUser: true, lang: l })
+            board.sort((a, b) => b.xp - a.xp)
+            return board
+        }
+    } catch (e) {}
+
     const shuffled = [...opponentPool].sort(() => Math.random() - 0.5).slice(0, 9)
     const board = shuffled.map(p => {
         const variance = Math.floor(Math.random() * 400) - 150
-        return { ...p, xp: Math.max(800, userElo + variance), isUser: false, lang: l }
+        return { ...p, baseXp: Math.max(800, userElo + variance), isUser: false, lang: l }
     })
-    board.push({ name: profile.name || 'You', avatar: getMascotEvolution().emoji, xp: userElo, isUser: true, lang: l })
-    board.sort((a, b) => b.xp - a.xp)
-    return board
+    
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ season: seasonNum, board })) } catch(e) {}
+    
+    const finalBoard = board.map(p => ({...p, xp: p.baseXp}))
+    finalBoard.push({ name: profile.name || 'You', avatar: getMascotEvolution().emoji, xp: userElo, isUser: true, lang: l })
+    finalBoard.sort((a, b) => b.xp - a.xp)
+    return finalBoard
 }
 
 /* ── Duel Config / Legacy Compat ── */
@@ -1390,4 +1543,30 @@ export function getExercisesForNode(nodeId, lang) {
             options: ['OK!'], correct: 0
         },
     ]
+}
+
+export function buildReviewExercises(lang) {
+    const l = lang || _activeLang
+    const weaks = getWeakExercises()
+    weaks.sort((a, b) => b.attempts - a.attempts)
+    
+    const reviewQueue = []
+    const limit = 10
+    for (const w of weaks) {
+        const exercisesForNode = nodeExercises[l]?.[w.nodeId] || []
+        const ex = exercisesForNode[w.exerciseIndex]
+        if (ex) {
+            reviewQueue.push({ ...ex, _isReview: true, _nodeId: w.nodeId, _exerciseIndex: w.exerciseIndex })
+        }
+        if (reviewQueue.length >= limit) break
+    }
+    
+    if (reviewQueue.length === 0) {
+        return [{
+            type: 'trace', prompt: `You have no weaknesses to review! Great job!`,
+            code: [{ text: '// Your knowledge is solid.', highlight: true }],
+            options: ['Awesome!'], correct: 0
+        }]
+    }
+    return reviewQueue
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { stats, journeyNodes, skillRadar, chapterColors, languages, setActiveLanguage, getActiveLanguage, getTipOfTheDay } from '../data'
+import { stats, journeyNodes, skillRadar, chapterColors, languages, setActiveLanguage, getActiveLanguage, getTipOfTheDay, getWeakExercises, t } from '../data'
 import JourneyPath from './JourneyPath'
 
 export default function JourneyView() {
@@ -46,8 +46,10 @@ export default function JourneyView() {
         }
     }, [])
 
+    const weaks = getWeakExercises()
+
     return (
-        <div className="h-full flex flex-col overflow-hidden">
+        <div className="h-full flex flex-col overflow-hidden relative">
             <TopBar />
             <ChapterMap visibleChapter={visibleChapter} onChapterClick={scrollToChapter} />
             <UnitHeader visibleChapter={visibleChapter} />
@@ -55,6 +57,22 @@ export default function JourneyView() {
                 <EnvironmentBg />
                 <JourneyPath nodes={journeyNodes} />
             </div>
+
+            {/* Spaced Repetition Floating Button */}
+            {weaks.length > 0 && (
+                <div className="absolute bottom-6 right-4 z-40 pointer-events-auto">
+                    <div className="relative group">
+                        {/* Ping animation behind */}
+                        <div className="absolute inset-0 bg-rose-500 rounded-full animate-ping opacity-20"></div>
+                        <button 
+                            onClick={() => window.__openLesson?.('review_weaknesses')}
+                            className="relative flex items-center gap-2 px-4 py-3 bg-rose-600 text-white rounded-full shadow-lg shadow-rose-900/50 border-b-[4px] border-rose-800 active:translate-y-[4px] active:border-b-0 transition-all cursor-pointer font-black text-sm">
+                            <span className="text-lg">❤️‍🩹</span>
+                            <span>{t('Review')} ({weaks.length})</span>
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

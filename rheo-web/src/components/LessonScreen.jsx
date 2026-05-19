@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
-import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, consumePowerUp, getPowerUpCount, isHapticEnabled } from '../data'
+import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled } from '../data'
 import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════════════════
@@ -131,6 +131,10 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             playCorrect()
             setShowParticles('correct')
             setCorrectCount(c => c + 1)
+            
+            if (ex._isReview) {
+                clearWeakExercise(ex._nodeId, ex._exerciseIndex)
+            }
             const newStreak = streak + 1
             setStreak(newStreak)
             if (newStreak > bestStreak) setBestStreak(newStreak)

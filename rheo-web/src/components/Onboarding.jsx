@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { t, isHapticEnabled } from '../data'
+import { t, isHapticEnabled, setDailyXPGoal } from '../data'
 import LivingOtter, { CodeRain } from './LivingOtter'
 
 /* ══════════════════════════════════════════════
@@ -17,7 +17,7 @@ const BUG_CODE = [
 const NEON_PARTICLES = ['⚡', '💥', '✦', '🔥', '💎', '⭐']
 
 export default function Onboarding({ onFinish }) {
-    const [phase, setPhase] = useState('intro') // intro → hunt → explosion → welcome → done
+    const [phase, setPhase] = useState('intro') // intro -> hunt -> explosion -> welcome -> goal -> done
     const [foundBug, setFoundBug] = useState(false)
     const [selectedLine, setSelectedLine] = useState(null)
     const [wrongShake, setWrongShake] = useState(null)
@@ -70,7 +70,18 @@ export default function Onboarding({ onFinish }) {
         }
     }, [foundBug, phase])
 
-    const handleFinish = useCallback(() => {
+    const handleWelcomeNext = useCallback(() => {
+        setPhase('goal')
+    }, [])
+
+    const handleSelectGoal = useCallback((amount) => {
+        setDailyXPGoal(amount)
+        setPhase('done')
+        onFinish()
+    }, [onFinish])
+
+    const handleSkip = useCallback(() => {
+        setDailyXPGoal(100) // Default
         setPhase('done')
         onFinish()
     }, [onFinish])
@@ -209,7 +220,7 @@ export default function Onboarding({ onFinish }) {
 
                             {/* Skip button */}
                             {!foundBug && (
-                                <button onClick={handleFinish}
+                                <button onClick={handleSkip}
                                     className="mt-6 text-[10px] font-bold text-slate-600 cursor-pointer hover:text-slate-400 transition">
                                     {t('Skip')} →
                                 </button>
@@ -270,14 +281,48 @@ export default function Onboarding({ onFinish }) {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.8 }}
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={handleFinish}
+                                    onClick={handleWelcomeNext}
                                     className="mt-8 w-full max-w-[280px] py-4 rounded-2xl font-black text-base text-white
                                         border-b-[6px] border-teal-700 active:translate-y-[6px] active:border-b-0
                                         transition-all duration-75 cursor-pointer"
                                     style={{ background: 'linear-gradient(135deg, #06b6d4, #14b8a6)' }}>
-                                    🚀 {t("LET'S BEGIN!")}
+                                    🚀 {t("CONTINUE")}
                                 </motion.button>
                             )}
+                        </motion.div>
+                    )}
+
+                    {/* ═══ PHASE: GOAL ═══ */}
+                    {phase === 'goal' && (
+                        <motion.div key="goal"
+                            initial={{ opacity: 0, x: 50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
+                            
+                            <h2 className="text-2xl font-black text-white mb-2 text-center">{t('Set your daily goal')}</h2>
+                            <p className="text-sm font-bold text-slate-400 mb-8 text-center">{t('How much time do you want to spend learning every day?')}</p>
+
+                            <div className="w-full max-w-[300px] flex flex-col gap-3">
+                                {[
+                                    { id: 'casual', label: 'Casual', desc: '5 mins/day', xp: 50, emoji: '🚶' },
+                                    { id: 'regular', label: 'Regular', desc: '10 mins/day', xp: 100, emoji: '🏃' },
+                                    { id: 'hardcore', label: 'Hardcore', desc: '20 mins/day', xp: 200, emoji: '🚀' },
+                                ].map(g => (
+                                    <motion.button key={g.id}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => handleSelectGoal(g.xp)}
+                                        className="relative overflow-hidden flex items-center justify-between p-4 rounded-2xl border-2 border-slate-700 bg-slate-800/50 hover:bg-slate-800 hover:border-teal-500/50 transition-colors cursor-pointer group">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-2xl">{g.emoji}</span>
+                                            <div className="text-left">
+                                                <div className="text-base font-black text-white">{t(g.label)}</div>
+                                                <div className="text-xs font-bold text-slate-400">{t(g.desc)}</div>
+                                            </div>
+                                        </div>
+                                        <div className="text-sm font-black text-teal-400">{g.xp} XP</div>
+                                    </motion.button>
+                                ))}
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>

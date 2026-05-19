@@ -3,7 +3,6 @@ import JourneyView from './components/JourneyView'
 const QuestsView = lazy(() => import('./components/QuestsView'))
 const LeagueView = lazy(() => import('./components/LeagueView'))
 const ProfileView = lazy(() => import('./components/ProfileView'))
-const MoreView = lazy(() => import('./components/MoreView'))
 import BottomNav from './components/BottomNav'
 import XPToastProvider from './components/XPToast'
 import { AppProvider } from './components/AppContext'
@@ -12,7 +11,7 @@ import Onboarding from './components/Onboarding'
 import LessonScreen from './components/LessonScreen'
 import { SplashScreen } from './components/LivingOtter'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getExercisesForNode, getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded } from './data'
+import { getExercisesForNode, getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises } from './data'
 
 // Lazy loading fallback
 const LazyFallback = () => <div className="h-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" /></div>
@@ -57,7 +56,6 @@ export default function App() {
         quests: <Suspense fallback={<LazyFallback />}><QuestsView /></Suspense>,
         league: <Suspense fallback={<LazyFallback />}><LeagueView /></Suspense>,
         profile: <Suspense fallback={<LazyFallback />}><ProfileView /></Suspense>,
-        more: <Suspense fallback={<LazyFallback />}><MoreView /></Suspense>,
     }
 
     const handleOnboardingDone = () => {
@@ -67,7 +65,9 @@ export default function App() {
     }
 
     // Get exercises for the active node + language
-    const exercises = lessonNodeId ? getExercisesForNode(lessonNodeId, getActiveLanguage()) : []
+    const exercises = lessonNodeId === 'review_weaknesses' 
+        ? buildReviewExercises(getActiveLanguage())
+        : (lessonNodeId ? getExercisesForNode(lessonNodeId, getActiveLanguage()) : [])
 
     // Energy gate — consume energy when lesson screen opens
     useEffect(() => {
@@ -109,43 +109,43 @@ export default function App() {
 
     return (
         <>
-        <AppProvider>
-        <XPToastProvider>
-            <div className="flex justify-center h-full" style={{ background: '#080E1A' }}>
-                <div className="w-full max-w-[430px] h-full flex flex-col relative"
-                    style={{ background: '#0F172A', boxShadow: '0 0 60px rgba(0,0,0,0.5)' }}>
-                    <div className="flex-1 overflow-hidden">
-                        {views[activeTab] || <JourneyView />}
+            <AppProvider>
+                <XPToastProvider>
+                    <div className="flex justify-center h-full" style={{ background: '#080E1A' }}>
+                        <div className="w-full max-w-[430px] h-full flex flex-col relative"
+                            style={{ background: '#0F172A', boxShadow: '0 0 60px rgba(0,0,0,0.5)' }}>
+                            <div className="flex-1 overflow-hidden">
+                                {views[activeTab] || <JourneyView />}
+                            </div>
+                            <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+                        </div>
                     </div>
-                    <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-                </div>
-            </div>
 
+                    <AnimatePresence>
+                        {showOnboarding && <Onboarding onFinish={handleOnboardingDone} />}
+                    </AnimatePresence>
+
+                    {/* Daily Reward — ONLY on journey tab to fix z-index overlap */}
+                    <AnimatePresence>
+                        {showDaily && activeTab === 'journey' && <DailyReward onClose={() => setShowDaily(false)} />}
+                    </AnimatePresence>
+
+                    {/* Lesson Screen */}
+                    <AnimatePresence>
+                        {lessonNodeId && <LessonScreen onClose={handleLessonClose} exercises={exercises} />}
+                    </AnimatePresence>
+
+                    {/* Chapter Milestone Celebration */}
+                    <AnimatePresence>
+                        {milestoneChapter && <MilestoneModal chapter={milestoneChapter} onClose={() => setMilestoneChapter(null)} />}
+                    </AnimatePresence>
+                </XPToastProvider>
+            </AppProvider>
+
+            {/* Splash Screen — Code Rain + Otter */}
             <AnimatePresence>
-                {showOnboarding && <Onboarding onFinish={handleOnboardingDone} />}
+                {showSplash && <SplashScreen onFinish={handleSplashDone} duration={2500} />}
             </AnimatePresence>
-
-            {/* Daily Reward — ONLY on journey tab to fix z-index overlap */}
-            <AnimatePresence>
-                {showDaily && activeTab === 'journey' && <DailyReward onClose={() => setShowDaily(false)} />}
-            </AnimatePresence>
-
-            {/* Lesson Screen */}
-            <AnimatePresence>
-                {lessonNodeId && <LessonScreen onClose={handleLessonClose} exercises={exercises} />}
-            </AnimatePresence>
-
-            {/* Chapter Milestone Celebration */}
-            <AnimatePresence>
-                {milestoneChapter && <MilestoneModal chapter={milestoneChapter} onClose={() => setMilestoneChapter(null)} />}
-            </AnimatePresence>
-        </XPToastProvider>
-        </AppProvider>
-
-        {/* Splash Screen — Code Rain + Otter */}
-        <AnimatePresence>
-            {showSplash && <SplashScreen onFinish={handleSplashDone} duration={2500} />}
-        </AnimatePresence>
         </>
     )
 }

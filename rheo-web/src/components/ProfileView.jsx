@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import HologramCard from './HologramCard'
-import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, DAILY_XP_GOAL, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled } from '../data'
+import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled, isSoundEnabled, setLocale, getLocale, duelStats, languages, getLeagueTier, getLangElo } from '../data'
 import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════
@@ -13,6 +13,7 @@ export default function ProfileView() {
     const [showPowerUps, setShowPowerUps] = useState(false)
     const [costumes, setCostumes] = useState(otterCostumes)
     const [freezeMsg, setFreezeMsg] = useState(null)
+    const [showSettings, setShowSettings] = useState(false)
 
     const handleFreeze = () => {
         if (stats.gems < 50) {
@@ -53,7 +54,10 @@ export default function ProfileView() {
 
                 {/* Profile header with Otter */}
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="text-center pt-2">
+                    className="text-center pt-2 relative">
+                    <button onClick={() => setShowSettings(true)} className="absolute top-0 right-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer text-xl">
+                        ⚙️
+                    </button>
                     <div className="relative inline-block">
                         <OtterAvatar size={80} equipped={equipped} />
                         <div className="absolute -bottom-1 -right-1 bg-amber-500 border-b-[3px] border-amber-700 rounded-full w-8 h-8 flex items-center justify-center">
@@ -178,11 +182,14 @@ export default function ProfileView() {
                     <NextPerkPreview />
                 </motion.div>
 
-                {/* Skill Radar */}
+                {/* Skill Radar & Language Mastery */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                     className="rounded-2xl p-5 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950">
                     <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">SKILL RADAR</h3>
                     <BigRadar />
+                    <div className="my-6 h-px bg-slate-700/50" />
+                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">LANGUAGE MASTERY</h3>
+                    <LanguageMastery />
                 </motion.div>
 
                 {/* Social Share Card */}
@@ -218,6 +225,11 @@ export default function ProfileView() {
             {/* Power-Up Shop Overlay */}
             <AnimatePresence>
                 {showPowerUps && <PowerUpShop onClose={() => setShowPowerUps(false)} />}
+            </AnimatePresence>
+
+            {/* Settings Overlay */}
+            <AnimatePresence>
+                {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
             </AnimatePresence>
         </div>
     )
@@ -704,9 +716,9 @@ function PowerUpShop({ onClose }) {
 }
 
 /* ═══════════════ DAILY XP GOAL RING ═══════════════ */
-function DailyGoalRing() {
+function DailyXPModule() {
     const goal = getDailyXPGoal()
-    const pct = Math.min((goal.xpEarned / DAILY_XP_GOAL) * 100, 100)
+    const pct = Math.min((goal.xpEarned / goal.targetXp) * 100, 100)
     const r = 36, c = 2 * Math.PI * r
     const offset = c - (pct / 100) * c
 
@@ -732,10 +744,10 @@ function DailyGoalRing() {
             </div>
             <div className="flex-1">
                 <p className="text-[10px] font-black text-slate-400 mb-0.5">{t('DAILY XP GOAL')}</p>
-                <p className="text-lg font-black text-white">{goal.xpEarned} <span className="text-sm text-slate-500">/ {DAILY_XP_GOAL}</span></p>
+                <p className="text-lg font-black text-white">{goal.xpEarned} <span className="text-sm text-slate-500">/ {goal.targetXp}</span></p>
                 {goal.completed
                     ? <p className="text-[10px] font-black text-amber-400">✅ {t('Goal hit!')} {goal.goalStreak > 1 ? `🔥 ${goal.goalStreak} ${t('day streak')}` : ''}</p>
-                    : <p className="text-[10px] font-bold text-slate-600">{DAILY_XP_GOAL - goal.xpEarned} XP {t('to go')}</p>
+                    : <p className="text-[10px] font-bold text-slate-600">{goal.targetXp - goal.xpEarned} XP {t('to go')}</p>
                 }
                 {goal.goalStreak > 0 && !goal.completed && <p className="text-[9px] font-bold text-slate-600">🎯 {t('Goal Streak')}: {goal.goalStreak} {t('days')}</p>}
             </div>
@@ -798,6 +810,134 @@ function NextPerkPreview() {
                 <p className="text-[9px] font-bold text-slate-600">{nextPerk.perk}</p>
             </div>
             <span className="text-[9px] font-black text-slate-600">{levelsAway} lvl</span>
+        </div>
+    )
+}
+
+/* ═══════════════ SETTINGS MODAL ═══════════════ */
+function SettingsModal({ onClose }) {
+    const [sound, setSound] = useState(() => isSoundEnabled())
+    const [haptic, setHaptic] = useState(() => isHapticEnabled())
+    const [locale, setLocaleState] = useState(() => getLocale())
+
+    const toggleSound = () => {
+        const val = !sound; setSound(val)
+        localStorage.setItem('rheo_setting_sound', JSON.stringify(val))
+    }
+    const toggleHaptic = () => {
+        const val = !haptic; setHaptic(val)
+        localStorage.setItem('rheo_setting_haptic', JSON.stringify(val))
+        if (val) try { navigator.vibrate?.(40) } catch (e) { }
+    }
+    const handleLocale = (l) => {
+        setLocaleState(l)
+        setLocale(l)
+        window.location.reload() // reload to apply i18n
+    }
+    const handleReset = () => {
+        if (window.confirm("Are you sure you want to completely reset all your progress? This cannot be undone.")) {
+            localStorage.clear()
+            window.location.reload()
+        }
+    }
+
+    return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col justify-end"
+            style={{ background: 'rgba(15,23,42,0.8)', backdropFilter: 'blur(8px)' }}>
+            <div className="absolute inset-0" onClick={onClose} />
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="relative bg-slate-800 rounded-t-3xl border-t-2 border-slate-700 p-6 flex flex-col pb-safe max-h-[80vh] overflow-y-auto">
+                <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-6" />
+                <h2 className="text-xl font-black text-white mb-6">⚙️ Settings</h2>
+
+                <div className="space-y-4 mb-6">
+                    {/* Preferences */}
+                    <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/50">
+                        <h3 className="text-xs font-black text-slate-500 tracking-wider mb-4 uppercase">Preferences</h3>
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <p className="text-sm font-bold text-slate-300">Sound Effects</p>
+                                <p className="text-[10px] text-slate-500">In-game audio & feedback</p>
+                            </div>
+                            <button onClick={toggleSound} className={`w-12 h-6 rounded-full relative transition-colors ${sound ? 'bg-teal-500' : 'bg-slate-700'}`}>
+                                <motion.div animate={{ x: sound ? 24 : 2 }} className="w-5 h-5 bg-white rounded-full mt-0.5 shadow-sm" />
+                            </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-bold text-slate-300">Haptic Feedback</p>
+                                <p className="text-[10px] text-slate-500">Vibrations on action</p>
+                            </div>
+                            <button onClick={toggleHaptic} className={`w-12 h-6 rounded-full relative transition-colors ${haptic ? 'bg-teal-500' : 'bg-slate-700'}`}>
+                                <motion.div animate={{ x: haptic ? 24 : 2 }} className="w-5 h-5 bg-white rounded-full mt-0.5 shadow-sm" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Language */}
+                    <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/50">
+                        <h3 className="text-xs font-black text-slate-500 tracking-wider mb-4 uppercase">Language</h3>
+                        <div className="flex gap-2">
+                            <button onClick={() => handleLocale('en')} className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${locale === 'en' ? 'bg-teal-500/20 border-teal-500 text-teal-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>🇬🇧 English</button>
+                            <button onClick={() => handleLocale('tr')} className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${locale === 'tr' ? 'bg-teal-500/20 border-teal-500 text-teal-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>🇹🇷 Türkçe</button>
+                        </div>
+                        <p className="text-[9px] text-slate-500 text-center mt-3">Changing language will reload the app.</p>
+                    </div>
+
+                    {/* Danger Zone */}
+                    <div className="bg-red-950/20 rounded-2xl p-4 border border-red-900/30">
+                        <h3 className="text-xs font-black text-red-500/50 tracking-wider mb-4 uppercase">Danger Zone</h3>
+                        <button onClick={handleReset} className="w-full py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-bold text-xs hover:bg-red-500/20 transition-colors">
+                            RESET ALL PROGRESS
+                        </button>
+                    </div>
+                </div>
+
+                <button onClick={onClose} className="w-full py-4 rounded-xl bg-slate-700 font-black text-sm text-white border-b-[4px] border-slate-800 active:translate-y-[4px] active:border-b-0 transition-all">
+                    Done
+                </button>
+            </motion.div>
+        </motion.div>
+    )
+}
+
+/* ═══════════════ LANGUAGE MASTERY ═══════════════ */
+function LanguageMastery() {
+    const langs = languages.map(l => {
+        const elo = getLangElo(l.id)
+        const tier = getLeagueTier(elo)
+        return { ...l, elo, tier }
+    }).sort((a, b) => b.elo - a.elo)
+
+    const maxElo = Math.max(1500, langs[0]?.elo || 0)
+
+    return (
+        <div className="space-y-3">
+            {langs.map((l, i) => {
+                const pct = Math.min((l.elo / maxElo) * 100, 100)
+                return (
+                    <motion.div key={l.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+                        className="flex items-center gap-3">
+                        <span className="text-2xl w-8 text-center">{l.icon}</span>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-black text-slate-300">{l.name}</span>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] font-bold" style={{ color: l.tier.color }}>{l.tier.name}</span>
+                                    <span className="text-[10px] font-black text-slate-500">{l.elo} <span className="text-[8px]">ELO</span></span>
+                                </div>
+                            </div>
+                            <div className="h-2.5 rounded-full bg-slate-900 overflow-hidden relative" style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                                <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1, ease: 'easeOut' }}
+                                    className="absolute inset-y-0 left-0 rounded-full relative overflow-hidden" style={{ background: l.tier.color }}>
+                                    <div className="absolute inset-0 bg-white/20 w-full h-1/3" />
+                                </motion.div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )
+            })}
         </div>
     )
 }

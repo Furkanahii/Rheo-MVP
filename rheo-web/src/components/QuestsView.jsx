@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { quests, stats, mascotMessages, getStreakMultiplier, t, updateQuestProgress, saveProgress, isHapticEnabled, addXP } from '../data'
+import { quests, stats, mascotMessages, getStreakMultiplier, t, updateQuestProgress, saveProgress, isHapticEnabled, addXP, getMysteryProgress } from '../data'
 import { showXP, showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════
@@ -55,7 +55,7 @@ function MonthlyQuest({ data }) {
                 {/* Soft warm accent strip */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-rose-400/70 to-amber-400/70" />
 
-                <div className="absolute -top-[2px] right-[16px] z-[4]" style={{maxHeight:'70px',overflow:'hidden'}}><FullOtterMascot /></div>
+                <div className="absolute -top-[2px] right-[16px] z-[4]" style={{ maxHeight: '70px', overflow: 'hidden' }}><FullOtterMascot /></div>
                 <div className="p-5 pt-4 relative z-[5]">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-black text-white">{t(data.title)}</h2>
@@ -153,6 +153,21 @@ function WeeklyBuildChallenge({ data }) {
 function MysteryQuest({ data }) {
     const [revealed, setRevealed] = useState(data.revealed)
     const [completed, setCompleted] = useState(data.completed)
+    const [progress, setProgress] = useState(() => getMysteryProgress())
+
+    // Poll progress every 3 seconds when revealed
+    useEffect(() => {
+        if (!revealed || completed) return
+        const interval = setInterval(() => {
+            const p = getMysteryProgress()
+            setProgress(p)
+            // Auto-complete when progress reaches 1 (for single-event quests)
+            if (p >= 1 && !completed) {
+                handleComplete()
+            }
+        }, 3000)
+        return () => clearInterval(interval)
+    }, [revealed, completed])
 
     const handleReveal = () => {
         setRevealed(true)
@@ -161,11 +176,13 @@ function MysteryQuest({ data }) {
     }
 
     const handleComplete = () => {
+        if (completed) return
         setCompleted(true)
         updateQuestProgress('mystery', null, true)
-        stats.gems = (stats.gems || 0) + 15
+        const gemReward = parseInt(data.hidden.reward) || 15
+        stats.gems = (stats.gems || 0) + gemReward
         addXP(data.hidden.xp)
-        showAchievement('✨', 'Mystery Quest Complete!', `+${data.hidden.xp} XP`)
+        showAchievement('✨', t('Mystery Quest Complete!'), `+${data.hidden.xp} XP, ${data.hidden.reward}`)
         saveProgress()
         try { if (isHapticEnabled()) navigator.vibrate?.(40) } catch (e) { }
     }
@@ -174,7 +191,7 @@ function MysteryQuest({ data }) {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">{t('Mystery Quest')}</h3>
-                <span className="text-[10px] font-bold text-slate-600">🎰 1/day</span>
+                <span className="text-[10px] font-bold text-slate-600">🎰 {t('1/day')}</span>
             </div>
 
             <AnimatePresence mode="wait">
@@ -194,19 +211,28 @@ function MysteryQuest({ data }) {
                         <div className="p-5 text-center">
                             <div className="text-2xl mb-2 opacity-80">{completed ? '✅' : '✨'}</div>
                             <p className={`text-sm font-black mb-1 ${completed ? 'text-slate-500 line-through' : 'text-white'}`}>{t(data.hidden.task)}</p>
+                            {/* Real-time progress indicator */}
+                            {revealed && !completed && progress > 0 && (
+                                <div className="mt-2 mb-1">
+                                    <p className="text-[9px] font-black text-teal-400">🔄 {t('Progress')}: {progress} {t('tracked')}</p>
+                                </div>
+                            )}
                             <div className="flex items-center justify-center gap-3 mt-3">
                                 <div className="flex items-center gap-1 bg-slate-700/50 rounded-full px-3 py-1 border border-slate-600/30">
                                     <span className="text-[10px] font-black text-amber-300/80">+{data.hidden.xp} XP</span>
                                 </div>
                                 <div className="flex items-center gap-1 bg-slate-700/50 rounded-full px-3 py-1 border border-slate-600/30">
-                                    <span className="text-[10px] font-black text-sky-300/80">💎 {data.hidden.reward}</span>
+                                    <span className="text-[10px] font-black text-sky-300/80">{data.hidden.reward}</span>
                                 </div>
                             </div>
-                            {!completed && (
+                            {!completed && progress >= 1 && (
                                 <motion.button whileTap={{ scale: 0.95 }} onClick={handleComplete}
-                                    className="mt-4 px-6 py-2.5 rounded-xl font-black text-xs text-white bg-amber-500 border-b-[3px] border-amber-700 active:border-b-0 active:translate-y-[3px] transition-all duration-75 cursor-pointer">
-                                    {t('COMPLETE')} ✨
+                                    className="mt-4 px-6 py-2.5 rounded-xl font-black text-xs text-white bg-teal-500 border-b-[3px] border-teal-700 active:border-b-0 active:translate-y-[3px] transition-all duration-75 cursor-pointer">
+                                    {t('COLLECT REWARD')} ✨
                                 </motion.button>
+                            )}
+                            {!completed && progress < 1 && (
+                                <p className="mt-3 text-[9px] font-bold text-slate-600">{t('Complete the task above to earn rewards')}</p>
                             )}
                         </div>
                     </motion.div>
@@ -233,10 +259,10 @@ function WeekendChallenge({ data }) {
                         }}>{['01', '10', '11', '00', '1', '0', '101', '010'][i % 8]}</div>
                     ))}
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-20 h-20 rounded-2xl flex flex-col items-center justify-center gap-1 bg-slate-800/90 border border-slate-600/30 backdrop-blur-sm" style={{boxShadow:'0 0 30px rgba(94,234,212,0.1)'}}>
+                        <div className="w-20 h-20 rounded-2xl flex flex-col items-center justify-center gap-1 bg-slate-800/90 border border-slate-600/30 backdrop-blur-sm" style={{ boxShadow: '0 0 30px rgba(94,234,212,0.1)' }}>
                             <span className="text-2xl">💻</span>
                             <span className="text-[7px] font-black text-teal-400 tracking-wider">HACK</span>
-                            <div className="flex gap-0.5">{[0,1,2].map(j=><div key={j} className="w-1 h-1 rounded-full bg-teal-500/60 animate-pulse" style={{animationDelay:`${j*0.3}s`}}/>)}</div>
+                            <div className="flex gap-0.5">{[0, 1, 2].map(j => <div key={j} className="w-1 h-1 rounded-full bg-teal-500/60 animate-pulse" style={{ animationDelay: `${j * 0.3}s` }} />)}</div>
                         </div>
                     </div>
                 </div>

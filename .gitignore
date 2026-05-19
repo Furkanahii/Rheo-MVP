@@ -45,3 +45,4 @@ pubspec.lock
 rheo_app/.env
 *.env
 rheo_app/build/
+.vercel

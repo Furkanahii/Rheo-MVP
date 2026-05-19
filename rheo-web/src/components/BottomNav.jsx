@@ -8,7 +8,7 @@ function getBadges() {
             const saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
             const progress = saved.progress || {}
             return (progress[q.id] || 0) < q.total
-        } catch(e) { return true }
+        } catch (e) { return true }
     }).length || 0
     return {
         quests: incompleteDailyQuests > 0 ? incompleteDailyQuests : null,
@@ -22,7 +22,6 @@ const TABS = [
     { id: 'quests', label: 'Quests', icon: CheckIcon, badgeKey: 'quests' },
     { id: 'league', label: 'League', icon: ShieldIcon, badgeKey: 'league' },
     { id: 'profile', label: 'Profile', icon: UserIcon, badgeKey: 'profile' },
-    { id: 'more', label: 'More', icon: DotsIcon },
 ]
 
 export default function BottomNav({ activeTab, onTabChange }) {
@@ -116,14 +115,6 @@ function UserIcon({ active }) {
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke={active ? '#14B8A6' : '#64748B'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
-        </svg>
-    )
-}
-
-function DotsIcon({ active }) {
-    return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill={active ? '#14B8A6' : '#64748B'}>
-            <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
         </svg>
     )
 }
