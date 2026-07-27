@@ -40,5 +40,13 @@
 		<false/>
 		<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
+		<!-- The bundled web app is served from a local loopback HTTP server
+		     (http://127.0.0.1). This scopes the ATS exception to loopback only,
+		     NOT arbitrary HTTP loads, so App Review does not flag it. -->
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<key>NSAllowsLocalNetworking</key>
+			<true/>
+		</dict>
 	</dict>
 </plist>

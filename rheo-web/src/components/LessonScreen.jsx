@@ -538,20 +538,26 @@ function VideoByte({ ex, onReady }) {
     const handlePlay = () => { setPlaying(true); setTimeout(() => onReady(), 1000) }
     return (
         <div>
-            <p className="text-sm font-black text-white mb-4">{ex.title}</p>
-            <div className="relative rounded-2xl bg-slate-950 border border-slate-700/50 border-b-[5px] border-b-slate-950 overflow-hidden aspect-[9/12] flex items-center justify-center mb-5">
+            <div className="flex items-center gap-2 mb-4">
+                <span className="text-lg">🎥</span>
+                <p className="text-sm font-black text-white">{ex.title}</p>
+            </div>
+            <div className="relative rounded-2xl border border-slate-700/50 border-b-[5px] border-b-slate-950 overflow-hidden aspect-video flex items-center justify-center mb-5"
+                style={{ background: 'radial-gradient(ellipse at center, #1e293b 0%, #0b1120 80%)' }}>
+                {/* Large watermark thumbnail */}
+                <span className="absolute text-[110px] opacity-10 select-none pointer-events-none">{ex.thumbnail || '🎬'}</span>
                 {!playing ? (
-                    <motion.button whileTap={{ scale: 0.9 }} onClick={handlePlay} className="flex flex-col items-center gap-3 cursor-pointer">
+                    <motion.button whileTap={{ scale: 0.9 }} onClick={handlePlay} className="relative flex flex-col items-center gap-3 cursor-pointer">
                         <motion.div animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
-                            className="w-16 h-16 rounded-full bg-teal-500 border-b-[5px] border-teal-700 flex items-center justify-center">
+                            className="w-16 h-16 rounded-full bg-teal-500 border-b-[5px] border-teal-700 flex items-center justify-center shadow-lg shadow-teal-900/40">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="10,8 16,12 10,16" /></svg>
                         </motion.div>
-                        <span className="text-xs font-bold text-slate-500">{ex.duration}</span>
+                        <span className="text-xs font-bold text-slate-400">▶ {t('Watch')} · {ex.duration}</span>
                     </motion.button>
                 ) : (
-                    <div className="text-center px-6">
+                    <div className="relative text-center px-6">
                         <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} className="text-4xl mb-3">⚡</motion.div>
-                        <p className="text-xs font-bold text-teal-400">Playing...</p>
+                        <p className="text-xs font-bold text-teal-400">{t('Playing...')}</p>
                     </div>
                 )}
             </div>

@@ -32,6 +32,8 @@ const _tr = {
     'Use Optional to avoid null!': "null'dan kaçınmak için Optional kullan!",
     // ── Complexity Match ──
     'WHICH IS MORE EFFICIENT?': 'HANGİSİ DAHA VERİMLİ?',
+    // ── Video byte ──
+    'Watch': 'İzle', 'Playing...': 'Oynatılıyor...',
     // ── Share result ──
     'Share result': 'Sonucu Paylaş', 'I just aced a Rheo lesson!': "Rheo'da bir dersi başarıyla bitirdim!",
     // ── Chapters & skills (journey) ──
