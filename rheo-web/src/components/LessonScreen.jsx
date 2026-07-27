@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
 import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled } from '../data'
 import { showXP, showAchievement } from './XPToast'
-import { haptic as nativeHaptic } from '../nativeBridge'
+import { haptic as nativeHaptic, share as nativeShare } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════════════════
    LESSON SCREEN — 12 Exercise Types, Full-screen overlay
@@ -343,15 +343,19 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             <AnimatePresence>
                 {answered && isCorrect !== null && (
                     <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
-                        className={`px-5 py-3 flex items-center gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-red-500/10 border-t border-red-700/30'}`}>
+                        className={`px-5 py-3 flex items-start gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-red-500/10 border-t border-red-700/30'}`}>
                         <span className="text-xl">{isCorrect ? '✅' : '❌'}</span>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                             <p className={`text-sm font-black ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>{isCorrect ? t('Correct!') : t('Wrong!')}</p>
                             <p className="text-[10px] font-bold text-slate-500">
                                 {isCorrect ? (
                                     <>{speedBonus ? '⚡ Speed Bonus! +20 XP' : '+15 XP'}{streak >= 3 && ` · 🔥 ${streak} streak`}</>
                                 ) : t('Keep trying!')}
                             </p>
+                            {/* Why? — surface the exercise explanation (complexity shows its own inline) */}
+                            {ex.explanation && ex.type !== 'complexity' && (
+                                <p className="text-[11px] font-bold text-slate-300/90 leading-snug mt-1.5">💡 {ex.explanation}</p>
+                            )}
                         </div>
                         {isCorrect && speedBonus && (
                             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-600/30">
@@ -1214,6 +1218,16 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                         whileTap={{ scale: 0.95 }} onClick={() => setShowReview(true)}
                         className="w-full max-w-[280px] py-3 rounded-2xl font-black text-sm text-red-300 bg-red-500/10 border border-red-700/20 border-b-[4px] border-b-red-900/30 active:translate-y-[4px] active:border-b-0 transition-all duration-75 cursor-pointer flex items-center justify-center gap-2">
                         <span>🔍</span> {t('Review Mistakes')} ({wrongQuestions.length})
+                    </motion.button>
+                )}
+
+                {/* ═══ SHARE RESULT ═══ */}
+                {passed && (
+                    <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => nativeShare(`🦦 ${t('I just aced a Rheo lesson!')} ${stars}⭐ · ${pct}% · ${correct}/${total} ✅`, 'https://rheoapp.com')}
+                        className="w-full max-w-[280px] py-3 rounded-2xl font-black text-sm text-purple-200 bg-purple-500/15 border border-purple-700/25 border-b-[4px] border-b-purple-900/40 active:translate-y-[4px] active:border-b-0 transition-all duration-75 cursor-pointer flex items-center justify-center gap-2">
+                        <span>📤</span> {t('Share result')}
                     </motion.button>
                 )}
 
