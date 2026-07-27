@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import HologramCard from './HologramCard'
 import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled, isSoundEnabled, setLocale, getLocale, duelStats, languages, getLeagueTier, getLangElo } from '../data'
 import { showXP, showAchievement } from './XPToast'
+import { share as nativeShare, haptic } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════
    PROFILE VIEW — polished, 3D, Costume Shop
@@ -65,7 +66,7 @@ export default function ProfileView() {
                         </div>
                     </div>
                     <h1 className="text-xl font-black text-white mt-3">{profile.name}</h1>
-                    <p className="text-xs font-bold text-slate-500">Level {profile.level} Coder</p>
+                    <p className="text-xs font-bold text-slate-500">{t('Level')} {profile.level} Coder</p>
 
                     <div className="flex gap-2 mt-3">
                         <motion.button whileTap={{ scale: 0.95 }}
@@ -85,7 +86,7 @@ export default function ProfileView() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                     className="rounded-2xl p-4 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-extrabold text-slate-400 tracking-wider">NEXT LEVEL</span>
+                        <span className="text-xs font-extrabold text-slate-400 tracking-wider">{t('NEXT LEVEL')}</span>
                         <span className="text-xs font-black text-teal-400">{profile.xpCurrent} / {profile.xpNext} XP</span>
                     </div>
                     <div className="h-3.5 rounded-full overflow-hidden bg-slate-950"
@@ -101,14 +102,14 @@ export default function ProfileView() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
                     className="rounded-2xl p-5 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xs font-extrabold text-slate-400 tracking-wider">STREAK SHIELD</h3>
+                        <h3 className="text-xs font-extrabold text-slate-400 tracking-wider">{t('STREAK SHIELD')}</h3>
                         {stats.streakShield ? (
                             <div className="flex items-center gap-1.5 bg-emerald-500/15 px-2.5 py-1 rounded-full border border-emerald-700/30">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="#FCD34D"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                                <span className="text-[9px] font-black text-emerald-400">ACTIVE</span>
+                                <span className="text-[9px] font-black text-emerald-400">{t('ACTIVE')}</span>
                             </div>
                         ) : (
-                            <span className="text-[9px] font-bold text-red-400/70">INACTIVE</span>
+                            <span className="text-[9px] font-bold text-red-400/70">{t('INACTIVE')}</span>
                         )}
                     </div>
                     {/* 7-day calendar */}
@@ -118,11 +119,11 @@ export default function ProfileView() {
                         onClick={handleFreeze}
                         className="w-full mt-4 py-2.5 rounded-xl font-black text-xs text-white bg-sky-500/15 border border-sky-700/30 border-b-[3px] border-b-sky-900/40 cursor-pointer flex items-center justify-center gap-2">
                         {freezeMsg === 'activated' ? (
-                            <><span>✅</span><span className="text-teal-400">Streak Shield Activated!</span></>
+                            <><span>✅</span><span className="text-teal-400">{t('Streak Shield Activated!')}</span></>
                         ) : freezeMsg === 'not_enough' ? (
-                            <><span>❌</span><span className="text-red-400">Not enough gems!</span></>
+                            <><span>❌</span><span className="text-red-400">{t('Not enough gems!')}</span></>
                         ) : (
-                            <><span>🧊</span><span className="text-sky-300">Freeze a Day</span><span className="text-sky-500/70">• 50 💎</span></>
+                            <><span>🧊</span><span className="text-sky-300">{t('Freeze a Day')}</span><span className="text-sky-500/70">• 50 💎</span></>
                         )}
                     </motion.button>
                 </motion.div>
@@ -130,26 +131,26 @@ export default function ProfileView() {
                 {/* Stats grid */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
                     className="grid grid-cols-2 gap-3">
-                    <StatBox icon="⭐" label="Stars" value={`${profile.totalStars}/${profile.maxStars}`} color="text-amber-400" />
-                    <StatBox icon="🔥" label="Streak" value={`${stats.streak} days`} color="text-orange-400" />
-                    <StatBox icon="📅" label="Days Active" value={profile.daysLearning} color="text-sky-400" />
-                    <StatBox icon="🏆" label="Best Streak" value={`${profile.longestStreak} days`} color="text-purple-400" />
+                    <StatBox icon="⭐" label={t('Stars')} value={`${profile.totalStars}/${profile.maxStars}`} color="text-amber-400" />
+                    <StatBox icon="🔥" label={t('Streak')} value={`${stats.streak} ${t('days')}`} color="text-orange-400" />
+                    <StatBox icon="📅" label={t('Days Active')} value={profile.daysLearning} color="text-sky-400" />
+                    <StatBox icon="🏆" label={t('Best Streak')} value={`${profile.longestStreak} ${t('days')}`} color="text-purple-400" />
                 </motion.div>
 
                 {/* XP REWARDS ZONE */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.17 }}
                     className="rounded-2xl p-5 bg-gradient-to-br from-amber-950/30 to-slate-800 border-2 border-amber-700/20 border-b-[5px] border-b-slate-950">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xs font-extrabold text-amber-400 tracking-wider">⚡ XP REWARDS</h3>
+                        <h3 className="text-xs font-extrabold text-amber-400 tracking-wider">⚡ {t('XP REWARDS')}</h3>
                         {(() => { const m = getXPMultiplier(); return m.label ? <span className="text-[10px] font-black text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-full">{m.label} BONUS</span> : null })()}
                     </div>
 
                     {/* Daily XP Goal */}
-                    <DailyGoalRing />
+                    <DailyXPModule />
 
                     {/* XP Milestones */}
                     <div className="mt-4">
-                        <p className="text-[10px] font-black text-slate-400 mb-2">🏔️ MILESTONES</p>
+                        <p className="text-[10px] font-black text-slate-400 mb-2">🏔️ {t('MILESTONES')}</p>
                         <div className="space-y-1.5">
                             {xpMilestones.map(m => {
                                 const totalXP = getTotalXP()
@@ -185,10 +186,10 @@ export default function ProfileView() {
                 {/* Skill Radar & Language Mastery */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                     className="rounded-2xl p-5 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950">
-                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">SKILL RADAR</h3>
+                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">{t('SKILL RADAR')}</h3>
                     <BigRadar />
                     <div className="my-6 h-px bg-slate-700/50" />
-                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">LANGUAGE MASTERY</h3>
+                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">{t('LANGUAGE MASTERY')}</h3>
                     <LanguageMastery />
                 </motion.div>
 
@@ -412,7 +413,7 @@ function CostumeShop({ costumes, equipped, onEquip, onBuy, onClose, gems }) {
 
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4">
-                <h2 className="text-xl font-black text-white">🛍️ Costume Shop</h2>
+                <h2 className="text-xl font-black text-white">🛍️ {t('Costume Shop')}</h2>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5 bg-teal-500/15 rounded-xl px-3 py-1.5 border-b-[2px] border-teal-800">
                         <span className="text-sm">💎</span>
@@ -575,16 +576,11 @@ function ShareCard({ equipped }) {
     const [copied, setCopied] = useState(false)
 
     const handleShare = async () => {
-        const shareText = `🦦 I'm Level ${profile.level} on Rheo! Streak: ${stats.streak} days, XP: ${profile.xpCurrent}. Learn coding with me! https://play.google.com/store/apps/details?id=com.rheo.rheo_app`
-        try {
-            if (navigator.share) {
-                await navigator.share({ title: 'My Rheo Profile', text: shareText })
-            } else {
-                await navigator.clipboard.writeText(shareText)
-            }
-        } catch (e) {
-            try { await navigator.clipboard.writeText(shareText) } catch (e2) { }
-        }
+        if (isHapticEnabled()) haptic('light')
+        const shareText = `🦦 I'm Level ${profile.level} on Rheo! Streak: ${stats.streak} days, XP: ${profile.xpCurrent}. Learn coding with me!`
+        // Uses the native OS share sheet inside the app; falls back to the Web
+        // Share API and finally the clipboard in a plain browser.
+        await nativeShare(shareText, 'https://rheoapp.com')
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
         // Grant 10 XP for sharing
@@ -633,7 +629,7 @@ function ShareCard({ equipped }) {
                     {copied ? (
                         <><span>✅</span><span className="text-emerald-400">Copied!</span></>
                     ) : (
-                        <><span>📤</span><span className="text-purple-300">SHARE PROFILE</span></>
+                        <><span>📤</span><span className="text-purple-300">{t('SHARE PROFILE')}</span></>
                     )}
                 </motion.button>
             </div>
@@ -835,7 +831,7 @@ function SettingsModal({ onClose }) {
         window.location.reload() // reload to apply i18n
     }
     const handleReset = () => {
-        if (window.confirm("Are you sure you want to completely reset all your progress? This cannot be undone.")) {
+        if (window.confirm(t('Reset all progress? This cannot be undone.'))) {
             localStorage.clear()
             window.location.reload()
         }
@@ -849,16 +845,16 @@ function SettingsModal({ onClose }) {
             <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                 className="relative bg-slate-800 rounded-t-3xl border-t-2 border-slate-700 p-6 flex flex-col pb-safe max-h-[80vh] overflow-y-auto">
                 <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-6" />
-                <h2 className="text-xl font-black text-white mb-6">⚙️ Settings</h2>
+                <h2 className="text-xl font-black text-white mb-6">⚙️ {t('Settings')}</h2>
 
                 <div className="space-y-4 mb-6">
                     {/* Preferences */}
                     <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/50">
-                        <h3 className="text-xs font-black text-slate-500 tracking-wider mb-4 uppercase">Preferences</h3>
+                        <h3 className="text-xs font-black text-slate-500 tracking-wider mb-4 uppercase">{t('Preferences')}</h3>
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <p className="text-sm font-bold text-slate-300">Sound Effects</p>
-                                <p className="text-[10px] text-slate-500">In-game audio & feedback</p>
+                                <p className="text-sm font-bold text-slate-300">{t('Sound Effects')}</p>
+                                <p className="text-[10px] text-slate-500">{t('In-game audio & feedback')}</p>
                             </div>
                             <button onClick={toggleSound} className={`w-12 h-6 rounded-full relative transition-colors ${sound ? 'bg-teal-500' : 'bg-slate-700'}`}>
                                 <motion.div animate={{ x: sound ? 24 : 2 }} className="w-5 h-5 bg-white rounded-full mt-0.5 shadow-sm" />
@@ -866,8 +862,8 @@ function SettingsModal({ onClose }) {
                         </div>
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-bold text-slate-300">Haptic Feedback</p>
-                                <p className="text-[10px] text-slate-500">Vibrations on action</p>
+                                <p className="text-sm font-bold text-slate-300">{t('Haptic Feedback')}</p>
+                                <p className="text-[10px] text-slate-500">{t('Vibrations on action')}</p>
                             </div>
                             <button onClick={toggleHaptic} className={`w-12 h-6 rounded-full relative transition-colors ${haptic ? 'bg-teal-500' : 'bg-slate-700'}`}>
                                 <motion.div animate={{ x: haptic ? 24 : 2 }} className="w-5 h-5 bg-white rounded-full mt-0.5 shadow-sm" />
@@ -877,25 +873,25 @@ function SettingsModal({ onClose }) {
 
                     {/* Language */}
                     <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/50">
-                        <h3 className="text-xs font-black text-slate-500 tracking-wider mb-4 uppercase">Language</h3>
+                        <h3 className="text-xs font-black text-slate-500 tracking-wider mb-4 uppercase">{t('Language')}</h3>
                         <div className="flex gap-2">
                             <button onClick={() => handleLocale('en')} className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${locale === 'en' ? 'bg-teal-500/20 border-teal-500 text-teal-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>🇬🇧 English</button>
                             <button onClick={() => handleLocale('tr')} className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${locale === 'tr' ? 'bg-teal-500/20 border-teal-500 text-teal-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>🇹🇷 Türkçe</button>
                         </div>
-                        <p className="text-[9px] text-slate-500 text-center mt-3">Changing language will reload the app.</p>
+                        <p className="text-[9px] text-slate-500 text-center mt-3">{t('Changing language will reload the app.')}</p>
                     </div>
 
                     {/* Danger Zone */}
                     <div className="bg-red-950/20 rounded-2xl p-4 border border-red-900/30">
-                        <h3 className="text-xs font-black text-red-500/50 tracking-wider mb-4 uppercase">Danger Zone</h3>
+                        <h3 className="text-xs font-black text-red-500/50 tracking-wider mb-4 uppercase">{t('Danger Zone')}</h3>
                         <button onClick={handleReset} className="w-full py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-bold text-xs hover:bg-red-500/20 transition-colors">
-                            RESET ALL PROGRESS
+                            {t('RESET ALL PROGRESS')}
                         </button>
                     </div>
                 </div>
 
                 <button onClick={onClose} className="w-full py-4 rounded-xl bg-slate-700 font-black text-sm text-white border-b-[4px] border-slate-800 active:translate-y-[4px] active:border-b-0 transition-all">
-                    Done
+                    {t('Done')}
                 </button>
             </motion.div>
         </motion.div>

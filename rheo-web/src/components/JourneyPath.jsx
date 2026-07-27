@@ -83,8 +83,8 @@ export default function JourneyPath({ nodes }) {
                     <div className="relative z-20 mx-4 mb-4 mt-2 rounded-2xl px-4 py-3 bg-slate-800/80 border border-teal-700/30 border-b-[3px] border-b-slate-950 flex items-start gap-3">
                         <span className="text-lg mt-0.5">💡</span>
                         <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-extrabold text-teal-400 mb-0.5">TIP OF THE DAY</p>
-                            <p className="text-[11px] font-bold text-slate-300 leading-snug">{todayTip.tip}</p>
+                            <p className="text-[10px] font-extrabold text-teal-400 mb-0.5">{t('TIP OF THE DAY')}</p>
+                            <p className="text-[11px] font-bold text-slate-300 leading-snug">{t(todayTip.tip)}</p>
                             <code className="text-[9px] font-mono text-teal-300/80 mt-1 block">{todayTip.code}</code>
                         </div>
                     </div>
@@ -595,14 +595,39 @@ function PlaygroundModal({ node, onClose }) {
     const [output, setOutput] = useState(null)
     const [ran, setRan] = useState(false)
 
+    const norm = (s) => (s || '').replace(/\r/g, '').trim()
+
     const handleRun = () => {
         haptic()
-        // Simulated execution — fake output matching expected
-        setOutput(pg.expectedOutput || 'No output')
+        if (lang === 'javascript') {
+            // Real execution — capture console.log from the user's code.
+            const logs = []
+            const fmt = (v) => (typeof v === 'object' && v !== null) ? JSON.stringify(v) : String(v)
+            const sandbox = {
+                log: (...a) => logs.push(a.map(fmt).join(' ')),
+                error: (...a) => logs.push(a.map(fmt).join(' ')),
+                warn: (...a) => logs.push(a.map(fmt).join(' ')),
+                info: (...a) => logs.push(a.map(fmt).join(' ')),
+            }
+            try {
+                // eslint-disable-next-line no-new-func
+                new Function('console', code)(sandbox)
+                setOutput(logs.length ? logs.join('\n') : '(no output)')
+            } catch (err) {
+                setOutput('⚠️ ' + (err && err.message ? err.message : String(err)))
+            }
+        } else if (norm(code) === norm(starter)) {
+            // Python/Java can't run in-browser offline; show the reference output
+            // only for the unedited starter so we never claim a fake result.
+            setOutput(pg.expectedOutput || '(no output)')
+        } else {
+            const langName = lang === 'java' ? 'Java' : 'Python'
+            setOutput(`ℹ️ ${langName} ${t('runs on your device, not in this preview.')}\n\n${t('Reference output')}:\n${pg.expectedOutput || ''}`)
+        }
         setRan(true)
     }
 
-    const isCorrect = ran && output === pg.expectedOutput
+    const isCorrect = ran && output != null && norm(output) === norm(pg.expectedOutput)
 
     return (
         <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[280px]">

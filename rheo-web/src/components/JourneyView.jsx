@@ -105,7 +105,7 @@ function ChapterMap({ visibleChapter, onChapterClick }) {
                                 CH {num}
                             </p>
                             <p className={`text-[9px] font-black mt-0.5 ${isActive ? 'text-white' : isPast ? 'text-slate-400' : 'text-slate-600'}`}>
-                                {ch.name}
+                                {t(ch.name)}
                             </p>
                             {/* Mini progress */}
                             <div className="mt-1.5 h-[4px] rounded-full bg-slate-900/60 overflow-hidden">
@@ -215,8 +215,8 @@ function UnitHeader({ visibleChapter }) {
             <div className="relative rounded-2xl px-5 py-4 bg-teal-600 border-b-[5px] border-teal-800 active:border-b-[1px] active:translate-y-[4px] transition-all duration-75 cursor-pointer overflow-hidden">
                 <div className="flex items-center justify-between">
                     <div className="flex-1 pr-4">
-                        <p className="text-[10px] font-extrabold text-teal-200/60 tracking-[0.2em] uppercase">Chapter {chapterNum} • {chapter?.name || 'Basics'}</p>
-                        <h2 className="text-[17px] font-black text-white mt-0.5 leading-tight">{nodeTitle}<br /><span className="text-teal-200/70 text-[13px] capitalize">{nodeSkill}</span></h2>
+                        <p className="text-[10px] font-extrabold text-teal-200/60 tracking-[0.2em] uppercase">{t('Chapter')} {chapterNum} • {t(chapter?.name || 'Basics')}</p>
+                        <h2 className="text-[17px] font-black text-white mt-0.5 leading-tight">{t(nodeTitle)}<br /><span className="text-teal-200/70 text-[13px] capitalize">{t(nodeSkill)}</span></h2>
                     </div>
                     <SkillRadar />
                 </div>

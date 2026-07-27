@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { t, stats, quests } from '../data'
+import { t, stats, quests, isHapticEnabled } from '../data'
+import { haptic } from '../nativeBridge'
 
 // Compute dynamic badge values
 function getBadges() {
@@ -41,7 +42,7 @@ export default function BottomNav({ activeTab, onTabChange }) {
                     return (
                         <button
                             key={tab.id}
-                            onClick={() => onTabChange(tab.id)}
+                            onClick={() => { if (isHapticEnabled()) haptic('selection'); onTabChange(tab.id) }}
                             className={`
                 relative flex flex-col items-center justify-center w-16 h-14 rounded-xl
                 transition-all duration-150

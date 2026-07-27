@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 /// Loads the React Journey web app from bundled assets inside a WebView.
@@ -27,21 +30,9 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
   bool _loading = true;
   String? _error;
 
-  /// The complete list of files that MUST be present in the bundle.
-  /// This list must be kept in sync with pubspec.yaml asset declarations
-  /// AND the Vite build output (file hashes change on each build).
-  static const List<String> _knownFiles = [
-    'assets/journey-web/index.html',
-    'assets/journey-web/mascot_greeting.png',
-    'assets/journey-web/mascot_happy.png',
-    'assets/journey-web/assets/index-BCJCpQLs.js',
-    'assets/journey-web/assets/index-BXRjnnp6.css',
-    'assets/journey-web/assets/HologramCard-oFVIqWVa.js',
-    'assets/journey-web/assets/LeagueView-B7MCfvh9.js',
-    'assets/journey-web/assets/MoreView-NHsebTHe.js',
-    'assets/journey-web/assets/ProfileView-C0Xa7vJC.js',
-    'assets/journey-web/assets/QuestsView-Bqqyfc-M.js',
-  ];
+  // We now use dynamic asset discovery via Strategy 1 (AssetManifest API)
+  // and Strategy 2 (Direct AssetManifest.json parsing fallback).
+  // There is no longer a need to maintain a hardcoded _knownFiles list with hashed filenames.
 
   @override
   void initState() {
@@ -67,6 +58,74 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
   void dispose() {
     _server?.close(force: true);
     super.dispose();
+  }
+
+  /// Handle messages posted from JS via the `RheoNative` channel.
+  /// Payload is JSON, e.g. {"action":"openUrl","url":"https://…"}.
+  void _handleNativeMessage(String raw) {
+    try {
+      final data = json.decode(raw) as Map<String, dynamic>;
+      switch (data['action']) {
+        case 'openUrl':
+          if (data['url'] is String) _openExternal(data['url'] as String);
+          break;
+        case 'haptic':
+          _triggerHaptic(data['style'] as String?);
+          break;
+        case 'share':
+          _shareText(data['text'] as String?, data['url'] as String?);
+          break;
+      }
+    } catch (e) {
+      debugPrint('⚠️ RheoNative message parse error: $e');
+    }
+  }
+
+  /// Native haptic feedback — something a plain web page cannot do on iOS,
+  /// where the Web Vibration API is unsupported.
+  void _triggerHaptic(String? style) {
+    switch (style) {
+      case 'light':
+      case 'selection':
+        HapticFeedback.selectionClick();
+        break;
+      case 'medium':
+      case 'success':
+      case 'warning':
+        HapticFeedback.mediumImpact();
+        break;
+      case 'heavy':
+      case 'error':
+        HapticFeedback.heavyImpact();
+        break;
+      default:
+        HapticFeedback.selectionClick();
+    }
+  }
+
+  /// Open the native OS share sheet.
+  Future<void> _shareText(String? text, String? url) async {
+    if (text == null && url == null) return;
+    final message = [text, url].where((e) => e != null && e.isNotEmpty).join(' ');
+    try {
+      await SharePlus.instance.share(ShareParams(text: message));
+    } catch (e) {
+      debugPrint('⚠️ share failed: $e');
+    }
+  }
+
+  /// Open a URL outside the WebView using the OS default handler.
+  Future<void> _openExternal(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        debugPrint('⚠️ Cannot launch external URL: $url');
+      }
+    } catch (e) {
+      debugPrint('⚠️ _openExternal failed for $url: $e');
+    }
   }
 
   Future<void> _initWebView() async {
@@ -107,8 +166,27 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
       final controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setBackgroundColor(const Color(0xFF0F172A))
+        // Bridge so the bundled web app can ask the OS to open external links
+        // (privacy policy, feedback mailto, App Store rating, …). WKWebView
+        // ignores window.open('_blank'), so the web app posts here instead.
+        ..addJavaScriptChannel(
+          'RheoNative',
+          onMessageReceived: (message) => _handleNativeMessage(message.message),
+        )
         ..setNavigationDelegate(
           NavigationDelegate(
+            // Keep localhost navigations inside the WebView; send anything else
+            // (external https, mailto, tel, …) to the system browser/handler.
+            onNavigationRequest: (request) {
+              final uri = Uri.tryParse(request.url);
+              final isLocal = uri != null &&
+                  (uri.host == '127.0.0.1' || uri.host == 'localhost');
+              if (uri != null && !isLocal) {
+                _openExternal(request.url);
+                return NavigationDecision.prevent;
+              }
+              return NavigationDecision.navigate;
+            },
             onPageFinished: (_) {
               if (mounted) setState(() => _loading = false);
             },
@@ -321,37 +399,34 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
       debugPrint('⚠️ Strategy 1 FAILED: $e');
     }
 
-    // ── Strategy 2: Direct rootBundle.load probing ──
-    // Skip the manifest entirely and directly probe each known file.
-    // This is the most resilient approach — it works even if the
-    // manifest file is corrupt or unreadable.
-    debugPrint('🔎 Strategy 2: Direct bundle probing...');
+    // ── Strategy 2: Direct load and parse of AssetManifest.json ──
+    // Bypasses the Flutter SDK AssetManifest API, loading the raw manifest
+    // file directly. Highly resilient fallback.
+    try {
+      debugPrint('🔎 Strategy 2: Direct AssetManifest.json load...');
+      final manifestStr = await rootBundle.loadString('AssetManifest.json');
+      final Map<String, dynamic> manifestMap = json.decode(manifestStr);
+      final journeyAssets = manifestMap.keys
+          .where((key) => key.startsWith(prefix))
+          .toList();
 
-    final verified = <String>[];
-    for (final assetKey in _knownFiles) {
-      try {
-        // Try to load the asset — if it exists, load() succeeds
-        await rootBundle.load(assetKey);
-        verified.add(assetKey);
-        debugPrint('  ✅ Found: $assetKey');
-      } catch (e) {
-        debugPrint('  ❌ Missing: $assetKey ($e)');
+      if (journeyAssets.isNotEmpty) {
+        debugPrint(
+            '✅ Strategy 2 SUCCESS: ${journeyAssets.length} journey assets');
+        return journeyAssets;
       }
+    } catch (e) {
+      debugPrint('⚠️ Strategy 2 FAILED: $e');
     }
 
-    debugPrint(
-        '📊 Strategy 2: ${verified.length}/${_knownFiles.length} files found');
-
-    if (verified.isNotEmpty) {
-      return verified;
-    }
-
-    // All strategies exhausted
-    throw Exception(
-      'FATAL: No journey-web assets found in app bundle. '
-      'All ${_knownFiles.length} known files are missing. '
-      'The app may need to be reinstalled.',
-    );
+    // ── Strategy 3: Static Fallback ──
+    // Just return the minimum required files to try and launch index.html
+    debugPrint('🔎 Strategy 3: Static fallback...');
+    return [
+      'assets/journey-web/index.html',
+      'assets/journey-web/mascot_greeting.png',
+      'assets/journey-web/mascot_happy.png',
+    ];
   }
 
   /// Return MIME type for common web file extensions.

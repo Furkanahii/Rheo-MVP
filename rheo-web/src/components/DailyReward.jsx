@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { stats, saveProgress, addXP, isHapticEnabled } from '../data'
+import { stats, saveProgress, addXP, isHapticEnabled, t } from '../data'
 import { showXP } from './XPToast'
+import { haptic } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════
    DAILY REWARD — Real 7-day calendar with localStorage persistence
@@ -65,7 +66,7 @@ export default function DailyReward({ onClose }) {
     const handleClaim = () => {
         if (!canClaim) return
         setJustClaimed(true)
-        try { if (isHapticEnabled()) navigator.vibrate?.(40) } catch (e) { }
+        if (isHapticEnabled()) haptic('success')
 
         const reward = REWARD_DEFS[currentDay - 1]
         let rewardMsg = reward.label
@@ -92,15 +93,16 @@ export default function DailyReward({ onClose }) {
             setMysteryReward(pick.label)
         }
 
-        // Save state
+        // Persist the advanced day for tomorrow, but keep the just-claimed day
+        // shown as claimed in the UI (advancing currentDay now would incorrectly
+        // mark the next day's tile as ✅).
         const nextDay = currentDay >= 7 ? 1 : currentDay + 1
-        const newState = {
+        setState(s => ({ ...s, claimedToday: true }))
+        saveDailyState({
             currentDay: nextDay,
             lastClaimDate: getTodayStr(),
             claimedToday: true,
-        }
-        setState(newState)
-        saveDailyState(newState)
+        })
         saveProgress() // Persist gems/energy
         try { localStorage.setItem('rheo_last_daily', getTodayStr()) } catch (e) { }
 
@@ -129,8 +131,8 @@ export default function DailyReward({ onClose }) {
                         animate={{ rotate: [0, -10, 10, 0] }}
                         transition={{ duration: 1, repeat: 2 }}
                         className="text-4xl mb-2">🎉</motion.div>
-                    <h2 className="text-xl font-black text-white">Daily Reward</h2>
-                    <p className="text-xs font-bold text-slate-500 mt-1">Come back every day for bigger prizes!</p>
+                    <h2 className="text-xl font-black text-white">{t('Daily Reward')}</h2>
+                    <p className="text-xs font-bold text-slate-500 mt-1">{t('Come back every day for bigger prizes!')}</p>
                 </div>
 
                 {/* 7-day calendar */}
@@ -172,19 +174,19 @@ export default function DailyReward({ onClose }) {
                             whileTap={{ scale: 0.95 }}
                             onClick={handleClaim}
                             className="w-full py-3.5 rounded-2xl font-black text-base text-white bg-amber-500 border-b-[5px] border-amber-700 active:border-b-[1px] active:translate-y-[4px] transition-all duration-75 cursor-pointer">
-                            🎁 CLAIM DAY {currentDay}
+                            🎁 {t('COLLECT REWARD')}
                         </motion.button>
                     ) : justClaimed ? (
                         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}
                             className="text-center py-3">
                             <span className="text-lg font-black text-teal-400">
-                                ✅ {mysteryReward ? `You got ${mysteryReward}!` : 'Claimed!'}
+                                ✅ {mysteryReward ? `${t('You got')} ${mysteryReward}!` : t('Claimed!')}
                             </span>
                         </motion.div>
                     ) : (
                         <div className="text-center py-3">
-                            <span className="text-sm font-black text-slate-500">✅ Already claimed today!</span>
-                            <p className="text-[10px] font-bold text-slate-600 mt-1">Come back tomorrow for Day {currentDay}!</p>
+                            <span className="text-sm font-black text-slate-500">✅ {t('Already claimed today!')}</span>
+                            <p className="text-[10px] font-bold text-slate-600 mt-1">{t('Come back tomorrow for Day')} {currentDay}!</p>
                         </div>
                     )}
                 </div>

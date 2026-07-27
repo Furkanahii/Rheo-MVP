@@ -105,18 +105,8 @@ flutter:
     - assets/rheo_logo.png
     - assets/rheo_mascot_icon.png
     - assets/journey-web/
-    - assets/journey-web/index.html
-    - assets/journey-web/mascot_greeting.png
-    - assets/journey-web/mascot_happy.png
     - assets/journey-web/assets/
-    - assets/journey-web/assets/index-BCJCpQLs.js
-    - assets/journey-web/assets/index-BXRjnnp6.css
-    - assets/journey-web/assets/HologramCard-oFVIqWVa.js
-    - assets/journey-web/assets/LeagueView-B7MCfvh9.js
-    - assets/journey-web/assets/MoreView-NHsebTHe.js
-    - assets/journey-web/assets/ProfileView-C0Xa7vJC.js
-    - assets/journey-web/assets/QuestsView-Bqqyfc-M.js
-    - .env
+    - assets/journey-web/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

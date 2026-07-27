@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
 import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled } from '../data'
 import { showXP, showAchievement } from './XPToast'
+import { haptic as nativeHaptic } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════════════════
    LESSON SCREEN — 12 Exercise Types, Full-screen overlay
@@ -10,7 +11,9 @@ import { showXP, showAchievement } from './XPToast'
           pair, refactor, errordecode, terminal, algostep, realworld
    ═══════════════════════════════════════════════════════ */
 
-const haptic = () => { if (isHapticEnabled()) navigator?.vibrate?.(10) }
+// Routes to real native haptics inside the app (iOS/Android); falls back to
+// the Web Vibration API in a browser. Respects the user's haptic setting.
+const haptic = (style = 'selection') => { if (isHapticEnabled()) nativeHaptic(style) }
 
 /* ── Motivational messages (i18n keys — translated at render via t()) ── */
 const OTTER_MSGS = {
@@ -119,7 +122,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     }
 
     const handleAnswer = (correct) => {
-        haptic()
+        haptic(correct ? 'success' : 'error')
         setAnswered(true)
         setIsCorrect(correct)
 
@@ -311,10 +314,13 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             <div className="flex-1 overflow-y-auto px-4 py-4">
                 <AnimatePresence mode="wait">
                     <motion.div key={step}
-                        initial={{ opacity: 0, x: 40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -40 }}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
                         transition={{ duration: 0.25 }}>
+                        {/* Vertical (not horizontal) slide: a residual transform from an
+                            interrupted enter animation can't push content off-screen and
+                            clip wide layouts like PairMatch. */}
                         {ex.type === 'trace' && <TraceVariable ex={ex} selected={selected} setSelected={setSelected} answered={answered} onAnswer={handleAnswer} />}
                         {ex.type === 'bug' && <BugHunt ex={ex} selected={selected} setSelected={setSelected} answered={answered} onAnswer={handleAnswer} />}
                         {ex.type === 'scramble' && <CodeScramble ex={ex} answered={answered} onAnswer={handleAnswer} />}
