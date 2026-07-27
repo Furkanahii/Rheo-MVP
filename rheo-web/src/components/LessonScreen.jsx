@@ -334,6 +334,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         {ex.type === 'terminal' && <TerminalSim ex={ex} answered={answered} onAnswer={handleAnswer} />}
                         {ex.type === 'algostep' && <AlgorithmStepper ex={ex} selected={selected} setSelected={setSelected} answered={answered} onAnswer={handleAnswer} />}
                         {ex.type === 'realworld' && <RealWorldConnect ex={ex} selected={selected} setSelected={setSelected} answered={answered} onAnswer={handleAnswer} />}
+                        {ex.type === 'complexity' && <ComplexityMatch ex={ex} selected={selected} setSelected={setSelected} answered={answered} onAnswer={handleAnswer} />}
                     </motion.div>
                 </AnimatePresence>
             </div>
@@ -963,6 +964,48 @@ function RealWorldConnect({ ex, selected, setSelected, answered, onAnswer }) {
                     </motion.button>
                 ))}
             </div>
+        </div>
+    )
+}
+
+/* ═══════════════════════════════════════════
+   TYPE 13: COMPLEXITY MATCH (Big O) ✨ NEW
+   Read two+ solutions and pick the more efficient one.
+   Reveals each option's Big O + an explanation after answering.
+   ═══════════════════════════════════════════ */
+function ComplexityMatch({ ex, selected, setSelected, answered, onAnswer }) {
+    const handleSelect = (idx) => { if (answered) return; setSelected(idx); onAnswer(idx === ex.correct) }
+    return (
+        <div>
+            <div className="flex items-center gap-2 mb-1">
+                <span className="text-lg">⚡</span>
+                <p className="text-sm font-black text-white">{ex.prompt}</p>
+            </div>
+            {ex.scenario && <p className="text-[11px] font-bold text-slate-400 mb-4">{ex.scenario}</p>}
+            <p className="text-[9px] font-extrabold text-amber-400/70 tracking-wider mb-3 mt-4">{t('WHICH IS MORE EFFICIENT?')}</p>
+            <div className="space-y-3">
+                {ex.options.map((opt, i) => (
+                    <motion.button key={i} whileTap={{ scale: 0.97 }} onClick={() => handleSelect(i)} disabled={answered}
+                        className={`w-full text-left rounded-2xl border-b-[4px] overflow-hidden transition-all cursor-pointer relative
+                            ${answered && i === ex.correct ? 'border border-emerald-600/40 border-b-emerald-800 bg-emerald-500/5'
+                                : answered && i === selected ? 'border border-red-600/40 border-b-red-800 bg-red-500/5'
+                                    : selected === i ? 'border border-teal-600/40 border-b-teal-800 bg-teal-500/5'
+                                        : 'border border-slate-700/30 border-b-slate-950 bg-slate-800 active:translate-y-[4px] active:border-b-0'}`}>
+                        <div className="flex items-center justify-between px-4 py-1.5 bg-slate-900/50 border-b border-slate-700/20">
+                            <span className="text-[10px] font-bold text-slate-500">{opt.label}</span>
+                            {answered && <span className={`text-[10px] font-black font-mono ${i === ex.correct ? 'text-emerald-400' : 'text-red-400/80'}`}>{opt.complexity}</span>}
+                        </div>
+                        <div className="px-4 py-2 font-mono text-[11px] text-slate-300 whitespace-pre-wrap break-all overflow-hidden">{opt.code}</div>
+                        {answered && i === ex.correct && <div className="absolute top-1.5 right-3 text-xs">🏆</div>}
+                    </motion.button>
+                ))}
+            </div>
+            {answered && ex.explanation && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 rounded-xl bg-amber-500/10 border border-amber-600/20 px-4 py-3">
+                    <p className="text-[11px] font-bold text-amber-200/90 leading-relaxed">💡 {ex.explanation}</p>
+                </motion.div>
+            )}
         </div>
     )
 }

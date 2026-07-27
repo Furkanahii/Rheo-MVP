@@ -30,6 +30,8 @@ const _tr = {
     'var keyword for type inference!': 'Tip çıkarımı için var anahtar sözcüğünü kullan!',
     'Stream API for functional style!': 'Fonksiyonel stil için Stream API kullan!',
     'Use Optional to avoid null!': "null'dan kaçınmak için Optional kullan!",
+    // ── Complexity Match ──
+    'WHICH IS MORE EFFICIENT?': 'HANGİSİ DAHA VERİMLİ?',
     // ── Chapters & skills (journey) ──
     'Chapter': 'Bölüm', 'Basics': 'Temeller', 'Flow Control': 'Akış Kontrolü', 'Loops': 'Döngüler',
     'Functions': 'Fonksiyonlar', 'Data Struct I': 'Veri Yapıları I', 'Algorithms I': 'Algoritmalar I',
