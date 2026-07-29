@@ -28,9 +28,18 @@ export const languages = [
     { id: 'java', name: 'Java', icon: '☕' },
 ]
 
-let _activeLang = 'python'
+// The chosen language has to survive a restart. It was a plain module variable,
+// so every cold start silently dropped a Java or JavaScript learner back onto
+// Python — including on mobile, where the WebView reloads from scratch.
+const LANG_KEY = 'rheo_active_lang'
+const _savedLang = loadSaved(LANG_KEY, null)
+let _activeLang = languages.some(l => l.id === _savedLang) ? _savedLang : 'python'
 export function getActiveLanguage() { return _activeLang }
-export function setActiveLanguage(id) { _activeLang = id }
+export function setActiveLanguage(id) {
+    if (!languages.some(l => l.id === id)) return
+    _activeLang = id
+    saveTo(LANG_KEY, id)
+}
 
 /* ── Otter Tip of the Day ── */
 const tips = {
