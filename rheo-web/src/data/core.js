@@ -172,37 +172,42 @@ export function getOtterMood(streak, nextNodeType) {
     if (nextNodeType === 'boss') return { face: 'determined', bubble: t('Boss time! ⚔️') }
     if (nextNodeType === 'chest') return { face: 'excited', bubble: t('Loot time! 🎁') }
     if (streak >= 7) return { face: 'cool', bubble: t('On fire! 🔥') }
-    if (streak === 0) return { face: 'sad', bubble: t('Miss you! 💔') }
+    // "Miss you" only makes sense to someone who has actually been here before.
+    // A first-time user was being greeted by a sad otter on the very first screen.
+    if (streak === 0 && profile.daysLearning > 1) return { face: 'sad', bubble: t('Miss you! 💔') }
+    if (streak === 0) return { face: 'happy', bubble: t('Welcome! 👋') }
     if (hour < 10) return { face: 'sleepy', bubble: t('Good morning! ☕') }
     if (hour >= 22) return { face: 'sleepy', bubble: t('Late night coding! 🌙') }
     return { face: 'happy', bubble: t("Let's code! 🚀") }
 }
 
 /* ── Skill Radar (dynamic from lesson performance) ── */
-function _calcSkillRadar() {
-    const skillMap = {
-        variables: { label: 'Variables', chapters: [1] },
-        conditionals: { label: 'Conditionals', chapters: [2] },
-        loops: { label: 'Loops', chapters: [3] },
-        functions: { label: 'Functions', chapters: [4] },
-        data_structures: { label: 'Data Struct.', chapters: [5, 7] },
-        algorithms: { label: 'Algorithms', chapters: [6, 8] },
-        complexity: { label: 'Complexity', chapters: [9] },
-        graphs: { label: 'Graphs', chapters: [9] },
-        dp: { label: 'Dyn.Program', chapters: [10] },
-    }
+// Scores come from each node's own `skill` tag rather than a chapter range —
+// skills don't line up with chapters (Time Complexity is CH6, not CH9) and the
+// tag is the thing content authors actually maintain.
+const SKILL_LABELS = {
+    variables: 'Variables',
+    conditionals: 'Conditionals',
+    loops: 'Loops',
+    functions: 'Functions',
+    data_structures: 'Data Struct.',
+    algorithms: 'Algorithms',
+    complexity: 'Complexity',
+    graphs: 'Graphs',
+    dp: 'Dyn.Program',
+}
+// Must be called at render time, not at module load: journeyNodes are still at
+// their default state until loadProgress() runs, so a frozen snapshot is all zeros.
+export function getSkillRadar() {
     const result = {}
-    Object.entries(skillMap).forEach(([key, val]) => {
-        const chapterNodes = journeyNodes.filter(n => val.chapters.includes(n.chapter) && n.type === 'lesson')
-        const completed = chapterNodes.filter(n => n.status === 'completed')
-        const totalStars = completed.reduce((sum, n) => sum + (n.stars || 0), 0)
-        const maxStars = chapterNodes.length * 3
-        const score = maxStars > 0 ? Math.round((totalStars / maxStars) * 100) : 0
-        result[key] = { label: val.label, score }
+    Object.entries(SKILL_LABELS).forEach(([key, label]) => {
+        const skillNodes = journeyNodes.filter(n => n.skill === key && n.type === 'lesson')
+        const totalStars = skillNodes.reduce((sum, n) => sum + (n.status === 'completed' ? (n.stars || 0) : 0), 0)
+        const maxStars = skillNodes.length * 3
+        result[key] = { label, score: maxStars > 0 ? Math.round((totalStars / maxStars) * 100) : 0 }
     })
     return result
 }
-export const skillRadar = _calcSkillRadar()
 
 /* ── Achievements (mascot-themed) ── */
 const _savedAchievements = loadSaved('rheo_achievements', null)
@@ -418,22 +423,29 @@ export function updateQuestProgress(type, key, value) {
 }
 
 // Auto-reset monthly if new month
-if (_questState.monthlyMonth !== undefined && _questState.monthlyMonth !== _now.getMonth()) {
+if (_questState.monthlyMonth !== _now.getMonth()) {
     const state = _loadQuestState()
-    state.monthlyCurrent = 0
+    if (state.monthlyMonth !== undefined) {
+        state.monthlyCurrent = 0
+        quests.monthly.current = 0
+    }
     state.monthlyMonth = _now.getMonth()
     _saveQuestState(state)
-    quests.monthly.current = 0
 }
-// Auto-reset weekly if new week
-if (_questState.weeklyWeek !== undefined && _questState.weeklyWeek !== _currentWeekNum) {
+// Auto-reset weekly if new week.
+// weeklyWeek was only ever written inside this block, so on a fresh profile it
+// stayed undefined and the reset could never fire — weekly build + weekend
+// progress carried over forever. Stamp the current week whenever it is missing.
+if (_questState.weeklyWeek !== _currentWeekNum) {
     const state = _loadQuestState()
-    state.weeklyDone = {}
-    state.weekendCurrent = 0
+    if (state.weeklyWeek !== undefined) {
+        state.weeklyDone = {}
+        state.weekendCurrent = 0
+        quests.weeklyBuild.tasks.forEach(t => t.done = false)
+        quests.weekend.current = 0
+    }
     state.weeklyWeek = _currentWeekNum
     _saveQuestState(state)
-    quests.weeklyBuild.tasks.forEach(t => t.done = false)
-    quests.weekend.current = 0
 }
 
 /* ── Daily Quest Pool (seed-based rotation) ── */
@@ -666,8 +678,14 @@ export function getXPMultiplier() {
 }
 
 /* ── Total XP Calculator ── */
+// Level N costs 500 + (N-1)*100 XP (see addXP), so the cumulative cost of
+// reaching level L is the sum of that series — not a flat 500 per level.
+// The old flat formula under-reported lifetime XP from level 3 onward, which
+// silently held back milestone rewards and theme unlocks.
 export function getTotalXP() {
-    return (profile.level - 1) * 500 + profile.xpCurrent
+    const levelsCleared = profile.level - 1
+    const spent = levelsCleared * 500 + (levelsCleared * (levelsCleared - 1) / 2) * 100
+    return spent + profile.xpCurrent
 }
 
 const _savedStats = loadSaved(STATS_KEY, null)
@@ -675,36 +693,61 @@ const _savedStats = loadSaved(STATS_KEY, null)
 // ── Energy auto-refill based on elapsed time ──
 const MAX_ENERGY = 5
 const ENERGY_REFILL_MS = 30 * 60 * 1000 // 30 minutes per energy
-function _calcEnergy() {
-    const savedE = _savedStats?.energy ?? MAX_ENERGY
-    const lastRefill = _savedStats?.lastEnergyRefill || Date.now()
-    const elapsed = Date.now() - lastRefill
+// Returns { energy, lastEnergyRefill } for a given saved state. The refill
+// anchor MUST advance by exactly the time that was converted into energy —
+// otherwise it stays pinned at the first-ever use and every reload regenerates
+// a full bar from the same elapsed window.
+function _calcEnergy(savedE, lastRefill, now = Date.now()) {
+    if (savedE >= MAX_ENERGY) return { energy: MAX_ENERGY, lastEnergyRefill: now }
+    const elapsed = Math.max(0, now - lastRefill)
     const refilled = Math.floor(elapsed / ENERGY_REFILL_MS)
-    return Math.min(savedE + refilled, MAX_ENERGY)
+    const energy = Math.min(savedE + refilled, MAX_ENERGY)
+    // Full bar: the anchor is meaningless until the next spend, so reset it.
+    // Partial: carry the leftover remainder so progress toward the next unit is kept.
+    const lastEnergyRefill = energy >= MAX_ENERGY ? now : lastRefill + refilled * ENERGY_REFILL_MS
+    return { energy, lastEnergyRefill }
 }
+
+const _initialEnergy = _calcEnergy(
+    _savedStats?.energy ?? MAX_ENERGY,
+    _savedStats?.lastEnergyRefill || Date.now(),
+)
 
 export const stats = {
     get language() { const lang = languages.find(lg => lg.id === _activeLang); return lang || languages[0] },
     streak: _savedStats?.streak ?? 0,
     gems: _savedStats?.gems ?? 0,
-    energy: _calcEnergy(),
+    energy: _initialEnergy.energy,
     xpToday: _savedStats?.xpToday ?? 0,
     streakShield: _savedStats?.streakShield ?? false,
-    lastEnergyRefill: _savedStats?.lastEnergyRefill || Date.now(),
+    lastEnergyRefill: _initialEnergy.lastEnergyRefill,
 }
 
 // ── Energy functions ──
+// Applies any refill earned since the last check. Call before reading or
+// spending energy so a long-running session regenerates too, not just a reload.
+export function refreshEnergy() {
+    const { energy, lastEnergyRefill } = _calcEnergy(stats.energy, stats.lastEnergyRefill)
+    const changed = energy !== stats.energy || lastEnergyRefill !== stats.lastEnergyRefill
+    stats.energy = energy
+    stats.lastEnergyRefill = lastEnergyRefill
+    return changed
+}
+
 export function useEnergy() {
+    refreshEnergy()
     if (stats.energy <= 0) return false
+    // Leaving a full bar starts the refill clock now.
+    if (stats.energy >= MAX_ENERGY) stats.lastEnergyRefill = Date.now()
     stats.energy -= 1
-    stats.lastEnergyRefill = stats.energy < MAX_ENERGY ? (stats.lastEnergyRefill || Date.now()) : Date.now()
     saveProgress()
     return true
 }
 
 export function getEnergyRefillTime() {
+    refreshEnergy()
     if (stats.energy >= MAX_ENERGY) return null
-    const elapsed = Date.now() - (stats.lastEnergyRefill || Date.now())
+    const elapsed = Date.now() - stats.lastEnergyRefill
     const remaining = ENERGY_REFILL_MS - (elapsed % ENERGY_REFILL_MS)
     return Math.ceil(remaining / 60000) // minutes
 }
@@ -795,17 +838,27 @@ export function saveProgress() {
     checkAchievements()
 }
 
+// _savedStats is a snapshot taken at import, so it never sees the write this
+// function makes. Without this flag a second call in the same session (React
+// StrictMode remounts the effect in dev) counts the day twice.
+let _dailyLoginApplied = false
+
 export function loadProgress() {
     const saved = loadSaved(STORAGE_KEY, null)
-    if (!saved) return false
-    saved.forEach(s => {
-        const node = journeyNodes.find(n => n.id === s.id)
-        if (node) { node.status = s.status; node.stars = s.stars }
-    })
+    // No saved nodes is normal for a first-time user — the daily-login block
+    // below still has to run, otherwise day 1 never starts the streak and the
+    // counter stays permanently one day behind.
+    if (saved) {
+        saved.forEach(s => {
+            const node = journeyNodes.find(n => n.id === s.id)
+            if (node) { node.status = s.status; node.stars = s.stars }
+        })
+    }
     // Track daily login
     const lastDate = _savedStats?.lastSaveDate
     const today = new Date().toDateString()
-    if (lastDate !== today) {
+    if (lastDate !== today && !_dailyLoginApplied) {
+        _dailyLoginApplied = true
         profile.daysLearning = (profile.daysLearning || 0) + 1
         if (lastDate) {
             const last = new Date(lastDate)
@@ -1532,17 +1585,79 @@ nodeExercises.python = { ...pyExercises, ...pyExercisesCh6to10 }
 
 nodeExercises.javascript = { ...jsExercises, ...jsExercisesCh6to10 }
 nodeExercises.java = { ...javaExercises, ...javaExercisesCh6to10 }
+/* ── Answer-order randomisation ──────────────────────────────────────────
+   The authored pool puts the correct answer first in 61% of items and last in
+   under 1%, so "always tap A" scored ~61% without reading any code. Options are
+   permuted per install so the position carries no signal.
+
+   The permutation is derived from a stable install id + the item's identity, so
+   it never changes while a learner is answering (a re-render must not move the
+   buttons) and it stays the same if they revisit the item in review — but it
+   differs between learners, which is what kills the shared "answer key".        */
+const INSTALL_SEED_KEY = 'rheo_shuffle_seed'
+function _installSeed() {
+    let seed = loadSaved(INSTALL_SEED_KEY, null)
+    if (typeof seed !== 'number') {
+        seed = Math.floor(Math.random() * 2 ** 31)
+        saveTo(INSTALL_SEED_KEY, seed)
+    }
+    return seed
+}
+function _hash(str) {
+    let h = 2166136261
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) }
+    return h >>> 0
+}
+// Fisher-Yates driven by a seeded LCG — an unbiased permutation, unlike the
+// `sort(() => rand() - 0.5)` idiom used elsewhere in this file.
+function _seededPermutation(n, seed) {
+    const idx = Array.from({ length: n }, (_, i) => i)
+    let s = seed >>> 0
+    const next = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 2 ** 32 }
+    for (let i = n - 1; i > 0; i--) {
+        const j = Math.floor(next() * (i + 1))
+        const t = idx[i]; idx[i] = idx[j]; idx[j] = t
+    }
+    return idx
+}
+// Only touches `options`/`correct`. Types keyed on something else — `bug`
+// (correctLine), `scramble` (correctOrder), `fillgap` (correctFill matches by
+// value), `pair` (shuffles itself) — are left alone.
+function _shuffleOptions(ex, key) {
+    if (!Array.isArray(ex.options) || typeof ex.correct !== 'number' || ex.options.length < 2) return ex
+    const perm = _seededPermutation(ex.options.length, _hash(key) ^ _installSeed())
+    return {
+        ...ex,
+        options: perm.map(i => ex.options[i]),
+        correct: perm.indexOf(ex.correct),
+    }
+}
+
+// Exercises carry their own origin (_nodeId/_exerciseIndex) so a wrong answer
+// can be filed against the right node for spaced repetition. Without this the
+// lesson screen has no way to know which node it is running and every mistake
+// was recorded under node 0, which matches nothing — the review queue stayed
+// empty forever. Cached so repeated renders keep a stable array reference.
+const _taggedExercises = new Map()
 export function getExercisesForNode(nodeId, lang) {
     const l = lang || _activeLang
+    const cacheKey = `${l}:${nodeId}`
+    const cached = _taggedExercises.get(cacheKey)
+    if (cached) return cached
+
     // Try the selected language first, NO silent fallback to Python
     const exercises = nodeExercises[l]?.[nodeId] || []
-    return exercises.length > 0 ? exercises : [
-        {
-            type: 'trace', prompt: `Coming soon! ${l.charAt(0).toUpperCase() + l.slice(1)} exercises for this lesson are being prepared.`,
-            code: [{ text: '// More exercises coming soon!', highlight: true }],
-            options: ['OK!'], correct: 0
-        },
-    ]
+    const tagged = exercises.length > 0
+        ? exercises.map((ex, i) => _shuffleOptions({ ...ex, _nodeId: nodeId, _exerciseIndex: i }, `${l}:${nodeId}:${i}`))
+        : [
+            {
+                type: 'trace', prompt: `Coming soon! ${l.charAt(0).toUpperCase() + l.slice(1)} exercises for this lesson are being prepared.`,
+                code: [{ text: '// More exercises coming soon!', highlight: true }],
+                options: ['OK!'], correct: 0
+            },
+        ]
+    _taggedExercises.set(cacheKey, tagged)
+    return tagged
 }
 
 export function buildReviewExercises(lang) {
@@ -1556,7 +1671,12 @@ export function buildReviewExercises(lang) {
         const exercisesForNode = nodeExercises[l]?.[w.nodeId] || []
         const ex = exercisesForNode[w.exerciseIndex]
         if (ex) {
-            reviewQueue.push({ ...ex, _isReview: true, _nodeId: w.nodeId, _exerciseIndex: w.exerciseIndex })
+            // Same seed key as the original run, so review shows the learner the
+            // exact layout they got it wrong on.
+            reviewQueue.push(_shuffleOptions(
+                { ...ex, _isReview: true, _nodeId: w.nodeId, _exerciseIndex: w.exerciseIndex },
+                `${l}:${w.nodeId}:${w.exerciseIndex}`,
+            ))
         }
         if (reviewQueue.length >= limit) break
     }

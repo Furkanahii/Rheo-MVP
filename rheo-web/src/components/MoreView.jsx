@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { profile, stats, skillRadar } from '../data'
+import { profile, stats } from '../data'
 
 /* ═══════════════════════════════════════════
    MORE VIEW — Settings, Stats, About

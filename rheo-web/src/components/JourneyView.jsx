@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { stats, journeyNodes, skillRadar, chapterColors, languages, setActiveLanguage, getActiveLanguage, getTipOfTheDay, getWeakExercises, t } from '../data'
+import { stats, journeyNodes, getSkillRadar, chapterColors, languages, setActiveLanguage, getActiveLanguage, getTipOfTheDay, getWeakExercises, t } from '../data'
 import JourneyPath from './JourneyPath'
 
 export default function JourneyView() {
@@ -234,7 +234,7 @@ function UnitHeader({ visibleChapter }) {
 
 /* ═══════════════ SKILL RADAR ═══════════════ */
 function SkillRadar() {
-    const skills = Object.values(skillRadar)
+    const skills = Object.values(getSkillRadar())
     const n = skills.length
     const cx = 28, cy = 28, R = 22
 

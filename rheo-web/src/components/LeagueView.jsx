@@ -147,7 +147,7 @@ function Dashboard({ onStart }) {
                                 <motion.div animate={{ x: ['-100%', '200%'] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }} className="absolute inset-0" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)', width: '50%' }} />
                             </motion.div>
                         </div>
-                        <p className="text-[7px] font-black text-slate-500 text-center mt-1">{nx.minElo - duelStats.elo} ELO kaldı</p>
+                        <p className="text-[7px] font-black text-slate-500 text-center mt-1">{nx.minElo - duelStats.elo} {t('ELO remaining')}</p>
                     </div>
                 })()}
             </motion.div>
