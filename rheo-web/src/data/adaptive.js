@@ -43,7 +43,7 @@ const clamp = r => Math.min(RATING_MAX, Math.max(RATING_MIN, r))
 const CHAPTER_BASE = ch => 780 + (Math.min(Math.max(ch, 1), 10) - 1) * 115  // CH1 780 … CH10 1815
 
 const TYPE_OFFSET = {
-    video: -220, pair: -130, output: -40, trace: 0, fillgap: 20,
+    concept: -220, pair: -130, output: -40, trace: 0, fillgap: 20,
     realworld: 40, scramble: 50, errordecode: 80, bug: 90,
     refactor: 110, algostep: 120, terminal: 130, complexity: 150,
 }

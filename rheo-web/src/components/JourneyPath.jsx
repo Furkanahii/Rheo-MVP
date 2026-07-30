@@ -5,7 +5,7 @@ import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════════════════
    JourneyPath v9 — Mega Feature Pack
-   Video nodes, Playground, Code preview, moods, lesson modal
+   Concept nodes, Playground, Code preview, moods, lesson modal
    ═══════════════════════════════════════════════════════ */
 
 /* Haptic helper */
@@ -22,7 +22,7 @@ const ICONS = {
     scope: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="9" y1="13" x2="15" y2="13" /><line x1="9" y1="17" x2="15" y2="17" /></svg>,
     lock: <svg width="22" height="22" viewBox="0 0 24 24" fill="white" opacity="0.5"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z" /></svg>,
     daily: <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" /></svg>,
-    video: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="14" height="14" rx="3" /><path d="M16 10l5-3v8l-5-3z" /></svg>,
+    concept: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5a2 2 0 012-2h5v16H6a2 2 0 00-2 2z" /><path d="M20 5a2 2 0 00-2-2h-5v16h5a2 2 0 012 2z" /></svg>,
     playground: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M7 15l3-3-3-3" /><path d="M13 15h4" /></svg>,
     chest: null,
 }
@@ -38,8 +38,8 @@ const THEMES = {
     bossLock: { bg: '#44293B', border: '#1C1017', size: 68, depth: 4 },
     boss: { bg: '#DC2626', border: '#7F1D1D', size: 68, depth: 6 },
     daily: { bg: '#D97706', border: '#78350F', size: 60, depth: 6 },
-    video: { bg: '#9333EA', border: '#581C87', size: 66, depth: 6 },
-    videoLock: { bg: '#3B1A5C', border: '#1E0A38', size: 64, depth: 4 },
+    concept: { bg: '#9333EA', border: '#581C87', size: 66, depth: 6 },
+    conceptLock: { bg: '#3B1A5C', border: '#1E0A38', size: 64, depth: 4 },
     playground: { bg: '#4F46E5', border: '#312E81', size: 68, depth: 6 },
     playgroundLock: { bg: '#2A2668', border: '#1E1B4B', size: 64, depth: 4 },
 }
@@ -139,7 +139,7 @@ export default function JourneyPath({ nodes }) {
 function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
     // Derive popup type from openNodeId — only this node's popup is visible
     const isOpen = openNodeId === node.id
-    const popupType = isOpen ? (node.type === 'video' ? 'video' : node.type === 'playground' ? 'playground' : node.type === 'chest' ? 'chest' : 'start') : null
+    const popupType = isOpen ? (node.type === 'concept' ? 'concept' : node.type === 'playground' ? 'playground' : node.type === 'chest' ? 'chest' : 'start') : null
 
     const setPopup = (val) => {
         if (val) setOpenNodeId(node.id)
@@ -152,13 +152,13 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
     const isChest = node.type === 'chest'
     const isBoss = node.type === 'boss'
     const isDaily = node.type === 'daily'
-    const isVideo = node.type === 'video'
+    const isConcept = node.type === 'concept'
     const isPlayground = node.type === 'playground'
     const isAvailable = node.status === 'available'
 
     let theme
     if (isDaily) theme = THEMES.daily
-    else if (isVideo) theme = isLocked ? THEMES.videoLock : THEMES.video
+    else if (isConcept) theme = isLocked ? THEMES.conceptLock : THEMES.concept
     else if (isPlayground) theme = isLocked ? THEMES.playgroundLock : THEMES.playground
     else if (isChest) theme = isLocked ? THEMES.chestLock : THEMES.chest
     else if (isBoss) theme = isLocked ? THEMES.bossLock : THEMES.boss
@@ -203,7 +203,7 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
                 <span className="relative z-10 flex items-center justify-center">
                     {isBoss ? ICONS.boss
                         : isDaily ? ICONS.daily
-                            : isVideo ? ICONS.video
+                            : isConcept ? ICONS.concept
                                 : isPlayground ? ICONS.playground
                                     : isLocked && !isChest ? ICONS.lock
                                         : isChest ? <ChestSVG locked={isLocked} />
@@ -224,13 +224,13 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
             {popupType === 'chest' && <ChestModal node={node} onClose={() => setPopup(null)} />}
             {/* Code preview (completed) */}
             {popupType === 'code' && isCompleted && <CodePreview iconKey={node.iconKey} onClose={() => setPopup(null)} />}
-            {/* Video preview */}
-            {popupType === 'video' && <VideoPreviewModal node={node} onClose={() => setPopup(null)} />}
+            {/* Concept lesson preview */}
+            {popupType === 'concept' && <ConceptPreviewModal node={node} onClose={() => setPopup(null)} onStart={() => { window.__openLesson?.(node.id); setPopup(null) }} />}
             {/* Playground */}
             {popupType === 'playground' && <PlaygroundModal node={node} onClose={() => setPopup(null)} />}
 
             {/* Stars with pop animation */}
-            {!isChest && !isDaily && !isVideo && !isPlayground && !isOpen && (
+            {!isChest && !isDaily && !isConcept && !isPlayground && !isOpen && (
                 <div className="flex gap-1 mt-1.5">
                     {[0, 1, 2].map(s => (
                         <div key={s} className={`w-[18px] h-[18px] flex items-center justify-center rounded-full
@@ -479,7 +479,7 @@ function LessonModal({ node, onClose, onStart }) {
     const chapter = chapterColors[node.chapter] || chapterColors[1]
     const diffStars = node.type === 'boss' ? 3 : node.type === 'daily' ? 2 : 1
     const exercises = getExercisesForNode(node.id, getActiveLanguage())
-    const qCount = exercises.filter(e => e.type !== 'video').length || 1
+    const qCount = exercises.filter(e => e.type !== 'concept').length || 1
 
     return (
         <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[220px]">
@@ -520,11 +520,13 @@ function LessonModal({ node, onClose, onStart }) {
     )
 }
 
-/* ═══════════════ VIDEO PREVIEW MODAL ═══════════════ */
-function VideoPreviewModal({ node, onClose }) {
-    const vid = node.video || {}
+/* ═══════════════ CONCEPT LESSON PREVIEW MODAL ═══════════════ */
+function ConceptPreviewModal({ node, onStart }) {
+    const info = node.concept || {}
     const chapter = chapterColors[node.chapter] || chapterColors[1]
     const isCompleted = node.status === 'completed'
+    const isLocked = node.status === 'locked'
+    const cards = info.cards || 6
 
     return (
         <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[240px]">
@@ -532,52 +534,44 @@ function VideoPreviewModal({ node, onClose }) {
                 {/* Purple accent */}
                 <div className="h-2 w-full bg-purple-500" />
 
-                {/* Fake video thumbnail */}
+                {/* Card-stack preview — three tilted cards, the shape of the lesson */}
                 <div className="relative h-[100px] bg-purple-950 flex items-center justify-center overflow-hidden">
-                    {/* Film strip decoration */}
-                    <div className="absolute top-0 left-0 right-0 flex justify-between px-1">
-                        {[...Array(8)].map((_, i) => (
-                            <div key={i} className="w-4 h-3 bg-purple-800/40 rounded-sm" />
-                        ))}
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 flex justify-between px-1">
-                        {[...Array(8)].map((_, i) => (
-                            <div key={i} className="w-4 h-3 bg-purple-800/40 rounded-sm" />
-                        ))}
-                    </div>
-
-                    {/* Big play icon */}
-                    <div className="w-14 h-14 rounded-full bg-purple-600 border-b-[4px] border-purple-800 flex items-center justify-center">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+                    {[2, 1, 0].map(i => (
+                        <div key={i} className="absolute w-[74px] h-[58px] rounded-lg bg-purple-800/70 border border-purple-500/40"
+                            style={{ transform: `translateX(${(i - 1) * 16}px) rotate(${(i - 1) * 7}deg)`, opacity: 1 - i * 0.28 }} />
+                    ))}
+                    <div className="relative w-[74px] h-[58px] rounded-lg bg-slate-900 border border-purple-400/60 flex flex-col justify-center px-2.5 gap-1">
+                        <div className="h-[3px] w-[80%] rounded-full bg-purple-400/80" />
+                        <div className="h-[2px] w-[95%] rounded-full bg-slate-600" />
+                        <div className="h-[2px] w-[60%] rounded-full bg-slate-600" />
+                        <div className="h-[2px] w-[85%] rounded-full bg-slate-700" />
                     </div>
 
-                    {/* Duration badge */}
+                    {/* Length badge */}
                     <div className="absolute bottom-2 right-2 bg-black/60 rounded px-1.5 py-0.5">
-                        <span className="text-[9px] font-bold text-white">{vid.duration || '0:00'}</span>
+                        <span className="text-[9px] font-bold text-white">{cards} {t('cards')} · ~{info.minutes || 2} {t('min')}</span>
                     </div>
 
-                    {/* Coming Soon or Watched badge */}
-                    {!isCompleted && (
-                        <div className="absolute top-2 left-2 bg-amber-500 rounded-full px-2 py-0.5">
-                            <span className="text-[7px] font-black text-amber-950">COMING SOON</span>
-                        </div>
-                    )}
                     {isCompleted && (
                         <div className="absolute top-2 left-2 bg-emerald-500 rounded-full px-2 py-0.5">
-                            <span className="text-[7px] font-black text-emerald-950">✓ WATCHED</span>
+                            <span className="text-[7px] font-black text-emerald-950">✓ {t('READ')}</span>
                         </div>
                     )}
                 </div>
 
                 <div className="p-4 text-center">
                     <h3 className="text-sm font-black text-white mb-1">{t(node.title)}</h3>
-                    <p className="text-[10px] font-bold text-purple-400 mb-1">by {vid.creator || 'Rheo Team'}</p>
-                    <p className="text-[9px] font-bold text-slate-500 mb-3">{chapter.name} • {vid.duration}</p>
+                    <p className="text-[10px] font-bold text-purple-400 mb-1">{t('Swipe-through concept lesson')}</p>
+                    <p className="text-[9px] font-bold text-slate-500 mb-3">{t(chapter.name)} • {t('no wrong answers')}</p>
 
-                    <button onClick={() => { haptic(); onClose() }}
-                        className="w-full py-2.5 rounded-xl font-black text-sm text-white bg-purple-600 border-b-[4px] border-purple-800 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer">
-                        {isCompleted ? '↺ REWATCH' : '▶ WATCH'}
-                    </button>
+                    {isLocked ? (
+                        <p className="text-[10px] font-bold text-slate-500">{t('Complete previous lessons to unlock')}</p>
+                    ) : (
+                        <button onClick={() => { haptic(); onStart?.() }}
+                            className="w-full py-2.5 rounded-xl font-black text-sm text-white bg-purple-600 border-b-[4px] border-purple-800 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer">
+                            {isCompleted ? `↺ ${t('READ AGAIN')}` : `📖 ${t('LEARN')}`}
+                        </button>
+                    )}
                 </div>
             </div>
             <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-900 border-r-2 border-b-2 border-purple-600/50 rotate-45" />

@@ -1,14 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
-import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled, recordAttempt } from '../data'
+import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled, recordAttempt, chapterColors } from '../data'
+import { getConceptDeck } from '../data/concepts.js'
+import ConceptDeck from './ConceptDeck'
 import { showXP, showAchievement } from './XPToast'
 import { haptic as nativeHaptic, share as nativeShare } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════════════════
    LESSON SCREEN — 12 Exercise Types, Full-screen overlay
-   Types: trace, bug, scramble, video, output, fillgap,
+   Types: trace, bug, scramble, concept, output, fillgap,
           pair, refactor, errordecode, terminal, algostep, realworld
+
+   'concept' is the swipeable micro-lesson (konu anlatımı) that opens a
+   chapter. It is taught, not answered: no score, no hearts — it only
+   unlocks CONTINUE once the learner reaches the last card.
    ═══════════════════════════════════════════════════════ */
 
 // Routes to real native haptics inside the app (iOS/Android); falls back to
@@ -65,6 +71,9 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     const ex = exercises[step]
     const progress = ((step + (answered ? 1 : 0)) / exercises.length) * 100
     const isLast = step === exercises.length - 1
+    // Concept cards are read, not answered — leaving them in the denominator
+    // would cap a flawless run at 2/3 and report it as 67% accuracy.
+    const scorableTotal = exercises.filter(e => e.type !== 'concept').length || exercises.length
 
     // Reset timer when step changes
     useEffect(() => { setQuestionStartTime(Date.now()) }, [step])
@@ -74,51 +83,36 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     const handleCheck = () => {
         // ← Block if already transitioning (prevents Continue spam bug)
         if (isTransitioning) return
-        if (!answered && ex.type !== 'video') return
+        if (!answered) return
         haptic()
-        if (answered || ex.type === 'video') {
-            setIsTransitioning(true) // ← Lock
-            // Show otter message briefly before advancing
-            if (answered && isCorrect !== null) {
-                const msg = isCorrect
-                    ? (streak >= 7 ? pickRandom(OTTER_MSGS.streak7)
-                        : streak >= 5 ? pickRandom(OTTER_MSGS.streak5)
-                            : streak >= 3 ? pickRandom(OTTER_MSGS.streak3)
-                                : pickRandom(OTTER_MSGS.correct))
-                    : pickRandom(OTTER_MSGS.wrong)
-                setOtterMsg(msg)
-                setTimeout(() => {
-                    setOtterMsg(null)
-                    if (isLast) { setShowResult(true) }
-                    else {
-                        setStep(s => s + 1)
-                        setAnswered(false)
-                        setIsCorrect(null)
-                        setSelected(null)
-                        setShowParticles(null)
-                        setSpeedBonus(false)
-                        setStreakMsg(null)
-                        setHintUsed(false)
-                        setShowHint(false)
-                    }
-                    setIsTransitioning(false) // ← Unlock
-                }, 800)
-            } else {
-                if (isLast) { setShowResult(true) }
-                else {
-                    setStep(s => s + 1)
-                    setAnswered(false)
-                    setIsCorrect(null)
-                    setSelected(null)
-                    setShowParticles(null)
-                    setSpeedBonus(false)
-                    setStreakMsg(null)
-                    setHintUsed(false)
-                    setShowHint(false)
-                }
-                setIsTransitioning(false) // ← Unlock
+        setIsTransitioning(true) // ← Lock
+        const advance = () => {
+            if (isLast) { setShowResult(true) }
+            else {
+                setStep(s => s + 1)
+                setAnswered(false)
+                setIsCorrect(null)
+                setSelected(null)
+                setShowParticles(null)
+                setSpeedBonus(false)
+                setStreakMsg(null)
+                setHintUsed(false)
+                setShowHint(false)
             }
+            setIsTransitioning(false) // ← Unlock
         }
+        // Concept cards set answered without a verdict — nothing to celebrate,
+        // so they advance straight away instead of waiting on an otter message.
+        if (isCorrect === null) { advance(); return }
+        // Show otter message briefly before advancing
+        const msg = isCorrect
+            ? (streak >= 7 ? pickRandom(OTTER_MSGS.streak7)
+                : streak >= 5 ? pickRandom(OTTER_MSGS.streak5)
+                    : streak >= 3 ? pickRandom(OTTER_MSGS.streak3)
+                        : pickRandom(OTTER_MSGS.correct))
+            : pickRandom(OTTER_MSGS.wrong)
+        setOtterMsg(msg)
+        setTimeout(() => { setOtterMsg(null); advance() }, 800)
     }
 
     const handleAnswer = (correct) => {
@@ -186,7 +180,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     }
 
     if (showResult) {
-        return <LessonComplete hearts={hearts} total={exercises.length} correct={correctCount}
+        return <LessonComplete hearts={hearts} total={scorableTotal} correct={correctCount}
             bestStreak={bestStreak} fastestTime={fastestTime} questionTimes={questionTimes}
             wrongQuestions={wrongQuestions} xpBreakdown={xpEarned} onClose={onClose} />
     }
@@ -220,7 +214,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             {/* ═══ TOP BAR ═══ */}
             <div className="shrink-0 flex items-center gap-3 px-4 py-3"
                 style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}>
-                <button onClick={() => onClose({ completed: false, stars: 0, correct: correctCount, total: exercises.length })} className="text-slate-500 hover:text-white transition cursor-pointer p-1">
+                <button onClick={() => onClose({ completed: false, stars: 0, correct: correctCount, total: scorableTotal })} className="text-slate-500 hover:text-white transition cursor-pointer p-1">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                         <path d="M18 6L6 18M6 6l12 12" />
                     </svg>
@@ -272,7 +266,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
 
             {/* ═══ HINT BUTTON (after wrong answer) ═══ */}
             <AnimatePresence>
-                {answered && !isCorrect && !hintUsed && !showHint && (
+                {answered && isCorrect === false && !hintUsed && !showHint && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         className="flex justify-center gap-2 py-1">
                         <button onClick={() => {
@@ -330,7 +324,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         {ex.type === 'trace' && <TraceVariable ex={ex} selected={selected} setSelected={setSelected} answered={answered} onAnswer={handleAnswer} />}
                         {ex.type === 'bug' && <BugHunt ex={ex} selected={selected} setSelected={setSelected} answered={answered} onAnswer={handleAnswer} />}
                         {ex.type === 'scramble' && <CodeScramble ex={ex} answered={answered} onAnswer={handleAnswer} />}
-                        {ex.type === 'video' && <VideoByte ex={ex} onReady={() => { setAnswered(true); setIsCorrect(true) }} />}
+                        {ex.type === 'concept' && <ConceptCard ex={ex} onFinish={() => setAnswered(true)} />}
                         {ex.type === 'output' && <OutputPredict ex={ex} selected={selected} setSelected={setSelected} answered={answered} onAnswer={handleAnswer} />}
                         {ex.type === 'fillgap' && <FillTheGap ex={ex} answered={answered} onAnswer={handleAnswer} />}
                         {ex.type === 'pair' && <PairMatch ex={ex} answered={answered} onAnswer={handleAnswer} />}
@@ -379,13 +373,14 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             <div className="shrink-0 px-5 py-4 border-t border-slate-800/60"
                 style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleCheck}
-                    disabled={!answered && ex.type !== 'video'}
-                    className={`w-full py-4 rounded-2xl font-black text-base text-white border-b-[6px] 
+                    disabled={!answered}
+                    className={`w-full py-4 rounded-2xl font-black text-base text-white border-b-[6px]
                         active:translate-y-[6px] active:border-b-0 transition-all duration-75 cursor-pointer
-                        ${answered || ex.type === 'video'
+                        ${answered
                             ? isCorrect === false ? 'bg-red-500 border-b-red-700' : 'bg-teal-500 border-b-teal-700'
                             : 'bg-slate-700 border-b-slate-900 opacity-50 cursor-default'}`}>
-                    {ex.type === 'video' ? t('CONTINUE') : answered ? (isLast ? t('FINISH') : t('CONTINUE')) : t('CHECK')}
+                    {ex.type === 'concept' ? (isLast ? t('FINISH') : t('CONTINUE'))
+                        : answered ? (isLast ? t('FINISH') : t('CONTINUE')) : t('CHECK')}
                 </motion.button>
             </div>
         </motion.div>
@@ -540,41 +535,28 @@ function CodeScramble({ ex, answered, onAnswer }) {
 }
 
 /* ═══════════════════════════════════════════
-   TYPE 4: VIDEO BYTE
+   TYPE 4: CONCEPT CARD — swipeable micro-lesson
+   Looks the deck up by chapter + active language, so a learner who
+   switches language mid-journey gets the lesson in that language.
    ═══════════════════════════════════════════ */
-function VideoByte({ ex, onReady }) {
-    const [playing, setPlaying] = useState(false)
-    const handlePlay = () => { setPlaying(true); setTimeout(() => onReady(), 1000) }
-    return (
-        <div>
-            <div className="flex items-center gap-2 mb-4">
-                <span className="text-lg">🎥</span>
-                <p className="text-sm font-black text-white">{ex.title}</p>
+function ConceptCard({ ex, onFinish }) {
+    const lang = getActiveLanguage()
+    const deck = getConceptDeck(ex.chapter, lang)
+    const accent = chapterColors[ex.chapter]?.accent || '#2DD4BF'
+
+    // No deck authored for this chapter yet — say so and let the learner move
+    // on rather than trapping them behind a CONTINUE that never unlocks.
+    useEffect(() => { if (!deck) onFinish?.() }, [deck, onFinish])
+    if (!deck) {
+        return (
+            <div className="rounded-2xl bg-slate-800 border border-slate-700/40 border-b-[4px] border-b-slate-950 p-5 text-center">
+                <p className="text-3xl mb-2">📖</p>
+                <p className="text-xs font-bold text-slate-400">{t('This concept lesson is coming soon.')}</p>
             </div>
-            <div className="relative rounded-2xl border border-slate-700/50 border-b-[5px] border-b-slate-950 overflow-hidden aspect-video flex items-center justify-center mb-5"
-                style={{ background: 'radial-gradient(ellipse at center, #1e293b 0%, #0b1120 80%)' }}>
-                {/* Large watermark thumbnail */}
-                <span className="absolute text-[110px] opacity-10 select-none pointer-events-none">{ex.thumbnail || '🎬'}</span>
-                {!playing ? (
-                    <motion.button whileTap={{ scale: 0.9 }} onClick={handlePlay} className="relative flex flex-col items-center gap-3 cursor-pointer">
-                        <motion.div animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
-                            className="w-16 h-16 rounded-full bg-teal-500 border-b-[5px] border-teal-700 flex items-center justify-center shadow-lg shadow-teal-900/40">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="10,8 16,12 10,16" /></svg>
-                        </motion.div>
-                        <span className="text-xs font-bold text-slate-400">▶ {t('Watch')} · {ex.duration}</span>
-                    </motion.button>
-                ) : (
-                    <div className="relative text-center px-6">
-                        <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} className="text-4xl mb-3">⚡</motion.div>
-                        <p className="text-xs font-bold text-teal-400">{t('Playing...')}</p>
-                    </div>
-                )}
-            </div>
-            <div className="rounded-2xl bg-slate-800 border border-slate-700/40 border-b-[4px] border-b-slate-950 p-4">
-                <p className="text-xs font-bold text-slate-400 leading-relaxed">{ex.description}</p>
-            </div>
-        </div>
-    )
+        )
+    }
+
+    return <ConceptDeck deck={deck} accent={accent} onFinish={onFinish} />
 }
 
 /* ═══════════════════════════════════════════

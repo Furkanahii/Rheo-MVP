@@ -32,8 +32,14 @@ const _tr = {
     'Use Optional to avoid null!': "null'dan kaçınmak için Optional kullan!",
     // ── Complexity Match ──
     'WHICH IS MORE EFFICIENT?': 'HANGİSİ DAHA VERİMLİ?',
-    // ── Video byte ──
-    'Watch': 'İzle', 'Playing...': 'Oynatılıyor...',
+    // ── Concept deck (konu anlatımı) ──
+    'Swipe to continue': 'Devam etmek için kaydır',
+    'Lesson read — tap CONTINUE': 'Konu bitti — DEVAM’a bas',
+    'Swipe-through concept lesson': 'Kaydırmalı konu anlatımı',
+    'This concept lesson is coming soon.': 'Bu konu anlatımı çok yakında.',
+    'no wrong answers': 'yanlış cevap yok',
+    'cards': 'kart', 'min': 'dk', 'READ': 'OKUNDU', 'READ AGAIN': 'TEKRAR OKU', 'LEARN': 'ÖĞREN',
+    'Complete previous lessons to unlock': 'Kilidi açmak için önceki dersleri bitir',
     // ── Share result ──
     'Share result': 'Sonucu Paylaş', 'I just aced a Rheo lesson!': "Rheo'da bir dersi başarıyla bitirdim!",
     // ── Chapters & skills (journey) ──
@@ -127,18 +133,18 @@ const _tr = {
     'Algorithms II': 'Algoritmalar II', 'Advanced': 'İleri Seviye', 'Mastery': 'Ustalık',
     // Node titles
     'Read & Trace': 'Oku & Takip Et', 'Debug It!': 'Hatayı Bul!',
-    'Watch: Variables': 'İzle: Değişkenler', 'Loot Crate': 'Ödül Sandığı',
+    'Learn: Variables': 'Konu: Değişkenler', 'Loot Crate': 'Ödül Sandığı',
     'Conditional Logic': 'Koşullu Mantık', 'Boolean Mastery': 'Boolean Ustalığı',
-    "Today's Challenge": 'Günün Mücadelesi', 'Watch: Conditionals': 'İzle: Koşullar',
+    "Today's Challenge": 'Günün Mücadelesi', 'Learn: Conditionals': 'Konu: Koşullar',
     'Loop Basics': 'Döngü Temelleri', 'Nested Loops': 'İç İçe Döngüler',
     'Try: Loops': 'Dene: Döngüler', 'Function Design': 'Fonksiyon Tasarımı',
-    'Scope & Closures': 'Kapsam & Closure', 'Watch: Functions': 'İzle: Fonksiyonlar',
+    'Scope & Closures': 'Kapsam & Closure', 'Learn: Functions': 'Konu: Fonksiyonlar',
     'Boss: Recursion': 'Boss: Özyineleme', 'Arrays Deep': 'Diziler Derinlemesine',
     'Strings & Maps': 'String & Map', 'Try: Collections': 'Dene: Koleksiyonlar',
     'Sorting Showdown': 'Sıralama Düellosu', 'Binary Search': 'İkili Arama',
     'Time Complexity': 'Zaman Karmaşıklığı', 'Boss: Algorithms': 'Boss: Algoritmalar',
     'Stack & Queue': 'Stack & Kuyruk', 'Linked Lists': 'Bağlı Listeler',
-    'Trees Intro': 'Ağaçlara Giriş', 'Watch: Structures': 'İzle: Yapılar',
+    'Trees Intro': 'Ağaçlara Giriş', 'Learn: Structures': 'Konu: Veri Yapıları',
     'Recursive Thinking': 'Özyinelemeli Düşünme', 'Divide & Conquer': 'Böl & Yönet',
     'Memoization & DP': 'Memoization & DP', 'Boss: Recursion++': 'Boss: Özyineleme++',
     'Graph Basics': 'Graf Temelleri', 'BFS & DFS': 'BFS & DFS',
