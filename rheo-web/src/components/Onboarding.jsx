@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { t, isHapticEnabled, setDailyXPGoal } from '../data'
+import { t, isHapticEnabled, setDailyXPGoal, addXP } from '../data'
 import LivingOtter, { CodeRain } from './LivingOtter'
 
 /* ══════════════════════════════════════════════
@@ -15,6 +15,9 @@ const BUG_CODE = [
 ]
 
 const NEON_PARTICLES = ['⚡', '💥', '✦', '🔥', '💎', '⭐']
+
+// Reward for the "First Blood" bug hunt — must match the "+50 XP 🎉" label below
+const FIRST_BLOOD_XP = 50
 
 export default function Onboarding({ onFinish }) {
     const [phase, setPhase] = useState('intro') // intro -> hunt -> explosion -> welcome -> goal -> done
@@ -74,17 +77,19 @@ export default function Onboarding({ onFinish }) {
         setPhase('goal')
     }, [])
 
-    const handleSelectGoal = useCallback((amount) => {
-        setDailyXPGoal(amount)
+    // Goal first, then the XP — so updateDailyXPGoal() measures against the goal
+    // the user just picked. FIRST_BLOOD_XP is the "+50 XP 🎉" promised on the
+    // welcome screen; without this the reward was shown but never credited.
+    const finishOnboarding = useCallback((goalAmount) => {
+        setDailyXPGoal(goalAmount)
+        addXP(FIRST_BLOOD_XP)
         setPhase('done')
         onFinish()
     }, [onFinish])
 
-    const handleSkip = useCallback(() => {
-        setDailyXPGoal(100) // Default
-        setPhase('done')
-        onFinish()
-    }, [onFinish])
+    const handleSelectGoal = useCallback((amount) => finishOnboarding(amount), [finishOnboarding])
+
+    const handleSkip = useCallback(() => finishOnboarding(100), [finishOnboarding])
 
     return (
         <motion.div
@@ -129,7 +134,7 @@ export default function Onboarding({ onFinish }) {
                                 transition={{ delay: 0.4 }}
                                 className="mt-6 text-center">
                                 <h1 className="text-2xl font-black text-white mb-2">🔍 {t('Bug Detected!')}</h1>
-                                <p className="text-sm font-bold text-slate-400">{t('Bu kodda bir hata var. Onu bulabilir misin?')}</p>
+                                <p className="text-sm font-bold text-slate-400">{t('There is a bug in this code. Can you find it?')}</p>
                             </motion.div>
 
                             <motion.div
@@ -156,7 +161,7 @@ export default function Onboarding({ onFinish }) {
                             </motion.div>
 
                             <p className="text-xs font-black text-cyan-400 tracking-wider mb-4">
-                                🎯 {t('HATALI SATIRI BUL VE TIKLA')}
+                                🎯 {t('TAP THE BROKEN LINE')}
                             </p>
 
                             {/* Code Block */}
@@ -187,7 +192,7 @@ export default function Onboarding({ onFinish }) {
                                             {/* Line number */}
                                             <span className="text-[10px] font-mono font-bold text-slate-600 w-4 text-right select-none">{i + 1}</span>
                                             {/* Code text */}
-                                            <code className={`text-xs font-mono font-bold flex-1 ${foundBug && line.hasBug ? 'text-emerald-400' : 'text-slate-300'
+                                            <code className={`text-xs font-mono font-bold flex-1 whitespace-pre ${foundBug && line.hasBug ? 'text-emerald-400' : 'text-slate-300'
                                                 }`}>
                                                 {foundBug && line.hasBug ? line.fixed : line.text}
                                             </code>
@@ -272,7 +277,7 @@ export default function Onboarding({ onFinish }) {
                                 <p className="text-sm font-bold text-slate-400 mt-1">
                                     {t('You started your journey by finding your first bug!')}
                                 </p>
-                                <p className="text-xs font-bold text-teal-500 mt-2">+50 XP 🎉</p>
+                                <p className="text-xs font-bold text-teal-500 mt-2">+{FIRST_BLOOD_XP} XP 🎉</p>
                             </motion.div>
 
                             {phase === 'welcome' && (

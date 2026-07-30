@@ -11,3 +11,6 @@ export { getLocale, setLocale, t } from './i18n.js'
 
 // Layer 3: Core (journey, profile, quests, league — everything else)
 export * from './core.js'
+
+// Layer 4: Adaptive difficulty (item + learner ratings, lesson selection)
+export * from './adaptive.js'

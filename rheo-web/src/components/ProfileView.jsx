@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import HologramCard from './HologramCard'
-import { profile, stats, skillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled, isSoundEnabled, setLocale, getLocale, duelStats, languages, getLeagueTier, getLangElo } from '../data'
+import { getActivityGrid, getOverallAbility, getAbilityBySkill, getBand, getBandProgress, profile, stats, getSkillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled, isSoundEnabled, setLocale, getLocale, duelStats, languages, getLeagueTier, getLangElo } from '../data'
 import { showXP, showAchievement } from './XPToast'
 import { share as nativeShare, haptic } from '../nativeBridge'
 
@@ -188,6 +188,12 @@ export default function ProfileView() {
                     className="rounded-2xl p-5 bg-slate-800 border-2 border-slate-700/40 border-b-[5px] border-b-slate-950">
                     <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">{t('SKILL RADAR')}</h3>
                     <BigRadar />
+                    <div className="my-6 h-px bg-slate-700/50" />
+                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">{t('ACTIVITY')}</h3>
+                    <ActivityGrid />
+                    <div className="my-6 h-px bg-slate-700/50" />
+                    <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">{t('CODE READING LEVEL')}</h3>
+                    <ReadingLevel />
                     <div className="my-6 h-px bg-slate-700/50" />
                     <h3 className="text-xs font-extrabold text-slate-400 tracking-wider mb-4">{t('LANGUAGE MASTERY')}</h3>
                     <LanguageMastery />
@@ -487,8 +493,140 @@ function StatBox({ icon, label, value, color }) {
 }
 
 /* ── Big Skill Radar ── */
+/* ═══════════════════════════════════════════
+   ACTIVITY GRID — GitHub / LeetCode style contribution calendar
+   One square per day, one column per week. Scrolls horizontally and opens
+   pinned to today, because a year of weeks cannot fit a phone at a readable
+   square size and shrinking them to fit makes the whole thing unreadable.
+   ═══════════════════════════════════════════ */
+const ACTIVITY_SHADES = ['#1E293B', '#134E4A', '#0F766E', '#14B8A6', '#5EEAD4']
+const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+function ActivityGrid({ weeks = 53 }) {
+    const { columns, total, activeDays } = getActivityGrid(weeks)
+    const [picked, setPicked] = useState(null)
+    const scrollRef = useRef(null)
+
+    // Open scrolled to today — the most recent weeks are the ones worth seeing.
+    useEffect(() => {
+        const el = scrollRef.current
+        if (el) el.scrollLeft = el.scrollWidth
+    }, [])
+
+    // A month label sits above the first column that belongs to that month.
+    let lastMonth = -1
+    const monthLabels = columns.map(col => {
+        const m = col[0].month
+        if (m !== lastMonth) { lastMonth = m; return MONTH_SHORT[m] }
+        return null
+    })
+
+    return (
+        <div>
+            <div className="flex items-baseline justify-between mb-3">
+                <span className="text-sm font-black text-white">
+                    {total} <span className="text-xs font-bold text-slate-500">{t('questions in the last year')}</span>
+                </span>
+                <span className="text-[10px] font-bold text-slate-500">{activeDays} {t('active days')}</span>
+            </div>
+
+            <div ref={scrollRef} className="overflow-x-auto pb-1 -mx-1 px-1">
+                <div className="inline-flex flex-col gap-1 min-w-max">
+                    <div className="flex gap-[3px] h-3">
+                        {monthLabels.map((label, i) => (
+                            <div key={i} className="w-[10px] shrink-0 relative">
+                                {label && <span className="absolute left-0 top-0 text-[8px] font-bold text-slate-600 whitespace-nowrap">{label}</span>}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex gap-[3px]">
+                        {columns.map((col, w) => (
+                            <div key={w} className="flex flex-col gap-[3px]">
+                                {col.map(day => day.future ? (
+                                    <div key={day.key} className="w-[10px] h-[10px]" />
+                                ) : (
+                                    <button key={day.key} onClick={() => setPicked(day)}
+                                        aria-label={`${day.key}: ${day.n}`}
+                                        className="w-[10px] h-[10px] rounded-[2px] cursor-pointer transition-transform active:scale-125"
+                                        style={{
+                                            backgroundColor: ACTIVITY_SHADES[day.level],
+                                            outline: picked?.key === day.key ? '1.5px solid #5EEAD4' : 'none',
+                                        }} />
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex items-center justify-between mt-2.5">
+                <span className="text-[10px] font-bold text-slate-500 min-h-[14px]">
+                    {picked
+                        ? picked.n === 0
+                            ? `${picked.key} — ${t('no questions')}`
+                            : `${picked.key} — ${picked.n} ${t('questions')}, ${picked.ok} ${t('correct')}`
+                        : t('Tap a square for that day')}
+                </span>
+                <div className="flex items-center gap-1 shrink-0">
+                    <span className="text-[9px] font-bold text-slate-600">{t('Less')}</span>
+                    {ACTIVITY_SHADES.map((c, i) => (
+                        <div key={i} className="w-[9px] h-[9px] rounded-[2px]" style={{ backgroundColor: c }} />
+                    ))}
+                    <span className="text-[9px] font-bold text-slate-600">{t('More')}</span>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+/* ═══════════════════════════════════════════
+   CODE READING LEVEL — Junior / Mid / Senior
+   Reads the adaptive engine's ability rating, on the same scale as arena ELO.
+   ═══════════════════════════════════════════ */
+function ReadingLevel() {
+    const rating = getOverallAbility()
+    const { band, next, progress, remaining } = getBandProgress(rating)
+    const skills = getAbilityBySkill()
+
+    return (
+        <div>
+            <div className="flex items-end justify-between mb-2">
+                <div>
+                    <span className="text-2xl font-black" style={{ color: band.color }}>{t(band.label)}</span>
+                    <span className="ml-2 text-xs font-bold text-slate-500">{Math.round(rating)}</span>
+                </div>
+                {next && <span className="text-[10px] font-bold text-slate-500">{remaining} {t('to')} {t(next.label)}</span>}
+            </div>
+
+            <div className="h-2.5 rounded-full bg-slate-900 overflow-hidden border-b-2 border-slate-950">
+                <motion.div initial={{ width: 0 }} animate={{ width: `${progress * 100}%` }}
+                    transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+                    className="h-full rounded-full" style={{ backgroundColor: band.color }} />
+            </div>
+
+            {skills.length === 0 ? (
+                <p className="text-[10px] font-bold text-slate-600 mt-3">{t('Answer a few questions and your level will calibrate itself.')}</p>
+            ) : (
+                <div className="mt-4 space-y-1.5">
+                    {skills.slice(0, 5).map(s => {
+                        const b = getBand(s.rating)
+                        return (
+                            <div key={s.skill} className="flex items-center gap-2">
+                                <span className="text-[11px] font-bold text-slate-400 flex-1 truncate">{t(s.skill)}</span>
+                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded"
+                                    style={{ color: b.color, backgroundColor: b.color + '1A' }}>{t(b.label)}</span>
+                                <span className="text-[10px] font-bold text-slate-600 w-9 text-right">{s.rating}</span>
+                            </div>
+                        )
+                    })}
+                </div>
+            )}
+        </div>
+    )
+}
+
 function BigRadar() {
-    const skills = Object.values(skillRadar)
+    const skills = Object.values(getSkillRadar())
     const n = skills.length
     const cx = 90, cy = 90, R = 52
 

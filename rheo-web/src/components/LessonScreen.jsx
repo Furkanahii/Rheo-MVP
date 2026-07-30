@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
-import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled } from '../data'
+import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled, recordAttempt } from '../data'
 import { showXP, showAchievement } from './XPToast'
 import { haptic as nativeHaptic, share as nativeShare } from '../nativeBridge'
 
@@ -126,6 +126,10 @@ export default function LessonScreen({ onClose, exercises = [] }) {
         setAnswered(true)
         setIsCorrect(correct)
 
+        // Feed the adaptive engine: moves this learner's rating on this skill and
+        // this question's difficulty rating. Drives what the next lesson serves.
+        recordAttempt(ex, correct)
+
         // Time tracking
         const elapsed = (Date.now() - questionStartTime) / 1000
         setQuestionTimes(prev => [...prev, elapsed])
@@ -169,8 +173,10 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             setStreakMsg(null)
             // Track wrong question for Review Mistakes
             setWrongQuestions(prev => [...prev, { prompt: ex.prompt || ex.question || ex.text || '', correct: ex.options?.[ex.correct] || ex.correctLine?.toString() || '—', type: ex.type }])
-            // Spaced repetition: track for future review
-            trackWrongAnswer(ex._nodeId || 0, step, ex.type)
+            // Spaced repetition: track for future review. _nodeId/_exerciseIndex
+            // come from getExercisesForNode (and are preserved by the review
+            // builder), so a mistake made in review re-files against its origin.
+            if (ex._nodeId) trackWrongAnswer(ex._nodeId, ex._exerciseIndex ?? step, ex.type)
             const newHearts = Math.max(0, hearts - 1)
             setHearts(newHearts)
             if (newHearts === 0) {
@@ -339,11 +345,14 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                 </AnimatePresence>
             </div>
 
-            {/* ═══ FEEDBACK BAR ═══ */}
+            {/* ═══ FEEDBACK BAR ═══
+                shrink-0 keeps a multi-line explanation from being squeezed under the
+                action bar — the scrollable exercise area above gives up the space
+                instead. The max-height stops a long one from eating the screen. */}
             <AnimatePresence>
                 {answered && isCorrect !== null && (
                     <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
-                        className={`px-5 py-3 flex items-start gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-red-500/10 border-t border-red-700/30'}`}>
+                        className={`shrink-0 max-h-[40vh] overflow-y-auto px-5 py-3 flex items-start gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-red-500/10 border-t border-red-700/30'}`}>
                         <span className="text-xl">{isCorrect ? '✅' : '❌'}</span>
                         <div className="flex-1 min-w-0">
                             <p className={`text-sm font-black ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>{isCorrect ? t('Correct!') : t('Wrong!')}</p>
@@ -1260,13 +1269,14 @@ function CodeColored({ text }) {
     const builtins = ['len', 'range', 'print', 'int', 'str', 'list', 'append', 'console', 'log', 'System', 'out', 'println', 'push', 'size', 'add', 'Map', 'List', 'ArrayList', 'Array', 'Math']
 
     // Handle full-line comments first
+    // whitespace-pre: leading indentation IS the semantics in Python — never collapse it
     if (text.trimStart().startsWith('#') || text.trimStart().startsWith('//')) {
-        return <span className="text-slate-600">{text}</span>
+        return <span className="text-slate-600 whitespace-pre">{text}</span>
     }
 
     const tokens = text.split(/(\s+|[()[\]{},.:;=+\-*/%<>!&|?]+|"[^"]*"|'[^']*'|`[^`]*`)/g).filter(Boolean)
     return (
-        <span className="text-slate-300">
+        <span className="text-slate-300 whitespace-pre">
             {tokens.map((token, i) => {
                 const t = token.trim()
                 if (keywords.includes(t)) return <span key={i} className="text-purple-400">{token}</span>

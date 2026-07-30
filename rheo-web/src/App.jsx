@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
 import JourneyView from './components/JourneyView'
 const QuestsView = lazy(() => import('./components/QuestsView'))
 const LeagueView = lazy(() => import('./components/LeagueView'))
@@ -11,7 +11,7 @@ import Onboarding from './components/Onboarding'
 import LessonScreen from './components/LessonScreen'
 import { SplashScreen } from './components/LivingOtter'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getExercisesForNode, getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises } from './data'
+import { getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises, selectExercisesForNode } from './data'
 
 // Lazy loading fallback
 const LazyFallback = () => <div className="h-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" /></div>
@@ -64,10 +64,14 @@ export default function App() {
         setShowDaily(true)
     }
 
-    // Get exercises for the active node + language
-    const exercises = lessonNodeId === 'review_weaknesses' 
-        ? buildReviewExercises(getActiveLanguage())
-        : (lessonNodeId ? getExercisesForNode(lessonNodeId, getActiveLanguage()) : [])
+    // Pick the questions ONCE, when the lesson opens. The adaptive selector reads
+    // the learner's ability, which changes with every answer — recomputing on each
+    // render would swap the questions out from under the lesson mid-run.
+    const exercises = useMemo(() => {
+        if (!lessonNodeId) return []
+        if (lessonNodeId === 'review_weaknesses') return buildReviewExercises(getActiveLanguage())
+        return selectExercisesForNode(lessonNodeId, getActiveLanguage())
+    }, [lessonNodeId])
 
     // Energy gate — consume energy when lesson screen opens
     useEffect(() => {
