@@ -563,12 +563,16 @@ function ConceptCard({ ex, onFinish }) {
    TYPE 5: OUTPUT PREDICT
    ═══════════════════════════════════════════ */
 function OutputPredict({ ex, selected, setSelected, answered, onAnswer }) {
+    // The terminal types the real output — so it must stay blank until the
+    // learner has committed. Running it on mount printed the answer above the
+    // options and turned every question of this type into a free point.
     const [termLine, setTermLine] = useState('')
     useEffect(() => {
+        if (!answered) { setTermLine(''); return }
         let i = 0
         const interval = setInterval(() => { if (i <= ex.terminalOutput.length) { setTermLine(ex.terminalOutput.slice(0, i)); i++ } else clearInterval(interval) }, 100)
         return () => clearInterval(interval)
-    }, [ex.terminalOutput])
+    }, [ex.terminalOutput, answered])
     const handleSelect = (idx) => { if (answered) return; setSelected(idx); onAnswer(idx === ex.correct) }
     return (
         <div>
@@ -580,7 +584,10 @@ function OutputPredict({ ex, selected, setSelected, answered, onAnswer }) {
                 </div>
             ))}</IDEBlock></div>
             <div className="rounded-xl bg-black border border-slate-700/30 p-3 mb-5 font-mono">
-                <div className="flex items-center gap-2 mb-2"><span className="text-[8px] font-bold text-emerald-500">▸ OUTPUT</span></div>
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[8px] font-bold text-emerald-500">▸ OUTPUT</span>
+                    {!answered && <span className="text-[8px] font-bold text-slate-600">{t('runs after you answer')}</span>}
+                </div>
                 <div className="flex items-center gap-1">
                     <span className="text-emerald-400 text-sm">&gt;&gt;&gt;</span>
                     <span className="text-white text-sm font-bold">{termLine}</span>

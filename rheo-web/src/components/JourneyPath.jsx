@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage, t, isHapticEnabled, addXP, saveProgress } from '../data'
+import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage, t, isHapticEnabled, isChestOpened, openChest } from '../data'
 import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════════════════
@@ -221,13 +221,13 @@ function NodeButton({ node, index, openNodeId, setOpenNodeId, showOtter }) {
             {/* Lesson Modal */}
             {popupType === 'start' && <LessonModal node={node} onClose={() => setPopup(null)} onStart={() => { window.__openLesson?.(node.id); setPopup(null) }} />}
             {/* Chest reward */}
-            {popupType === 'chest' && <ChestModal node={node} onClose={() => setPopup(null)} />}
+            {popupType === 'chest' && <ChestModal node={node} onClose={() => setPopup(null)} onStart={() => { window.__openLesson?.(node.id); setPopup(null) }} />}
             {/* Code preview (completed) */}
             {popupType === 'code' && isCompleted && <CodePreview iconKey={node.iconKey} onClose={() => setPopup(null)} />}
             {/* Concept lesson preview */}
             {popupType === 'concept' && <ConceptPreviewModal node={node} onClose={() => setPopup(null)} onStart={() => { window.__openLesson?.(node.id); setPopup(null) }} />}
             {/* Playground */}
-            {popupType === 'playground' && <PlaygroundModal node={node} onClose={() => setPopup(null)} />}
+            {popupType === 'playground' && <PlaygroundModal node={node} onClose={() => setPopup(null)} onStart={() => { window.__openLesson?.(node.id); setPopup(null) }} />}
 
             {/* Stars with pop animation */}
             {!isChest && !isDaily && !isConcept && !isPlayground && !isOpen && (
@@ -407,64 +407,65 @@ function MoodOtter({ mood }) {
 }
 
 /* ═══════════════ CHEST REWARD MODAL ═══════════════ */
-function ChestModal({ node, onClose }) {
-    const [opened, setOpened] = useState(false)
+function ChestModal({ node, onClose, onStart }) {
+    // The chest is earned: a short lesson first, then the reward. openChest()
+    // records which chests have paid out, so re-opening the modal can no longer
+    // hand out gems a second time.
     const [reward, setReward] = useState(null)
-
-    const CHEST_REWARDS = [
-        { emoji: '💎', label: '15 Gems', type: 'gems', amount: 15 },
-        { emoji: '💎', label: '25 Gems', type: 'gems', amount: 25 },
-        { emoji: '💎', label: '40 Gems', type: 'gems', amount: 40 },
-        { emoji: '⭐', label: '30 XP', type: 'xp', amount: 30 },
-        { emoji: '⭐', label: '50 XP', type: 'xp', amount: 50 },
-        { emoji: '⚡', label: '10 Energy', type: 'energy', amount: 10 },
-        { emoji: '⚡', label: '15 Energy', type: 'energy', amount: 15 },
-    ]
+    const isLocked = node.status === 'locked'
+    const isDone = node.status === 'completed'
+    const collected = isChestOpened(node.id)
 
     const handleOpen = () => {
-        if (opened) return
+        if (collected || reward) return
         haptic()
-        const pick = CHEST_REWARDS[Math.floor(Math.random() * CHEST_REWARDS.length)]
+        const pick = openChest(node.id)
+        if (!pick) return
         setReward(pick)
-        setOpened(true)
-        // Apply reward
-        if (pick.type === 'gems') { stats.gems = (stats.gems || 0) + pick.amount; saveProgress() }
-        else if (pick.type === 'energy') { stats.energy = (stats.energy || 0) + pick.amount; saveProgress() }
-        else if (pick.type === 'xp') addXP(pick.amount)
         try { if (isHapticEnabled()) navigator.vibrate?.([50, 50, 100]) } catch (e) { }
     }
 
-    const isLocked = node.status === 'locked'
-
     return (
-        <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[200px]">
+        <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[210px]">
             <div className="bg-slate-900 border-2 border-amber-600/50 border-b-[5px] border-b-amber-900 rounded-2xl overflow-hidden">
                 <div className="h-2 w-full bg-amber-500" />
                 <div className="p-4 text-center">
-                    <div className="text-4xl mb-2">{opened ? '✨' : '📦'}</div>
+                    <div className="text-4xl mb-2">{reward ? '✨' : '📦'}</div>
                     <h3 className="text-sm font-black text-white mb-1">
-                        {isLocked ? '🔒 Locked Chest' : opened ? 'Opened!' : 'Treasure Chest'}
+                        {isLocked ? `🔒 ${t('Locked Chest')}` : reward ? t('Opened!') : t('Treasure Chest')}
                     </h3>
+
                     {isLocked ? (
-                        <p className="text-[10px] font-bold text-slate-500 mb-3">Complete previous lessons to unlock</p>
-                    ) : opened && reward ? (
+                        <p className="text-[10px] font-bold text-slate-500 mb-3">{t('Complete previous lessons to unlock')}</p>
+                    ) : reward ? (
                         <div className="my-3">
                             <span className="text-3xl">{reward.emoji}</span>
-                            <p className="text-sm font-black text-amber-400 mt-2">+{reward.amount} {reward.label.split(' ')[1]}</p>
+                            <p className="text-sm font-black text-amber-400 mt-2">+{reward.amount} {t(reward.label)}</p>
                         </div>
+                    ) : collected ? (
+                        <p className="text-[10px] font-bold text-slate-500 mb-3">{t('Already collected')}</p>
+                    ) : isDone ? (
+                        <p className="text-[10px] font-bold text-slate-500 mb-3">{t('Lesson done — the chest is yours.')}</p>
                     ) : (
-                        <p className="text-[10px] font-bold text-slate-500 mb-3">Tap to open and collect rewards!</p>
+                        <p className="text-[10px] font-bold text-slate-500 mb-3">{t('Pass a 4-question round to unlock it.')}</p>
                     )}
-                    {!isLocked && !opened && (
-                        <button onClick={handleOpen}
+
+                    {!isLocked && !isDone && (
+                        <button onClick={() => { haptic(); onStart?.() }}
                             className="w-full py-2.5 rounded-xl font-black text-sm text-white bg-amber-500 border-b-[4px] border-amber-700 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer">
-                            🎁 OPEN CHEST
+                            🎁 {t('EARN IT')}
                         </button>
                     )}
-                    {(isLocked || opened) && (
+                    {!isLocked && isDone && !collected && !reward && (
+                        <button onClick={handleOpen}
+                            className="w-full py-2.5 rounded-xl font-black text-sm text-white bg-amber-500 border-b-[4px] border-amber-700 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer">
+                            🎁 {t('OPEN CHEST')}
+                        </button>
+                    )}
+                    {(isLocked || collected || reward) && (
                         <button onClick={onClose}
                             className="w-full py-2 rounded-xl font-black text-xs text-slate-400 bg-slate-800 border-b-[3px] border-slate-900 active:border-b-0 active:translate-y-[3px] transition-all duration-75 cursor-pointer mt-2">
-                            CLOSE
+                            {t('CLOSE')}
                         </button>
                     )}
                 </div>
@@ -580,7 +581,7 @@ function ConceptPreviewModal({ node, onStart }) {
 }
 
 /* ═══════════════ PLAYGROUND MODAL ═══════════════ */
-function PlaygroundModal({ node, onClose }) {
+function PlaygroundModal({ node, onClose, onStart }) {
     const pg = node.playground || {}
     const lang = getActiveLanguage()
     const starterRaw = pg.starterCode
@@ -634,6 +635,15 @@ function PlaygroundModal({ node, onClose }) {
                         <h3 className="text-xs font-black text-white">{t(node.title)}</h3>
                         <button onClick={onClose} className="text-slate-500 hover:text-white text-xs cursor-pointer font-bold">✕</button>
                     </div>
+
+                    {/* Short lesson — the sandbox teaches nothing on its own, so the
+                        node opens with four questions and keeps the editor below. */}
+                    {node.status !== 'locked' && (
+                        <button onClick={() => { haptic(); onStart?.() }}
+                            className="w-full py-2 rounded-xl font-black text-xs text-white bg-indigo-500 border-b-[4px] border-indigo-700 active:border-b-0 active:translate-y-[4px] transition-all duration-75 cursor-pointer mb-2.5">
+                            📖 {node.status === 'completed' ? t('REPLAY THE ROUND') : t('4-QUESTION ROUND')}
+                        </button>
+                    )}
 
                     {/* Code editor */}
                     <div className="rounded-xl overflow-hidden border border-indigo-800/50 mb-2">

@@ -730,6 +730,35 @@ export const stats = {
     xpToday: _savedStats?.xpToday ?? 0,
     streakShield: _savedStats?.streakShield ?? false,
     lastEnergyRefill: _initialEnergy.lastEnergyRefill,
+    // Which chest nodes have already paid out. Without this the reward was
+    // re-granted every time the modal was reopened.
+    chestsOpened: _savedStats?.chestsOpened ?? [],
+}
+
+/* ── Chests ──
+   A chest is earned, not tapped: the node runs a short lesson first, and the
+   reward is collected once the node is completed. */
+const CHEST_REWARDS = [
+    { emoji: '💎', label: 'Gems', type: 'gems', amount: 15 },
+    { emoji: '💎', label: 'Gems', type: 'gems', amount: 25 },
+    { emoji: '💎', label: 'Gems', type: 'gems', amount: 40 },
+    { emoji: '⭐', label: 'XP', type: 'xp', amount: 30 },
+    { emoji: '⭐', label: 'XP', type: 'xp', amount: 50 },
+    { emoji: '⚡', label: 'Energy', type: 'energy', amount: 10 },
+    { emoji: '⚡', label: 'Energy', type: 'energy', amount: 15 },
+]
+
+export function isChestOpened(nodeId) { return stats.chestsOpened.includes(nodeId) }
+
+export function openChest(nodeId) {
+    if (isChestOpened(nodeId)) return null
+    const pick = CHEST_REWARDS[Math.floor(Math.random() * CHEST_REWARDS.length)]
+    if (pick.type === 'gems') stats.gems = (stats.gems || 0) + pick.amount
+    else if (pick.type === 'energy') stats.energy = (stats.energy || 0) + pick.amount
+    else if (pick.type === 'xp') addXP(pick.amount)
+    stats.chestsOpened = [...stats.chestsOpened, nodeId]
+    saveProgress()
+    return pick
 }
 
 // ── Energy functions ──
@@ -830,6 +859,7 @@ export function saveProgress() {
         streak: stats.streak, gems: stats.gems, energy: stats.energy,
         xpToday: stats.xpToday, streakShield: stats.streakShield,
         lastEnergyRefill: stats.lastEnergyRefill,
+        chestsOpened: stats.chestsOpened,
         lastSaveDate: new Date().toDateString(),
     })
     // Save profile

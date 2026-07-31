@@ -27,6 +27,7 @@ const ACTIVITY_KEY = 'rheo_activity'
 const START_RATING = 1000        // same baseline as duelStats.elo
 const TARGET_SUCCESS = 0.78      // the band where learning is fastest
 export const LESSON_LENGTH = 6   // questions served per lesson
+export const SHORT_LESSON_LENGTH = 4   // chest and playground nodes
 
 // Elo has no natural floor or ceiling: a long unlucky run can drive a rating
 // somewhere meaningless (a simulated all-wrong learner reached 383) and it then

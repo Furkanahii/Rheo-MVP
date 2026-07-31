@@ -40,6 +40,15 @@ const _tr = {
     'no wrong answers': 'yanlış cevap yok',
     'cards': 'kart', 'min': 'dk', 'READ': 'OKUNDU', 'READ AGAIN': 'TEKRAR OKU', 'LEARN': 'ÖĞREN',
     'Complete previous lessons to unlock': 'Kilidi açmak için önceki dersleri bitir',
+    // ── Chest & playground rounds ──
+    'Treasure Chest': 'Hazine Sandığı', 'Locked Chest': 'Kilitli Sandık', 'Opened!': 'Açıldı!',
+    'Already collected': 'Ödül zaten alındı',
+    'Lesson done — the chest is yours.': 'Ders bitti — sandık senin.',
+    'Pass a 4-question round to unlock it.': 'Açmak için 4 soruluk turu geç.',
+    'EARN IT': 'HAK ET', 'OPEN CHEST': 'SANDIĞI AÇ', 'CLOSE': 'KAPAT',
+    '4-QUESTION ROUND': '4 SORULUK TUR', 'REPLAY THE ROUND': 'TURU TEKRAR OYNA',
+    'Gems': 'Elmas', 'XP': 'XP', 'Energy': 'Enerji',
+    'runs after you answer': 'cevabından sonra çalışır',
     // ── Share result ──
     'Share result': 'Sonucu Paylaş', 'I just aced a Rheo lesson!': "Rheo'da bir dersi başarıyla bitirdim!",
     // ── Chapters & skills (journey) ──
