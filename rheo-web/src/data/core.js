@@ -108,13 +108,13 @@ export const journeyNodes = [
     // CH 1 — Basics ⭐
     { id: 1, type: 'lesson', status: 'active', title: 'Read & Trace', stars: 0, iconKey: 'terminal', skill: 'variables', chapter: 1 },
     { id: 2, type: 'lesson', status: 'locked', title: 'Debug It!', stars: 0, iconKey: 'brackets', skill: 'conditionals', chapter: 1 },
-    { id: 3, type: 'video', status: 'locked', title: 'Watch: Variables', stars: 0, iconKey: 'video', skill: 'variables', chapter: 1, video: { creator: 'Furkan & Arda', duration: '2:45', thumbnail: '🎬' } },
+    { id: 3, type: 'concept', status: 'locked', title: 'Learn: Variables', stars: 0, iconKey: 'concept', skill: 'variables', chapter: 1, concept: { cards: 6, minutes: 2 } },
     { id: 4, type: 'chest', status: 'locked', title: 'Loot Crate', stars: 0, iconKey: 'chest', skill: null, chapter: 1 },
     // CH 2 — Flow Control ⭐
     { id: 5, type: 'lesson', status: 'locked', title: 'Conditional Logic', stars: 0, iconKey: 'brackets', skill: 'conditionals', chapter: 2 },
     { id: 6, type: 'lesson', status: 'locked', title: 'Boolean Mastery', stars: 0, iconKey: 'pattern', skill: 'conditionals', chapter: 2 },
     { id: 7, type: 'daily', status: 'locked', title: "Today's Challenge", stars: 0, iconKey: 'daily', skill: 'mixed', chapter: 2 },
-    { id: 8, type: 'video', status: 'locked', title: 'Watch: Conditionals', stars: 0, iconKey: 'video', skill: 'conditionals', chapter: 2, video: { creator: 'Furkan & Arda', duration: '3:00', thumbnail: '🎥' } },
+    { id: 8, type: 'concept', status: 'locked', title: 'Learn: Conditionals', stars: 0, iconKey: 'concept', skill: 'conditionals', chapter: 2, concept: { cards: 6, minutes: 2 } },
     // CH 3 — Loops ⭐⭐
     { id: 9, type: 'lesson', status: 'locked', title: 'Loop Basics', stars: 0, iconKey: 'play', skill: 'loops', chapter: 3 },
     { id: 10, type: 'lesson', status: 'locked', title: 'Nested Loops', stars: 0, iconKey: 'pattern', skill: 'loops', chapter: 3 },
@@ -123,7 +123,7 @@ export const journeyNodes = [
     // CH 4 — Functions ⭐⭐
     { id: 13, type: 'lesson', status: 'locked', title: 'Function Design', stars: 0, iconKey: 'scope', skill: 'functions', chapter: 4 },
     { id: 14, type: 'lesson', status: 'locked', title: 'Scope & Closures', stars: 0, iconKey: 'scope', skill: 'functions', chapter: 4 },
-    { id: 15, type: 'video', status: 'locked', title: 'Watch: Functions', stars: 0, iconKey: 'video', skill: 'functions', chapter: 4, video: { creator: 'Furkan & Arda', duration: '3:30', thumbnail: '🎥' } },
+    { id: 15, type: 'concept', status: 'locked', title: 'Learn: Functions', stars: 0, iconKey: 'concept', skill: 'functions', chapter: 4, concept: { cards: 6, minutes: 2 } },
     { id: 16, type: 'boss', status: 'locked', title: 'Boss: Recursion', stars: 0, iconKey: 'boss', skill: 'functions', chapter: 4 },
     // CH 5 — Data Structures I ⭐⭐
     { id: 17, type: 'lesson', status: 'locked', title: 'Arrays Deep', stars: 0, iconKey: 'pattern', skill: 'data_structures', chapter: 5 },
@@ -139,7 +139,7 @@ export const journeyNodes = [
     { id: 25, type: 'lesson', status: 'locked', title: 'Stack & Queue', stars: 0, iconKey: 'pattern', skill: 'data_structures', chapter: 7 },
     { id: 26, type: 'lesson', status: 'locked', title: 'Linked Lists', stars: 0, iconKey: 'play', skill: 'data_structures', chapter: 7 },
     { id: 27, type: 'lesson', status: 'locked', title: 'Trees Intro', stars: 0, iconKey: 'scope', skill: 'data_structures', chapter: 7 },
-    { id: 28, type: 'video', status: 'locked', title: 'Watch: Structures', stars: 0, iconKey: 'video', skill: 'data_structures', chapter: 7, video: { creator: 'Furkan & Arda', duration: '4:00', thumbnail: '🎥' } },
+    { id: 28, type: 'concept', status: 'locked', title: 'Learn: Structures', stars: 0, iconKey: 'concept', skill: 'data_structures', chapter: 7, concept: { cards: 6, minutes: 2 } },
     // CH 8 — Algorithms II ⭐⭐⭐⭐
     { id: 29, type: 'lesson', status: 'locked', title: 'Recursive Thinking', stars: 0, iconKey: 'scope', skill: 'algorithms', chapter: 8 },
     { id: 30, type: 'lesson', status: 'locked', title: 'Divide & Conquer', stars: 0, iconKey: 'pattern', skill: 'algorithms', chapter: 8 },
@@ -730,6 +730,35 @@ export const stats = {
     xpToday: _savedStats?.xpToday ?? 0,
     streakShield: _savedStats?.streakShield ?? false,
     lastEnergyRefill: _initialEnergy.lastEnergyRefill,
+    // Which chest nodes have already paid out. Without this the reward was
+    // re-granted every time the modal was reopened.
+    chestsOpened: _savedStats?.chestsOpened ?? [],
+}
+
+/* ── Chests ──
+   A chest is earned, not tapped: the node runs a short lesson first, and the
+   reward is collected once the node is completed. */
+const CHEST_REWARDS = [
+    { emoji: '💎', label: 'Gems', type: 'gems', amount: 15 },
+    { emoji: '💎', label: 'Gems', type: 'gems', amount: 25 },
+    { emoji: '💎', label: 'Gems', type: 'gems', amount: 40 },
+    { emoji: '⭐', label: 'XP', type: 'xp', amount: 30 },
+    { emoji: '⭐', label: 'XP', type: 'xp', amount: 50 },
+    { emoji: '⚡', label: 'Energy', type: 'energy', amount: 10 },
+    { emoji: '⚡', label: 'Energy', type: 'energy', amount: 15 },
+]
+
+export function isChestOpened(nodeId) { return stats.chestsOpened.includes(nodeId) }
+
+export function openChest(nodeId) {
+    if (isChestOpened(nodeId)) return null
+    const pick = CHEST_REWARDS[Math.floor(Math.random() * CHEST_REWARDS.length)]
+    if (pick.type === 'gems') stats.gems = (stats.gems || 0) + pick.amount
+    else if (pick.type === 'energy') stats.energy = (stats.energy || 0) + pick.amount
+    else if (pick.type === 'xp') addXP(pick.amount)
+    stats.chestsOpened = [...stats.chestsOpened, nodeId]
+    saveProgress()
+    return pick
 }
 
 // ── Energy functions ──
@@ -830,6 +859,7 @@ export function saveProgress() {
         streak: stats.streak, gems: stats.gems, energy: stats.energy,
         xpToday: stats.xpToday, streakShield: stats.streakShield,
         lastEnergyRefill: stats.lastEnergyRefill,
+        chestsOpened: stats.chestsOpened,
         lastSaveDate: new Date().toDateString(),
     })
     // Save profile

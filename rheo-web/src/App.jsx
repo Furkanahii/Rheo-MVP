@@ -11,7 +11,7 @@ import Onboarding from './components/Onboarding'
 import LessonScreen from './components/LessonScreen'
 import { SplashScreen } from './components/LivingOtter'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises, selectExercisesForNode } from './data'
+import { getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises, selectExercisesForNode, SHORT_LESSON_LENGTH } from './data'
 
 // Lazy loading fallback
 const LazyFallback = () => <div className="h-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" /></div>
@@ -70,7 +70,11 @@ export default function App() {
     const exercises = useMemo(() => {
         if (!lessonNodeId) return []
         if (lessonNodeId === 'review_weaknesses') return buildReviewExercises(getActiveLanguage())
-        return selectExercisesForNode(lessonNodeId, getActiveLanguage())
+        // Chest and playground nodes run a short round — they are a reward and a
+        // sandbox, not a full lesson, and their pools are deliberately small.
+        const node = journeyNodes.find(n => n.id === lessonNodeId)
+        const short = node && (node.type === 'chest' || node.type === 'playground')
+        return selectExercisesForNode(lessonNodeId, getActiveLanguage(), short ? SHORT_LESSON_LENGTH : undefined)
     }, [lessonNodeId])
 
     // Energy gate — consume energy when lesson screen opens

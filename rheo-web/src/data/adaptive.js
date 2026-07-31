@@ -27,6 +27,7 @@ const ACTIVITY_KEY = 'rheo_activity'
 const START_RATING = 1000        // same baseline as duelStats.elo
 const TARGET_SUCCESS = 0.78      // the band where learning is fastest
 export const LESSON_LENGTH = 6   // questions served per lesson
+export const SHORT_LESSON_LENGTH = 4   // chest and playground nodes
 
 // Elo has no natural floor or ceiling: a long unlucky run can drive a rating
 // somewhere meaningless (a simulated all-wrong learner reached 383) and it then
@@ -43,7 +44,7 @@ const clamp = r => Math.min(RATING_MAX, Math.max(RATING_MIN, r))
 const CHAPTER_BASE = ch => 780 + (Math.min(Math.max(ch, 1), 10) - 1) * 115  // CH1 780 … CH10 1815
 
 const TYPE_OFFSET = {
-    video: -220, pair: -130, output: -40, trace: 0, fillgap: 20,
+    concept: -220, pair: -130, output: -40, trace: 0, fillgap: 20,
     realworld: 40, scramble: 50, errordecode: 80, bug: 90,
     refactor: 110, algostep: 120, terminal: 130, complexity: 150,
 }
