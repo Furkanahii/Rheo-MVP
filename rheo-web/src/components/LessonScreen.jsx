@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
-import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled, recordAttempt, chapterColors } from '../data'
+import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled, recordAttempt, chapterColors, getHintCredits, spendHintCredit, DAILY_HINT_CREDITS } from '../data'
 import { getConceptDeck } from '../data/concepts.js'
 import ConceptDeck from './ConceptDeck'
 import { showXP, showAchievement } from './XPToast'
@@ -31,6 +31,12 @@ const OTTER_MSGS = {
 }
 const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)]
 
+// Exercise types where the answer comes from reading code line by line. These
+// are the ones that earn the deep-reading bonus; matching pairs or picking a
+// complexity class is recall, and rewarding slowness there would just be a tax
+// on knowing the answer.
+const READING_TYPES = new Set(['trace', 'output', 'bug', 'errordecode', 'algostep', 'refactor'])
+
 export default function LessonScreen({ onClose, exercises = [] }) {
     const [step, setStep] = useState(0)
     const [answered, setAnswered] = useState(false)
@@ -58,8 +64,11 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     const [isTransitioning, setIsTransitioning] = useState(false) // ← Guard against Continue spam
     const [wrongQuestions, setWrongQuestions] = useState([]) // ← Track wrong answers for Review Mistakes
     const [xpEarned, setXpEarned] = useState({ base: 0, speed: 0, streak: 0 }) // ← XP breakdown
-    const [hintUsed, setHintUsed] = useState(false) // ← Hint system
     const [showHint, setShowHint] = useState(false)
+    // Credits are read into state so spending one re-renders the button; the
+    // store is localStorage, which React cannot subscribe to on its own.
+    const [hintCredits, setHintCredits] = useState(() => getHintCredits())
+    const [hintDenied, setHintDenied] = useState(false)
 
     // If step overflows exercises array, show result instead of crashing
     useEffect(() => {
@@ -80,6 +89,17 @@ export default function LessonScreen({ onClose, exercises = [] }) {
 
     if (!ex) return null
 
+    // Which exercises can be hinted. Concept decks are a lesson, not a question;
+    // the terminal already prints a per-step hint of its own, so offering a paid
+    // one there would charge for something the learner can already see.
+    const canHint = ex.type !== 'concept' && ex.type !== 'terminal' && ex.type !== 'video'
+    const hasHintLeft = hintCredits.free > 0 || hintCredits.tokens > 0
+    const hintText = ex.hint || (
+        ex.type === 'trace' ? 'Trace each line step by step'
+            : ex.type === 'bug' ? 'Read the code line by line and ask what each one leaves behind'
+                : ex.type === 'output' ? 'Run the code mentally, one line at a time'
+                    : 'Think about what each option does differently')
+
     const handleCheck = () => {
         // ← Block if already transitioning (prevents Continue spam bug)
         if (isTransitioning) return
@@ -96,8 +116,8 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                 setShowParticles(null)
                 setSpeedBonus(false)
                 setStreakMsg(null)
-                setHintUsed(false)
                 setShowHint(false)
+                setHintDenied(false)
             }
             setIsTransitioning(false) // ← Unlock
         }
@@ -106,9 +126,9 @@ export default function LessonScreen({ onClose, exercises = [] }) {
         if (isCorrect === null) { advance(); return }
         // Show otter message briefly before advancing
         const msg = isCorrect
-            ? (streak >= 7 ? pickRandom(OTTER_MSGS.streak7)
-                : streak >= 5 ? pickRandom(OTTER_MSGS.streak5)
-                    : streak >= 3 ? pickRandom(OTTER_MSGS.streak3)
+            ? (streak >= 6 ? pickRandom(OTTER_MSGS.streak7)
+                : streak >= 4 ? pickRandom(OTTER_MSGS.streak5)
+                    : streak >= 2 ? pickRandom(OTTER_MSGS.streak3)
                         : pickRandom(OTTER_MSGS.correct))
             : pickRandom(OTTER_MSGS.wrong)
         setOtterMsg(msg)
@@ -141,21 +161,33 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             if (newStreak > bestStreak) setBestStreak(newStreak)
             if (elapsed < fastestTime) setFastestTime(elapsed)
 
-            // Speed bonus
+            // Deep-reading bonus.
+            // This used to pay +5 XP — a 33% premium — for answering in under
+            // ten seconds. In a CODE READING app that is a bounty on the exact
+            // act the product exists to build: nobody traces a six-line loop in
+            // ten seconds, they pattern-match the options. It also poisoned the
+            // adaptive engine, which read the resulting misses as "too hard"
+            // and served easier questions to a learner who was only rushing.
+            // The bonus now goes the other way, and only where reading is the
+            // task: sit with the code, get it right, get paid.
             let xp = 15
             let speedAdd = 0
             let streakAdd = 0
-            if (elapsed < 10) {
+            if (READING_TYPES.has(ex.type) && elapsed >= 12) {
                 setSpeedBonus(true)
                 playSpeedBonus()
                 speedAdd = 5
                 xp += 5
             }
 
-            // Streak bonuses
-            if (newStreak === 3) { setStreakMsg('🔥 On Fire!'); playStreak(); streakAdd = 5; xp += 5 }
-            else if (newStreak === 5) { setStreakMsg('⚡ UNSTOPPABLE!'); playStreak(); streakAdd = 10; xp += 10 }
-            else if (newStreak === 7) { setStreakMsg('💎 LEGENDARY!'); playStreak(); streakAdd = 25; xp += 25 }
+            // Streak bonuses.
+            // The top tier used to sit at 7 — unreachable, because a lesson is
+            // LESSON_LENGTH (6) questions and the streak resets each lesson. Its
+            // +25 XP, its banner and its sound had never once fired. Retuned to
+            // 2/4/6 so all three tiers are live inside a real lesson.
+            if (newStreak === 2) { setStreakMsg('🔥 On Fire!'); playStreak(); streakAdd = 5; xp += 5 }
+            else if (newStreak === 4) { setStreakMsg('⚡ UNSTOPPABLE!'); playStreak(); streakAdd = 10; xp += 10 }
+            else if (newStreak === 6) { setStreakMsg('💎 LEGENDARY!'); playStreak(); streakAdd = 25; xp += 25 }
             else setStreakMsg(null)
 
             setXpEarned(prev => ({ base: prev.base + 15, speed: prev.speed + speedAdd, streak: prev.streak + streakAdd }))
@@ -226,7 +258,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                     </motion.div>
                 </div>
                 {/* Streak badge */}
-                {streak >= 3 && (
+                {streak >= 2 && (
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-orange-500/15 border border-orange-700/30">
                         <span className="text-xs">🔥</span>
                         <span className="text-xs font-black text-orange-400">{streak}</span>
@@ -259,27 +291,45 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                     <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-full px-3 py-1">
                         <span className="text-sm">{'🔥'.repeat(Math.min(streak, 3))}</span>
                         <span className="text-xs font-black text-amber-400">{streak}x COMBO</span>
-                        {streak >= 3 && <span className="text-[10px] font-bold text-amber-300/70">+{streak >= 7 ? 25 : streak >= 5 ? 10 : 5} XP</span>}
+                        {streak >= 2 && <span className="text-[10px] font-bold text-amber-300/70">+{streak >= 6 ? 25 : streak >= 4 ? 10 : 5} XP</span>}
                     </div>
                 </motion.div>
             )}
 
-            {/* ═══ HINT BUTTON (after wrong answer) ═══ */}
+            {/* ═══ HINT / SKIP — offered BEFORE the answer ═══
+                A hint that only appears after you have already answered is not a
+                hint, it is a consolation prize: the heart is already gone and the
+                verdict is on screen. Both buttons belong to the moment the learner
+                is still deciding, so they show while !answered and vanish on it. */}
             <AnimatePresence>
-                {answered && isCorrect === false && !hintUsed && !showHint && (
+                {!answered && canHint && !showHint && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         className="flex justify-center gap-2 py-1">
                         <button onClick={() => {
-                            const hasToken = getPowerUpCount('hint_token') > 0
-                            if (hasToken) consumePowerUp('hint_token')
-                            setShowHint(true); setHintUsed(true)
+                            const paid = spendHintCredit()
+                            if (!paid) { haptic('error'); setHintDenied(true); return }
+                            haptic()
+                            setHintCredits(getHintCredits())
+                            setShowHint(true)
                         }}
-                            className="flex items-center gap-1.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full px-4 py-1.5 cursor-pointer hover:bg-indigo-500/30 transition">
-                            <span className="text-sm">💡</span>
-                            <span className="text-[11px] font-bold text-indigo-300">{t('Show Hint')}</span>
-                            {getPowerUpCount('hint_token') > 0 && <span className="text-[8px] font-black text-amber-400 bg-amber-500/20 rounded-full px-1.5">🔮 TOKEN</span>}
+                            disabled={!hasHintLeft}
+                            className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 border transition ${hasHintLeft
+                                ? 'bg-indigo-500/20 border-indigo-500/30 cursor-pointer hover:bg-indigo-500/30'
+                                : 'bg-slate-800/60 border-slate-700/40 opacity-60 cursor-not-allowed'}`}>
+                            <span className="text-sm">{hasHintLeft ? '💡' : '🔒'}</span>
+                            <span className={`text-[11px] font-bold ${hasHintLeft ? 'text-indigo-300' : 'text-slate-500'}`}>{t('Show Hint')}</span>
+                            {/* Say what a tap will cost before it is spent, so the
+                                learner can choose to save the last one. */}
+                            {hintCredits.free > 0 ? (
+                                <span className="text-[9px] font-black text-indigo-200/80 bg-indigo-500/25 rounded-full px-1.5">{hintCredits.free}/{DAILY_HINT_CREDITS}</span>
+                            ) : hintCredits.tokens > 0 ? (
+                                <span className="text-[9px] font-black text-amber-400 bg-amber-500/20 rounded-full px-1.5">🔮 {hintCredits.tokens}</span>
+                            ) : (
+                                <span className="text-[9px] font-black text-slate-500 bg-slate-700/40 rounded-full px-1.5">0</span>
+                            )}
                         </button>
-                        {/* Skip Token button */}
+                        {/* Skip Token — also only useful before answering: skipping a
+                            question you already lost a heart on buys nothing. */}
                         {getPowerUpCount('skip_token') > 0 && !isLast && (
                             <button onClick={() => {
                                 consumePowerUp('skip_token')
@@ -289,7 +339,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                                     setStep(s => s + 1)
                                     setAnswered(false); setIsCorrect(null); setSelected(null)
                                     setShowParticles(null); setSpeedBonus(false); setStreakMsg(null)
-                                    setHintUsed(false); setShowHint(false)
+                                    setShowHint(false); setHintDenied(false)
                                     setIsTransitioning(false)
                                 }, 300)
                             }}
@@ -300,11 +350,19 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         )}
                     </motion.div>
                 )}
+                {hintDenied && !showHint && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className="mx-4 py-2 px-4 bg-slate-800/60 border border-slate-700/40 rounded-xl">
+                        <p className="text-[11px] font-bold text-slate-400 text-center">
+                            🔒 {t('Out of hints — they refill tomorrow, or a Hint Token buys one.')}
+                        </p>
+                    </motion.div>
+                )}
                 {showHint && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         className="mx-4 py-2 px-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
                         <p className="text-[11px] font-bold text-indigo-300 text-center">
-                            💡 {ex?.hint || (ex?.type === 'trace' ? 'Trace each line step by step' : ex?.type === 'bug' ? 'Look at the highlighted line carefully' : ex?.type === 'output' ? 'Run the code mentally line by line' : 'Think about what each option does differently')}
+                            💡 {t(hintText)}
                         </p>
                     </motion.div>
                 )}
@@ -346,14 +404,14 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             <AnimatePresence>
                 {answered && isCorrect !== null && (
                     <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
-                        className={`shrink-0 max-h-[40vh] overflow-y-auto px-5 py-3 flex items-start gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-red-500/10 border-t border-red-700/30'}`}>
-                        <span className="text-xl">{isCorrect ? '✅' : '❌'}</span>
+                        className={`shrink-0 max-h-[40vh] overflow-y-auto px-5 py-3 flex items-start gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-amber-500/10 border-t border-amber-700/30'}`}>
+                        <span className="text-xl">{isCorrect ? '✅' : '💡'}</span>
                         <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-black ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>{isCorrect ? t('Correct!') : t('Wrong!')}</p>
+                            <p className={`text-sm font-black ${isCorrect ? 'text-emerald-400' : 'text-amber-400'}`}>{isCorrect ? t('Correct!') : t('Not quite —')}</p>
                             <p className="text-[10px] font-bold text-slate-500">
                                 {isCorrect ? (
-                                    <>{speedBonus ? '⚡ Speed Bonus! +20 XP' : '+15 XP'}{streak >= 3 && ` · 🔥 ${streak} streak`}</>
-                                ) : t('Keep trying!')}
+                                    <>{speedBonus ? '🔍 Deep Read! +20 XP' : '+15 XP'}{streak >= 2 && ` · 🔥 ${streak} streak`}</>
+                                ) : t('Here is what the code actually does:')}
                             </p>
                             {/* Why? — surface the exercise explanation (complexity shows its own inline) */}
                             {ex.explanation && ex.type !== 'complexity' && (
@@ -362,7 +420,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         </div>
                         {isCorrect && speedBonus && (
                             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-600/30">
-                                <span className="text-[10px] font-black text-amber-400">⚡ FAST</span>
+                                <span className="text-[10px] font-black text-amber-400">🔍 DEEP READ</span>
                             </motion.div>
                         )}
                     </motion.div>
@@ -468,7 +526,7 @@ function BugHunt({ ex, selected, setSelected, answered, onAnswer }) {
         <div>
             <p className="text-sm font-black text-white mb-1">{ex.prompt}</p>
             <p className="text-[10px] font-bold text-slate-500 mb-4">🐛 Find the bug!</p>
-            <IDEBlock filename="debug.py">
+            <IDEBlock>
                 {ex.code.map((line, i) => (
                     <motion.button key={i} whileTap={{ scale: 0.98 }} onClick={() => handleTap(i)} disabled={answered}
                         className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all cursor-pointer border-b-[3px]
@@ -728,7 +786,7 @@ function CodeRefactor({ ex, selected, setSelected, answered, onAnswer }) {
             {/* Original messy code */}
             <p className="text-[9px] font-extrabold text-red-400/70 tracking-wider mb-2">ORIGINAL CODE</p>
             <div className="mb-5">
-                <IDEBlock filename="before.py">
+                <IDEBlock>
                     {ex.originalCode.split('\n').map((line, i) => (
                         <div key={i} className="flex items-start gap-3 px-2 py-0.5">
                             <span className="text-[10px] text-slate-600 w-4 shrink-0">{i + 1}</span>
@@ -1024,7 +1082,7 @@ function ComplexityMatch({ ex, selected, setSelected, answered, onAnswer }) {
 function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = Infinity, questionTimes = [], wrongQuestions = [], xpBreakdown = { base: 0, speed: 0, streak: 0 }, onClose }) {
     const pct = Math.round(((correct || 0) / total) * 100)
     const passed = hearts > 0
-    const stars = hearts >= 4 ? 3 : hearts >= 2 ? 2 : hearts > 0 ? 1 : 0
+    const stars = hearts >= 3 ? 3 : hearts >= 2 ? 2 : hearts > 0 ? 1 : 0
     const [animPct, setAnimPct] = useState(0)
     const [animXP, setAnimXP] = useState(0)
     const [showReview, setShowReview] = useState(false)
@@ -1143,7 +1201,7 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                             </div>
                             {xpBreakdown.speed > 0 && (
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[11px] font-bold text-slate-400">⚡ {t('Speed Bonus')}</span>
+                                    <span className="text-[11px] font-bold text-slate-400">🔍 {t('Deep Read Bonus')}</span>
                                     <span className="text-[11px] font-black text-amber-400">+{xpBreakdown.speed}</span>
                                 </div>
                             )}
@@ -1239,7 +1297,12 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                     completed: passed,
                     stars,
                     correct: correct || 0,
-                    total
+                    total,
+                    // App.jsx fires the perfect_score quest event off this flag.
+                    // It was never sent, so "Score 100% on a quiz" — a daily
+                    // quest, two monthly quests and the Flawless achievement —
+                    // could not be completed by any means.
+                    perfect: passed && total > 0 && correct >= total,
                 })}
                     className="w-full max-w-[280px] py-4 rounded-2xl font-black text-base text-white bg-teal-500 border-b-[6px] border-teal-700 active:translate-y-[6px] active:border-b-0 transition-all duration-75 cursor-pointer mt-2">
                     {t('CONTINUE')}

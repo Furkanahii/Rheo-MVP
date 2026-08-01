@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import HologramCard from './HologramCard'
 import { getActivityGrid, getOverallAbility, getAbilityBySkill, getBand, getBandProgress, profile, stats, getSkillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled, isSoundEnabled, setLocale, getLocale, duelStats, languages, getLeagueTier, getLangElo } from '../data'
 import { showXP, showAchievement } from './XPToast'
-import { share as nativeShare, haptic } from '../nativeBridge'
+import { share as nativeShare, haptic, isNative, getReminderState, enableReminders, disableReminders, queryReminders, onRemindersChanged } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════
    PROFILE VIEW — polished, 3D, Costume Shop
@@ -963,6 +963,20 @@ function SettingsModal({ onClose }) {
         localStorage.setItem('rheo_setting_haptic', JSON.stringify(val))
         if (val) try { navigator.vibrate?.(40) } catch (e) { }
     }
+    // Daily reminders live in the native shell — it is the only side that can
+    // hand a schedule to the OS. The switch shows the state the shell reports,
+    // not the state we asked for, so a declined permission leaves it off.
+    const [reminders, setReminders] = useState(() => getReminderState())
+    useEffect(() => {
+        if (!isNative()) return
+        queryReminders()
+        return onRemindersChanged(setReminders)
+    }, [])
+    const toggleReminders = () => {
+        if (reminders.enabled) disableReminders()
+        else enableReminders(reminders.hour ?? 20, reminders.minute ?? 0)
+    }
+
     const handleLocale = (l) => {
         setLocaleState(l)
         setLocale(l)
@@ -1007,6 +1021,24 @@ function SettingsModal({ onClose }) {
                                 <motion.div animate={{ x: haptic ? 24 : 2 }} className="w-5 h-5 bg-white rounded-full mt-0.5 shadow-sm" />
                             </button>
                         </div>
+                        {/* Only offered inside the app: a browser tab cannot
+                            wake anyone up, and a switch that does nothing is
+                            worse than no switch. */}
+                        {isNative() && (
+                            <div className="flex items-center justify-between mt-4">
+                                <div>
+                                    <p className="text-sm font-bold text-slate-300">{t('Daily Reminder')}</p>
+                                    <p className="text-[10px] text-slate-500">
+                                        {reminders.enabled
+                                            ? `${t('Every day at')} ${String(reminders.hour ?? 20).padStart(2, '0')}:${String(reminders.minute ?? 0).padStart(2, '0')}`
+                                            : t('A nudge so your streak survives')}
+                                    </p>
+                                </div>
+                                <button onClick={toggleReminders} className={`w-12 h-6 rounded-full relative transition-colors ${reminders.enabled ? 'bg-teal-500' : 'bg-slate-700'}`}>
+                                    <motion.div animate={{ x: reminders.enabled ? 24 : 2 }} className="w-5 h-5 bg-white rounded-full mt-0.5 shadow-sm" />
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Language */}

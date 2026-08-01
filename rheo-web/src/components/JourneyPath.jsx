@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage, t, isHapticEnabled, isChestOpened, openChest } from '../data'
+import { getCodeSnippet, getOtterMood, stats, journeyNodes, getTipOfTheDay, chapterColors, getExercisesForNode, getActiveLanguage, t, isHapticEnabled, isChestOpened, openChest, LESSON_LENGTH, SHORT_LESSON_LENGTH } from '../data'
 import { showXP } from './XPToast'
 
 /* ═══════════════════════════════════════════════════════
@@ -480,7 +480,14 @@ function LessonModal({ node, onClose, onStart }) {
     const chapter = chapterColors[node.chapter] || chapterColors[1]
     const diffStars = node.type === 'boss' ? 3 : node.type === 'daily' ? 2 : 1
     const exercises = getExercisesForNode(node.id, getActiveLanguage())
-    const qCount = exercises.filter(e => e.type !== 'concept').length || 1
+    // This counted the whole POOL and promised it — "10 questions" above a
+    // lesson that serves LESSON_LENGTH of them. It is the first concrete
+    // promise the app makes and it was broken on the very first tap. Report
+    // what the lesson will actually run.
+    const pool = exercises.filter(e => e.type !== 'concept').length
+    const roundLength = (node.type === 'chest' || node.type === 'playground')
+        ? SHORT_LESSON_LENGTH : LESSON_LENGTH
+    const qCount = Math.min(pool, roundLength) || 1
 
     return (
         <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-40 animate-pop-in w-[220px]">

@@ -8,6 +8,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../logic/notification_service.dart';
+
 /// Loads the React Journey web app from bundled assets inside a WebView.
 ///
 /// Strategy: Copy assets to temp dir → start a local HTTP server → load via
@@ -75,9 +77,56 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
         case 'share':
           _shareText(data['text'] as String?, data['url'] as String?);
           break;
+        // Daily reminders. The service was fully written and had no caller,
+        // so reminders defaulted to off and nothing could ever turn them on.
+        case 'notificationsEnable':
+          _setReminders(true, data['hour'], data['minute']);
+          break;
+        case 'notificationsDisable':
+          _setReminders(false, null, null);
+          break;
+        case 'notificationsQuery':
+          _replyReminderState();
+          break;
       }
     } catch (e) {
       debugPrint('⚠️ RheoNative message parse error: $e');
+    }
+  }
+
+  /// Turn daily reminders on or off, then tell the web app what happened so
+  /// its toggle reflects the real OS permission rather than the tap.
+  Future<void> _setReminders(bool on, dynamic hour, dynamic minute) async {
+    try {
+      if (on) {
+        if (hour is int && minute is int) {
+          await notificationService.setReminderTime(hour, minute);
+        }
+        // Asks the OS the first time; returns false if the learner declines,
+        // which must leave the toggle off rather than silently on.
+        final granted = await notificationService.requestPermissions();
+        if (!granted) await notificationService.setEnabled(false);
+      } else {
+        await notificationService.setEnabled(false);
+      }
+    } catch (e) {
+      debugPrint('⚠️ reminder toggle failed: $e');
+    }
+    await _replyReminderState();
+  }
+
+  /// Push the current reminder state into the page as window.__rheoReminders.
+  Future<void> _replyReminderState() async {
+    try {
+      final on = notificationService.isEnabled;
+      final h = notificationService.hour;
+      final m = notificationService.minute;
+      await _controller?.runJavaScript(
+        'window.__rheoReminders = {enabled: $on, hour: $h, minute: $m};'
+        'window.dispatchEvent(new Event("rheo-reminders"));',
+      );
+    } catch (e) {
+      debugPrint('⚠️ reminder state push failed: $e');
     }
   }
 
