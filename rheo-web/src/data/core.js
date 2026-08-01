@@ -491,6 +491,10 @@ quests.daily = getDailyQuests()
 /* ── Quest Event Tracking ── */
 export function trackQuestEvent(eventName, amount = 1) {
     try {
+        // The Flawless achievement reads this flag directly rather than going
+        // through quest progress, so the event has to set it or the badge can
+        // never unlock no matter how many perfect lessons are played.
+        if (eventName === 'perfect_score') saveTo('rheo_perfect_score', true)
         let saved = JSON.parse(localStorage.getItem('rheo_daily_quests') || '{}')
         const today = new Date().toDateString()
         // Auto-init if no date or different day
@@ -563,6 +567,46 @@ export function consumePowerUp(id) {
     if (inv[id] === 0) delete inv[id]
     saveTo('rheo_powerups', inv)
     return true
+}
+
+/* ══════════════════════════════════════════
+   HINT CREDITS
+   A hint that costs nothing gets tapped on every question, and a question
+   answered with its hint open teaches nothing — the learner reads the
+   reasoning instead of producing it. Three a day makes the choice real:
+   spend one where you are genuinely stuck. Past that a Hint Token (gems,
+   earned or bought) buys one more, so a hard day is never a hard wall.
+   ══════════════════════════════════════════ */
+export const DAILY_HINT_CREDITS = 3
+const HINT_KEY = 'rheo_hint_credits'
+
+function _loadHintState() {
+    const saved = loadSaved(HINT_KEY, {})
+    const today = new Date().toDateString()
+    // Stored as a date string, so the allowance refills at the learner's own
+    // local midnight and a timezone change can only ever grant, never revoke.
+    if (saved.date !== today) return { date: today, used: 0 }
+    return { date: today, used: saved.used || 0 }
+}
+
+export function getHintCredits() {
+    const state = _loadHintState()
+    return {
+        free: Math.max(0, DAILY_HINT_CREDITS - state.used),
+        tokens: getPowerUpCount('hint_token'),
+        max: DAILY_HINT_CREDITS,
+    }
+}
+
+/** Spends one hint. Returns 'free' | 'token' | null (nothing left to spend). */
+export function spendHintCredit() {
+    const state = _loadHintState()
+    if (state.used < DAILY_HINT_CREDITS) {
+        saveTo(HINT_KEY, { date: state.date, used: state.used + 1 })
+        return 'free'
+    }
+    if (consumePowerUp('hint_token')) return 'token'
+    return null
 }
 
 /* ══════════════════════════════════════════

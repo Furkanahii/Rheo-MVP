@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playCorrect, playWrong, playStreak, playSpeedBonus, playCelebration, toggleMute, isMuted } from '../sounds'
-import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled, recordAttempt, chapterColors } from '../data'
+import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, trackWrongAnswer, clearWeakExercise, consumePowerUp, getPowerUpCount, isHapticEnabled, recordAttempt, chapterColors, getHintCredits, spendHintCredit, DAILY_HINT_CREDITS } from '../data'
 import { getConceptDeck } from '../data/concepts.js'
 import ConceptDeck from './ConceptDeck'
 import { showXP, showAchievement } from './XPToast'
@@ -58,8 +58,11 @@ export default function LessonScreen({ onClose, exercises = [] }) {
     const [isTransitioning, setIsTransitioning] = useState(false) // ← Guard against Continue spam
     const [wrongQuestions, setWrongQuestions] = useState([]) // ← Track wrong answers for Review Mistakes
     const [xpEarned, setXpEarned] = useState({ base: 0, speed: 0, streak: 0 }) // ← XP breakdown
-    const [hintUsed, setHintUsed] = useState(false) // ← Hint system
     const [showHint, setShowHint] = useState(false)
+    // Credits are read into state so spending one re-renders the button; the
+    // store is localStorage, which React cannot subscribe to on its own.
+    const [hintCredits, setHintCredits] = useState(() => getHintCredits())
+    const [hintDenied, setHintDenied] = useState(false)
 
     // If step overflows exercises array, show result instead of crashing
     useEffect(() => {
@@ -80,6 +83,17 @@ export default function LessonScreen({ onClose, exercises = [] }) {
 
     if (!ex) return null
 
+    // Which exercises can be hinted. Concept decks are a lesson, not a question;
+    // the terminal already prints a per-step hint of its own, so offering a paid
+    // one there would charge for something the learner can already see.
+    const canHint = ex.type !== 'concept' && ex.type !== 'terminal' && ex.type !== 'video'
+    const hasHintLeft = hintCredits.free > 0 || hintCredits.tokens > 0
+    const hintText = ex.hint || (
+        ex.type === 'trace' ? 'Trace each line step by step'
+            : ex.type === 'bug' ? 'Read the code line by line and ask what each one leaves behind'
+                : ex.type === 'output' ? 'Run the code mentally, one line at a time'
+                    : 'Think about what each option does differently')
+
     const handleCheck = () => {
         // ← Block if already transitioning (prevents Continue spam bug)
         if (isTransitioning) return
@@ -96,8 +110,8 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                 setShowParticles(null)
                 setSpeedBonus(false)
                 setStreakMsg(null)
-                setHintUsed(false)
                 setShowHint(false)
+                setHintDenied(false)
             }
             setIsTransitioning(false) // ← Unlock
         }
@@ -264,22 +278,40 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                 </motion.div>
             )}
 
-            {/* ═══ HINT BUTTON (after wrong answer) ═══ */}
+            {/* ═══ HINT / SKIP — offered BEFORE the answer ═══
+                A hint that only appears after you have already answered is not a
+                hint, it is a consolation prize: the heart is already gone and the
+                verdict is on screen. Both buttons belong to the moment the learner
+                is still deciding, so they show while !answered and vanish on it. */}
             <AnimatePresence>
-                {answered && isCorrect === false && !hintUsed && !showHint && (
+                {!answered && canHint && !showHint && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         className="flex justify-center gap-2 py-1">
                         <button onClick={() => {
-                            const hasToken = getPowerUpCount('hint_token') > 0
-                            if (hasToken) consumePowerUp('hint_token')
-                            setShowHint(true); setHintUsed(true)
+                            const paid = spendHintCredit()
+                            if (!paid) { haptic('error'); setHintDenied(true); return }
+                            haptic()
+                            setHintCredits(getHintCredits())
+                            setShowHint(true)
                         }}
-                            className="flex items-center gap-1.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full px-4 py-1.5 cursor-pointer hover:bg-indigo-500/30 transition">
-                            <span className="text-sm">💡</span>
-                            <span className="text-[11px] font-bold text-indigo-300">{t('Show Hint')}</span>
-                            {getPowerUpCount('hint_token') > 0 && <span className="text-[8px] font-black text-amber-400 bg-amber-500/20 rounded-full px-1.5">🔮 TOKEN</span>}
+                            disabled={!hasHintLeft}
+                            className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 border transition ${hasHintLeft
+                                ? 'bg-indigo-500/20 border-indigo-500/30 cursor-pointer hover:bg-indigo-500/30'
+                                : 'bg-slate-800/60 border-slate-700/40 opacity-60 cursor-not-allowed'}`}>
+                            <span className="text-sm">{hasHintLeft ? '💡' : '🔒'}</span>
+                            <span className={`text-[11px] font-bold ${hasHintLeft ? 'text-indigo-300' : 'text-slate-500'}`}>{t('Show Hint')}</span>
+                            {/* Say what a tap will cost before it is spent, so the
+                                learner can choose to save the last one. */}
+                            {hintCredits.free > 0 ? (
+                                <span className="text-[9px] font-black text-indigo-200/80 bg-indigo-500/25 rounded-full px-1.5">{hintCredits.free}/{DAILY_HINT_CREDITS}</span>
+                            ) : hintCredits.tokens > 0 ? (
+                                <span className="text-[9px] font-black text-amber-400 bg-amber-500/20 rounded-full px-1.5">🔮 {hintCredits.tokens}</span>
+                            ) : (
+                                <span className="text-[9px] font-black text-slate-500 bg-slate-700/40 rounded-full px-1.5">0</span>
+                            )}
                         </button>
-                        {/* Skip Token button */}
+                        {/* Skip Token — also only useful before answering: skipping a
+                            question you already lost a heart on buys nothing. */}
                         {getPowerUpCount('skip_token') > 0 && !isLast && (
                             <button onClick={() => {
                                 consumePowerUp('skip_token')
@@ -289,7 +321,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                                     setStep(s => s + 1)
                                     setAnswered(false); setIsCorrect(null); setSelected(null)
                                     setShowParticles(null); setSpeedBonus(false); setStreakMsg(null)
-                                    setHintUsed(false); setShowHint(false)
+                                    setShowHint(false); setHintDenied(false)
                                     setIsTransitioning(false)
                                 }, 300)
                             }}
@@ -300,11 +332,19 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         )}
                     </motion.div>
                 )}
+                {hintDenied && !showHint && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className="mx-4 py-2 px-4 bg-slate-800/60 border border-slate-700/40 rounded-xl">
+                        <p className="text-[11px] font-bold text-slate-400 text-center">
+                            🔒 {t('Out of hints — they refill tomorrow, or a Hint Token buys one.')}
+                        </p>
+                    </motion.div>
+                )}
                 {showHint && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         className="mx-4 py-2 px-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
                         <p className="text-[11px] font-bold text-indigo-300 text-center">
-                            💡 {ex?.hint || (ex?.type === 'trace' ? 'Trace each line step by step' : ex?.type === 'bug' ? 'Look at the highlighted line carefully' : ex?.type === 'output' ? 'Run the code mentally line by line' : 'Think about what each option does differently')}
+                            💡 {t(hintText)}
                         </p>
                     </motion.div>
                 )}
@@ -468,7 +508,7 @@ function BugHunt({ ex, selected, setSelected, answered, onAnswer }) {
         <div>
             <p className="text-sm font-black text-white mb-1">{ex.prompt}</p>
             <p className="text-[10px] font-bold text-slate-500 mb-4">🐛 Find the bug!</p>
-            <IDEBlock filename="debug.py">
+            <IDEBlock>
                 {ex.code.map((line, i) => (
                     <motion.button key={i} whileTap={{ scale: 0.98 }} onClick={() => handleTap(i)} disabled={answered}
                         className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all cursor-pointer border-b-[3px]
@@ -728,7 +768,7 @@ function CodeRefactor({ ex, selected, setSelected, answered, onAnswer }) {
             {/* Original messy code */}
             <p className="text-[9px] font-extrabold text-red-400/70 tracking-wider mb-2">ORIGINAL CODE</p>
             <div className="mb-5">
-                <IDEBlock filename="before.py">
+                <IDEBlock>
                     {ex.originalCode.split('\n').map((line, i) => (
                         <div key={i} className="flex items-start gap-3 px-2 py-0.5">
                             <span className="text-[10px] text-slate-600 w-4 shrink-0">{i + 1}</span>
@@ -1239,7 +1279,12 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                     completed: passed,
                     stars,
                     correct: correct || 0,
-                    total
+                    total,
+                    // App.jsx fires the perfect_score quest event off this flag.
+                    // It was never sent, so "Score 100% on a quiz" — a daily
+                    // quest, two monthly quests and the Flawless achievement —
+                    // could not be completed by any means.
+                    perfect: passed && total > 0 && correct >= total,
                 })}
                     className="w-full max-w-[280px] py-4 rounded-2xl font-black text-base text-white bg-teal-500 border-b-[6px] border-teal-700 active:translate-y-[6px] active:border-b-0 transition-all duration-75 cursor-pointer mt-2">
                     {t('CONTINUE')}

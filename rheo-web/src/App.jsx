@@ -11,7 +11,7 @@ import Onboarding from './components/Onboarding'
 import LessonScreen from './components/LessonScreen'
 import { SplashScreen } from './components/LivingOtter'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises, selectExercisesForNode, SHORT_LESSON_LENGTH } from './data'
+import { getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises, selectExercisesForNode, SHORT_LESSON_LENGTH, getEnergyRefillTime, MAX_ENERGY } from './data'
 
 // Lazy loading fallback
 const LazyFallback = () => <div className="h-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" /></div>
@@ -22,6 +22,7 @@ export default function App() {
     const [showDaily, setShowDaily] = useState(false)
     const [lessonNodeId, setLessonNodeId] = useState(null)
     const [milestoneChapter, setMilestoneChapter] = useState(null)
+    const [outOfEnergy, setOutOfEnergy] = useState(false)
     const [, forceUpdate] = useState(0)
 
     // Check for seasonal leaderboard reset on mount
@@ -77,12 +78,16 @@ export default function App() {
         return selectExercisesForNode(lessonNodeId, getActiveLanguage(), short ? SHORT_LESSON_LENGTH : undefined)
     }, [lessonNodeId])
 
-    // Energy gate — consume energy when lesson screen opens
+    // Energy gate — consume energy when lesson screen opens.
+    // A refusal used to close the lesson with no message at all: the learner
+    // tapped a node, saw a flash, and landed back on the map with nothing to
+    // explain it. Silent failure on the app's main progression gate reads as
+    // "the app is broken", so a refusal now says so and gives the wait.
     useEffect(() => {
         if (lessonNodeId && exercises.length > 0) {
             if (!useEnergy()) {
-                // Not enough energy — close lesson
                 setLessonNodeId(null)
+                setOutOfEnergy(true)
                 forceUpdate(n => n + 1)
             }
         }
@@ -131,6 +136,10 @@ export default function App() {
 
                     <AnimatePresence>
                         {showOnboarding && <Onboarding onFinish={handleOnboardingDone} />}
+                    </AnimatePresence>
+
+                    <AnimatePresence>
+                        {outOfEnergy && <OutOfEnergy onClose={() => setOutOfEnergy(false)} />}
                     </AnimatePresence>
 
                     {/* Daily Reward — ONLY on journey tab to fix z-index overlap */}
@@ -202,3 +211,60 @@ function MilestoneModal({ chapter, onClose }) {
     )
 }
 
+
+/* ═══════════════════════════════════════════
+   OUT OF ENERGY
+   The one screen that tells the learner why a lesson refused to open.
+   It answers the two questions a locked-out user actually has: how long
+   until I can play, and is there anything I can do right now.
+   ═══════════════════════════════════════════ */
+function OutOfEnergy({ onClose }) {
+    // Recomputed on a timer so the countdown is live while the sheet is open —
+    // a frozen "29 min" reads like a bug the moment it is watched.
+    const [minutes, setMinutes] = useState(() => getEnergyRefillTime())
+    useEffect(() => {
+        const id = setInterval(() => {
+            const m = getEnergyRefillTime()
+            setMinutes(m)
+            if (m == null || stats.energy > 0) onClose()   // refilled while waiting
+        }, 30000)
+        return () => clearInterval(id)
+    }, [onClose])
+
+    const label = minutes == null ? t('Ready now') : minutes >= 60
+        ? `${Math.floor(minutes / 60)} ${t('h')} ${minutes % 60} ${t('min')}`
+        : `${minutes} ${t('min')}`
+
+    return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[350] flex items-end justify-center"
+            style={{ background: 'rgba(8,14,26,0.75)' }}>
+            <motion.div initial={{ y: 60 }} animate={{ y: 0 }} exit={{ y: 60 }}
+                onClick={e => e.stopPropagation()}
+                className="w-full max-w-[430px] rounded-t-3xl bg-slate-900 border-t border-slate-700/50 px-6 pt-6 pb-8 flex flex-col items-center gap-3"
+                style={{ paddingBottom: 'max(32px, env(safe-area-inset-bottom, 32px))' }}>
+                <span className="text-4xl">⚡</span>
+                <h2 className="text-xl font-black text-white text-center">{t('Out of energy')}</h2>
+                <p className="text-[13px] font-bold text-slate-400 text-center leading-relaxed max-w-[300px]">
+                    {t('Lessons cost 1 energy. One refills every 30 minutes.')}
+                </p>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-pink-500/10 border border-pink-800/40">
+                    <span className="text-sm">❤️</span>
+                    <span className="text-xs font-black text-pink-400">{stats.energy} / {MAX_ENERGY}</span>
+                    <span className="text-[10px] font-bold text-slate-500">·</span>
+                    <span className="text-[11px] font-bold text-slate-400">{t('Next in')} {label}</span>
+                </div>
+                {/* Everything below still works at zero energy, so say so rather
+                    than leaving the learner with nothing but a wait. */}
+                <p className="text-[11px] font-bold text-slate-500 text-center leading-relaxed max-w-[300px]">
+                    {t('Meanwhile: duels in the League and your daily Quests cost no energy.')}
+                </p>
+                <button onClick={onClose}
+                    className="w-full max-w-[280px] mt-2 py-3.5 rounded-2xl font-black text-sm text-white bg-teal-500 border-b-[5px] border-teal-700 active:translate-y-[5px] active:border-b-0 transition-all duration-75 cursor-pointer">
+                    {t('GOT IT')}
+                </button>
+            </motion.div>
+        </motion.div>
+    )
+}
