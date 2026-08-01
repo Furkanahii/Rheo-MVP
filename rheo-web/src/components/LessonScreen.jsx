@@ -31,6 +31,12 @@ const OTTER_MSGS = {
 }
 const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)]
 
+// Exercise types where the answer comes from reading code line by line. These
+// are the ones that earn the deep-reading bonus; matching pairs or picking a
+// complexity class is recall, and rewarding slowness there would just be a tax
+// on knowing the answer.
+const READING_TYPES = new Set(['trace', 'output', 'bug', 'errordecode', 'algostep', 'refactor'])
+
 export default function LessonScreen({ onClose, exercises = [] }) {
     const [step, setStep] = useState(0)
     const [answered, setAnswered] = useState(false)
@@ -120,9 +126,9 @@ export default function LessonScreen({ onClose, exercises = [] }) {
         if (isCorrect === null) { advance(); return }
         // Show otter message briefly before advancing
         const msg = isCorrect
-            ? (streak >= 7 ? pickRandom(OTTER_MSGS.streak7)
-                : streak >= 5 ? pickRandom(OTTER_MSGS.streak5)
-                    : streak >= 3 ? pickRandom(OTTER_MSGS.streak3)
+            ? (streak >= 6 ? pickRandom(OTTER_MSGS.streak7)
+                : streak >= 4 ? pickRandom(OTTER_MSGS.streak5)
+                    : streak >= 2 ? pickRandom(OTTER_MSGS.streak3)
                         : pickRandom(OTTER_MSGS.correct))
             : pickRandom(OTTER_MSGS.wrong)
         setOtterMsg(msg)
@@ -155,21 +161,33 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             if (newStreak > bestStreak) setBestStreak(newStreak)
             if (elapsed < fastestTime) setFastestTime(elapsed)
 
-            // Speed bonus
+            // Deep-reading bonus.
+            // This used to pay +5 XP — a 33% premium — for answering in under
+            // ten seconds. In a CODE READING app that is a bounty on the exact
+            // act the product exists to build: nobody traces a six-line loop in
+            // ten seconds, they pattern-match the options. It also poisoned the
+            // adaptive engine, which read the resulting misses as "too hard"
+            // and served easier questions to a learner who was only rushing.
+            // The bonus now goes the other way, and only where reading is the
+            // task: sit with the code, get it right, get paid.
             let xp = 15
             let speedAdd = 0
             let streakAdd = 0
-            if (elapsed < 10) {
+            if (READING_TYPES.has(ex.type) && elapsed >= 12) {
                 setSpeedBonus(true)
                 playSpeedBonus()
                 speedAdd = 5
                 xp += 5
             }
 
-            // Streak bonuses
-            if (newStreak === 3) { setStreakMsg('🔥 On Fire!'); playStreak(); streakAdd = 5; xp += 5 }
-            else if (newStreak === 5) { setStreakMsg('⚡ UNSTOPPABLE!'); playStreak(); streakAdd = 10; xp += 10 }
-            else if (newStreak === 7) { setStreakMsg('💎 LEGENDARY!'); playStreak(); streakAdd = 25; xp += 25 }
+            // Streak bonuses.
+            // The top tier used to sit at 7 — unreachable, because a lesson is
+            // LESSON_LENGTH (6) questions and the streak resets each lesson. Its
+            // +25 XP, its banner and its sound had never once fired. Retuned to
+            // 2/4/6 so all three tiers are live inside a real lesson.
+            if (newStreak === 2) { setStreakMsg('🔥 On Fire!'); playStreak(); streakAdd = 5; xp += 5 }
+            else if (newStreak === 4) { setStreakMsg('⚡ UNSTOPPABLE!'); playStreak(); streakAdd = 10; xp += 10 }
+            else if (newStreak === 6) { setStreakMsg('💎 LEGENDARY!'); playStreak(); streakAdd = 25; xp += 25 }
             else setStreakMsg(null)
 
             setXpEarned(prev => ({ base: prev.base + 15, speed: prev.speed + speedAdd, streak: prev.streak + streakAdd }))
@@ -240,7 +258,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                     </motion.div>
                 </div>
                 {/* Streak badge */}
-                {streak >= 3 && (
+                {streak >= 2 && (
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-orange-500/15 border border-orange-700/30">
                         <span className="text-xs">🔥</span>
                         <span className="text-xs font-black text-orange-400">{streak}</span>
@@ -273,7 +291,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                     <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-full px-3 py-1">
                         <span className="text-sm">{'🔥'.repeat(Math.min(streak, 3))}</span>
                         <span className="text-xs font-black text-amber-400">{streak}x COMBO</span>
-                        {streak >= 3 && <span className="text-[10px] font-bold text-amber-300/70">+{streak >= 7 ? 25 : streak >= 5 ? 10 : 5} XP</span>}
+                        {streak >= 2 && <span className="text-[10px] font-bold text-amber-300/70">+{streak >= 6 ? 25 : streak >= 4 ? 10 : 5} XP</span>}
                     </div>
                 </motion.div>
             )}
@@ -386,14 +404,14 @@ export default function LessonScreen({ onClose, exercises = [] }) {
             <AnimatePresence>
                 {answered && isCorrect !== null && (
                     <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
-                        className={`shrink-0 max-h-[40vh] overflow-y-auto px-5 py-3 flex items-start gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-red-500/10 border-t border-red-700/30'}`}>
-                        <span className="text-xl">{isCorrect ? '✅' : '❌'}</span>
+                        className={`shrink-0 max-h-[40vh] overflow-y-auto px-5 py-3 flex items-start gap-3 ${isCorrect ? 'bg-emerald-500/10 border-t border-emerald-700/30' : 'bg-amber-500/10 border-t border-amber-700/30'}`}>
+                        <span className="text-xl">{isCorrect ? '✅' : '💡'}</span>
                         <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-black ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>{isCorrect ? t('Correct!') : t('Wrong!')}</p>
+                            <p className={`text-sm font-black ${isCorrect ? 'text-emerald-400' : 'text-amber-400'}`}>{isCorrect ? t('Correct!') : t('Not quite —')}</p>
                             <p className="text-[10px] font-bold text-slate-500">
                                 {isCorrect ? (
-                                    <>{speedBonus ? '⚡ Speed Bonus! +20 XP' : '+15 XP'}{streak >= 3 && ` · 🔥 ${streak} streak`}</>
-                                ) : t('Keep trying!')}
+                                    <>{speedBonus ? '🔍 Deep Read! +20 XP' : '+15 XP'}{streak >= 2 && ` · 🔥 ${streak} streak`}</>
+                                ) : t('Here is what the code actually does:')}
                             </p>
                             {/* Why? — surface the exercise explanation (complexity shows its own inline) */}
                             {ex.explanation && ex.type !== 'complexity' && (
@@ -402,7 +420,7 @@ export default function LessonScreen({ onClose, exercises = [] }) {
                         </div>
                         {isCorrect && speedBonus && (
                             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-600/30">
-                                <span className="text-[10px] font-black text-amber-400">⚡ FAST</span>
+                                <span className="text-[10px] font-black text-amber-400">🔍 DEEP READ</span>
                             </motion.div>
                         )}
                     </motion.div>
@@ -1064,7 +1082,7 @@ function ComplexityMatch({ ex, selected, setSelected, answered, onAnswer }) {
 function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = Infinity, questionTimes = [], wrongQuestions = [], xpBreakdown = { base: 0, speed: 0, streak: 0 }, onClose }) {
     const pct = Math.round(((correct || 0) / total) * 100)
     const passed = hearts > 0
-    const stars = hearts >= 4 ? 3 : hearts >= 2 ? 2 : hearts > 0 ? 1 : 0
+    const stars = hearts >= 3 ? 3 : hearts >= 2 ? 2 : hearts > 0 ? 1 : 0
     const [animPct, setAnimPct] = useState(0)
     const [animXP, setAnimXP] = useState(0)
     const [showReview, setShowReview] = useState(false)
@@ -1183,7 +1201,7 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                             </div>
                             {xpBreakdown.speed > 0 && (
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[11px] font-bold text-slate-400">⚡ {t('Speed Bonus')}</span>
+                                    <span className="text-[11px] font-bold text-slate-400">🔍 {t('Deep Read Bonus')}</span>
                                     <span className="text-[11px] font-black text-amber-400">+{xpBreakdown.speed}</span>
                                 </div>
                             )}

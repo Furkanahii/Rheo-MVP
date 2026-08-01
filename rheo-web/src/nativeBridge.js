@@ -79,3 +79,36 @@ export function openExternal(url) {
   if (post({ action: 'openUrl', url })) return
   window.open(url, '_blank', 'noopener,noreferrer')
 }
+
+/* ── Daily reminders ──
+   The shell owns these: only it can hand a schedule to the OS so a reminder
+   arrives when the app is closed, which is the only moment a reminder matters.
+   The web build has no equivalent, so the setting hides itself there rather
+   than offering a switch that cannot do anything. */
+
+/** Current reminder state pushed in by the shell: {enabled, hour, minute}. */
+export function getReminderState() {
+  return window.__rheoReminders || { enabled: false, hour: 20, minute: 0 }
+}
+
+/** Ask the shell to turn reminders on at hour:minute. The OS permission
+    dialog may still refuse; the shell answers with the real state. */
+export function enableReminders(hour = 20, minute = 0) {
+  return post({ action: 'notificationsEnable', hour, minute })
+}
+
+export function disableReminders() {
+  return post({ action: 'notificationsDisable' })
+}
+
+/** Ask the shell to push the current state (it replies via the event below). */
+export function queryReminders() {
+  return post({ action: 'notificationsQuery' })
+}
+
+/** Subscribe to shell-pushed reminder-state changes. Returns an unsubscribe. */
+export function onRemindersChanged(fn) {
+  const handler = () => fn(getReminderState())
+  window.addEventListener('rheo-reminders', handler)
+  return () => window.removeEventListener('rheo-reminders', handler)
+}
