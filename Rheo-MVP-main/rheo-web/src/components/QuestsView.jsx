@@ -58,7 +58,7 @@ function MonthlyQuest({ data }) {
                 <div className="absolute -top-[2px] right-[16px] z-[4]" style={{ maxHeight: '70px', overflow: 'hidden' }}><FullOtterMascot /></div>
                 <div className="p-5 pt-4 relative z-[5]">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-black text-white">{t(data.title)}</h2>
+                        <h2 className="text-xl font-black text-white pr-12">{t(data.title)}</h2>
                         <div className="flex items-center gap-1.5 bg-slate-700/60 rounded-full px-3 py-1.5 border-b-[2px] border-slate-800">
                             <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

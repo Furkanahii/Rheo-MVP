@@ -439,8 +439,7 @@ function CostumeShop({ costumes, equipped, onEquip, onBuy, onClose, gems }) {
                 </div>
             </div>
 
-            {/* Item grid by slot */}
-            <div className="flex-1 overflow-y-auto px-5 pb-20 space-y-5">
+            <div className="flex-1 overflow-y-auto px-5 space-y-5" style={{ paddingBottom: 'max(80px, env(safe-area-inset-bottom, 80px))' }}>
                 {slots.map(slot => {
                     const items = costumes.filter(c => c.slot === slot)
                     if (!items.length) return null

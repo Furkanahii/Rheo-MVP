@@ -446,7 +446,7 @@ function LangSelect({ mode, onSelect, onBack }) {
         return { ...l, elo, tier }
     })
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen p-4 flex flex-col" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#1e293b 100%)' }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full p-4 flex flex-col overflow-y-auto" style={{ background: 'linear-gradient(135deg,#0f172a 0%,#1e293b 100%)', paddingTop: 'max(16px, env(safe-area-inset-top, 16px))' }}>
             <div className="flex items-center gap-3 mb-6">
                 <motion.button whileTap={{ scale: .9 }} onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:text-white" style={{ background: 'rgba(255,255,255,0.08)' }}>←</motion.button>
                 <h2 className="text-white font-black text-lg flex-1">⚔️ {t('Choose Language')}</h2>
@@ -513,7 +513,7 @@ function Searching({ opp, mode, onFound }) {
                 <OtterMascot size={80} bodyColor={opp.otterColor} />
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .3 }} className="text-center">
-                <h2 className="text-lg font-black text-white">Rakip Bulundu!</h2>
+                <h2 className="text-lg font-black text-white">{t('Opponent Found!')}</h2>
                 <p className="text-sm font-extrabold text-red-400 mt-0.5">{opp.name}</p>
                 <p className="text-[10px] font-bold text-slate-500 flex items-center justify-center gap-1"><BoltIcon size={10} />{opp.elo} ELO</p>
             </motion.div>
