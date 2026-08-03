@@ -8,10 +8,11 @@ import XPToastProvider from './components/XPToast'
 import { AppProvider } from './components/AppContext'
 import DailyReward from './components/DailyReward'
 import Onboarding from './components/Onboarding'
+import Placement from './components/Placement'
 import LessonScreen from './components/LessonScreen'
 import { SplashScreen } from './components/LivingOtter'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises, selectExercisesForNode, SHORT_LESSON_LENGTH, getEnergyRefillTime, MAX_ENERGY } from './data'
+import { getActiveLanguage, journeyNodes, chapterColors, saveProgress, loadProgress, isOnboardingDone, setOnboardingDone, t, trackQuestEvent, useEnergy, stats, resetSeasonIfNeeded, buildReviewExercises, selectExercisesForNode, SHORT_LESSON_LENGTH, getEnergyRefillTime, MAX_ENERGY, isPlacementDone } from './data'
 
 // Lazy loading fallback
 const LazyFallback = () => <div className="h-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" /></div>
@@ -23,6 +24,9 @@ export default function App() {
     const [lessonNodeId, setLessonNodeId] = useState(null)
     const [milestoneChapter, setMilestoneChapter] = useState(null)
     const [outOfEnergy, setOutOfEnergy] = useState(false)
+    // Placement runs once, straight after onboarding: it decides where on the
+    // ability scale the learner starts instead of dropping everyone at 1000.
+    const [showPlacement, setShowPlacement] = useState(() => isOnboardingDone() && !isPlacementDone())
     const [, forceUpdate] = useState(0)
 
     // Check for seasonal leaderboard reset on mount
@@ -62,7 +66,16 @@ export default function App() {
     const handleOnboardingDone = () => {
         setShowOnboarding(false)
         setOnboardingDone()
+        // Place first, then reward — the daily chest on top of the placement
+        // sheet would cover it.
+        if (!isPlacementDone()) setShowPlacement(true)
+        else setShowDaily(true)
+    }
+
+    const handlePlacementDone = () => {
+        setShowPlacement(false)
         setShowDaily(true)
+        forceUpdate(n => n + 1)
     }
 
     // Pick the questions ONCE, when the lesson opens. The adaptive selector reads
@@ -106,7 +119,13 @@ export default function App() {
                     setMilestoneChapter(node.chapter)
                 }
                 // Only activate the next locked node (don't touch other active nodes like daily/available)
-                const nextLocked = journeyNodes.find(n => n.id > node.id && n.status === 'locked')
+                // Follow the ARRAY order, which is the order the map draws.
+                // Comparing ids breaks the moment a node is inserted mid-journey
+                // with an id from the end of the range — which is what adding
+                // the missing concept lessons required, since ids double as
+                // exercise keys and cannot be renumbered.
+                const here = journeyNodes.indexOf(node)
+                const nextLocked = journeyNodes.slice(here + 1).find(n => n.status === 'locked')
                 if (nextLocked) nextLocked.status = 'active'
             }
             // Save progress to localStorage
@@ -139,12 +158,16 @@ export default function App() {
                     </AnimatePresence>
 
                     <AnimatePresence>
+                        {showPlacement && !showOnboarding && <Placement onDone={handlePlacementDone} />}
+                    </AnimatePresence>
+
+                    <AnimatePresence>
                         {outOfEnergy && <OutOfEnergy onClose={() => setOutOfEnergy(false)} />}
                     </AnimatePresence>
 
                     {/* Daily Reward — ONLY on journey tab to fix z-index overlap */}
                     <AnimatePresence>
-                        {showDaily && activeTab === 'journey' && <DailyReward onClose={() => setShowDaily(false)} />}
+                        {showDaily && !showPlacement && activeTab === 'journey' && <DailyReward onClose={() => setShowDaily(false)} />}
                     </AnimatePresence>
 
                     {/* Lesson Screen */}

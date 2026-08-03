@@ -116,6 +116,7 @@ export const journeyNodes = [
     { id: 7, type: 'daily', status: 'locked', title: "Today's Challenge", stars: 0, iconKey: 'daily', skill: 'mixed', chapter: 2 },
     { id: 8, type: 'concept', status: 'locked', title: 'Learn: Conditionals', stars: 0, iconKey: 'concept', skill: 'conditionals', chapter: 2, concept: { cards: 6, minutes: 2 } },
     // CH 3 — Loops ⭐⭐
+    { id: 43, type: 'concept', status: 'locked', title: 'Learn: Loops', stars: 0, iconKey: 'concept', skill: 'loops', chapter: 3, concept: { cards: 5, minutes: 2 } },
     { id: 9, type: 'lesson', status: 'locked', title: 'Loop Basics', stars: 0, iconKey: 'play', skill: 'loops', chapter: 3 },
     { id: 10, type: 'lesson', status: 'locked', title: 'Nested Loops', stars: 0, iconKey: 'pattern', skill: 'loops', chapter: 3 },
     { id: 11, type: 'playground', status: 'locked', title: 'Try: Loops', stars: 0, iconKey: 'playground', skill: 'loops', chapter: 3, playground: { starterCode: { python: 'for i in range(5):\n  print(i)', javascript: 'for (let i = 0; i < 5; i++) {\n  console.log(i);\n}', java: 'for (int i = 0; i < 5; i++) {\n    System.out.println(i);\n}' }, expectedOutput: '0\n1\n2\n3\n4' } },
@@ -126,11 +127,13 @@ export const journeyNodes = [
     { id: 15, type: 'concept', status: 'locked', title: 'Learn: Functions', stars: 0, iconKey: 'concept', skill: 'functions', chapter: 4, concept: { cards: 6, minutes: 2 } },
     { id: 16, type: 'boss', status: 'locked', title: 'Boss: Recursion', stars: 0, iconKey: 'boss', skill: 'functions', chapter: 4 },
     // CH 5 — Data Structures I ⭐⭐
+    { id: 44, type: 'concept', status: 'locked', title: 'Learn: Collections', stars: 0, iconKey: 'concept', skill: 'data_structures', chapter: 5, concept: { cards: 5, minutes: 2 } },
     { id: 17, type: 'lesson', status: 'locked', title: 'Arrays Deep', stars: 0, iconKey: 'pattern', skill: 'data_structures', chapter: 5 },
     { id: 18, type: 'lesson', status: 'locked', title: 'Strings & Maps', stars: 0, iconKey: 'search', skill: 'data_structures', chapter: 5 },
     { id: 19, type: 'playground', status: 'locked', title: 'Try: Collections', stars: 0, iconKey: 'playground', skill: 'data_structures', chapter: 5, playground: { starterCode: { python: 'counts = {}\nfor c in "hello":\n  counts[c] = counts.get(c, 0) + 1\nprint(counts)', javascript: 'const counts = {};\nfor (const c of "hello") {\n  counts[c] = (counts[c] || 0) + 1;\n}\nconsole.log(counts);', java: 'Map<Character,Integer> counts = new HashMap<>();\nfor (char c : "hello".toCharArray()) {\n    counts.merge(c, 1, Integer::sum);\n}\nSystem.out.println(counts);' }, expectedOutput: "{'h': 1, 'e': 1, 'l': 2, 'o': 1}" } },
     { id: 20, type: 'chest', status: 'locked', title: 'Loot Crate', stars: 0, iconKey: 'chest', skill: null, chapter: 5 },
     // CH 6 — Algorithms I ⭐⭐⭐
+    { id: 45, type: 'concept', status: 'locked', title: 'Learn: Sorting & Search', stars: 0, iconKey: 'concept', skill: 'algorithms', chapter: 6, concept: { cards: 5, minutes: 2 } },
     { id: 21, type: 'lesson', status: 'locked', title: 'Sorting Showdown', stars: 0, iconKey: 'pattern', skill: 'algorithms', chapter: 6 },
     { id: 22, type: 'lesson', status: 'locked', title: 'Binary Search', stars: 0, iconKey: 'search', skill: 'algorithms', chapter: 6 },
     { id: 23, type: 'lesson', status: 'locked', title: 'Time Complexity', stars: 0, iconKey: 'scope', skill: 'complexity', chapter: 6 },
@@ -141,16 +144,19 @@ export const journeyNodes = [
     { id: 27, type: 'lesson', status: 'locked', title: 'Trees Intro', stars: 0, iconKey: 'scope', skill: 'data_structures', chapter: 7 },
     { id: 28, type: 'concept', status: 'locked', title: 'Learn: Structures', stars: 0, iconKey: 'concept', skill: 'data_structures', chapter: 7, concept: { cards: 6, minutes: 2 } },
     // CH 8 — Algorithms II ⭐⭐⭐⭐
+    { id: 46, type: 'concept', status: 'locked', title: 'Learn: Recursion', stars: 0, iconKey: 'concept', skill: 'algorithms', chapter: 8, concept: { cards: 5, minutes: 2 } },
     { id: 29, type: 'lesson', status: 'locked', title: 'Recursive Thinking', stars: 0, iconKey: 'scope', skill: 'algorithms', chapter: 8 },
     { id: 30, type: 'lesson', status: 'locked', title: 'Divide & Conquer', stars: 0, iconKey: 'pattern', skill: 'algorithms', chapter: 8 },
     { id: 31, type: 'lesson', status: 'locked', title: 'Memoization & DP', stars: 0, iconKey: 'search', skill: 'dp', chapter: 8 },
     { id: 32, type: 'boss', status: 'locked', title: 'Boss: Recursion++', stars: 0, iconKey: 'boss', skill: 'algorithms', chapter: 8 },
     // CH 9 — Advanced ⭐⭐⭐⭐
+    { id: 47, type: 'concept', status: 'locked', title: 'Learn: Graphs', stars: 0, iconKey: 'concept', skill: 'graphs', chapter: 9, concept: { cards: 5, minutes: 2 } },
     { id: 33, type: 'lesson', status: 'locked', title: 'Graph Basics', stars: 0, iconKey: 'pattern', skill: 'graphs', chapter: 9 },
     { id: 34, type: 'lesson', status: 'locked', title: 'BFS & DFS', stars: 0, iconKey: 'search', skill: 'graphs', chapter: 9 },
     { id: 35, type: 'lesson', status: 'locked', title: 'Two Pointer', stars: 0, iconKey: 'play', skill: 'algorithms', chapter: 9 },
     { id: 36, type: 'playground', status: 'locked', title: 'Try: Graphs', stars: 0, iconKey: 'playground', skill: 'graphs', chapter: 9, playground: { starterCode: { python: 'graph = {"A": ["B","C"], "B": ["D"], "C": [], "D": []}\nvisited = set()\ndef dfs(node):\n  if node in visited: return\n  visited.add(node)\n  print(node)\n  for n in graph[node]: dfs(n)\ndfs("A")', javascript: 'const graph = {A:["B","C"], B:["D"], C:[], D:[]};\nconst visited = new Set();\nfunction dfs(node) {\n  if (visited.has(node)) return;\n  visited.add(node);\n  console.log(node);\n  for (const n of graph[node]) dfs(n);\n}\ndfs("A");', java: 'Map<String,List<String>> graph = Map.of(\n    "A",List.of("B","C"), "B",List.of("D"),\n    "C",List.of(), "D",List.of());\nSet<String> visited = new HashSet<>();\nvoid dfs(String node) {\n    if (!visited.add(node)) return;\n    System.out.println(node);\n    for (String n : graph.get(node)) dfs(n);\n}\ndfs("A");' }, expectedOutput: 'A\nB\nD\nC' } },
     // CH 10 — Mastery ⭐⭐⭐⭐
+    { id: 48, type: 'concept', status: 'locked', title: 'Learn: DP Patterns', stars: 0, iconKey: 'concept', skill: 'dp', chapter: 10, concept: { cards: 5, minutes: 2 } },
     { id: 37, type: 'lesson', status: 'locked', title: 'DP Patterns', stars: 0, iconKey: 'scope', skill: 'dp', chapter: 10 },
     { id: 38, type: 'lesson', status: 'locked', title: 'Problem Strategy', stars: 0, iconKey: 'search', skill: 'algorithms', chapter: 10 },
     { id: 39, type: 'lesson', status: 'locked', title: 'Interview Sim', stars: 0, iconKey: 'terminal', skill: 'algorithms', chapter: 10 },

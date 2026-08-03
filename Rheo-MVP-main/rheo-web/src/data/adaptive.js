@@ -107,6 +107,19 @@ export function getAbilityBySkill() {
         .sort((a, b) => b.rating - a.rating)
 }
 
+/**
+ * Seed the learner's ability from a placement result.
+ * `attempts` is set to a small non-zero number so the K-factor starts a little
+ * damped — the estimate is informed, not a blank slate — but still moves
+ * quickly if the placement got it wrong.
+ */
+export function seedAbility(rating, confidence = 6) {
+    const r = Math.min(RATING_MAX, Math.max(RATING_MIN, rating))
+    _ability = { overall: r, attempts: confidence, skills: {} }
+    saveTo(ABILITY_KEY, _ability)
+    return r
+}
+
 export function resetAdaptive() {
     _ability = { overall: START_RATING, attempts: 0, skills: {} }
     saveTo(ABILITY_KEY, _ability)

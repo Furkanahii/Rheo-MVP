@@ -14,3 +14,6 @@ export * from './core.js'
 
 // Layer 4: Adaptive difficulty (item + learner ratings, lesson selection)
 export * from './adaptive.js'
+
+// Layer 5: Placement (where a new learner starts on the ability scale)
+export * from './placement.js'

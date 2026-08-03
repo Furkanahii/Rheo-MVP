@@ -707,6 +707,2073 @@ const javaDecks = {
     },
 }
 
+
+/* ── Chapters that had no teaching at all until now ──
+   Measurement showed a beginner's success collapsing from 83% in CH1 to 0%
+   by CH6, and the adaptive selector cannot rescue them: it can only choose
+   from a node's own pool, and those pools bottom out well above a novice.
+   The missing ingredient was instruction, not difficulty tuning.
+
+   Each deck follows the worked-example order the novice literature is
+   clearest about (Sweller): show a complete, correct example BEFORE asking
+   anyone to produce one. The compare and pitfall cards then fade the
+   scaffolding — right next to wrong, so the difference is the lesson —
+   which sets up the Predict step the exercises already ask for (PRIMM,
+   Sentance & Waite). */
+Object.assign(pythonDecks, {
+    "3": {
+        "titleEn": "Loops",
+        "titleTr": "Döngüler",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🔁",
+                "title": {
+                    "en": "Doing it again, without writing it again",
+                    "tr": "Tekrar etmek, tekrarlı yazmadan"
+                },
+                "body": {
+                    "en": "A loop is one block of code plus an instruction for how many times to run it.",
+                    "tr": "Döngü, tek bir kod bloğu artı onu kaç kez çalıştıracağının talimatıdır."
+                }
+            },
+            {
+                "kind": "idea",
+                "icon": "🎯",
+                "title": {
+                    "en": "for walks a sequence, while waits for a condition",
+                    "tr": "for bir diziyi gezer, while bir koşulu bekler"
+                },
+                "body": {
+                    "en": "Use for when you know what you are walking through. Use while when you are waiting for something to become true.",
+                    "tr": "Neyi gezdiğini biliyorsan for, bir şeyin doğru olmasını bekliyorsan while kullan."
+                },
+                "code": [
+                    "for ch in \"abc\":",
+                    "    print(ch)      # a b c",
+                    "",
+                    "n = 3",
+                    "while n > 0:",
+                    "    n -= 1         # 3 2 1"
+                ],
+                "caption": {
+                    "en": "A while loop that never changes its condition never ends.",
+                    "tr": "Koşulunu hiç değiştirmeyen while döngüsü hiç bitmez."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🔢",
+                "title": {
+                    "en": "range gives numbers, not a list you can see",
+                    "tr": "range sayı üretir, göreceğin bir liste değil"
+                },
+                "code": [
+                    "range(3)      # 0 1 2  — stops BEFORE 3",
+                    "range(1, 4)   # 1 2 3",
+                    "range(0, 10, 2)  # 0 2 4 6 8"
+                ],
+                "caption": {
+                    "en": "The end value is always excluded. range(3) never produces 3.",
+                    "tr": "Bitiş değeri her zaman dışarıda kalır. range(3) hiç 3 üretmez."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "The classic off-by-one",
+                    "tr": "Klasik bir-eksik hatası"
+                },
+                "body": {
+                    "en": "The list has 3 items at indexes 0, 1, 2. Walking to len(a) reaches index 3, which does not exist.",
+                    "tr": "Listede 0, 1, 2 indekslerinde 3 eleman var. len(a)'ya kadar gitmek olmayan 3. indekse uzanır."
+                },
+                "code": [
+                    "a = [10, 20, 30]",
+                    "for i in range(len(a) + 1):",
+                    "    print(a[i])   # IndexError on the last pass"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "for when the count is known, while when it is not.",
+                        "tr": "Sayı belliyse for, değilse while."
+                    },
+                    {
+                        "en": "range stops before its end value.",
+                        "tr": "range bitiş değerinden önce durur."
+                    },
+                    {
+                        "en": "Nested loops multiply: 3 outer x 4 inner is 12 runs.",
+                        "tr": "İç içe döngüler çarpar: 3 dış x 4 iç = 12."
+                    },
+                    {
+                        "en": "A loop that never changes its condition never ends.",
+                        "tr": "Koşulunu değiştirmeyen döngü bitmez."
+                    }
+                ]
+            }
+        ]
+    },
+    "5": {
+        "titleEn": "Collections",
+        "titleTr": "Koleksiyonlar",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🗂️",
+                "title": {
+                    "en": "One name, many values",
+                    "tr": "Tek isim, çok değer"
+                },
+                "body": {
+                    "en": "A list keeps things in order. A dict looks things up by name. A set remembers only whether it has seen something.",
+                    "tr": "Liste sırayı korur. Sözlük isimle arar. Küme sadece gördü mü görmedi mi bilir."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "📋",
+                "title": {
+                    "en": "Lists are ordered and indexed from 0",
+                    "tr": "Listeler sıralıdır ve 0'dan indekslenir"
+                },
+                "code": [
+                    "a = [10, 20, 30]",
+                    "a[0]      # 10",
+                    "a[-1]     # 30  — from the end",
+                    "a[1:3]    # [20, 30]  — stops before 3"
+                ],
+                "caption": {
+                    "en": "Slicing always returns a NEW list; the original is untouched.",
+                    "tr": "Dilimleme her zaman YENİ liste döndürür; orijinal değişmez."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🔍",
+                "title": {
+                    "en": "Two names, one list",
+                    "tr": "İki isim, tek liste"
+                },
+                "body": {
+                    "en": "b = a does not copy. Both names point at the same object, so appending through either is visible through both.",
+                    "tr": "b = a kopyalamaz. İki isim de aynı nesneyi gösterir; birinden ekleyince ikisinde de görünür."
+                },
+                "bad": {
+                    "label": {
+                        "en": "Shares the same list",
+                        "tr": "Aynı listeyi paylaşır"
+                    },
+                    "code": [
+                        "a = [1, 2]",
+                        "b = a",
+                        "b.append(3)",
+                        "print(a)   # [1, 2, 3]"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "Independent copy",
+                        "tr": "Bağımsız kopya"
+                    },
+                    "code": [
+                        "a = [1, 2]",
+                        "b = a[:]",
+                        "b.append(3)",
+                        "print(a)   # [1, 2]"
+                    ]
+                }
+            },
+            {
+                "kind": "idea",
+                "icon": "🔑",
+                "title": {
+                    "en": "Dicts trade order for speed",
+                    "tr": "Sözlükler sırayı hıza takas eder"
+                },
+                "body": {
+                    "en": "Looking up a key costs the same whether the dict has ten entries or ten million. Scanning a list does not.",
+                    "tr": "Anahtar araması sözlükte on kayıt da olsa on milyon da olsa aynı sürer. Listede taramak öyle değil."
+                },
+                "code": [
+                    "stock = {\"apple\": 3}",
+                    "stock[\"apple\"]        # 3",
+                    "stock.get(\"pear\", 0)  # 0, and does NOT add the key"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Assignment shares; slicing copies.",
+                        "tr": "Atama paylaşır, dilimleme kopyalar."
+                    },
+                    {
+                        "en": "A slice stops BEFORE its end index.",
+                        "tr": "Dilim bitiş indeksinden ÖNCE durur."
+                    },
+                    {
+                        "en": "Strings cannot be changed — methods return new ones.",
+                        "tr": "String değişmez — metotlar yenisini döndürür."
+                    },
+                    {
+                        "en": "dict/set lookup is flat; list scanning grows with size.",
+                        "tr": "Sözlük/küme araması sabit; liste taraması boyla büyür."
+                    }
+                ]
+            }
+        ]
+    },
+    "6": {
+        "titleEn": "Sorting & Searching",
+        "titleTr": "Sıralama & Arama",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "⚖️",
+                "title": {
+                    "en": "The same answer, wildly different cost",
+                    "tr": "Aynı cevap, çok farklı maliyet"
+                },
+                "body": {
+                    "en": "Every algorithm here produces the correct result. What separates them is how the work grows as the input grows.",
+                    "tr": "Buradaki her algoritma doğru sonucu verir. Farkları, girdi büyüdükçe işin nasıl büyüdüğüdür."
+                }
+            },
+            {
+                "kind": "idea",
+                "icon": "📈",
+                "title": {
+                    "en": "Big-O counts growth, not seconds",
+                    "tr": "Big-O saniyeyi değil büyümeyi sayar"
+                },
+                "body": {
+                    "en": "O(n) means doubling the input doubles the work. O(n²) means doubling it quadruples the work.",
+                    "tr": "O(n): girdi iki katına çıkınca iş iki katına çıkar. O(n²): dört katına çıkar."
+                },
+                "code": [
+                    "# 1,000,000 items",
+                    "O(1)       ->  1 step",
+                    "O(log n)   ->  20 steps",
+                    "O(n)       ->  1,000,000",
+                    "O(n log n) ->  20,000,000",
+                    "O(n^2)     ->  1,000,000,000,000"
+                ],
+                "caption": {
+                    "en": "That last row is why nobody hand-writes a quadratic sort.",
+                    "tr": "Son satır, kimsenin elle kare karmaşıklıkta sıralama yazmamasının sebebi."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🔎",
+                "title": {
+                    "en": "Binary search halves the problem",
+                    "tr": "İkili arama problemi ikiye böler"
+                },
+                "body": {
+                    "en": "It only works on SORTED data — throwing away half the range assumes everything left of the middle is smaller.",
+                    "tr": "Sadece SIRALI veride çalışır — yarıyı atmak, ortanın solundaki her şeyin küçük olduğunu varsayar."
+                },
+                "code": [
+                    "lo, hi = 0, len(a) - 1",
+                    "while lo <= hi:",
+                    "    mid = (lo + hi) // 2",
+                    "    if a[mid] == target: return mid",
+                    "    if a[mid] < target: lo = mid + 1",
+                    "    else: hi = mid - 1"
+                ],
+                "caption": {
+                    "en": "On unsorted input it returns a confident wrong answer, with no error.",
+                    "tr": "Sırasız veride hatasızca, kendinden emin bir yanlış cevap döndürür."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "Each branch must SHRINK the range",
+                    "tr": "Her dal aralığı KÜÇÜLTMELİ"
+                },
+                "body": {
+                    "en": "When hi is lo+1, mid rounds down to lo — so lo = mid changes nothing and the loop spins forever. It must be mid + 1.",
+                    "tr": "hi, lo+1 olduğunda mid aşağı yuvarlanıp lo olur — lo = mid hiçbir şeyi değiştirmez, döngü sonsuza döner. mid + 1 olmalı."
+                },
+                "code": [
+                    "if a[mid] < target:",
+                    "    lo = mid       # ← hangs",
+                    "    lo = mid + 1   # ← correct"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Sorted input is information — use it or you wasted it.",
+                        "tr": "Sıralı girdi bilgidir — kullanmazsan israf."
+                    },
+                    {
+                        "en": "Python's sort is O(n log n) and stable: ties keep their order.",
+                        "tr": "Python'un sort'u O(n log n) ve kararlı: eşitler sırasını korur."
+                    },
+                    {
+                        "en": "Nested loops over the same list are O(n²).",
+                        "tr": "Aynı liste üzerinde iç içe döngü O(n²)'dir."
+                    },
+                    {
+                        "en": "A builtin doing the scanning does not make it free.",
+                        "tr": "Taramayı hazır fonksiyon yapıyor olması onu bedava yapmaz."
+                    }
+                ]
+            }
+        ]
+    },
+    "8": {
+        "titleEn": "Recursion & Memoisation",
+        "titleTr": "Özyineleme & Bellekleme",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🪆",
+                "title": {
+                    "en": "A function that calls itself",
+                    "tr": "Kendini çağıran fonksiyon"
+                },
+                "body": {
+                    "en": "Recursion solves a problem by solving a SMALLER version of the same problem, then combining.",
+                    "tr": "Özyineleme, aynı problemin DAHA KÜÇÜK bir versiyonunu çözüp birleştirerek çalışır."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🧱",
+                "title": {
+                    "en": "Two parts, always",
+                    "tr": "Her zaman iki parça"
+                },
+                "body": {
+                    "en": "A base case that returns without recursing, and a recursive step that moves TOWARD it.",
+                    "tr": "Özyinelemeden dönen bir taban durum, ve ona DOĞRU ilerleyen bir adım."
+                },
+                "code": [
+                    "def total(items):",
+                    "    if not items: return 0      # base case",
+                    "    return items[0] + total(items[1:])  # step"
+                ],
+                "caption": {
+                    "en": "Miss either one and it runs until Python stops it.",
+                    "tr": "İkisinden biri eksikse Python durdurana kadar çalışır."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "Unreachable is as bad as missing",
+                    "tr": "Ulaşılamaz olmak, olmamak kadar kötü"
+                },
+                "body": {
+                    "en": "The base case here is correct and never fires: from an odd n the sequence steps straight over 0.",
+                    "tr": "Buradaki taban durum doğru ve hiç çalışmıyor: tek bir n'den başlayınca dizi 0'ın üstünden atlıyor."
+                },
+                "code": [
+                    "def down(n):",
+                    "    if n == 0: return    # never true from n = 5",
+                    "    down(n - 2)          # 5, 3, 1, -1, -3 ..."
+                ]
+            },
+            {
+                "kind": "compare",
+                "icon": "⚡",
+                "title": {
+                    "en": "The same code, two costs",
+                    "tr": "Aynı kod, iki maliyet"
+                },
+                "body": {
+                    "en": "Caching does not change the algorithm. It changes how many times the algorithm runs.",
+                    "tr": "Bellekleme algoritmayı değiştirmez. Algoritmanın kaç kez çalıştığını değiştirir."
+                },
+                "bad": {
+                    "label": {
+                        "en": "2,692,537 calls for n=30",
+                        "tr": "n=30 için 2.692.537 çağrı"
+                    },
+                    "code": [
+                        "def fib(n):",
+                        "    if n < 2: return n",
+                        "    return fib(n-1) + fib(n-2)"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "31 calls for n=30",
+                        "tr": "n=30 için 31 çağrı"
+                    },
+                    "code": [
+                        "@lru_cache(maxsize=None)",
+                        "def fib(n):",
+                        "    if n < 2: return n",
+                        "    return fib(n-1) + fib(n-2)"
+                    ]
+                }
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Base case + a step that reaches it.",
+                        "tr": "Taban durum + ona ulaşan bir adım."
+                    },
+                    {
+                        "en": "Work placed AFTER the call runs on the way back up.",
+                        "tr": "Çağrıdan SONRA yazılan iş, dönüşte çalışır."
+                    },
+                    {
+                        "en": "A cache is two halves: check before, store after.",
+                        "tr": "Önbellek iki yarımdır: önce kontrol, sonra kaydet."
+                    },
+                    {
+                        "en": "Every pending call holds a stack frame.",
+                        "tr": "Bekleyen her çağrı bir yığın çerçevesi tutar."
+                    }
+                ]
+            }
+        ]
+    },
+    "9": {
+        "titleEn": "Graphs",
+        "titleTr": "Graflar",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🕸️",
+                "title": {
+                    "en": "Things, and what connects them",
+                    "tr": "Şeyler ve onları bağlayanlar"
+                },
+                "body": {
+                    "en": "A graph is vertices (things) plus edges (connections). Roads, friendships, dependencies — all the same shape.",
+                    "tr": "Graf = düğümler (şeyler) + kenarlar (bağlantılar). Yollar, arkadaşlıklar, bağımlılıklar — hepsi aynı şekil."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🗺️",
+                "title": {
+                    "en": "An adjacency list is just a dict",
+                    "tr": "Komşuluk listesi aslında bir sözlük"
+                },
+                "code": [
+                    "g = {",
+                    "    \"A\": [\"B\", \"C\"],",
+                    "    \"B\": [\"A\"],",
+                    "    \"C\": [\"A\"],",
+                    "}"
+                ],
+                "caption": {
+                    "en": "An undirected edge appears TWICE — once from each end.",
+                    "tr": "Yönsüz bir kenar İKİ kez görünür — her uçtan bir kez."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🚶",
+                "title": {
+                    "en": "One structure decides the whole traversal",
+                    "tr": "Tek veri yapısı tüm gezinmeyi belirler"
+                },
+                "body": {
+                    "en": "Take from the front and you sweep level by level. Take from the back and you dive down one branch.",
+                    "tr": "Baştan alırsan seviye seviye tararsın. Sondan alırsan tek dala dalarsın."
+                },
+                "bad": {
+                    "label": {
+                        "en": "Stack -> depth-first",
+                        "tr": "Yığın -> derinlik öncelikli"
+                    },
+                    "code": [
+                        "q.pop()      # A B D C",
+                        "# dives to a leaf first"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "Queue -> breadth-first",
+                        "tr": "Kuyruk -> genişlik öncelikli"
+                    },
+                    "code": [
+                        "q.popleft()  # A B C D",
+                        "# finishes each ring first"
+                    ]
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "A graph can lead you back",
+                    "tr": "Graf seni geri getirebilir"
+                },
+                "body": {
+                    "en": "A tree has no way back to where you came from. A graph does — without a visited set the walk never ends.",
+                    "tr": "Ağaçta geldiğin yere dönüş yoktur. Grafta vardır — ziyaret kümesi olmadan gezinme hiç bitmez."
+                },
+                "code": [
+                    "seen = set()",
+                    "if node in seen: return",
+                    "seen.add(node)"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "BFS finds the SHORTEST path when edges are unweighted.",
+                        "tr": "Kenarlar ağırlıksızsa EN KISA yolu BFS bulur."
+                    },
+                    {
+                        "en": "DFS is for cycles and ordering, not distance.",
+                        "tr": "DFS döngü ve sıralama içindir, mesafe için değil."
+                    },
+                    {
+                        "en": "Always mark visited, and mark on ENQUEUE.",
+                        "tr": "Ziyaret edileni işaretle — KUYRUĞA ATARKEN."
+                    },
+                    {
+                        "en": "Undirected means the edge is recorded from both sides.",
+                        "tr": "Yönsüz demek kenarın iki taraftan da yazılması demek."
+                    }
+                ]
+            }
+        ]
+    },
+    "10": {
+        "titleEn": "Dynamic Programming",
+        "titleTr": "Dinamik Programlama",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🧩",
+                "title": {
+                    "en": "When the same question keeps coming back",
+                    "tr": "Aynı soru tekrar tekrar geldiğinde"
+                },
+                "body": {
+                    "en": "DP is recursion plus a notebook: solve each smaller question once, write the answer down, never solve it again.",
+                    "tr": "DP = özyineleme + defter: her küçük soruyu bir kez çöz, cevabı yaz, bir daha çözme."
+                }
+            },
+            {
+                "kind": "idea",
+                "icon": "✌️",
+                "title": {
+                    "en": "Two conditions, both required",
+                    "tr": "İki koşul, ikisi de şart"
+                },
+                "body": {
+                    "en": "Overlapping subproblems: the same smaller question is asked on many paths. Optimal substructure: the best answer is built from best smaller answers.",
+                    "tr": "Örtüşen alt problemler: aynı küçük soru birçok yolda sorulur. Optimal alt yapı: en iyi cevap, en iyi küçük cevaplardan kurulur."
+                },
+                "caption": {
+                    "en": "Merge sort has substructure but no OVERLAP — a cache would never hit.",
+                    "tr": "Merge sort'ta alt yapı var ama ÖRTÜŞME yok — önbellek hiç tutmaz."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🔄",
+                "title": {
+                    "en": "Two directions, same answer",
+                    "tr": "İki yön, aynı cevap"
+                },
+                "body": {
+                    "en": "Top-down remembers as it goes. Bottom-up builds from the known end. Bottom-up has no stack to overflow.",
+                    "tr": "Yukarıdan aşağı giderken hatırlar. Aşağıdan yukarı bilinenden kurar. İkincisinde taşacak yığın yok."
+                },
+                "bad": {
+                    "label": {
+                        "en": "Top-down (memoisation)",
+                        "tr": "Yukarıdan aşağı (bellekleme)"
+                    },
+                    "code": [
+                        "@lru_cache(None)",
+                        "def fib(n):",
+                        "    if n < 2: return n",
+                        "    return fib(n-1) + fib(n-2)"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "Bottom-up (tabulation)",
+                        "tr": "Aşağıdan yukarı (tablolama)"
+                    },
+                    "code": [
+                        "dp = [0, 1]",
+                        "for i in range(2, n+1):",
+                        "    dp.append(dp[i-1] + dp[i-2])"
+                    ]
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "The cache key must include EVERYTHING",
+                    "tr": "Önbellek anahtarı HER ŞEYİ içermeli"
+                },
+                "body": {
+                    "en": "Key on i alone when the answer also depends on remaining, and you serve the wrong stored value — wrong answers, not slow ones.",
+                    "tr": "Cevap remaining'e de bağlıyken sadece i ile anahtarlarsan yanlış kaydı verirsin — yavaş değil, YANLIŞ sonuç."
+                },
+                "code": [
+                    "memo[(i, remaining)] = r   # right",
+                    "memo[i] = r                # silently wrong"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Spot the repeated subquestion first.",
+                        "tr": "Önce tekrar eden alt soruyu bul."
+                    },
+                    {
+                        "en": "Only the last few table rows are usually needed.",
+                        "tr": "Genelde tablonun son birkaç satırı yeter."
+                    },
+                    {
+                        "en": "A too-narrow key gives wrong answers, not slow ones.",
+                        "tr": "Dar anahtar yavaşlık değil yanlışlık üretir."
+                    },
+                    {
+                        "en": "Kadane: at each step, extend the run or restart.",
+                        "tr": "Kadane: her adımda ya diziyi uzat ya baştan başla."
+                    }
+                ]
+            }
+        ]
+    }
+})
+
+
+Object.assign(jsDecks, {
+    "3": {
+        "titleEn": "Loops",
+        "titleTr": "Döngüler",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🔁",
+                "title": {
+                    "en": "Doing it again, without writing it again",
+                    "tr": "Tekrar etmek, tekrarlı yazmadan"
+                },
+                "body": {
+                    "en": "A loop is one block of code plus an instruction for how many times to run it.",
+                    "tr": "Döngü, tek bir kod bloğu artı onu kaç kez çalıştıracağının talimatıdır."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "⚠️",
+                "title": {
+                    "en": "for...of and for...in are NOT the same",
+                    "tr": "for...of ile for...in AYNI DEĞİL"
+                },
+                "body": {
+                    "en": "for...of hands you the values. for...in hands you the KEYS — and on an array those keys are strings, so \"0\" + 1 is \"01\".",
+                    "tr": "for...of değerleri verir. for...in ANAHTARLARI verir — dizide bu anahtarlar string, yani \"0\" + 1 = \"01\"."
+                },
+                "bad": {
+                    "label": {
+                        "en": "for...in on an array",
+                        "tr": "dizide for...in"
+                    },
+                    "code": [
+                        "for (const i in [10,20]) {",
+                        "  console.log(i);   // \"0\" \"1\" (strings!)",
+                        "}"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "for...of on an array",
+                        "tr": "dizide for...of"
+                    },
+                    "code": [
+                        "for (const v of [10,20]) {",
+                        "  console.log(v);   // 10 20",
+                        "}"
+                    ]
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🔢",
+                "title": {
+                    "en": "The counting loop, spelled out",
+                    "tr": "Sayan döngü, açık açık"
+                },
+                "code": [
+                    "for (let i = 0; i < a.length; i++) {",
+                    "  // i < length, never <=",
+                    "}",
+                    "",
+                    "// let, not var: var leaks one shared i",
+                    "// to every closure made in the loop"
+                ],
+                "caption": {
+                    "en": "i < a.length, never <=. The last valid index is length - 1.",
+                    "tr": "i < a.length, asla <= değil. Son geçerli indeks length - 1."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "The classic off-by-one",
+                    "tr": "Klasik bir-eksik hatası"
+                },
+                "body": {
+                    "en": "The array has 3 items at indexes 0, 1, 2. Reaching index 3 gives undefined — no error, just a silent wrong value.",
+                    "tr": "Dizide 0, 1, 2 indekslerinde 3 eleman var. 3. indekse uzanmak undefined verir — hata yok, sessiz yanlış değer."
+                },
+                "code": [
+                    "const a = [10, 20, 30];",
+                    "for (let i = 0; i <= a.length; i++)",
+                    "  console.log(a[i]);  // 10 20 30 undefined"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "for...of for values, for...in for keys.",
+                        "tr": "Değer için for...of, anahtar için for...in."
+                    },
+                    {
+                        "en": "let per iteration; var is shared by all of them.",
+                        "tr": "let her turda yeni; var hepsinde ortak."
+                    },
+                    {
+                        "en": "Nested loops multiply: 3 outer x 4 inner is 12.",
+                        "tr": "İç içe döngüler çarpar: 3 dış x 4 iç = 12."
+                    },
+                    {
+                        "en": "Reading past the end gives undefined, not an error.",
+                        "tr": "Sonu aşmak hata değil, undefined verir."
+                    }
+                ]
+            }
+        ]
+    },
+    "5": {
+        "titleEn": "Collections",
+        "titleTr": "Koleksiyonlar",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🗂️",
+                "title": {
+                    "en": "One name, many values",
+                    "tr": "Tek isim, çok değer"
+                },
+                "body": {
+                    "en": "An array keeps order. A Map looks things up by key. A Set remembers only whether it has seen something.",
+                    "tr": "Dizi sırayı korur. Map anahtarla arar. Set sadece gördü mü görmedi mi bilir."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🔗",
+                "title": {
+                    "en": "const does NOT freeze the contents",
+                    "tr": "const İÇERİĞİ dondurmaz"
+                },
+                "body": {
+                    "en": "const stops the NAME being pointed somewhere else. The object it points at is still fully editable.",
+                    "tr": "const, İSMİN başka yeri göstermesini engeller. Gösterdiği nesne hâlâ tamamen değiştirilebilir."
+                },
+                "bad": {
+                    "label": {
+                        "en": "Shares the same array",
+                        "tr": "Aynı diziyi paylaşır"
+                    },
+                    "code": [
+                        "const a = [1, 2];",
+                        "const b = a;",
+                        "b.push(3);",
+                        "console.log(a);  // [1, 2, 3]"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "Independent copy",
+                        "tr": "Bağımsız kopya"
+                    },
+                    "code": [
+                        "const a = [1, 2];",
+                        "const b = [...a];",
+                        "b.push(3);",
+                        "console.log(a);  // [1, 2]"
+                    ]
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "✂️",
+                "title": {
+                    "en": "Which methods return, which mutate",
+                    "tr": "Hangisi döndürür, hangisi değiştirir"
+                },
+                "code": [
+                    "// return a NEW array",
+                    "map  filter  slice  concat",
+                    "",
+                    "// change the array IN PLACE",
+                    "push  splice  sort  reverse"
+                ],
+                "caption": {
+                    "en": "slice returns, splice mutates. One letter apart, opposite behaviour.",
+                    "tr": "slice döndürür, splice değiştirir. Tek harf fark, zıt davranış."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "Reading a missing key",
+                    "tr": "Olmayan anahtarı okumak"
+                },
+                "body": {
+                    "en": "A Map returns undefined for a key it does not have — not null, not an error — and it does NOT create the key.",
+                    "tr": "Map olmayan anahtar için undefined döndürür — null değil, hata değil — ve anahtarı OLUŞTURMAZ."
+                },
+                "code": [
+                    "m.get(\"pear\")   // undefined",
+                    "m.has(\"pear\")   // still false",
+                    "m.get(k) ?? 0   // ?? not ||, so a real 0 survives"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Assignment shares; spread copies (shallowly).",
+                        "tr": "Atama paylaşır; spread (yüzeysel) kopyalar."
+                    },
+                    {
+                        "en": "slice stops BEFORE its end index.",
+                        "tr": "slice bitiş indeksinden ÖNCE durur."
+                    },
+                    {
+                        "en": "Strings are immutable — methods return new ones.",
+                        "tr": "String değişmez — metotlar yenisini döndürür."
+                    },
+                    {
+                        "en": "Set/Map lookup is flat; includes() scans.",
+                        "tr": "Set/Map araması sabit; includes() tarar."
+                    }
+                ]
+            }
+        ]
+    },
+    "6": {
+        "titleEn": "Sorting & Searching",
+        "titleTr": "Sıralama & Arama",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "⚖️",
+                "title": {
+                    "en": "The same answer, wildly different cost",
+                    "tr": "Aynı cevap, çok farklı maliyet"
+                },
+                "body": {
+                    "en": "Every algorithm here is correct. What separates them is how the work grows as the input grows.",
+                    "tr": "Buradaki her algoritma doğru. Farkları, girdi büyüdükçe işin nasıl büyüdüğü."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "🚨",
+                "title": {
+                    "en": "sort() compares as TEXT",
+                    "tr": "sort() METİN olarak karşılaştırır"
+                },
+                "body": {
+                    "en": "Default sort turns every element into a string, so \"100\" lands before \"9\" the same way \"ab\" lands before \"b\". It never throws — it just quietly mis-sorts.",
+                    "tr": "Varsayılan sort her elemanı stringe çevirir; \"100\", \"9\"dan önce gelir — tıpkı \"ab\"nin \"b\"den önce gelmesi gibi. Hata atmaz, sessizce yanlış sıralar."
+                },
+                "code": [
+                    "[10, 9, 100, 1].sort()",
+                    "// [1, 10, 100, 9]   ← wrong",
+                    "",
+                    "[10, 9, 100, 1].sort((a, b) => a - b)",
+                    "// [1, 9, 10, 100]   ← right"
+                ]
+            },
+            {
+                "kind": "idea",
+                "icon": "📈",
+                "title": {
+                    "en": "Big-O counts growth, not seconds",
+                    "tr": "Big-O saniyeyi değil büyümeyi sayar"
+                },
+                "code": [
+                    "// 1,000,000 items",
+                    "O(1)       ->  1 step",
+                    "O(log n)   ->  20 steps",
+                    "O(n)       ->  1,000,000",
+                    "O(n log n) ->  20,000,000",
+                    "O(n^2)     ->  1,000,000,000,000"
+                ],
+                "caption": {
+                    "en": "That last row is why nobody hand-writes a quadratic sort.",
+                    "tr": "Son satır, kimsenin elle kare karmaşıklıkta sıralama yazmamasının sebebi."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🔎",
+                "title": {
+                    "en": "Binary search halves the problem",
+                    "tr": "İkili arama problemi ikiye böler"
+                },
+                "body": {
+                    "en": "It only works on SORTED data, and every branch must SHRINK the range — lo = mid does not, and the loop spins forever.",
+                    "tr": "Sadece SIRALI veride çalışır ve her dal aralığı KÜÇÜLTMELİ — lo = mid küçültmez, döngü sonsuza döner."
+                },
+                "code": [
+                    "let lo = 0, hi = a.length - 1;",
+                    "while (lo <= hi) {",
+                    "  const mid = Math.floor((lo + hi) / 2);",
+                    "  if (a[mid] === t) return mid;",
+                    "  if (a[mid] < t) lo = mid + 1;   // + 1 !",
+                    "  else hi = mid - 1;",
+                    "}"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "sort() needs a comparator for numbers. Always.",
+                        "tr": "Sayılar için sort()'a karşılaştırıcı şart. Her zaman."
+                    },
+                    {
+                        "en": "sort mutates and returns the SAME array.",
+                        "tr": "sort değiştirir ve AYNI diziyi döndürür."
+                    },
+                    {
+                        "en": "Sorted input is information — use it or you wasted it.",
+                        "tr": "Sıralı girdi bilgidir — kullanmazsan israf."
+                    },
+                    {
+                        "en": "A builtin doing the scanning does not make it free.",
+                        "tr": "Taramayı hazır fonksiyon yapıyor olması onu bedava yapmaz."
+                    }
+                ]
+            }
+        ]
+    },
+    "8": {
+        "titleEn": "Recursion & Memoisation",
+        "titleTr": "Özyineleme & Bellekleme",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🪆",
+                "title": {
+                    "en": "A function that calls itself",
+                    "tr": "Kendini çağıran fonksiyon"
+                },
+                "body": {
+                    "en": "Recursion solves a problem by solving a SMALLER version of the same problem, then combining.",
+                    "tr": "Özyineleme, aynı problemin DAHA KÜÇÜK versiyonunu çözüp birleştirerek çalışır."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🧱",
+                "title": {
+                    "en": "Two parts, always",
+                    "tr": "Her zaman iki parça"
+                },
+                "body": {
+                    "en": "A base case that returns without recursing, and a step that moves TOWARD it.",
+                    "tr": "Özyinelemeden dönen bir taban durum ve ona DOĞRU ilerleyen bir adım."
+                },
+                "code": [
+                    "function total(a) {",
+                    "  if (a.length === 0) return 0;      // base",
+                    "  return a[0] + total(a.slice(1));   // step",
+                    "}"
+                ],
+                "caption": {
+                    "en": "Miss either and you get RangeError: Maximum call stack size exceeded.",
+                    "tr": "Biri eksikse RangeError: Maximum call stack size exceeded alırsın."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "Unreachable is as bad as missing",
+                    "tr": "Ulaşılamaz olmak, olmamak kadar kötü"
+                },
+                "body": {
+                    "en": "This base case is correct and never fires: from an odd n the sequence steps straight over 0.",
+                    "tr": "Bu taban durum doğru ve hiç çalışmıyor: tek bir n'den başlayınca dizi 0'ın üstünden atlıyor."
+                },
+                "code": [
+                    "function down(n) {",
+                    "  if (n === 0) return;   // never true from 5",
+                    "  down(n - 2);           // 5, 3, 1, -1, -3 ...",
+                    "}"
+                ]
+            },
+            {
+                "kind": "compare",
+                "icon": "⚡",
+                "title": {
+                    "en": "The same code, two costs",
+                    "tr": "Aynı kod, iki maliyet"
+                },
+                "body": {
+                    "en": "Caching does not change the algorithm. It changes how many times the algorithm runs.",
+                    "tr": "Bellekleme algoritmayı değiştirmez. Kaç kez çalıştığını değiştirir."
+                },
+                "bad": {
+                    "label": {
+                        "en": "2,692,537 calls for n=30",
+                        "tr": "n=30 için 2.692.537 çağrı"
+                    },
+                    "code": [
+                        "function fib(n) {",
+                        "  if (n < 2) return n;",
+                        "  return fib(n-1) + fib(n-2);",
+                        "}"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "29 values computed",
+                        "tr": "29 değer hesaplanır"
+                    },
+                    "code": [
+                        "const memo = new Map();",
+                        "function fib(n) {",
+                        "  if (n < 2) return n;",
+                        "  if (memo.has(n)) return memo.get(n);",
+                        "  const r = fib(n-1) + fib(n-2);",
+                        "  memo.set(n, r); return r;",
+                        "}"
+                    ]
+                }
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Base case + a step that reaches it.",
+                        "tr": "Taban durum + ona ulaşan bir adım."
+                    },
+                    {
+                        "en": "Work placed AFTER the call runs on the way back up.",
+                        "tr": "Çağrıdan SONRA yazılan iş dönüşte çalışır."
+                    },
+                    {
+                        "en": "A cache is two halves: check before, store after.",
+                        "tr": "Önbellek iki yarımdır: önce kontrol, sonra kaydet."
+                    },
+                    {
+                        "en": "JS has no reliable tail-call removal — deep means a loop.",
+                        "tr": "JS'te güvenilir kuyruk çağrısı optimizasyonu yok — derinse döngü kullan."
+                    }
+                ]
+            }
+        ]
+    },
+    "9": {
+        "titleEn": "Graphs",
+        "titleTr": "Graflar",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🕸️",
+                "title": {
+                    "en": "Things, and what connects them",
+                    "tr": "Şeyler ve onları bağlayanlar"
+                },
+                "body": {
+                    "en": "A graph is vertices (things) plus edges (connections). Roads, follows, dependencies — all the same shape.",
+                    "tr": "Graf = düğümler (şeyler) + kenarlar (bağlantılar). Yollar, takipler, bağımlılıklar — hepsi aynı şekil."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🗺️",
+                "title": {
+                    "en": "An adjacency list is just an object",
+                    "tr": "Komşuluk listesi aslında bir nesne"
+                },
+                "code": [
+                    "const g = {",
+                    "  A: [\"B\", \"C\"],",
+                    "  B: [\"A\"],",
+                    "  C: [\"A\"],",
+                    "};"
+                ],
+                "caption": {
+                    "en": "An undirected edge appears TWICE — once from each end.",
+                    "tr": "Yönsüz bir kenar İKİ kez görünür — her uçtan bir kez."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🚶",
+                "title": {
+                    "en": "One structure decides the whole traversal",
+                    "tr": "Tek veri yapısı tüm gezinmeyi belirler"
+                },
+                "body": {
+                    "en": "Take from the front and you sweep level by level. Take from the back and you dive down one branch.",
+                    "tr": "Baştan alırsan seviye seviye tararsın. Sondan alırsan tek dala dalarsın."
+                },
+                "bad": {
+                    "label": {
+                        "en": "pop() -> depth-first",
+                        "tr": "pop() -> derinlik öncelikli"
+                    },
+                    "code": [
+                        "const n = q.pop();   // A B D C",
+                        "// dives to a leaf first"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "shift() -> breadth-first",
+                        "tr": "shift() -> genişlik öncelikli"
+                    },
+                    "code": [
+                        "const n = q.shift(); // A B C D",
+                        "// finishes each ring first"
+                    ]
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "A graph can lead you back",
+                    "tr": "Graf seni geri getirebilir"
+                },
+                "body": {
+                    "en": "A tree has no way back to where you came from. A graph does — without a visited Set the walk never ends.",
+                    "tr": "Ağaçta geldiğin yere dönüş yoktur. Grafta vardır — ziyaret Set'i olmadan gezinme hiç bitmez."
+                },
+                "code": [
+                    "const seen = new Set();",
+                    "if (seen.has(node)) return;",
+                    "seen.add(node);"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "BFS finds the SHORTEST path when edges are unweighted.",
+                        "tr": "Kenarlar ağırlıksızsa EN KISA yolu BFS bulur."
+                    },
+                    {
+                        "en": "DFS is for cycles and ordering, not distance.",
+                        "tr": "DFS döngü ve sıralama içindir, mesafe için değil."
+                    },
+                    {
+                        "en": "Always mark visited, and mark on ENQUEUE.",
+                        "tr": "Ziyaret edileni işaretle — KUYRUĞA ATARKEN."
+                    },
+                    {
+                        "en": "shift() on a big queue is O(n) — keep a head index.",
+                        "tr": "Büyük kuyrukta shift() O(n) — baş indeksi tut."
+                    }
+                ]
+            }
+        ]
+    },
+    "10": {
+        "titleEn": "Dynamic Programming",
+        "titleTr": "Dinamik Programlama",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🧩",
+                "title": {
+                    "en": "When the same question keeps coming back",
+                    "tr": "Aynı soru tekrar tekrar geldiğinde"
+                },
+                "body": {
+                    "en": "DP is recursion plus a notebook: solve each smaller question once, write the answer down, never solve it again.",
+                    "tr": "DP = özyineleme + defter: her küçük soruyu bir kez çöz, cevabı yaz, bir daha çözme."
+                }
+            },
+            {
+                "kind": "idea",
+                "icon": "✌️",
+                "title": {
+                    "en": "Two conditions, both required",
+                    "tr": "İki koşul, ikisi de şart"
+                },
+                "body": {
+                    "en": "Overlapping subproblems: the same smaller question is asked on many paths. Optimal substructure: the best answer is built from best smaller answers.",
+                    "tr": "Örtüşen alt problemler: aynı küçük soru birçok yolda sorulur. Optimal alt yapı: en iyi cevap en iyi küçük cevaplardan kurulur."
+                },
+                "caption": {
+                    "en": "Merge sort has substructure but no OVERLAP — a cache would never hit.",
+                    "tr": "Merge sort'ta alt yapı var ama ÖRTÜŞME yok — önbellek hiç tutmaz."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🔄",
+                "title": {
+                    "en": "Two directions, same answer",
+                    "tr": "İki yön, aynı cevap"
+                },
+                "body": {
+                    "en": "Top-down remembers as it goes. Bottom-up builds from the known end, with no stack to overflow.",
+                    "tr": "Yukarıdan aşağı giderken hatırlar. Aşağıdan yukarı bilinenden kurar, taşacak yığın yok."
+                },
+                "bad": {
+                    "label": {
+                        "en": "Top-down (memoisation)",
+                        "tr": "Yukarıdan aşağı (bellekleme)"
+                    },
+                    "code": [
+                        "const memo = new Map();",
+                        "function fib(n) {",
+                        "  if (n < 2) return n;",
+                        "  if (memo.has(n)) return memo.get(n);",
+                        "  ...",
+                        "}"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "Bottom-up (tabulation)",
+                        "tr": "Aşağıdan yukarı (tablolama)"
+                    },
+                    "code": [
+                        "const dp = [0, 1];",
+                        "for (let i = 2; i <= n; i++)",
+                        "  dp.push(dp[i-1] + dp[i-2]);"
+                    ]
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "The cache key must include EVERYTHING",
+                    "tr": "Önbellek anahtarı HER ŞEYİ içermeli"
+                },
+                "body": {
+                    "en": "Key on i alone when the answer also depends on remaining, and you serve the wrong stored value — wrong answers, not slow ones.",
+                    "tr": "Cevap remaining'e de bağlıyken sadece i ile anahtarlarsan yanlış kaydı verirsin — yavaş değil, YANLIŞ sonuç."
+                },
+                "code": [
+                    "memo.set(`${i},${remaining}`, r);  // right",
+                    "memo.set(i, r);                    // silently wrong"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Spot the repeated subquestion first.",
+                        "tr": "Önce tekrar eden alt soruyu bul."
+                    },
+                    {
+                        "en": "Only the last few table rows are usually needed.",
+                        "tr": "Genelde tablonun son birkaç satırı yeter."
+                    },
+                    {
+                        "en": "A too-narrow key gives wrong answers, not slow ones.",
+                        "tr": "Dar anahtar yavaşlık değil yanlışlık üretir."
+                    },
+                    {
+                        "en": "Kadane: at each step, extend the run or restart.",
+                        "tr": "Kadane: her adımda ya diziyi uzat ya baştan başla."
+                    }
+                ]
+            }
+        ]
+    }
+})
+
+Object.assign(javaDecks, {
+    "3": {
+        "titleEn": "Loops",
+        "titleTr": "Döngüler",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🔁",
+                "title": {
+                    "en": "Doing it again, without writing it again",
+                    "tr": "Tekrar etmek, tekrarlı yazmadan"
+                },
+                "body": {
+                    "en": "A loop is one block of code plus an instruction for how many times to run it.",
+                    "tr": "Döngü, tek bir kod bloğu artı onu kaç kez çalıştıracağının talimatıdır."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🎯",
+                "title": {
+                    "en": "Enhanced for gives the VALUE",
+                    "tr": "Geliştirilmiş for DEĞERİ verir"
+                },
+                "body": {
+                    "en": "The enhanced for reads as \"for each int n in nums\". Use the counting form only when you actually need the index.",
+                    "tr": "Geliştirilmiş for \"nums içindeki her int n için\" diye okunur. Sayan formu sadece indekse gerçekten ihtiyacın varsa kullan."
+                },
+                "bad": {
+                    "label": {
+                        "en": "You wanted values, got indexes",
+                        "tr": "Değer istedin, indeks aldın"
+                    },
+                    "code": [
+                        "for (int i = 0; i < a.length; i++)",
+                        "    System.out.println(i);   // 0 1 2"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "Enhanced for",
+                        "tr": "Geliştirilmiş for"
+                    },
+                    "code": [
+                        "for (int n : a)",
+                        "    System.out.println(n);   // 10 20 30"
+                    ]
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🔢",
+                "title": {
+                    "en": "length is a field on arrays, a method on String",
+                    "tr": "length dizide alan, String'de metot"
+                },
+                "code": [
+                    "int[] a = {10, 20, 30};",
+                    "a.length        // field — no parentheses",
+                    "",
+                    "String s = \"abc\";",
+                    "s.length()      // method — parentheses",
+                    "",
+                    "List<Integer> l = List.of(1, 2);",
+                    "l.size()        // and collections use size()"
+                ],
+                "caption": {
+                    "en": "Three containers, three different spellings. It catches everyone once.",
+                    "tr": "Üç kap, üç farklı yazım. Herkesi bir kez yakalar."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "The classic off-by-one",
+                    "tr": "Klasik bir-eksik hatası"
+                },
+                "body": {
+                    "en": "The array has 3 items at indexes 0, 1, 2. Reaching index 3 throws ArrayIndexOutOfBoundsException — Java stops you, unlike JavaScript.",
+                    "tr": "Dizide 0, 1, 2 indekslerinde 3 eleman var. 3. indekse uzanmak ArrayIndexOutOfBoundsException fırlatır — JavaScript'in aksine Java seni durdurur."
+                },
+                "code": [
+                    "for (int i = 0; i <= a.length; i++)",
+                    "    System.out.println(a[i]);",
+                    "// ArrayIndexOutOfBoundsException: 3"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Enhanced for for values, counting form for indexes.",
+                        "tr": "Değer için geliştirilmiş for, indeks için sayan form."
+                    },
+                    {
+                        "en": "i < length, never <=.",
+                        "tr": "i < length, asla <= değil."
+                    },
+                    {
+                        "en": "Nested loops multiply: 3 outer x 4 inner is 12.",
+                        "tr": "İç içe döngüler çarpar: 3 dış x 4 iç = 12."
+                    },
+                    {
+                        "en": "A variable declared inside the loop dies at its brace.",
+                        "tr": "Döngü içinde tanımlanan değişken parantezde ölür."
+                    }
+                ]
+            }
+        ]
+    },
+    "5": {
+        "titleEn": "Collections",
+        "titleTr": "Koleksiyonlar",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🗂️",
+                "title": {
+                    "en": "One name, many values",
+                    "tr": "Tek isim, çok değer"
+                },
+                "body": {
+                    "en": "An array has a fixed size. An ArrayList grows. A HashMap looks things up by key. A HashSet remembers only whether it has seen something.",
+                    "tr": "Dizinin boyu sabittir. ArrayList büyür. HashMap anahtarla arar. HashSet sadece gördü mü görmedi mi bilir."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "🚨",
+                "title": {
+                    "en": "== on objects asks the WRONG question",
+                    "tr": "Nesnelerde == YANLIŞ soruyu sorar"
+                },
+                "body": {
+                    "en": "== compares references — are these the same object? equals() compares contents. With literals the string pool can make == accidentally true, which is why this bug seems to come and go.",
+                    "tr": "== referansları karşılaştırır — aynı nesne mi? equals() içeriği karşılaştırır. Literal'lerde string havuzu == 'i tesadüfen doğru yapabilir; bu yüzden hata gelip gider gibi görünür."
+                },
+                "code": [
+                    "String a = new String(\"hi\");",
+                    "String b = new String(\"hi\");",
+                    "a == b        // false  ← two objects",
+                    "a.equals(b)   // true   ← same text"
+                ]
+            },
+            {
+                "kind": "code",
+                "icon": "🧰",
+                "title": {
+                    "en": "New arrays are pre-filled with defaults",
+                    "tr": "Yeni diziler varsayılanla dolu gelir"
+                },
+                "code": [
+                    "new int[3]      // {0, 0, 0}",
+                    "new double[3]   // {0.0, 0.0, 0.0}",
+                    "new boolean[3]  // {false, false, false}",
+                    "new String[3]   // {null, null, null}  ← !"
+                ],
+                "caption": {
+                    "en": "An int[] is safe to read immediately. A String[] hands you nulls.",
+                    "tr": "int[] hemen okunabilir. String[] sana null verir."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🔗",
+                "title": {
+                    "en": "Assignment shares the same array",
+                    "tr": "Atama aynı diziyi paylaşır"
+                },
+                "body": {
+                    "en": "Assigning copies the REFERENCE, not the elements. Both names then point at one array.",
+                    "tr": "Atama elemanları değil REFERANSI kopyalar. İki isim de tek diziyi gösterir."
+                },
+                "bad": {
+                    "label": {
+                        "en": "Shared",
+                        "tr": "Paylaşımlı"
+                    },
+                    "code": [
+                        "int[] a = {1, 2};",
+                        "int[] b = a;",
+                        "b[0] = 9;",
+                        "// a[0] is now 9"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "Independent copy",
+                        "tr": "Bağımsız kopya"
+                    },
+                    "code": [
+                        "int[] a = {1, 2};",
+                        "int[] b = a.clone();",
+                        "b[0] = 9;",
+                        "// a[0] is still 1"
+                    ]
+                }
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "equals() for contents, == for identity or primitives.",
+                        "tr": "İçerik için equals(), kimlik/ilkel için ==."
+                    },
+                    {
+                        "en": "Arrays are fixed size; ArrayList grows.",
+                        "tr": "Dizi sabit boyutlu; ArrayList büyür."
+                    },
+                    {
+                        "en": "String is immutable — methods return new ones.",
+                        "tr": "String değişmez — metotlar yenisini döndürür."
+                    },
+                    {
+                        "en": "HashMap.get returns null for a missing key.",
+                        "tr": "HashMap.get olmayan anahtar için null döndürür."
+                    }
+                ]
+            }
+        ]
+    },
+    "6": {
+        "titleEn": "Sorting & Searching",
+        "titleTr": "Sıralama & Arama",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "⚖️",
+                "title": {
+                    "en": "The same answer, wildly different cost",
+                    "tr": "Aynı cevap, çok farklı maliyet"
+                },
+                "body": {
+                    "en": "Every algorithm here is correct. What separates them is how the work grows as the input grows.",
+                    "tr": "Buradaki her algoritma doğru. Farkları, girdi büyüdükçe işin nasıl büyüdüğü."
+                }
+            },
+            {
+                "kind": "idea",
+                "icon": "📈",
+                "title": {
+                    "en": "Big-O counts growth, not seconds",
+                    "tr": "Big-O saniyeyi değil büyümeyi sayar"
+                },
+                "code": [
+                    "// 1,000,000 items",
+                    "O(1)       ->  1 step",
+                    "O(log n)   ->  20 steps",
+                    "O(n)       ->  1,000,000",
+                    "O(n log n) ->  20,000,000",
+                    "O(n^2)     ->  1,000,000,000,000"
+                ],
+                "caption": {
+                    "en": "That last row is why nobody hand-writes a quadratic sort.",
+                    "tr": "Son satır, kimsenin elle kare karmaşıklıkta sıralama yazmamasının sebebi."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🔀",
+                "title": {
+                    "en": "Java sorts primitives and objects differently",
+                    "tr": "Java ilkelleri ve nesneleri farklı sıralar"
+                },
+                "code": [
+                    "Arrays.sort(intArray);      // dual-pivot quicksort",
+                    "                            // in place, NOT stable",
+                    "",
+                    "Collections.sort(list);     // merge sort",
+                    "                            // STABLE: ties keep order"
+                ],
+                "caption": {
+                    "en": "Arrays.sort returns void — there is no int[] s = Arrays.sort(a).",
+                    "tr": "Arrays.sort void döndürür — int[] s = Arrays.sort(a) diye bir şey yok."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "Each branch must SHRINK the range",
+                    "tr": "Her dal aralığı KÜÇÜLTMELİ"
+                },
+                "body": {
+                    "en": "When hi is lo+1, integer division makes mid equal lo — so lo = mid changes nothing and the loop spins forever. Also prefer lo + (hi-lo)/2: lo+hi can overflow int.",
+                    "tr": "hi, lo+1 olduğunda tam sayı bölmesi mid'i lo yapar — lo = mid hiçbir şeyi değiştirmez, döngü sonsuza döner. Ayrıca lo + (hi-lo)/2 tercih et: lo+hi int'i taşırabilir."
+                },
+                "code": [
+                    "int mid = lo + (hi - lo) / 2;",
+                    "if (a[mid] < t) lo = mid + 1;   // + 1 !",
+                    "else            hi = mid - 1;"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Binary search needs SORTED input — no exception if not.",
+                        "tr": "İkili arama SIRALI girdi ister — değilse hata da vermez."
+                    },
+                    {
+                        "en": "Collections.sort is stable; Arrays.sort on primitives is not.",
+                        "tr": "Collections.sort kararlı; ilkellerde Arrays.sort değil."
+                    },
+                    {
+                        "en": "Nested loops over the same array are O(n^2).",
+                        "tr": "Aynı dizide iç içe döngü O(n^2)'dir."
+                    },
+                    {
+                        "en": "A library method doing the scanning does not make it free.",
+                        "tr": "Taramayı kütüphane yapıyor olması onu bedava yapmaz."
+                    }
+                ]
+            }
+        ]
+    },
+    "8": {
+        "titleEn": "Recursion & Memoisation",
+        "titleTr": "Özyineleme & Bellekleme",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🪆",
+                "title": {
+                    "en": "A method that calls itself",
+                    "tr": "Kendini çağıran metot"
+                },
+                "body": {
+                    "en": "Recursion solves a problem by solving a SMALLER version of the same problem, then combining.",
+                    "tr": "Özyineleme, aynı problemin DAHA KÜÇÜK versiyonunu çözüp birleştirerek çalışır."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🧱",
+                "title": {
+                    "en": "Two parts, always",
+                    "tr": "Her zaman iki parça"
+                },
+                "body": {
+                    "en": "A base case that returns without recursing, and a step that moves TOWARD it.",
+                    "tr": "Özyinelemeden dönen bir taban durum ve ona DOĞRU ilerleyen bir adım."
+                },
+                "code": [
+                    "static int total(int[] a, int i) {",
+                    "    if (i == a.length) return 0;       // base",
+                    "    return a[i] + total(a, i + 1);     // step",
+                    "}"
+                ],
+                "caption": {
+                    "en": "Miss either and the JVM throws StackOverflowError.",
+                    "tr": "Biri eksikse JVM StackOverflowError fırlatır."
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "Stack, not heap",
+                    "tr": "Yığın (stack), öbek (heap) değil"
+                },
+                "body": {
+                    "en": "StackOverflowError is NOT out of memory. The stack and the heap are different memory, so raising -Xmx changes nothing. Fix the base case.",
+                    "tr": "StackOverflowError bellek yetmemesi DEĞİLDİR. Yığın ve öbek farklı bellektir, -Xmx artırmak hiçbir şeyi değiştirmez. Taban durumu düzelt."
+                },
+                "code": [
+                    "static void down(int n) {",
+                    "    if (n == 0) return;   // never true from 5",
+                    "    down(n - 2);          // 5, 3, 1, -1 ...",
+                    "}"
+                ]
+            },
+            {
+                "kind": "compare",
+                "icon": "⚡",
+                "title": {
+                    "en": "The same code, two costs",
+                    "tr": "Aynı kod, iki maliyet"
+                },
+                "body": {
+                    "en": "Caching does not change the algorithm. It changes how many times the algorithm runs.",
+                    "tr": "Bellekleme algoritmayı değiştirmez. Kaç kez çalıştığını değiştirir."
+                },
+                "bad": {
+                    "label": {
+                        "en": "2,692,537 calls for n=30",
+                        "tr": "n=30 için 2.692.537 çağrı"
+                    },
+                    "code": [
+                        "static long fib(int n) {",
+                        "    if (n < 2) return n;",
+                        "    return fib(n-1) + fib(n-2);",
+                        "}"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "29 values computed",
+                        "tr": "29 değer hesaplanır"
+                    },
+                    "code": [
+                        "static Map<Integer,Long> memo = new HashMap<>();",
+                        "static long fib(int n) {",
+                        "    if (n < 2) return n;",
+                        "    if (memo.containsKey(n)) return memo.get(n);",
+                        "    long r = fib(n-1) + fib(n-2);",
+                        "    memo.put(n, r); return r;",
+                        "}"
+                    ]
+                }
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Base case + a step that reaches it.",
+                        "tr": "Taban durum + ona ulaşan bir adım."
+                    },
+                    {
+                        "en": "Work placed AFTER the call runs on the way back up.",
+                        "tr": "Çağrıdan SONRA yazılan iş dönüşte çalışır."
+                    },
+                    {
+                        "en": "A cache is two halves: check before, store after.",
+                        "tr": "Önbellek iki yarımdır: önce kontrol, sonra kaydet."
+                    },
+                    {
+                        "en": "Java has NO tail-call removal — deep means a loop.",
+                        "tr": "Java'da kuyruk çağrısı optimizasyonu YOK — derinse döngü."
+                    }
+                ]
+            }
+        ]
+    },
+    "9": {
+        "titleEn": "Graphs",
+        "titleTr": "Graflar",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🕸️",
+                "title": {
+                    "en": "Things, and what connects them",
+                    "tr": "Şeyler ve onları bağlayanlar"
+                },
+                "body": {
+                    "en": "A graph is vertices (things) plus edges (connections). Roads, follows, dependencies — all the same shape.",
+                    "tr": "Graf = düğümler (şeyler) + kenarlar (bağlantılar). Yollar, takipler, bağımlılıklar — hepsi aynı şekil."
+                }
+            },
+            {
+                "kind": "code",
+                "icon": "🗺️",
+                "title": {
+                    "en": "An adjacency list is just a Map",
+                    "tr": "Komşuluk listesi aslında bir Map"
+                },
+                "code": [
+                    "Map<String,List<String>> g = new HashMap<>();",
+                    "g.put(\"A\", List.of(\"B\", \"C\"));",
+                    "g.put(\"B\", List.of(\"A\"));",
+                    "g.put(\"C\", List.of(\"A\"));"
+                ],
+                "caption": {
+                    "en": "An undirected edge appears TWICE — once from each end.",
+                    "tr": "Yönsüz bir kenar İKİ kez görünür — her uçtan bir kez."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🚶",
+                "title": {
+                    "en": "One structure decides the whole traversal",
+                    "tr": "Tek veri yapısı tüm gezinmeyi belirler"
+                },
+                "body": {
+                    "en": "Take from the front and you sweep level by level. Take from the back and you dive down one branch.",
+                    "tr": "Baştan alırsan seviye seviye tararsın. Sondan alırsan tek dala dalarsın."
+                },
+                "bad": {
+                    "label": {
+                        "en": "pollLast() -> depth-first",
+                        "tr": "pollLast() -> derinlik öncelikli"
+                    },
+                    "code": [
+                        "String n = q.pollLast();  // A B D C",
+                        "// dives to a leaf first"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "pollFirst() -> breadth-first",
+                        "tr": "pollFirst() -> genişlik öncelikli"
+                    },
+                    "code": [
+                        "String n = q.pollFirst(); // A B C D",
+                        "// finishes each ring first"
+                    ]
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "A graph can lead you back",
+                    "tr": "Graf seni geri getirebilir"
+                },
+                "body": {
+                    "en": "A tree has no way back to where you came from. A graph does — without a visited Set the walk never ends.",
+                    "tr": "Ağaçta geldiğin yere dönüş yoktur. Grafta vardır — ziyaret Set'i olmadan gezinme hiç bitmez."
+                },
+                "code": [
+                    "Set<String> seen = new HashSet<>();",
+                    "if (!seen.add(node)) return;",
+                    "// add returns false if it was already there"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "BFS finds the SHORTEST path when edges are unweighted.",
+                        "tr": "Kenarlar ağırlıksızsa EN KISA yolu BFS bulur."
+                    },
+                    {
+                        "en": "DFS is for cycles and ordering, not distance.",
+                        "tr": "DFS döngü ve sıralama içindir, mesafe için değil."
+                    },
+                    {
+                        "en": "Always mark visited, and mark on ENQUEUE.",
+                        "tr": "Ziyaret edileni işaretle — KUYRUĞA ATARKEN."
+                    },
+                    {
+                        "en": "Set.add returning false is the check and the mark in one.",
+                        "tr": "Set.add'in false dönmesi hem kontrol hem işaretlemedir."
+                    }
+                ]
+            }
+        ]
+    },
+    "10": {
+        "titleEn": "Dynamic Programming",
+        "titleTr": "Dinamik Programlama",
+        "minutes": 2,
+        "cards": [
+            {
+                "kind": "hook",
+                "icon": "🧩",
+                "title": {
+                    "en": "When the same question keeps coming back",
+                    "tr": "Aynı soru tekrar tekrar geldiğinde"
+                },
+                "body": {
+                    "en": "DP is recursion plus a notebook: solve each smaller question once, write the answer down, never solve it again.",
+                    "tr": "DP = özyineleme + defter: her küçük soruyu bir kez çöz, cevabı yaz, bir daha çözme."
+                }
+            },
+            {
+                "kind": "idea",
+                "icon": "✌️",
+                "title": {
+                    "en": "Two conditions, both required",
+                    "tr": "İki koşul, ikisi de şart"
+                },
+                "body": {
+                    "en": "Overlapping subproblems: the same smaller question is asked on many paths. Optimal substructure: the best answer is built from best smaller answers.",
+                    "tr": "Örtüşen alt problemler: aynı küçük soru birçok yolda sorulur. Optimal alt yapı: en iyi cevap en iyi küçük cevaplardan kurulur."
+                },
+                "caption": {
+                    "en": "Merge sort has substructure but no OVERLAP — a cache would never hit.",
+                    "tr": "Merge sort'ta alt yapı var ama ÖRTÜŞME yok — önbellek hiç tutmaz."
+                }
+            },
+            {
+                "kind": "compare",
+                "icon": "🔄",
+                "title": {
+                    "en": "Two directions, same answer",
+                    "tr": "İki yön, aynı cevap"
+                },
+                "body": {
+                    "en": "Top-down remembers as it goes. Bottom-up builds from the known end, with no stack to overflow — which matters more in Java, where there is no tail-call removal.",
+                    "tr": "Yukarıdan aşağı giderken hatırlar. Aşağıdan yukarı bilinenden kurar, taşacak yığın yok — Java'da bu daha önemli, çünkü kuyruk çağrısı optimizasyonu yok."
+                },
+                "bad": {
+                    "label": {
+                        "en": "Top-down (memoisation)",
+                        "tr": "Yukarıdan aşağı (bellekleme)"
+                    },
+                    "code": [
+                        "if (memo.containsKey(n))",
+                        "    return memo.get(n);",
+                        "long r = fib(n-1) + fib(n-2);",
+                        "memo.put(n, r);"
+                    ]
+                },
+                "good": {
+                    "label": {
+                        "en": "Bottom-up (tabulation)",
+                        "tr": "Aşağıdan yukarı (tablolama)"
+                    },
+                    "code": [
+                        "long[] dp = new long[n+1];",
+                        "dp[1] = 1;",
+                        "for (int i = 2; i <= n; i++)",
+                        "    dp[i] = dp[i-1] + dp[i-2];"
+                    ]
+                }
+            },
+            {
+                "kind": "pitfall",
+                "icon": "⚠️",
+                "title": {
+                    "en": "The cache key must include EVERYTHING",
+                    "tr": "Önbellek anahtarı HER ŞEYİ içermeli"
+                },
+                "body": {
+                    "en": "Key on i alone when the answer also depends on remaining, and you serve the wrong stored value — wrong answers, not slow ones.",
+                    "tr": "Cevap remaining'e de bağlıyken sadece i ile anahtarlarsan yanlış kaydı verirsin — yavaş değil, YANLIŞ sonuç."
+                },
+                "code": [
+                    "memo.put(i + \",\" + remaining, r);  // right",
+                    "memo.put(i, r);                    // silently wrong"
+                ]
+            },
+            {
+                "kind": "recap",
+                "icon": "🧠",
+                "title": {
+                    "en": "What to carry into the questions",
+                    "tr": "Sorulara taşıyacakların"
+                },
+                "bullets": [
+                    {
+                        "en": "Spot the repeated subquestion first.",
+                        "tr": "Önce tekrar eden alt soruyu bul."
+                    },
+                    {
+                        "en": "Only the last few table rows are usually needed.",
+                        "tr": "Genelde tablonun son birkaç satırı yeter."
+                    },
+                    {
+                        "en": "A too-narrow key gives wrong answers, not slow ones.",
+                        "tr": "Dar anahtar yavaşlık değil yanlışlık üretir."
+                    },
+                    {
+                        "en": "Kadane: at each step, extend the run or restart.",
+                        "tr": "Kadane: her adımda ya diziyi uzat ya baştan başla."
+                    }
+                ]
+            }
+        ]
+    }
+})
+
 const decksByLanguage = { python: pythonDecks, javascript: jsDecks, java: javaDecks }
 
 /* Returns the deck for a chapter in the given language, or null when that
