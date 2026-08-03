@@ -414,11 +414,12 @@ function CostumeShop({ costumes, equipped, onEquip, onBuy, onClose, gems }) {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClose}
             className="fixed inset-0 z-[200] bg-black/80 flex flex-col"
             style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 16px))' }}>
 
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4">
+            <div className="flex items-center justify-between px-5 py-4" onClick={e => e.stopPropagation()}>
                 <h2 className="text-xl font-black text-white">🛍️ {t('Costume Shop')}</h2>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5 bg-teal-500/15 rounded-xl px-3 py-1.5 border-b-[2px] border-teal-800">
