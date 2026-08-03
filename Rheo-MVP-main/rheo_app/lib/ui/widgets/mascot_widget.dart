@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../animations.dart';
+import '../../data/app_strings.dart';
 
 /// Mascot ruh halleri
 enum MascotMood {
@@ -44,13 +45,21 @@ class MascotHelper {
   static String getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 6) {
-      return _pick(['Gece kuşu! 🦉', 'Bu saatte mi? Helal! 🌙', 'Gece gece kod mu okuyoruz? 😴']);
+      return _pick(S.isEn 
+        ? ['Night owl! 🦉', 'Coding this late? Respect! 🌙', 'Midnight coder? 😴']
+        : ['Gece kuşu! 🦉', 'Bu saatte mi? Helal! 🌙', 'Gece gece kod mu okuyoruz? 😴']);
     } else if (hour < 12) {
-      return _pick(['Günaydın! ☀️', 'Güne kodla başla! 🌅', 'Sabah enerjisiyle devam! 💪']);
+      return _pick(S.isEn
+        ? ['Good morning! ☀️', 'Start the day with code! 🌅', 'Morning energy! 💪']
+        : ['Günaydın! ☀️', 'Güne kodla başla! 🌅', 'Sabah enerjisiyle devam! 💪']);
     } else if (hour < 18) {
-      return _pick(['Merhaba! 👋', 'İyi günler! ☀️', 'Öğleden sonra challenge? 🔥']);
+      return _pick(S.isEn
+        ? ['Hello! 👋', 'Good afternoon! ☀️', 'Afternoon challenge? 🔥']
+        : ['Merhaba! 👋', 'İyi günler! ☀️', 'Öğleden sonra challenge? 🔥']);
     } else {
-      return _pick(['İyi akşamlar! 🌆', 'Akşam antrenmanı! 💪', 'Gece sınavı mı? Haydi! 🌙']);
+      return _pick(S.isEn
+        ? ['Good evening! 🌆', 'Evening workout! 💪', 'Night quiz? Let\'s go! 🌙']
+        : ['İyi akşamlar! 🌆', 'Akşam antrenmanı! 💪', 'Gece sınavı mı? Haydi! 🌙']);
     }
   }
 
@@ -63,145 +72,51 @@ class MascotHelper {
 
   /// Doğru cevap mesajları
   static String getCorrectMessage() {
-    return _pick([
-      'Harikasın! 🎉',
-      'Tam isabet! 🎯',
-      'Süpersin! 🔥',
-      'Bravo! 👏',
-      'Mükemmel! ⭐',
-      'Kod sende! 💪',
-      'Doğru bildin! 🥳',
-      'Aferin ustam! 🏆',
-      'Vay be, bildin! 🤩',
-      'Seni tutamıyoruz! 🚀',
-    ]);
+    return _pick(S.correctMessages);
   }
 
   /// Yanlış cevap mesajları
   static String getWrongMessage() {
-    return _pick([
-      'Olsun, bir dahakine! 💪',
-      'Her hata bir öğrenme fırsatı! 📚',
-      'Vazgeçme! 🔥',
-      'Yaklaştın, devam et! 🎯',
-      'Hata yapılır, öğrenilir! 💡',
-      'Bir dahakine kesin bilirsin! 🌟',
-      'Yılma, devam! 💪',
-      'Öğrenmek böyle olur! 🧠',
-      'Bu sefer olmadı ama yakın! 🤏',
-      'Tekrar dene, başarabilirsin! ✨',
-    ]);
+    return _pick(S.wrongMessages);
   }
 
   /// Seri uyarı mesajları (bugün oynamadıysa)
   static String getStreakWarning() {
-    return _pick([
-      'Bugün henüz oynamadın! 🔥',
-      'Serini koru, haydi! 🏃',
-      'Bir quiz oyna, serini kayba! 💨',
-      'Seni bekliyorum! 🐾',
-      'Günlük antrenman vakti! ⏰',
-      'Bugün pratik yaptın mı? 🤔',
-    ]);
+    return _pick(S.streakWarnings);
   }
 
   /// Sonuç yorumları (başarı oranına göre)
   static String getResultComment(int accuracy) {
-    if (accuracy >= 90) {
-      return _pick([
-        'Efsane performans! 🏆',
-        'Sen bir dahisin! 🧠',
-        'Mükemmelsin, çılgın! 🤯',
-        'Ustasın! Eline sağlık! 👑',
-      ]);
-    } else if (accuracy >= 70) {
-      return _pick([
-        'Çok iyi gidiyorsun! 🌟',
-        'Harika performans! 💪',
-        'Süper çalışma! 🔥',
-        'Böyle devam! 🚀',
-      ]);
-    } else if (accuracy >= 50) {
-      return _pick([
-        'İyi gidiyorsun! 👍',
-        'Fena değil, gelişiyorsun! 📈',
-        'Biraz daha pratikle zirve! ⬆️',
-        'Yarısını bildin, devam! 💪',
-      ]);
-    } else {
-      return _pick([
-        'Herkes baştan başlar! 🌱',
-        'Pratik yapmaya devam et! 📚',
-        'Düşme kalk, devam et! 💪',
-        'Öğrenmek zaman alır, sabret! ⏳',
-        'Her usta bir çıraktı! 🎓',
-      ]);
-    }
+    return _pick(S.getResultComment(accuracy));
   }
 
   /// Bug Hunt özel mesajlar
   static String getBugHuntCorrect() {
-    return _pick([
-      'Bug avladın! 🐛',
-      'Harika debugging! 🔍',
-      'Bug senden kaçamaz! 🐞',
-      'Debugger gibisin! 💻',
-      'Bug bulma ustası! 🏆',
-    ]);
+    return _pick(S.bugHuntCorrect);
   }
 
   static String getBugHuntWrong() {
-    return _pick([
-      'Bu bug kaçtı! 🐛',
-      'Kodu dikkatli oku! 🔎',
-      'Bir dahakine yakala! 🎯',
-      'Bug gizlenmiş, tekrar bak! 👀',
-    ]);
+    return _pick(S.bugHuntWrong);
   }
 
   /// Time Attack özel mesajlar
   static String getTimeUpMessage() {
-    return _pick([
-      'Süre bitti! ⏱️',
-      'Zamana yenildin! ⏰',
-      'Biraz daha hızlı ol! 🏃',
-      'Tick tock, bir dahakine! ⏳',
-    ]);
+    return _pick(S.timeUpMessages);
   }
 
   /// AI soru yükleme bekleme mesajları
   static String getWaitingMessage() {
-    return _pick([
-      'Soru hazırlıyorum... 🤖',
-      'Beyin çalışıyor... 🧠',
-      'Senin için özel bir soru! ✨',
-      'Biraz sabret, geliyor... ⏳',
-    ]);
+    return _pick(S.waitingMessages);
   }
 
   /// Günlük hedef tamamlandı mesajları
   static String getDailyGoalComplete() {
-    return _pick([
-      'Günlük hedef tamam! 🎉',
-      'Bugünkü görev tamamlandı! ✅',
-      'Bravo, hedefine ulaştın! 🏆',
-      'Müthişsin, bugünlük tamam! 🌟',
-    ]);
+    return _pick(S.dailyGoalComplete);
   }
 
   /// ELO rank yorumu
   static String getRankComment(int elo) {
-    if (elo < 1100) {
-      return _pick(['Bronze\'dan çıkman yakın! 🥉', 'Devam et, yükseliyorsun! 📈']);
-    } else if (elo < 1300) {
-      return _pick(['Silver seviyen harika! 🥈', 'Gold\'a az kaldı! ⭐']);
-    } else if (elo < 1500) {
-      return _pick(['Gold seviyedesin! 🥇', 'Platinum hedefle! 💎']);
-    } else if (elo < 1800) {
-      return _pick(['Platinum! Efsanesin! 💎', 'Diamond yakın! 💠']);
-    } else {
-      return _pick(['Diamond! Sen bir efsanesin! 💎', 'Zirvede kalma vakti! 👑']);
-    }
+    return S.getRankComment(elo);
   }
 
   static String _pick(List<String> options) {

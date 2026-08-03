@@ -1,14 +1,13 @@
 flutter_native_splash:
   color: "#0D1B2A"
-  
-  # Splash image (will use default until custom icon is created)
-  # image: assets/splash/logo.png
+  image: "assets/rheo_mascot_icon.png"
   
   # Android settings
   android: true
   android_gravity: center
   android_12:
     color: "#0D1B2A"
+    image: "assets/rheo_mascot_icon.png"
     
   # iOS settings  
   ios: true
@@ -17,4 +16,3 @@ flutter_native_splash:
   # Web settings
   web: true
   web_image_mode: center
-  web_background_color: "#0D1B2A"

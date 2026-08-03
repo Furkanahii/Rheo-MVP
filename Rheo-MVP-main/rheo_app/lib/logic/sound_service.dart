@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 /// Service for managing sound effects
-/// Note: Sound files need to be added to assets/sounds/ folder
+/// Uses audioplayers package which supports web (HTML5 Audio)
 class SoundService {
   static const String _settingsBox = 'rheo_settings';
   static const String _soundEnabledKey = 'sound_enabled';
@@ -19,7 +21,7 @@ class SoundService {
       _soundEnabled = _box?.get(_soundEnabledKey, defaultValue: true) ?? true;
       _initialized = true;
     } catch (e) {
-      // Silently fail if Hive is not ready
+      debugPrint('SoundService init error: $e');
       _initialized = false;
     }
   }
@@ -40,24 +42,46 @@ class SoundService {
   }
 
   /// Play correct answer sound
-  /// TODO: Add actual sound when APK is built
   Future<void> playCorrect() async {
     if (!_soundEnabled) return;
-    // Sound will be implemented when building for mobile
-    // For web, this is a no-op
+    _playAsset('sounds/correct.wav', 0.5);
   }
 
   /// Play wrong answer sound
   Future<void> playWrong() async {
     if (!_soundEnabled) return;
-    // Sound will be implemented when building for mobile
+    _playAsset('sounds/wrong.wav', 0.5);
   }
 
   /// Play level up sound
   Future<void> playLevelUp() async {
     if (!_soundEnabled) return;
-    // Sound will be implemented when building for mobile
+    _playAsset('sounds/levelup.wav', 0.6);
   }
+
+  /// Play tap/click sound
+  Future<void> playTap() async {
+    if (!_soundEnabled) return;
+    _playAsset('sounds/correct.wav', 0.2);
+  }
+
+  /// Internal: play an asset sound
+  void _playAsset(String path, double volume) {
+    try {
+      final player = AudioPlayer();
+      player.setVolume(volume);
+      player.play(AssetSource(path));
+      // Auto-dispose after playing
+      player.onPlayerComplete.listen((_) {
+        player.dispose();
+      });
+    } catch (e) {
+      debugPrint('Sound play error: $e');
+    }
+  }
+
+  /// Dispose
+  Future<void> dispose() async {}
 }
 
 /// Global instance

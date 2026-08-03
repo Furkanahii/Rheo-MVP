@@ -5,12 +5,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'ui/onboarding_screen.dart';
-import 'ui/home_screen.dart';
-import 'ui/widgets/error_screen.dart';
+import 'package:rheo_app/ui/journey_webview_screen.dart';
+
 import 'logic/language_service.dart';
 import 'logic/analytics_service.dart';
 import 'logic/ai_service.dart';
+import 'logic/sound_service.dart';
+import 'logic/notification_service.dart';
 
 void main() async {
   // Zone ile tüm hataları yakala
@@ -40,7 +41,12 @@ void main() async {
       debugPrint('Flutter Error: ${details.exception}');
     };
     
-    await Hive.initFlutter();
+    // Hive başlat — path_provider FFI hatası olursa uygulama yine de çalışsın
+    try {
+      await Hive.initFlutter();
+    } catch (e) {
+      debugPrint('⚠️ Hive.initFlutter failed: $e (app continues without Hive)');
+    }
     
     // Load environment variables (.env)
     try {
@@ -51,43 +57,50 @@ void main() async {
     }
     
     // Initialize AI service
-    await aiService.init();
+    try {
+      await aiService.init();
+    } catch (e) {
+      debugPrint('⚠️ AI service init failed: $e');
+    }
     
     // Initialize services
-    await languageService.init();
+    try {
+      await languageService.init();
+    } catch (e) {
+      debugPrint('⚠️ Language service init failed: $e');
+    }
+    try {
+      await soundService.init();
+    } catch (e) {
+      debugPrint('⚠️ Sound service init failed: $e');
+    }
+    try {
+      await notificationService.init();
+    } catch (e) {
+      debugPrint('⚠️ Notification service init failed: $e');
+    }
     
-    // Kullanıcı tercihine göre onboarding göster
-    final hasSeenOnboarding = await OnboardingScreen.hasSeenOnboarding();
-    
-    // Set error widget
-    ErrorWidget.builder = (FlutterErrorDetails details) {
-      return ErrorScreen(
-        errorDetails: details,
-        onRetry: () {
-          // Error durumunda yapılacak işlem
-        },
-      );
-    };
-    
-    runApp(RheoApp(showOnboarding: !hasSeenOnboarding));
+    runApp(const RheoApp());
   }, (error, stack) {
     // Zone dışı hatalar
-    if (!kIsWeb) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    try {
+      if (!kIsWeb) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      }
+    } catch (_) {
+      // Firebase başlatılmamışsa sessizce devam et
     }
     debugPrint('Zone Error: $error');
   });
 }
 
 class RheoApp extends StatelessWidget {
-  final bool showOnboarding;
-  
-  const RheoApp({super.key, required this.showOnboarding});
+  const RheoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Rheo v2.0',
+      title: 'Rheo',
       debugShowCheckedModeBanner: false,
       navigatorObservers: [
         if (analyticsService.observer != null) analyticsService.observer!,
@@ -101,7 +114,8 @@ class RheoApp extends StatelessWidget {
           surface: Color(0xFF1E1E1E),
         ),
       ),
-      home: showOnboarding ? const OnboardingScreen() : const HomeScreen(),
+      home: const JourneyWebViewScreen(),
     );
   }
 }
+

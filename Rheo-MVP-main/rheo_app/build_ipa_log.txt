@@ -1,0 +1,163 @@
+Resolving dependencies...
+Downloading packages...
+  _flutterfire_internals 1.3.66 (1.3.67 available)
+  archive 4.0.7 (4.0.9 available)
+  audioplayers 5.2.1 (6.6.0 available)
+  audioplayers_android 4.0.3 (5.2.1 available)
+  audioplayers_darwin 5.0.2 (6.4.0 available)
+  audioplayers_linux 3.1.0 (4.2.1 available)
+  audioplayers_platform_interface 6.1.0 (7.1.1 available)
+  audioplayers_web 4.1.0 (5.2.0 available)
+  audioplayers_windows 3.1.0 (4.3.0 available)
+  characters 1.4.0 (1.4.1 available)
+  confetti 0.7.0 (0.8.0 available)
+  ffi 2.1.5 (2.2.0 available)
+  firebase_analytics 12.1.1 (12.1.3 available)
+  firebase_analytics_platform_interface 5.0.6 (5.0.7 available)
+  firebase_analytics_web 0.6.1+2 (0.6.1+3 available)
+  firebase_core 4.4.0 (4.5.0 available)
+  firebase_core_web 3.4.0 (3.5.0 available)
+  firebase_crashlytics 5.0.7 (5.0.8 available)
+  firebase_crashlytics_platform_interface 3.8.17 (3.8.18 available)
+  flutter_launcher_icons 0.13.1 (0.14.4 available)
+  hooks 1.0.1 (1.0.2 available)
+  image 4.7.2 (4.8.0 available)
+  introduction_screen 3.1.17 (4.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.10.0 (4.11.0 available)
+  matcher 0.12.17 (0.12.19 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  meta 1.17.0 (1.18.2 available)
+  native_toolchain_c 0.17.4 (0.17.6 available)
+  petitparser 7.0.1 (7.0.2 available)
+  posix 6.0.3 (6.5.0 available)
+  test_api 0.7.7 (0.7.10 available)
+  url_launcher_ios 6.3.6 (6.4.1 available)
+  uuid 4.5.2 (4.5.3 available)
+  webview_flutter_wkwebview 3.23.8 (3.24.0 available)
+  win32 5.15.0 (6.0.0 available)
+Got dependencies!
+36 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Archiving com.rheo.rheoApp...
+Automatically signing iOS for device deployment using specified development team in Xcode project: 43N65KD2PC
+Running Xcode build...                                          
+Xcode archive done.                                         51,7s
+Failed to build iOS app
+Error output from Xcode build:
+↳
+    ** ARCHIVE FAILED **
+
+
+Xcode's output:
+↳
+    Writing result bundle at path:
+    	/var/folders/gb/sv5scxss6_n9njttzdy19b940000gn/T/flutter_tools.lMA4pD/flutter_ios_build_temp_dir6xohOw/temporary_xcresult_bundle
+
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/webview_flutter_wkwebview-3.23.8/darwin/webview_flutter_wkwebview/Sources/webview_flutter_wkwebview/SecTrustProxyAPIDelegate.swift:133:12: warning: 'SecTrustGetCertificateAtIndex' was deprecated in iOS 15.0: renamed to 'SecTrustCopyCertificateChain(_:)'
+        return SecTrustGetCertificateAtIndex(trust, ix)
+               ^
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/webview_flutter_wkwebview-3.23.8/darwin/webview_flutter_wkwebview/Sources/webview_flutter_wkwebview/SecTrustProxyAPIDelegate.swift:133:12: note: use 'SecTrustCopyCertificateChain(_:)' instead
+        return SecTrustGetCertificateAtIndex(trust, ix)
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               SecTrustCopyCertificateChain
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.6/ios/url_launcher_ios/Sources/url_launcher_ios/URLLauncherPlugin.swift:22:26: warning: 'keyWindow' was deprecated in iOS 13.0: Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes
+        UIApplication.shared.keyWindow?.rootViewController?.topViewController
+                             ^
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/ios/Classes/AudioContext.swift:72:15: warning: 'audioProcessing' was deprecated in iOS 10.0: No longer supported
+          return .audioProcessing
+                  ^
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/ios/Classes/AudioContext.swift:88:15: warning: 'allowBluetooth' was deprecated in iOS 8.0: renamed to 'AVAudioSession.CategoryOptions.allowBluetoothHFP'
+          return .allowBluetooth
+                  ^
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/ios/Classes/AudioContext.swift:88:15: note: use 'AVAudioSession.CategoryOptions.allowBluetoothHFP' instead
+          return .allowBluetooth
+                  ^~~~~~~~~~~~~~
+                  AVAudioSession.CategoryOptions.allowBluetoothHFP
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/ios/Classes/WrappedMediaPlayer.swift:161:38: warning: 'duration' was deprecated in iOS 16.0: Use load(.duration) instead
+        return player.currentItem?.asset.duration
+                                         ^
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2/ios/Classes/WrappedMediaPlayer.swift:241:52: warning: 'duration' was deprecated in iOS 16.0: Use load(.duration) instead
+        guard let duration = player.currentItem?.asset.duration else {
+                                                       ^
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/share_plus-12.0.1/ios/share_plus/Sources/share_plus/FPPSharePlusPlugin.m:25:46: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
+       25 |     return [UIApplication sharedApplication].keyWindow.rootViewController;
+          |                                              ^
+    In module 'UIKit' imported from /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/Target Support Files/share_plus/share_plus-prefix.pch:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
+      108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
+          |                                                   ^
+    1 warning generated.
+    /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.m:262:9: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+      262 |         getsectbynamefromheader_64(slice->startAddress, segName, sectionName);
+          |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+          |         use getsectiondata()
+    In module 'MachO' imported from /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h:17:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+      136 | extern const struct section_64 *getsectbynamefromheader_64(
+          |                                 ^
+    /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.m:271:34: warning: 'getsectbynamefromheader' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+      271 |     const struct section* sect = getsectbynamefromheader(slice->startAddress, segName, sectionName);
+          |                                  ^~~~~~~~~~~~~~~~~~~~~~~
+          |                                  use getsectiondata()
+    In module 'MachO' imported from /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h:17:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/mach-o/getsect.h:116:30: note: 'getsectbynamefromheader' has been explicitly marked deprecated here
+      116 | extern const struct section *getsectbynamefromheader(
+          |                              ^
+    2 warnings generated.
+    /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.m:276:9: warning: 'NXArchInfo' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+      276 |   const NXArchInfo* archInfo;
+          |         ^
+    In module 'MachO' imported from /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h:17:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/mach-o/arch.h:58:27: note: 'NXArchInfo' has been explicitly marked deprecated here
+       58 | typedef struct NXArchInfo NXArchInfo __CCTOOLS_DEPRECATED;
+          |                           ^
+    /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.m:277:14: warning: 'NXGetLocalArchInfo' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+      277 |   archInfo = NXGetLocalArchInfo();
+          |              ^~~~~~~~~~~~~~~~~~
+          |              use macho_arch_name_for_mach_header()
+    In module 'MachO' imported from /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h:17:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/mach-o/arch.h:72:26: note: 'NXGetLocalArchInfo' has been explicitly marked deprecated here
+       72 | extern const NXArchInfo *NXGetLocalArchInfo(void) __CCTOOLS_DEPRECATED_MSG("use macho_arch_name_for_mach_header()");
+          |                          ^
+    /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.m:351:9: warning: 'NXArchInfo' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+      351 |   const NXArchInfo* archInfo;
+          |         ^
+    In module 'MachO' imported from /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h:17:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/mach-o/arch.h:58:27: note: 'NXArchInfo' has been explicitly marked deprecated here
+       58 | typedef struct NXArchInfo NXArchInfo __CCTOOLS_DEPRECATED;
+          |                           ^
+    /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.m:353:14: warning: 'NXGetArchInfoFromCpuType' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+      353 |   archInfo = NXGetArchInfoFromCpuType(slice->cputype, slice->cpusubtype);
+          |              ^~~~~~~~~~~~~~~~~~~~~~~~
+          |              use macho_arch_name_for_cpu_type()
+    In module 'MachO' imported from /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app/ios/Pods/FirebaseCrashlytics/Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h:17:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/mach-o/arch.h:81:26: note: 'NXGetArchInfoFromCpuType' has been explicitly marked deprecated here
+       81 | extern const NXArchInfo *NXGetArchInfoFromCpuType(cpu_type_t cputype,
+          |                          ^
+    4 warnings generated.
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/firebase_analytics-12.1.1/ios/firebase_analytics/Sources/firebase_analytics/FirebaseAnalyticsPlugin.swift:106:41: warning: expression implicitly coerced from '[String : Any?]' to '[String : Any]'
+        Analytics.setDefaultEventParameters(parameters)
+                                            ^~~~~~~~~~
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/firebase_analytics-12.1.1/ios/firebase_analytics/Sources/firebase_analytics/FirebaseAnalyticsPlugin.swift:106:41: note: explicitly cast to '[String : Any]' with 'as [String : Any]' to silence this warning
+        Analytics.setDefaultEventParameters(parameters)
+                                            ^~~~~~~~~~
+                                                       as [String : Any]
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    /Users/furkanahi/.pub-cache/hosted/pub.dev/firebase_core-4.4.0/ios/firebase_core/Sources/firebase_core/FLTFirebaseCorePlugin.m:92:35: warning: incompatible pointer types assigning to 'NSString * _Nullable' from 'NSNull * _Nonnull' [-Wincompatible-pointer-types]
+       92 |   pigeonOptions.deepLinkURLScheme = [NSNull null];
+          |                                   ^ ~~~~~~~~~~~~~
+    1 warning generated.
+    lib/main.dart:9:8: Error: Error when reading 'lib/ui/onboarding/onboarding_screen.dart': No such file or directory
+    import 'package:rheo_app/ui/onboarding/onboarding_screen.dart';
+           ^
+    lib/main.dart:102:36: Error: Not a constant expression.
+          home: showOnboarding ? const OnboardingScreen() : const HomeScreen(),
+                                       ^^^^^^^^^^^^^^^^
+    Target kernel_snapshot_program failed: Exception
+    Failed to package /Users/furkanahi/Desktop/Rheo-MVP-main2/rheo_app.
+    Command PhaseScriptExecution failed with a nonzero exit code
+    note: Run script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
+    note: Run script build phase 'Thin Binary' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
+
+Encountered error while archiving for device.

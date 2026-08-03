@@ -1,4 +1,6 @@
 /// Question model for parsing questions.json
+import 'app_strings.dart';
+
 class Question {
   final String id;
   final String type;
@@ -6,9 +8,11 @@ class Question {
   final String topic;
   final String codeSnippet;
   final String questionText;
+  final String? questionTextEn;
   final String correctAnswer;
   final List<String> wrongOptions;
   final String explanation;
+  final String? explanationEn;
   final String language;
 
   Question({
@@ -18,25 +22,45 @@ class Question {
     required this.topic,
     required this.codeSnippet,
     required this.questionText,
+    this.questionTextEn,
     required this.correctAnswer,
     required this.wrongOptions,
     required this.explanation,
+    this.explanationEn,
     this.language = 'python',
   });
 
-  /// Factory constructor to parse JSON
+  /// Locale-aware question text
+  String get localizedQuestionText {
+    if (S.isEn && questionTextEn != null && questionTextEn!.isNotEmpty) {
+      return questionTextEn!;
+    }
+    return questionText;
+  }
+
+  /// Locale-aware explanation
+  String get localizedExplanation {
+    if (S.isEn && explanationEn != null && explanationEn!.isNotEmpty) {
+      return explanationEn!;
+    }
+    return explanation;
+  }
+
+  /// Factory constructor to parse JSON — error-safe
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
-      id: json['id'] as String,
-      type: json['type'] as String,
-      difficulty: json['difficulty'] as int,
-      topic: json['topic'] as String,
-      codeSnippet: json['code_snippet'] as String,
-      questionText: json['question_text'] as String,
-      correctAnswer: json['correct_answer'] as String,
-      wrongOptions: List<String>.from(json['wrong_options'] as List),
-      explanation: json['explanation'] as String,
-      language: json['language'] as String? ?? 'python',
+      id: json['id']?.toString() ?? 'unknown',
+      type: json['type']?.toString() ?? 'output',
+      difficulty: (json['difficulty'] is int) ? json['difficulty'] : int.tryParse(json['difficulty']?.toString() ?? '1') ?? 1,
+      topic: json['topic']?.toString() ?? '',
+      codeSnippet: json['code_snippet']?.toString() ?? '',
+      questionText: json['question_text']?.toString() ?? '',
+      questionTextEn: json['question_text_en']?.toString(),
+      correctAnswer: json['correct_answer']?.toString() ?? '',
+      wrongOptions: (json['wrong_options'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      explanation: json['explanation']?.toString() ?? '',
+      explanationEn: json['explanation_en']?.toString(),
+      language: json['language']?.toString() ?? 'python',
     );
   }
 

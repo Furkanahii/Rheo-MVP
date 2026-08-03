@@ -1,11 +1,11 @@
 {
-    "name": "rheo_app",
-    "short_name": "rheo_app",
+    "name": "Rheo - Kodla Öğren",
+    "short_name": "Rheo",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1E1E1E",
+    "theme_color": "#00D9FF",
+    "description": "Kod okuma ve anlama becerilerini geliştiren interaktif quiz uygulaması. Python, Java ve JavaScript soruları ile pratik yap!",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
