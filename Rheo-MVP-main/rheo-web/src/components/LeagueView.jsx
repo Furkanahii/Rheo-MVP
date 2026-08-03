@@ -610,10 +610,10 @@ function Duel({ opponent, questions, mode, modeConfig, onFinish }) {
     const isCrit = tl <= 5
 
     if (showBet) return <div className="h-full flex flex-col items-center justify-center gap-5 px-8">
-        <DiceIcon size={48} /><h2 className="text-lg font-black text-white">{t('Your XP Bet?')}</h2>
-        <p className="text-[10px] font-bold text-slate-500">{t('Wins')} = {bet * 2} XP • {t('Losses')} = -{bet} XP</p>
+        <DiceIcon size={48} /><h2 className="text-lg font-black text-white">{t('XP Wager?')}</h2>
+        <p className="text-[10px] font-bold text-slate-500">{t('Correct')} = +{bet * 2} XP • {t('Wrong')} = -{bet} XP</p>
         <div className="w-full max-w-xs"><input type="range" min="10" max="100" step="10" value={bet} onChange={e => setBet(+e.target.value)} className="w-full accent-purple-500" /><div className="flex justify-between text-[9px] font-black"><span className="text-slate-500">10</span><span className="text-purple-400 text-lg">{bet} XP</span><span className="text-slate-500">100</span></div></div>
-        <div className="flex gap-3"><button onClick={() => { setBet(100); S.pop() }} className="px-4 py-2 rounded-xl font-black text-xs text-amber-400 border border-amber-700/50 cursor-pointer" style={G}>ALL-IN</button><button onClick={() => { setShowBet(false); S.pop() }} className="px-6 py-2 rounded-xl font-black text-xs text-white bg-purple-600 border-b-[3px] border-purple-800 cursor-pointer active:border-b-[1px] active:translate-y-[2px]">{t('START')}</button></div>
+        <div className="flex gap-3"><button onClick={() => { setBet(100); S.pop() }} className="px-4 py-2 rounded-xl font-black text-xs text-amber-400 border border-amber-700/50 cursor-pointer" style={G}>MAX</button><button onClick={() => { setShowBet(false); S.pop() }} className="px-6 py-2 rounded-xl font-black text-xs text-white bg-purple-600 border-b-[3px] border-purple-800 cursor-pointer active:border-b-[1px] active:translate-y-[2px]">{t('START')}</button></div>
     </div>
 
     return <motion.div

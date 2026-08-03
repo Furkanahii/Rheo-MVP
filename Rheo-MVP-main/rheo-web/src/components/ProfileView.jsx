@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import HologramCard from './HologramCard'
 import { getActivityGrid, getOverallAbility, getAbilityBySkill, getBand, getBandProgress, profile, stats, getSkillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled, isSoundEnabled, setLocale, getLocale, duelStats, languages, getLeagueTier, getLangElo } from '../data'
-import { showXP, showAchievement } from './XPToast'
+
 import { share as nativeShare, haptic, isNative, getReminderState, enableReminders, disableReminders, queryReminders, onRemindersChanged, openExternal } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════

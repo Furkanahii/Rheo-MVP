@@ -96,7 +96,7 @@ class UserProgress {
       totalCorrect: map['totalCorrect'] ?? 0,
       totalWrong: map['totalWrong'] ?? 0,
       lastPlayedDate: map['lastPlayedDate'] != null 
-          ? DateTime.parse(map['lastPlayedDate']) 
+          ? DateTime.tryParse(map['lastPlayedDate'].toString()) 
           : null,
       dailyQuestionsToday: map['dailyQuestionsToday'] ?? 0,
       dailyGoal: map['dailyGoal'] ?? 0,

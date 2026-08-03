@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { quests, stats, mascotMessages, getStreakMultiplier, t, updateQuestProgress, saveProgress, isHapticEnabled, addXP, getMysteryProgress } from '../data'
-import { showXP, showAchievement } from './XPToast'
+import { showAchievement } from './XPToast'
 
 /* ═══════════════════════════════════════════
    QUESTS VIEW — soft, matte, Duolingo-inspired
@@ -191,7 +191,7 @@ function MysteryQuest({ data }) {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">{t('Mystery Quest')}</h3>
-                <span className="text-[10px] font-bold text-slate-600">🎰 {t('1/day')}</span>
+                <span className="text-[10px] font-bold text-slate-600">🎁 {t('1/day')}</span>
             </div>
 
             <AnimatePresence mode="wait">

@@ -6,10 +6,15 @@
 	<string>app-store-connect</string>
 	<key>teamID</key>
 	<string>43N65KD2PC</string>
-	<key>uploadBitcode</key>
-	<false/>
 	<key>signingStyle</key>
-	<string>automatic</string>
+	<string>manual</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.rheo.rheoApp</key>
+		<string>Rheo App Store</string>
+	</dict>
+	<key>uploadSymbols</key>
+	<true/>
 	<key>destination</key>
 	<string>upload</string>
 </dict>
