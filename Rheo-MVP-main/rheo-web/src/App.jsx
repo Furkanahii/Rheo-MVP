@@ -101,8 +101,9 @@ export default function App() {
             if (!useEnergy()) {
                 setLessonNodeId(null)
                 setOutOfEnergy(true)
-                forceUpdate(n => n + 1)
             }
+            // Either way the pill behind this screen is now out of date.
+            forceUpdate(n => n + 1)
         }
     }, [lessonNodeId])
 

@@ -2,14 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:rheo_app/ui/journey_webview_screen.dart';
 
 import 'logic/language_service.dart';
 import 'logic/analytics_service.dart';
-import 'logic/ai_service.dart';
 import 'logic/sound_service.dart';
 import 'logic/notification_service.dart';
 
@@ -46,21 +44,6 @@ void main() async {
       await Hive.initFlutter();
     } catch (e) {
       debugPrint('⚠️ Hive.initFlutter failed: $e (app continues without Hive)');
-    }
-    
-    // Load environment variables (.env)
-    try {
-      await dotenv.load(fileName: '.env');
-      debugPrint('✅ dotenv loaded');
-    } catch (e) {
-      debugPrint('⚠️ .env file not found: $e');
-    }
-    
-    // Initialize AI service
-    try {
-      await aiService.init();
-    } catch (e) {
-      debugPrint('⚠️ AI service init failed: $e');
     }
     
     // Initialize services

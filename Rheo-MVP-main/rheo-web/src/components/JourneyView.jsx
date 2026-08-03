@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { stats, journeyNodes, getSkillRadar, chapterColors, languages, setActiveLanguage, getActiveLanguage, getTipOfTheDay, getWeakExercises, t } from '../data'
+import { stats, refreshEnergy, journeyNodes, getSkillRadar, chapterColors, languages, setActiveLanguage, getActiveLanguage, getTipOfTheDay, getWeakExercises, t } from '../data'
 import JourneyPath from './JourneyPath'
 
 export default function JourneyView() {
@@ -130,6 +130,28 @@ function ChapterMap({ visibleChapter, onChapterClick }) {
 function TopBar() {
     const [showPicker, setShowPicker] = useState(false)
     const currentLang = languages.find(l => l.id === getActiveLanguage()) || languages[0]
+    // Energy is the one stat that changes without the learner doing anything:
+    // it refills on a 30-minute timer, and it is spent by a lesson that covers
+    // this screen while it happens. `stats` is a plain module object, so React
+    // has nothing to subscribe to — the pill sat on a stale number until some
+    // unrelated render happened to correct it. Tick it here instead.
+    const [, tickEnergy] = useState(0)
+    useEffect(() => {
+        const sync = () => { if (refreshEnergy()) tickEnergy(n => n + 1) }
+        sync()
+        const id = setInterval(sync, 30000)
+        // Coming back from the background can cross a refill boundary, and on
+        // mobile that is the common case — the app was closed, not watched.
+        const onShow = () => { if (document.visibilityState === 'visible') sync() }
+        document.addEventListener('visibilitychange', onShow)
+        window.addEventListener('focus', sync)
+        return () => {
+            clearInterval(id)
+            document.removeEventListener('visibilitychange', onShow)
+            window.removeEventListener('focus', sync)
+        }
+    }, [])
+
     const { streak, gems, energy } = stats
 
     const handleLangChange = (langId) => {

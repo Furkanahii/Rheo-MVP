@@ -62,19 +62,20 @@ dependencies:
   firebase_core: ^4.4.0
   firebase_analytics: ^12.1.1
   firebase_crashlytics: ^5.0.7
-  flutter_dotenv: ^6.0.0
-  http: ^1.6.0
   # Daily reminders. The old service only debugPrint'ed and used a Dart Timer,
   # which the OS kills the moment the app leaves the foreground — so no
   # reminder had ever actually reached a user. These schedule with the OS.
   flutter_local_notifications: ^19.4.2
   timezone: ^0.10.1
+  flutter_timezone: ^4.1.1
   webview_flutter: ^4.10.0
   webview_flutter_android: ^4.3.0
   path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
