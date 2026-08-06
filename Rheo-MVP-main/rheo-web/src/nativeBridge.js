@@ -7,6 +7,12 @@
 // post JSON messages to it. In a normal browser (web build / dev) we fall back
 // to the closest web API so nothing breaks.
 
+/**
+ * Where a shared link points. Must be a live host — a share that lands on a
+ * dead domain is worse than a share with no link at all.
+ */
+export const SHARE_URL = 'https://rheo-mvp-2026.web.app'
+
 function post(payload) {
   try {
     if (window.RheoNative && typeof window.RheoNative.postMessage === 'function') {

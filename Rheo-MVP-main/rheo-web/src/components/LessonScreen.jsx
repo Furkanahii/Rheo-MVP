@@ -5,7 +5,7 @@ import { getActiveLanguage, t, trackQuestEvent, addXP, saveProgress, profile, tr
 import { getConceptDeck } from '../data/concepts.js'
 import ConceptDeck from './ConceptDeck'
 import { showXP, showAchievement } from './XPToast'
-import { haptic as nativeHaptic, share as nativeShare } from '../nativeBridge'
+import { haptic as nativeHaptic, share as nativeShare, SHARE_URL } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════════════════
    LESSON SCREEN — 12 Exercise Types, Full-screen overlay
@@ -1287,7 +1287,7 @@ function LessonComplete({ hearts, total, correct, bestStreak = 0, fastestTime = 
                 {passed && (
                     <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => nativeShare(`🦦 ${t('I just aced a Rheo lesson!')} ${stars}⭐ · ${pct}% · ${correct}/${total} ✅`, 'https://rheoapp.com')}
+                        onClick={() => nativeShare(`🦦 ${t('I just aced a Rheo lesson!')} ${stars}⭐ · ${pct}% · ${correct}/${total} ✅`, SHARE_URL)}
                         className="w-full max-w-[280px] py-3 rounded-2xl font-black text-sm text-purple-200 bg-purple-500/15 border border-purple-700/25 border-b-[4px] border-b-purple-900/40 active:translate-y-[4px] active:border-b-0 transition-all duration-75 cursor-pointer flex items-center justify-center gap-2">
                         <span>📤</span> {t('Share result')}
                     </motion.button>

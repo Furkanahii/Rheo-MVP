@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import HologramCard from './HologramCard'
 import { getActivityGrid, getOverallAbility, getAbilityBySkill, getBand, getBandProgress, profile, stats, getSkillRadar, achievements, otterCostumes, journeyPowerUps as powerUps, buyPowerUp, getPowerUpCount, isAchievementUnlocked, t, xpMilestones, isMilestoneClaimed, getDailyXPGoal, appThemes, getUnlockedThemes, getActiveTheme, setActiveTheme, levelPerks, getTotalXP, getXPMultiplier, saveProgress, buyCostume, equipCostume, addXP, isHapticEnabled, isSoundEnabled, setLocale, getLocale, duelStats, languages, getLeagueTier, getLangElo } from '../data'
 
-import { share as nativeShare, haptic, isNative, getReminderState, enableReminders, disableReminders, queryReminders, onRemindersChanged, openExternal } from '../nativeBridge'
+import { share as nativeShare, haptic, isNative, getReminderState, enableReminders, disableReminders, queryReminders, onRemindersChanged, openExternal, SHARE_URL } from '../nativeBridge'
 
 /* ═══════════════════════════════════════════
    PROFILE VIEW — polished, 3D, Costume Shop
@@ -718,7 +718,7 @@ function ShareCard({ equipped }) {
         const shareText = `🦦 I'm Level ${profile.level} on Rheo! Streak: ${stats.streak} days, XP: ${profile.xpCurrent}. Learn coding with me!`
         // Uses the native OS share sheet inside the app; falls back to the Web
         // Share API and finally the clipboard in a plain browser.
-        await nativeShare(shareText, 'https://rheoapp.com')
+        await nativeShare(shareText, SHARE_URL)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
         // Grant 10 XP for sharing

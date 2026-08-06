@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,6 +34,19 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
   bool _loading = true;
   String? _error;
 
+  // Where the claimed server port is remembered. See _bindStableServer.
+  static const String _portBoxName = 'rheo_shell';
+  static const String _portKey = 'web_server_port';
+  static const List<int> _preferredPorts = [47653, 47654, 47655, 47656, 47657];
+
+  /// The bundled web app carries its own TR/EN strings, but these few shell
+  /// messages sit outside it. App Review reads the app in English, so they must
+  /// not be Turkish-only.
+  static bool get _isTurkish =>
+      PlatformDispatcher.instance.locale.languageCode == 'tr';
+  static String _tr(String turkish, String english) =>
+      _isTurkish ? turkish : english;
+
   // We now use dynamic asset discovery via Strategy 1 (AssetManifest API)
   // and Strategy 2 (Direct AssetManifest.json parsing fallback).
   // There is no longer a need to maintain a hardcoded _knownFiles list with hashed filenames.
@@ -46,9 +61,15 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
       (error, stack) {
         debugPrint('⚠️ JourneyWebView zone error: $error');
         debugPrint('Stack: $stack');
-        if (mounted) {
+        // Only take over the screen when there is nothing to take over — if the
+        // WebView is already up, the learner is mid-lesson and a stray async
+        // error must not throw away their round. _initWebView reports its own
+        // failures through _error; this is the last-resort net for everything
+        // that never reached it.
+        if (mounted && _controller == null) {
           setState(() {
-            _error = 'Bağlantı hatası oluştu. Lütfen tekrar deneyin.';
+            _error = _tr('Bağlantı hatası oluştu. Lütfen tekrar deneyin.',
+                'Something went wrong. Please try again.');
             _loading = false;
           });
         }
@@ -177,23 +198,75 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
     }
   }
 
+  /// Bind the loopback server to a port that survives restarts.
+  ///
+  /// The port is part of the WebView's origin (`http://127.0.0.1:<port>`), and
+  /// WebKit scopes localStorage — where the entire learning journey lives: XP,
+  /// streak, gems, completed nodes, league standing, language — to that origin.
+  /// Binding to port 0 handed out a *different* port on every launch, so every
+  /// restart silently dropped the learner back to a blank profile. Claiming one
+  /// stable port keeps the origin, and therefore the progress, intact.
+  Future<HttpServer> _bindStableServer() async {
+    Box? box;
+    try {
+      box = await Hive.openBox(_portBoxName);
+    } catch (e) {
+      debugPrint('⚠️ port box unavailable: $e');
+    }
+    final saved = box?.get(_portKey);
+    final candidates = <int>[
+      if (saved is int) saved,
+      ..._preferredPorts.where((p) => p != saved),
+    ];
+
+    for (final port in candidates) {
+      try {
+        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, port);
+        if (saved != port) await box?.put(_portKey, port);
+        debugPrint('🌐 Bound stable port $port');
+        return server;
+      } on SocketException catch (e) {
+        debugPrint('⚠️ port $port unavailable: ${e.osError?.message}');
+      }
+    }
+
+    // Every candidate was busy. An ephemeral port means this session starts
+    // with empty web storage, which is bad — but far better than refusing to
+    // launch at all.
+    debugPrint('⚠️ all preferred ports busy; falling back to an ephemeral one');
+    return HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+  }
+
   Future<void> _initWebView() async {
     try {
       // 1) Copy all bundled assets to a temp directory
       final webDir = await _copyAssets();
 
       // 2) Start a local HTTP server serving from that directory
-      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      final server = await _bindStableServer();
       _server = server;
       final port = server.port;
       debugPrint('🌐 Local server started on port $port');
 
       server.listen((HttpRequest request) async {
         try {
-          String path = request.uri.path;
+          // Any app on the device can reach this loopback port, so a request
+          // for `/../../Documents/…` must not hand out files from our own
+          // sandbox. normalizePath applies RFC 3986 remove_dot_segments, which
+          // drops `..` segments that would climb above the root; the prefix
+          // check below is the belt to that suspenders.
+          String path = Uri.parse(request.uri.path).normalizePath().path;
           if (path == '/' || path.isEmpty) path = '/index.html';
 
-          final file = File('${webDir.path}$path');
+          final root = webDir.absolute.path;
+          final file = File('$root$path');
+          if (!file.path.startsWith('$root/')) {
+            debugPrint('🚫 rejected path escape: ${request.uri.path}');
+            request.response.statusCode = HttpStatus.forbidden;
+            request.response.write('Forbidden');
+            await request.response.close();
+            return;
+          }
           if (await file.exists()) {
             final ext = path.split('.').last.toLowerCase();
             request.response.headers.set('Content-Type', _mimeType(ext));
@@ -205,10 +278,18 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
             request.response.write('File not found: $path');
           }
         } catch (e) {
-          request.response.statusCode = HttpStatus.internalServerError;
-          request.response.write('Error: $e');
+          // The client is usually WKWebView cancelling a request it no longer
+          // needs, which aborts the response mid-stream. Touching the response
+          // after that throws again, and a throw here escapes into the zone —
+          // where the handler used to swap the whole app for an error screen
+          // over one dropped sub-resource. Swallow it: the page is fine.
+          debugPrint('⚠️ request failed (${request.uri.path}): $e');
         }
-        await request.response.close();
+        try {
+          await request.response.close();
+        } catch (_) {
+          // Already closed or aborted by the client — nothing left to do.
+        }
       });
 
       // 3) Load the page in WebView via localhost
@@ -246,8 +327,8 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
               if (error.isForMainFrame ?? true) {
                 if (mounted) {
                   setState(() {
-                    _error =
-                        'Sayfa yüklenemedi. Lütfen tekrar deneyin.';
+                    _error = _tr('Sayfa yüklenemedi. Lütfen tekrar deneyin.',
+                        'The page could not be loaded. Please try again.');
                     _loading = false;
                   });
                 }
@@ -266,7 +347,8 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
       if (mounted) {
         setState(() {
           // Show user-friendly message, log the real error
-          _error = 'İçerik yüklenemedi. Lütfen tekrar deneyin.';
+          _error = _tr('İçerik yüklenemedi. Lütfen tekrar deneyin.',
+              'Content could not be loaded. Please try again.');
           _loading = false;
         });
       }
@@ -536,16 +618,22 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
                           textAlign: TextAlign.center),
                       const SizedBox(height: 20),
                       ElevatedButton.icon(
-                        onPressed: () {
+                        // Await the close before rebinding: the old socket
+                        // still holds the stable port, and racing it would
+                        // land us on a fallback port — a different origin,
+                        // which reads to the learner as "the retry wiped my
+                        // progress".
+                        onPressed: () async {
                           setState(() {
                             _error = null;
                             _loading = true;
                           });
-                          _server?.close(force: true);
-                          _initWebView();
+                          await _server?.close(force: true);
+                          _server = null;
+                          await _initWebView();
                         },
                         icon: const Icon(Icons.refresh),
-                        label: const Text('Tekrar Dene'),
+                        label: Text(_tr('Tekrar Dene', 'Try Again')),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF58CC02),
                           foregroundColor: Colors.white,

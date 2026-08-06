@@ -240,12 +240,18 @@ export default function Onboarding({ onFinish }) {
                             animate={{ opacity: 1 }}
                             className="flex-1 flex flex-col items-center justify-center px-8 relative z-10">
 
-                            {/* Neon burst background */}
+                            {/* Neon burst background.
+                                pointer-events-none is load-bearing: this is an
+                                absolutely positioned sibling, so it paints above
+                                the in-flow CONTINUE button below it. Without it
+                                the burst stays hit-testable at opacity 0 and
+                                swallows every tap on that button — leaving a
+                                first-time user permanently stuck on this screen. */}
                             <motion.div
                                 initial={{ scale: 0, opacity: 0 }}
                                 animate={{ scale: [0, 2, 1.6], opacity: [0, 0.3, 0] }}
                                 transition={{ duration: 1.5 }}
-                                className="absolute w-[300px] h-[300px] rounded-full"
+                                className="absolute w-[300px] h-[300px] rounded-full pointer-events-none"
                                 style={{ background: 'radial-gradient(circle, #06b6d4 0%, transparent 70%)' }} />
 
                             <motion.div

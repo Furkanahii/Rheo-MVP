@@ -543,6 +543,12 @@ const _tr = {
     'Welcome to Rheo, Hacker!': 'Rheo\'ya Hoş Geldin, Hacker!',
     'You started your journey by finding your first bug!': 'İlk bug\'ını bularak yolculuğa başladın!',
     "LET'S BEGIN!": 'HAYDI BAŞLAYALIM!',
+    'Opponent Found!': 'Rakip Bulundu!',
+    'XP Wager?': 'XP Bahsi?',
+    'Legal & About': 'Yasal ve Hakkında',
+    'DELETE ACCOUNT & RESET DATA': 'HESABI SİL VE VERİLERİ SIFIRLA',
+    'Daily Goal!': 'Günlük Hedef!',
+
 }
 
 export function t(key) {

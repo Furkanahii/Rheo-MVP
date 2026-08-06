@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Same signing as ExportOptions.plist, but it writes the .ipa to disk
+     instead of uploading. ExportOptions.plist sets destination=upload, so
+     any `flutter build ipa` using it ships the build to App Store Connect as
+     a side effect of building. Use this one to produce an .ipa to inspect,
+     and the upload variant only when you actually mean to submit. -->
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>teamID</key>
+	<string>43N65KD2PC</string>
+	<key>signingStyle</key>
+	<string>manual</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.rheo.rheoApp</key>
+		<string>Rheo App Store</string>
+	</dict>
+	<key>uploadSymbols</key>
+	<true/>
+	<key>destination</key>
+	<string>export</string>
+</dict>
+</plist>
