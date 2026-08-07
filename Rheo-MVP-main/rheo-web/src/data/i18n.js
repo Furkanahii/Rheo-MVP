@@ -549,6 +549,34 @@ const _tr = {
     'DELETE ACCOUNT & RESET DATA': 'HESABI SİL VE VERİLERİ SIFIRLA',
     'Daily Goal!': 'Günlük Hedef!',
 
+    // ═══ GOREVLER — aylik sprint ═══
+    'days left': 'gün kaldı',
+    'Steps': 'Adım',
+    'January Sprint': 'Ocak Sprinti',
+    'February Sprint': 'Şubat Sprinti',
+    'March Sprint': 'Mart Sprinti',
+    'April Sprint': 'Nisan Sprinti',
+    'May Sprint': 'Mayıs Sprinti',
+    'June Sprint': 'Haziran Sprinti',
+    'July Sprint': 'Temmuz Sprinti',
+    'August Sprint': 'Ağustos Sprinti',
+    'September Sprint': 'Eylül Sprinti',
+    'October Sprint': 'Ekim Sprinti',
+    'November Sprint': 'Kasım Sprinti',
+    'December Sprint': 'Aralık Sprinti',
+    'Complete 15 lessons this month': 'Bu ay 15 ders tamamla',
+    'Earn 2000 XP this month': 'Bu ay 2000 XP kazan',
+    'Win 10 duels this month': 'Bu ay 10 düello kazan',
+    'Find 20 bugs this month': 'Bu ay 20 hata bul',
+    'Complete 30 exercises this month': 'Bu ay 30 egzersiz tamamla',
+    'Score 100% five times this month': 'Bu ay beş kez %100 yap',
+    'Complete 20 lessons this month': 'Bu ay 20 ders tamamla',
+    'Earn 3000 XP this month': 'Bu ay 3000 XP kazan',
+    'Win 15 duels this month': 'Bu ay 15 düello kazan',
+    'Find 30 bugs this month': 'Bu ay 30 hata bul',
+    'Complete 40 exercises this month': 'Bu ay 40 egzersiz tamamla',
+    'Score 100% eight times this month': 'Bu ay sekiz kez %100 yap',
+
 }
 
 export function t(key) {

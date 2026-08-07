@@ -55,15 +55,15 @@ function MonthlyQuest({ data }) {
                 {/* Soft warm accent strip */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-rose-400/70 to-amber-400/70" />
 
-                <div className="absolute -top-[2px] right-[16px] z-[4]" style={{ maxHeight: '70px', overflow: 'hidden' }}><FullOtterMascot /></div>
+                <div className="absolute -top-[2px] right-[16px] z-[1]" style={{ maxHeight: '70px', overflow: 'hidden' }}><FullOtterMascot /></div>
                 <div className="p-5 pt-4 relative z-[5]">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-black text-white pr-12">{t(data.title)}</h2>
-                        <div className="flex items-center gap-1.5 bg-slate-700/60 rounded-full px-3 py-1.5 border-b-[2px] border-slate-800">
+                        <div className="flex items-center gap-1.5 bg-slate-700 rounded-full px-3 py-1.5 border-b-[2px] border-slate-800">
                             <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span className="text-[11px] font-extrabold text-slate-400">{data.daysLeft}d left</span>
+                            <span className="text-[11px] font-extrabold text-slate-400">{data.daysLeft} {t('days left')}</span>
                         </div>
                     </div>
                     <div className="rounded-xl p-4 bg-slate-900/60 border border-slate-700/30">
@@ -99,7 +99,7 @@ function WeeklyBuildChallenge({ data }) {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[11px] font-extrabold text-slate-500 tracking-widest uppercase">{t('Weekly Build Challenge')}</h3>
-                <span className="text-[10px] font-bold text-slate-600">🏗️ {data.daysLeft}d left</span>
+                <span className="text-[10px] font-bold text-slate-600">🏗️ {data.daysLeft} {t('days left')}</span>
             </div>
 
             <div className="rounded-2xl overflow-hidden bg-slate-800 border-2 border-slate-700/30 border-b-[5px] border-b-slate-950">
@@ -139,7 +139,7 @@ function WeeklyBuildChallenge({ data }) {
 
                 <div className="px-3.5 pb-3.5">
                     <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] font-extrabold text-slate-600">{doneTasks}/{tasks.length} Steps</span>
+                        <span className="text-[10px] font-extrabold text-slate-600">{doneTasks}/{tasks.length} {t('Steps')}</span>
                         <span className="text-[10px] font-black text-amber-300/80">🏆 {data.reward.amount} XP</span>
                     </div>
                     <CylindricalBar current={doneTasks} total={tasks.length} color="#5B9BD5" />
