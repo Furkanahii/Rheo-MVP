@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,12 +30,13 @@ class JourneyWebViewScreen extends StatefulWidget {
 class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
   WebViewController? _controller;
   HttpServer? _server;
+  // WebView'a yukleme emri verildikten sonra gelen bascibos async hatalar
+  // ekrani devralmamali; kullanici o sirada dersin ortasinda olabilir.
+  bool _loadStarted = false;
   bool _loading = true;
   String? _error;
 
   // Where the claimed server port is remembered. See _bindStableServer.
-  static const String _portBoxName = 'rheo_shell';
-  static const String _portKey = 'web_server_port';
   static const List<int> _preferredPorts = [47653, 47654, 47655, 47656, 47657];
 
   /// The bundled web app carries its own TR/EN strings, but these few shell
@@ -66,7 +66,7 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
         // error must not throw away their round. _initWebView reports its own
         // failures through _error; this is the last-resort net for everything
         // that never reached it.
-        if (mounted && _controller == null) {
+        if (mounted && !_loadStarted) {
           setState(() {
             _error = _tr('Bağlantı hatası oluştu. Lütfen tekrar deneyin.',
                 'Something went wrong. Please try again.');
@@ -206,23 +206,59 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
   /// Binding to port 0 handed out a *different* port on every launch, so every
   /// restart silently dropped the learner back to a blank profile. Claiming one
   /// stable port keeps the origin, and therefore the progress, intact.
-  Future<HttpServer> _bindStableServer() async {
-    Box? box;
-    try {
-      box = await Hive.openBox(_portBoxName);
-    } catch (e) {
-      debugPrint('⚠️ port box unavailable: $e');
+  ///
+  /// The port is remembered in a plain file rather than Hive. Hive needs
+  /// path_provider, and when path_provider cannot load its native library
+  /// `Hive.openBox` throws an error that escapes a surrounding try/catch and
+  /// surfaces as an unhandled async error — which used to take the whole
+  /// screen down to "Bağlantı hatası" on launch even though the server went on
+  /// to bind normally. A file has no such failure mode, and it lands in the
+  /// same directory the web assets already use, which has its own fallbacks.
+  /// Where to keep the remembered port.
+  ///
+  /// Application support, not the temp dir: iOS purges temp under storage
+  /// pressure, and losing this file loses the port, which loses the WebView
+  /// origin, which loses every learner's progress. Falls back to the caller's
+  /// directory only when path_provider itself is unusable.
+  Future<Directory> _portDir(Directory fallbackDir) async {
+    for (final get in [getApplicationSupportDirectory, getApplicationDocumentsDirectory]) {
+      try {
+        final dir = await get();
+        if (!await dir.exists()) await dir.create(recursive: true);
+        return dir;
+      } catch (_) {
+        // path_provider unavailable — try the next one, then the fallback.
+      }
     }
-    final saved = box?.get(_portKey);
+    return fallbackDir;
+  }
+
+  Future<HttpServer> _bindStableServer(Directory fallbackDir) async {
+    final portFile = File('${(await _portDir(fallbackDir)).path}/.web_server_port');
+    int? saved;
+    try {
+      if (await portFile.exists()) {
+        saved = int.tryParse((await portFile.readAsString()).trim());
+      }
+    } catch (e) {
+      debugPrint('⚠️ could not read remembered port: $e');
+    }
+
     final candidates = <int>[
-      if (saved is int) saved,
+      if (saved != null && saved > 1024) saved,
       ..._preferredPorts.where((p) => p != saved),
     ];
 
     for (final port in candidates) {
       try {
         final server = await HttpServer.bind(InternetAddress.loopbackIPv4, port);
-        if (saved != port) await box?.put(_portKey, port);
+        if (saved != port) {
+          try {
+            await portFile.writeAsString('$port');
+          } catch (e) {
+            debugPrint('⚠️ could not persist port $port: $e');
+          }
+        }
         debugPrint('🌐 Bound stable port $port');
         return server;
       } on SocketException catch (e) {
@@ -243,7 +279,10 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
       final webDir = await _copyAssets();
 
       // 2) Start a local HTTP server serving from that directory
-      final server = await _bindStableServer();
+      // webDir her acilista silinip yeniden olusturuluyor; port dosyasi bir
+      // ust klasorde durmali, yoksa her acilista kaybolur ve sabit port
+      // hatirlanamaz.
+      final server = await _bindStableServer(webDir.parent);
       _server = server;
       final port = server.port;
       debugPrint('🌐 Local server started on port $port');
@@ -337,6 +376,10 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
           ),
         )
         ..loadRequest(Uri.parse('http://127.0.0.1:$port/index.html'));
+
+      // From here on the page is on its way; a stray async error from some
+      // unrelated plugin must not replace it with the error screen.
+      _loadStarted = true;
 
       if (mounted) {
         setState(() => _controller = controller);
@@ -627,6 +670,7 @@ class _JourneyWebViewScreenState extends State<JourneyWebViewScreen> {
                           setState(() {
                             _error = null;
                             _loading = true;
+                            _loadStarted = false;
                           });
                           await _server?.close(force: true);
                           _server = null;
